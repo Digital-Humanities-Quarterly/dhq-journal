@@ -1,0 +1,175 @@
+default namespace = "http://digitalhumanities/dhq/ns/biblio"
+
+start =
+  element BiblioSet {
+    (element Artwork {
+       attribute biblioID { xsd:NCName },
+       attribute dhqCode { xsd:NCName },
+       attribute dhqLongCode { xsd:NCName },
+       creator,
+       title,
+       place,
+       publisher,
+       date
+     }
+     | element BlogEntry {
+         attribute biblioID { xsd:NCName },
+         attribute dhqCode { xsd:NCName },
+         attribute dhqLongCode { xsd:NCName },
+         attribute issuance { xsd:NCName },
+         author,
+         title,
+         publisher?,
+         date,
+         url
+       }
+     | element Book {
+         attribute biblioID { xsd:NCName },
+         attribute dhqCode { xsd:NCName },
+         attribute dhqLongCode { xsd:NCName }?,
+         attribute issuance { xsd:NCName },
+         author*,
+         translator*,
+         editor*,
+         etal?,
+         title,
+         additionalTitle?,
+         place?,
+         publisher?,
+         date?,
+         url?,
+         note?
+       }
+     | element BookInSeries {
+         attribute biblioID { xsd:NCName },
+         attribute dhqCode { xsd:NCName },
+         attribute dhqLongCode { xsd:NCName },
+         attribute issuance { xsd:NCName },
+         author+,
+         title,
+         additionalTitle?,
+         element series {
+           editor*, title?, additionalTitle?, place?, publisher?, date?
+         },
+         ((place, publisher, date) | (startingPage, endingPage))?
+       }
+     | element BookSection {
+         attribute biblioID { xsd:NCName },
+         attribute dhqCode { text },
+         attribute dhqLongCode { xsd:NCName }?,
+         (editor | author+),
+         etal?,
+         title?,
+         additionalTitle?,
+         book,
+         (note | url)?,
+         startingPage?,
+         endingPage?
+       }
+     | element ConferencePaper {
+         attribute biblioID { xsd:NCName },
+         attribute dhqCode { text },
+         attribute dhqLongCode { xsd:NCName }?,
+         attribute issuance { xsd:NCName },
+         author*,
+         (etal | editor*),
+         title?,
+         additionalTitle?,
+         element conference {
+           element name { text }?,
+           (date
+            | element sponsor { text })?
+         },
+         book?,
+         element publication { title?, volume?, issue?, date? }?,
+         url?,
+         startingPage?,
+         endingPage?
+       }
+     | element JournalArticle {
+         attribute biblioID { xsd:NCName },
+         attribute dhqCode { xsd:NCName },
+         attribute dhqID { xsd:integer }?,
+         attribute dhqLongCode { xsd:NCName }?,
+         attribute issuance { xsd:NCName },
+         editor*,
+         author*,
+         etal?,
+         title,
+         additionalTitle?,
+         element journal { title, volume?, issue?, date? },
+         url?,
+         note?,
+         startingPage?,
+         endingPage?
+       }
+     | element Thesis {
+         attribute biblioID { xsd:NCName },
+         attribute dhqCode { xsd:NCName },
+         attribute dhqLongCode { xsd:NCName },
+         author,
+         title,
+         place,
+         date
+       }
+     | element VideoGame {
+         attribute biblioID { xsd:NCName },
+         attribute dhqCode { xsd:NCName },
+         attribute dhqLongCode { xsd:NCName }?,
+         attribute issuance { xsd:NCName },
+         creator+,
+         title,
+         additionalTitle?,
+         (place, publisher)?,
+         date?,
+         note?
+       }
+     | element WebSite {
+         attribute biblioID { xsd:NCName },
+         attribute dhqCode { xsd:NCName },
+         attribute dhqLongCode { xsd:NCName }?,
+         attribute issuance { xsd:NCName },
+         translator?,
+         editor*,
+         author*,
+         title,
+         additionalTitle?,
+         publisher?,
+         date?,
+         url,
+         note?
+       })+
+  }
+editor = element editor { (familyName | givenName)+ }
+author =
+  element author {
+    element corporateName { text }
+    | (familyName | givenName)*
+  }
+etal = element etal { empty }
+title = element title { text }
+additionalTitle = element additionalTitle { text }
+volume = element volume { text }
+issue = element issue { text }
+date = element date { text }
+url = element url { xsd:anyURI }
+note = element note { text }
+startingPage = element startingPage { xsd:NMTOKEN }
+endingPage = element endingPage { xsd:NMTOKEN }
+place = element place { text }
+publisher = element publisher { text }
+translator = element translator { givenName, familyName }
+creator = element creator { givenName?, familyName? }
+book =
+  element book {
+    (author | editor)*,
+    (etal
+     | element contributor { givenName, familyName }*),
+    title?,
+    additionalTitle?,
+    place?,
+    publisher?,
+    date?
+  }
+familyName = element familyName { text }
+givenName = element givenName { text }

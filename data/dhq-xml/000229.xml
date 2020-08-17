@@ -1,0 +1,655 @@
+<?xml version="1.0" encoding="UTF-8"?><?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?><?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:cc="http://web.resource.org/cc/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dhq="http://www.digitalhumanities.org/ns/dhq">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <!-- Author should supply the title and personal information-->
+                <title type="article">Textual Reuse in the Eighteenth Century: Mining Eliza
+                    Haywood’s Quotations</title>
+                <dhq:authorInfo>
+                    <!-- Include a separate <dhq:authorInfo> element for each author -->
+                    <dhq:author_name>Douglas Ernest
+                        <dhq:family>Duhaime</dhq:family></dhq:author_name>
+                    <dhq:affiliation>University of Notre Dame</dhq:affiliation>
+                    <email>douglas.duhaime@gmail.com</email>
+                    <dhq:bio>
+                        <p>Douglas Duhaime studies eighteenth-century British fiction, the history
+                            of science, and computational approaches to literary history. A
+                            recipient of the James A. Sappenfield Fellowship (2010) and the
+                            Frederick J. Hoffman Award (2011), he recently participated in the
+                            NEH-sponsored <title rend="quotes">Early Modern Digital Agendas</title>
+                            (2013), a research summit on computational approaches to early modern
+                            English literature and history. At Notre Dame, he has taught courses
+                            with the Writing and Rhetoric Department, and has served as Assistant
+                            Editor for Early American Literature.</p>
+                    </dhq:bio>
+                </dhq:authorInfo>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>Alliance of Digital Humanities Organizations</publisher>
+                <publisher>Association of Computers and the Humanities</publisher>
+                <!-- This information will be completed at publication -->
+                <idno type="DHQarticle-id"> 000229 </idno>
+                <idno type="volume">010</idno>
+                <idno type="issue">1</idno>
+                <date when="2016-02-12">12 February 2016</date>
+                <dhq:articleType>article</dhq:articleType>
+                <availability>
+                    <cc:License rdf:about="https://creativecommons.org/licenses/by-nd/2.5/"/>
+                </availability>
+            </publicationStmt>
+
+            <sourceDesc>
+                <p>This is the source</p>
+            </sourceDesc>
+        </fileDesc>
+        <encodingDesc>
+            <classDecl>
+                <taxonomy xml:id="dhq_keywords">
+                    <bibl>DHQ classification scheme; full list available at <ref
+                            target="http://www.digitalhumanities.org/dhq/taxonomy.xml"
+                            >http://www.digitalhumanities.org/dhq/taxonomy.xml</ref></bibl>
+                </taxonomy>
+                <taxonomy xml:id="authorial_keywords">
+                    <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+                </taxonomy>
+            </classDecl>
+        </encodingDesc>
+        <profileDesc>
+            <langUsage>
+                <language ident="en"/>
+            </langUsage>
+            <textClass>
+                <keywords scheme="#dhq_keywords">
+                    <!-- Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors -->
+                    <list type="simple">
+                        <item/>
+                    </list>
+                </keywords>
+                <keywords scheme="#authorial_keywords">
+                    <!-- Authors may include one or more keywords of their choice -->
+                    <list type="simple">
+                        <item>text analysis</item>
+                        <item>text mining</item>
+                        <item>influence</item>
+                        <item>textual reuse</item>
+                        <item>intertextuality</item>
+                        <item>eighteenth century</item>
+                    </list>
+                </keywords>
+            </textClass>
+        </profileDesc>
+        <revisionDesc>
+            <!-- Each change should include @who and @when as well as a brief note on what was done. -->
+            <change who="EH" when="2015-11-17">Created file</change>
+        </revisionDesc>
+    </teiHeader>
+
+    <text xml:lang="en">
+        <front>
+            <dhq:abstract>
+                <!-- Include a brief abstract of the article -->
+                <p>This article introduces a novel approach to textual reuse in order to identify
+                    the sources of previously unattributed quotations within the work of Eliza
+                    Haywood. The article offers a brief introduction to methods used previously
+                    within the field of historical text reuse, describes the combinatorial ngram
+                    approach used within the present work, then shows how this method can help us
+                    better understand the complex inner workings of Eliza Haywood’s most celebrated
+                    novel, <title rend="italic">Betsy Thoughtless</title>. </p>
+            </dhq:abstract>
+            <dhq:teaser>
+                <!-- Include a brief teaser, no more than a phrase or a single sentence -->
+                <p>A custom-designed API for the Literature Online database to identify the sources
+                    of previously unattributed quotations in the work of Eliza Haywood</p>
+            </dhq:teaser>
+        </front>
+        <body>
+            <div>
+                <head>Introduction</head>
+                <p>Literary scholars often argue that the eighteenth century witnessed a revolution
+                    in notions of authorship, one that moved from a culture based on imitation to a
+                    culture organized around the production of original utterances.<note> One of the
+                        earlier works to discuss this shift in notions of authorial originality is
+                        Elizabeth Louis Mann's <title rend="italic">The Problem of Originality in
+                            English Literary Criticism, 1750-1800</title> (Ph.D. Dissertation,
+                        University of Chicago: 1939). More recent scholarship on the subject may be
+                        found in Loy Martin's <title rend="quotes">Changing the Past: Theories of
+                            Influence and Originality, 1680-1830</title>
+                        <title rend="italic">Disposito</title>, Vol. 4, No. 12 (1979): 189-212;
+                        George Buelow: <title rend="quotes">Originality, Genius, Plagiarism in
+                            English Criticism of the Eighteenth Century</title>
+                        <title rend="italic">International Review of the Aesthetics and Sociology of
+                            Music</title>, Vol. 21, No. 2 (1990): 117-128; and Reginald McGinnis
+                        (ed.), <title rend="italic">Originality and Intellectual Property in the
+                            French and English Enlightenments</title>, London: Routledge,
+                        2009.</note> Since at least the publication of Harold Ogden White's <title
+                        rend="italic">Plagiarism and Imitation during the English
+                        Renaissance</title>, scholars have maintained that those writing in the
+                    seventeenth and early eighteenth centuries endorsed the model of <title
+                        rend="italic">imitatio</title> that one finds throughout classical writing:
+                        <quote rend="inline" source="#thomas2000">That early modern writing does not
+                        operate according to the logic of original invention is well known,</quote>
+                    writes Max Thomas: <cit>
+                        <quote rend="inline" source="#thomas2000">Between the residual medieval
+                            tradition of <emph>compilatio</emph> and the humanistic practices of
+                                <emph>copia</emph> and <emph>inventio</emph>, the dominant structure
+                            of writing was largely imitative</quote>
+                        <ptr target="#thomas2000" loc="282"/>
+                    </cit>. By the 1750s, however, the scene had changed. <quote rend="inline"
+                        source="#buelow1990">It is in the middle of the 18<hi rend="superscript"
+                            >th</hi> century,</quote> writes George Buelow, that <cit>
+                        <quote rend="inline" source="#buelow1990">the concept of originality . . .
+                            become[s] [a] significant elemen[t] in critical writings, and it is on
+                            this foundation of new ideas that much of the further development of
+                            aesthetic criticism as well as actual artistic achievement in all the
+                            arts was made possible in the 19<hi rend="superscript">th</hi>
+                            century</quote>
+                        <ptr target="#buelow1990" loc="123"/>
+                    </cit>. During this pivotal period, celebrated works like Edward Young's <title
+                        rend="quotes">Conjectures on Original Composition</title> helped make <quote
+                        rend="inline" source="#buelow1990">Originality . . . the main force in the
+                        creative process,</quote> driving out earlier endorsements of imitation with
+                    an insistence on each author's individual genius <ptr target="#buelow1990"
+                        loc="123"/>.<note> While Young's famous letter to Richardson often features
+                        prominently in discussions of originality within the eighteenth century, it
+                        is helpful to read Young alongside other similar works from the period, such
+                        as William Sharpe's <title rend="italic">Dissertation upon Genius
+                        </title>(1755), Richard Hurd's <title rend="italic">Letter to Mr. Mason; on
+                            the Marks of Imitation</title> 1757), and Edward Capell's response to
+                        Hurd in <title rend="italic">Reflections on Originality in Authors</title>
+                        (1766). For relevant secondary works on the imitation-originality axis in
+                        eighteenth-century literature, see in particular: Robert Mack: <title
+                            rend="italic">The Genius of Parody: Imitation and Originality in
+                            Seventeenth- and Eighteenth-Century English Literature.</title> London:
+                        Palgrave, 2007; William Kupersmith: <title rend="italic">English Versions of
+                            Roman Satire in the Earlier Eighteenth Century</title>. Newark:
+                        University of Delaware Press, 2007; Tom Huhn: <title rend="italic">Imitation
+                            and Society: The Persistence of Mimesis in the Aesthetics of Burke,
+                            Hogarth, and Kant</title>. University Park: Pennsylvania State
+                        University, 2004; and Roland Mortier: <title rend="italic">L'originalité:
+                            une nouvelle catégorie esthétique au siècle les lumières</title>.
+                        Genève: Librarie Droz, 1982.</note></p>
+                <p> Written in the midst of this cultural shift, Eliza Haywood’s 1751 novel <title
+                        rend="italic">Betsy Thoughtless</title> includes a wide variety of passages
+                    drawn from an array of previous literary texts, and offers an interesting case
+                    study of the struggle between mimesis and authorial originality during the
+                    eighteenth century. Unfortunately, adequate study of Haywood’s intertextual
+                    borrowings has heretofore been limited because previous scholarship has been
+                    unable to identify the sources for many of the passages borrowed in Haywood’s
+                    writing. In an attempt to help fill this scholarly gap, the present study
+                    introduces a novel algorithmic method that can be used to identify instances of
+                    intertextuality in large data sets, and shows how one can leverage this workflow
+                    to generate new insights on the nature of intertextuality in literary texts such
+                    as Haywood’s novel. </p>
+            </div>
+            <div>
+                <head>Detecting Textual Reuse with Combinatorial Ngrams</head>
+                <p>The methods used within the present study may be best illustrated by comparison
+                    with previous work in the field of historical text reuse. In their research on
+                    intertextuality in classical texts, Neil Coffee et al. use a sliding window
+                    technique to find passages wherein two texts share at least two words, then rank
+                    the matching window results according to the proximity and rarity of the words
+                    shared in the two windows. Jean-Gabriel Ganascia et al. also use a sliding
+                    window technique and score matches based on word rarity, though they allow for
+                    missing words in their sliding windows such that two windows of five words can
+                    count as a match if they share three words in common. David Smith et al. use a
+                    sliding n-gram window to establish candidate pairs, leverage the Smith-Waterman
+                    algorithm to align matching sequences in documents, and finally sort documents
+                    with matching windows according to the frequency of their common n-grams.
+                    Similarly, Constance Mews et al. also use a sequence alignment technique that
+                    matches strings based on identical words. Moving away from a sliding window
+                    technique, Glenn Roe et al. measure the cosine distance between passages in a
+                    term document matrix, while David Bamman et al. use Moore's Bilingual Sentence
+                    Aligner and a translation probability table generated from MGIZA++ to identify
+                    cross-lingual instances of intertextuality. </p>
+                <p>The present study extends the candidate retrieval step of Jean-Gabriel Ganascia
+                    et al., and implements a minimal probabilistic model to remove high probability
+                    ngrams from the database in order to reduce both storage requirements and
+                    processing time. The first step of the method used within the present study is
+                    to preprocess each file in a corpus, transform each file into an array of
+                    sentences using the Punkt sentence boundary detector, drop stopwords, remove
+                    non-token punctuation, and lowercase all text. Because orthography was
+                    non-standardized in the eighteenth century, the lookup table from MorphAdorner
+                    is then used to regularize the spelling of each word in the text, using a simple
+                    hash table replacement. Finally, the WordNet Lemmatizer is used to transform
+                    each word into its lemma form.</p>
+                <p>Once the texts are all represented as lists of clean and normalized sentences,
+                    the next step of analysis is to find sentences with unusually similar language.
+                    To accomplish this, a sliding window of length <emph>w</emph> is slid over each
+                    sentence in the corpus such that for each sentence, the window first contains
+                    words 0 through <emph>w</emph>-1 from the sentence, then 1 through
+                        <emph>w</emph>, then 2 through <emph>w</emph>+1, and so on. For each of
+                    these windows, a list of all possible combinations of <emph>c</emph> words from
+                    the window is generated. Suppose <emph>c</emph> is 3, and the algorithm is
+                    considering the following sentence:</p>
+                <p><cit>
+                        <quote rend="block" source="#haywood1998">All saw her spots but few her
+                            brightness took.</quote>
+                        <ptr target="#haywood1998" loc="224"/>
+                    </cit></p>
+                <p>Using this window of text, the list of <q>combinatorial ngrams</q> produced
+                    includes <q>all saw her</q>, <q>all saw spots</q>, <q>all saw but</q> . . .
+                        <q>her brightness took</q>. In order to minimize the storage requirements
+                    and maximize the utility of these ngrams, the algorithm next estimates the
+                    rarity of each ngram by calculating the product of the relative frequency of
+                    each word in the ngram.<note> The probabilities for individual words were
+                        retrieved from the Google Ngrams corpus. The source code for the present
+                        study includes probability tables drawn from both the 1 Million English
+                        Google Ngrams corpus and the All English Google Ngrams corpus. In both
+                        cases, word probabilities were normalized by dividing the number of books
+                        that contained the target word by the global maximum number of times a word
+                        appeared in a book. </note> The rarity of the ngram <q>spots few
+                        brightness</q>, for instance, is calculated as p(spots) * p(few) *
+                    p(brightness). Because ngrams with high probability are much more likely to be
+                    found often in a corpus and are therefore much less useful for detecting textual
+                    reuse, they are dropped from the list, and the remaining ngrams are stored in a
+                    database.</p>
+                <p> Once this database is produced, one can scour it for instances of textual reuse
+                    by feeding in additional documents, processing them in the same way, and
+                    comparing the combinatorial ngrams in each sentence from the input document to
+                    the sentences archived in the database.<note> Within the present study, roughly
+                        half a million texts were collected from the Text Creation Partnership,
+                        Internet Archive, Project Gutenberg, Google Books, and Literature Online,
+                        and all were processed in this fashion.</note> An estimation of the
+                    similarity of two sentences can be produced by simply summing up the number of
+                    combinatorial ngrams shared by those two sentences and normalizing by the length
+                    of the sentence. Take for example the following passage from Nathaniel Lee’s
+                        <title rend="italic">Alexander the Great</title>, which the present method
+                    flags as a candidate for the quotation from <title rend="italic">Betsy
+                        Thoughtless</title> discussed above: </p>
+                <p><cit>
+                        <quote rend="block" source="#lee1677">All find my spots, but few observe my
+                            brightness</quote>
+                        <ptr target="#lee1677" loc="25"/>
+                    </cit>
+                </p>
+                <p>While the sequential sliding window technique often employed in studies of text
+                    reuse only identifies a single shared trigram between these two passages
+                        (<q>spots but few</q>), the combinatorial ngram method gives a stronger
+                    indication of their semantic similarity, yielding 10 combinatorial trigram
+                    matches for the pair. Using this simple and scalable technique on the works of
+                    Eliza Haywood, we shall see below, allows one to rapidly identify instances of
+                    textual reuse and thereby improve our understanding of the production and
+                    dissemination of literary texts in the long eighteenth century.<note> Using a
+                        48-core server with 3 TB of RAM maintained by the University of Notre Dame’s
+                        Center for Research Computing, the method described above was able to
+                        process roughly half a million literary texts (~5GB on disk) in six hours.
+                    </note></p>
+            </div>
+            <div>
+                <head>Mining Eliza Haywood’s Quotations</head>
+                <p>Although much of Eliza Haywood’s biography remains mysterious, she was notorious
+                    within the literary circles of her day. After early careers as an actress and
+                    successful playwright, Haywood embarked upon a prolific career as a writer that
+                    would lead one eighteenth-century biographer to call her <quote rend="inline"
+                        source="#undocumented">perhaps the most voluminous female writer this kingdom ever
+                        produced.</quote> Many of the works in her canon offered critical if comical
+                    responses to high-profile works by male literati of the day. In titles such as
+                        <title rend="italic">The Female Spectator</title>, <title rend="italic"
+                        >Anti-Pamela</title>, <title rend="italic">Memoirs of the Court of
+                        Lilliput</title>, and <title rend="italic">The Female Dunciad</title>,
+                    Haywood transformed works by Joseph Addison, Samuel Richardson, Jonathan Swift,
+                    and Alexander Pope into biting commentary on the gender inequality within
+                    eighteenth-century England. For these efforts, Alexander Pope granted Haywood a
+                    position next to the goddess Dullness in <title rend="italic">The
+                        Dunciad</title>, and James Sterling crowned Haywood alongside Aphra Behn and
+                    Delarivier Manley in his <quote rend="inline" source="#undocumented">fair triumvirate of
+                        wit,</quote> both of which acts attest to Haywood’s elevated status in the
+                    eighteenth-century world of letters.</p>
+                <p>In works from her later years, such as her best-known novel <title rend="italic"
+                        >Betsy Thoughtless</title>, Haywood used realistic portraits of the social
+                    dynamics of eighteenth-century England to fight for gender equality. She also
+                    borrowed an unusually large quantity of material from previous writers, weaving
+                    vast quantities of quotations from previous literature into her own writing. In
+                    the case of <title rend="italic">Betsy Thoughtless</title>, as Andrea Austin has
+                    noted, Haywood leaves most of these quotations unattributed: <cit>
+                        <quote rend="inline" source="#austin2000">The overwhelming majority of
+                            quotations follow the introductory phrase, <q>as the poet says</q>, or
+                            some variation thereof, leaving the reader to determine the source of
+                            her borrowing . . . . Only in a few instances does she identify the
+                            original source</quote>
+                        <ptr target="#austin2000" loc="278"/>
+                    </cit>. The majority of these mysterious quotations have remained unsourced ever
+                    since, perhaps because Haywood’s representations of the source material often
+                    depart significantly from the source texts themselves. As Kathryn R. King
+                    observes in her standard edition of Haywood’s works, <cit>
+                        <quote rend="inline" source="#haywood2001">Haywood could be highly creative
+                            in her use of sources, embroidering here and there on hints she found in
+                            them and seldom exhibiting an overnice regard for considerations of
+                            veracity . . . . Her reworkings of her sources deserve, in fact, a study
+                            of their own.</quote>
+                        <ptr target="#haywood2001" loc="x"/>
+                    </cit>. Armed with the vast digital databases that have recently become
+                    available, it is now possible to heed King’s call and trace Haywood’s reworkings
+                    of source material in close detail. </p>
+                <p>Using the method discussed above, I was able to identify likely sources of all
+                    but three of the eighteen previously unsourced quotations in <title
+                        rend="italic">Betsy Thoughtless</title>, yielding a recall value of
+                        83.3%.<note> It is worth noting that measuring recall for text reuse
+                        detection methods is often difficult or impossible, because many data sets
+                        lack ground truth values against which to compare the results of the
+                        classification task. Pursuing the sources for previously unsourced
+                        quotations offers one way around this problem, as borrowed quotations
+                        announce that they are reusing text from previous works.</note> Both the
+                    sources of the identified passages and Haywood’s representations of those
+                    sources are indicated in Table 1 below. Comparing Haywood’s renderings with her
+                    sources, one finds that Haywood often changes her sources in provocative ways.
+                    Consider, for example, the following passage from <title rend="italic">Betsy
+                        Thoughtless</title>: <lg>
+                        <l>Secrets of marriage should be sacred held, </l>
+                        <l>Their sweets and bitters by the wife conceal'd. <ptr
+                                target="#haywood1998" loc="503"/></l>
+                    </lg>
+                </p>
+                <p>This passage is adapted from John Dryden’s <title rend="italic">Aureng
+                        Zebe</title>, in which one reads: <lg>
+                        <l> Secrets of Marriage still are sacred held,</l>
+                        <l>Their sweet and bitter by the wife concealed; </l>
+                        <l>Errors of wives reflect on husbands still. <ptr target="#dryden1704"
+                                loc="20"/></l>
+                    </lg></p>
+                <p>By closely comparing these passages, one finds that Haywood withheld the feminist
+                    punchline of Dryden’s stanza: <q>Errors of wives
+                        reflect on husbands still.</q> Perhaps of greater import is the fact
+                    that while Dryden believed <soCalled>secrets of marriage</soCalled>
+                    <emph>were</emph> still held sacred, Haywood needed to implore that secrets of
+                    marriage <emph>should</emph> be held sacred. Such repetitions with a difference
+                    abound in Haywood’s textual reuse, and might well reflect Haywood’s position on
+                    the status of institutions such as marriage in her day. </p>
+                <p>Comparing Haywood’s adaptations to their source passages also helps to reveal one
+                    reason why previous editors have had difficulty identifying the sources of her
+                    quotations, namely the fact that Haywood often combined lines from disparate
+                    literary works into a single passage and then passed the resulting passage off
+                    as a <q>quotation</q> of extant works. Take, for example, the following passage
+                    from <title rend="italic">Betsy Thoughtless</title>:</p>
+                <lg>
+                    <l>Pleas'd with destruction, proud to be undone,</l>
+                    <l>With open arms I to my ruin run,</l>
+                    <l>And sought the mischiefs I was bid to shun;</l>
+                    <l>Tempted that shame a virgin ought to dread,</l>
+                    <l>And had not the excuse of being betray'd [111]</l>
+                </lg>
+                <p>Like other instances of intertextuality in Haywood's writing, this passage
+                    appears to derive from multiple sources. The first line appears in the poet and
+                    doctor Richard Blackmore's <title rend="italic">Advice to the Poets</title>,
+                    where Blackmore writes: </p>
+                <lg>
+                    <l>Let 'em this generous Resolution own, </l>
+                    <l>That they are pleas'd and proud to be undone <ptr target="#blackmore1706"
+                            loc="12"/>. </l>
+                </lg>
+                <p>The second and third lines of Haywood's aforementioned passage borrow language
+                    from <title rend="italic">The Basset Table,</title> a poem believed to have been
+                    written by Mary Wortley Montagu, John Gay, or Alexander Pope, wherein one finds
+                    the lines: </p>
+                <lg>
+                    <l>I know the bite, yet to my ruin run, </l>
+                    <l>And see the folly which I cannot shun <ptr target="#anonymous1706" loc="6"/>.
+                            <note> Norman Ault reported some time ago that <cit>
+                                <quote rend="inline" source="#pope1936">the problem of the
+                                    authorship of <title rend="italic">Court Poems</title> [the
+                                    volume in which <title rend="quotes">The Basset Table</title>
+                                    appears] is baffling, and cannot . . . be regarded as
+                                    settled</quote>
+                                <ptr target="#pope1936" loc="xcv"/>
+                            </cit>. Writing some years thereafter, however, Robert Halsband
+                            suggested that <cit>
+                                <quote rend="inline" source="#halsband1953">whatever mistakes Pope's
+                                    posthumous editors made . . . his friends as well as he knew
+                                    that <title rend="italic">The Basset-Table</title>...was by Lady
+                                    Mary</quote>
+                                <ptr target="#halsband1953" loc="243"/>
+                            </cit>.</note></l>
+                </lg>
+                <p>Here and elsewhere, Haywood combines multiple variegated texts in order to
+                    produce her own poetic formulation, confusing the boundary between original and
+                    derivative utterances in a way that anticipates our own <q>remix
+                    culture.</q></p>
+                <p> All of these remixed, composite quotations in <title rend="italic">Betsy
+                        Thoughtless</title> fall within the novel’s early chapters, wherein the
+                    titular Betsy keeps questionable company and may indeed appear
+                        <soCalled>thoughtless.</soCalled> By the end of the novel, however, Betsy
+                    repents for her wayward youth and devotes herself to a single love, Mr.
+                    Trueworth. Interestingly, as Betsy completes her transition from flighty youth
+                    to dedicated lover, the passages Haywood borrows from other texts also become
+                    more faithful to their source texts. By calculating the Jaccard Similarity
+                    Coefficient between Haywood’s source passage and Haywood’s rendering of that
+                    passage for each borrowed quotation within the novel, one can visualize this
+                    general trend:</p>
+                <figure>
+                    <head>This plot depicts the similarity between Eliza Haywood’s source text and
+                        Haywood’s rendering of that source text for each quotation within Betsy
+                        Thoughtless. </head>
+                    <graphic url="resources/images/figure01.png"/>
+                </figure>
+                <p>While it is impossible to say whether Haywood <emph>intentionally</emph> made her
+                    rendering of quotations more faithful over the course of her novel, this trend
+                    does offer a curious parallel to the psychological development of her
+                    protagonist, who steadily rejects her misbegotten youth and devotes herself to a
+                    dedicated relationship with Mr. Trueworth. Whether this trend generalizes to
+                    other works within or beyond the Haywood canon remains for future work to
+                    determine.</p>
+                <p>Finally and most astonishingly, tracing the sources of Haywood’s adapted
+                    quotations reveals that a significant portion of the poetic passages Haywood
+                    incorporates into her own writing are derived from a single work of literary
+                    extracts, the 1710 edition of Edward Bysshe’s <title rend="italic">Art of
+                        English Poetry</title>. Bysshe’s volume is essentially a collection of
+                    literary passages organized into hundreds of themes such as <q>Love,</q>
+                    <q>Gypsy,</q> and so on. As Table 1 shows, nearly half of the quotations Haywood
+                    adapts in <title rend="italic">Betsy Thoughtless</title> are present in Bysshe’s
+                    volume. One could take for example the point in the novel wherein Lady Mellasin
+                    reflects on the beauty of Miss Flora, and Haywood uses the following phrase to
+                    introduce a borrowed quotation: <q>[Lady Mellasin]
+                        had often heard and read of men, whose resentment had been softened and
+                        melted into tenderness on the appearance of a lovely object: — as the poet
+                        somewhere or other expresses it...</q> [519]. Having created a need for
+                    a passage on beauty, Haywood then weaves in a passage found under the <title
+                        rend="quotes">Beauty</title> heading in Bysshe’s volume:</p>
+
+                <lg>
+                    <l>Beauty, like ice, our footing does betray; </l>
+                    <l>Who can tread sure on the smooth slipp’ry way? <ptr target="#dryden1704"
+                            loc="13"/></l>
+                </lg>
+                <p>Some few pages later in the novel, Haywood introduces yet another quotation from
+                    the <title rend="quotes">Beauty</title> section in Bysshe’s volume [536].
+                    Examining passages such as the above, it seems Haywood often introduced her
+                    quotations with vague phrases like <q>as the poet somewhere or other expresses
+                        it</q> because she didn’t yet know which poet she would quote, or the text
+                    from which she would quote. She merely intended to look up a relevant heading in
+                    Bysshe’s volume and siphon off a quote from that page.</p>
+                <p> Some of the passages Haywood derived from Bysshe offer even more telling clues
+                    that <title rend="italic">The Art of English Poetry</title> was Haywood’s main
+                    source for literary extracts. Consider, for example, the following borrowed
+                    passage in <title rend="italic">Betsy Thoughtless</title>:</p>
+                <lg>
+                    <l>Ingratitude's the sin, which, first or last, </l>
+                    <l>Taints the whole sex; the catching court-disease. [322]</l>
+                </lg>
+                <p>This rendering departs ever so slightly from its source text, Nathaniel Lee’s
+                        <title rend="italic">Mithridates</title>:</p>
+                <lg>
+                    <l>Inconstancy, the plague that first or last</l>
+                    <l>Taints the whole sex, the catching court-disease. <ptr target="#lee1678"
+                            loc="44"/></l>
+                </lg>
+                <p>What would have led Haywood to replace the first word of Lee’s passage,
+                        <q>Inconstancy,</q> with her own term <q>Ingratitude</q>? It is likely that
+                    Haywood accidentally made this change after discovering Lee’s lines within
+                        <title rend="italic">The Art of English Poetry</title>, where the borrowed
+                    lines are followed by a large subject heading for <q>Ingratitude</q>
+                    <ptr target="#bysshe1710" loc="222"/>:</p>
+                <figure>
+                    <head>A page image from the 1710 <title rend="italic">Art of English
+                            Poetry</title>
+                        <ptr target="#bysshe1710" loc="222"/>
+                    </head>
+                    <graphic url="resources/images/figure02.png"/>
+                </figure>
+                <p>These discovered debts to Bysshe’s work support and extend the research of Carol
+                    Stewart, who found that many of the literary references in Haywood’s novel
+                        <title rend="italic">The Invisible Spy</title> may be found within <title
+                        rend="italic">The Art of English Poetry</title>
+                    <ptr target="#haywood2014" loc="469"/>. As Table 1 indicates, a number of
+                    previously unsourced quotations from across the Haywood corpus contain material
+                    found in Bysshe’s work, which suggests Haywood’s reading may not have been as
+                    voluminous as her writing once made it appear. </p>
+            </div>
+            <div>
+                <head>Neither Close nor Distant: Algorithmic Reading</head>
+                <p> The foregoing analysis has demonstrated one way researchers can use
+                    computational methods to trace patterns in intertextuality within literary
+                    texts. Using a novel method to scour large text collections for patterns of
+                    textual reuse, the present study has discovered many sources for the borrowed
+                    passages in Eliza Haywood’s writing. By examining those passages in detail, one
+                    finds that many of Haywood’s changes to her source materials may well help
+                    reveal both her position on contemporary institutions as well as the particular
+                    editions of works from which she derived the borrowings. Furthermore, examining
+                    Haywood’s borrowed quotations in the aggregate, one finds that the degree of
+                    similarity between her source materials and her own representation of those
+                    materials offers a provocative parallel to her protagonist’s psychological
+                    development over the course of <title rend="italic">Betsy Thoughtless</title>.
+                    Lastly and most curiously, one finds that a shocking portion of the quotations
+                    Haywood incorporated into her texts derive from a single work of literary
+                    extracts from the period, the 1710 edition of Edward Bysshe’s <title
+                        rend="italic">Art of English Poetry</title>. In sum, closely attending to
+                    the texts Haywood borrowed — including their original sources, the contexts in
+                    which Haywood introduces those passages, and the ways in which she modifies them
+                    — offers a series of rare glimpses into the finer points of a powerful and
+                    playful writer’s mind. </p>
+                <p><hi rend="bold">Table 1</hi> may be accessed via the following url: <ref
+                        target="https://goo.gl/7G0QFH">https://goo.gl/7G0QFH</ref></p>
+            </div>
+        </body>
+        <back>
+            <listBibl>
+                <bibl label="Anonymous 1706" xml:id="anonymous1706"> Anonymous. <title rend="italic"
+                        >Court Poems</title>. London: J. Roberts (1706).</bibl>
+                <bibl label="Anonymous 1724" xml:id="anonymous1724"> Anoymous. <title rend="italic"
+                        >The Hive: A Collection of Our Best English Poets.</title> John Walthoe,
+                    London (1724).</bibl>
+                <bibl label="Austin 2000" xml:id="austin2000"> Austin, Andrea. <title rend="quotes"
+                        >Shooting Blanks: Potency, Parody, and Eliza Haywood’s <title rend="italic"
+                            >The History of Miss Betsy Thoughtless</title></title> in <title
+                        rend="italic">The Passionate Fictions of Eliza Haywood</title>, ed. Kirsten
+                    T. Saxton and Rebecca P. Bocchicchio (2000).</bibl>
+                <bibl label="Blackmore 1706" xml:id="blackmore1706"> Blackmore, Richard. <title
+                        rend="quotes">Advice to the Poets, A Poem.</title> A. Churchill and J.
+                    Churchill, London (1706).</bibl>
+                <bibl label="Bamman and Crane 2009" xml:id="bamman2009"> Bamman, Gregory Crane.
+                        <title rend="quotes">Discovering Multilingual Text Reuse in Literary
+                        Texts,</title> White Paper, Perseus Digital Library (2009).</bibl>
+                <bibl label="Burns 1887" xml:id="burns1887"> Burns, Roberts. <title rend="italic"
+                        >The Letters of Robert Burns</title>, ed. J. Logie Robertson. Walter Scott,
+                    London (1887).</bibl>
+                <bibl label="Buelow 1990" xml:id="buelow1990"> Buelow, George: <title rend="quotes"
+                        >Originality, Genius, Plagiarism in English Criticism of the
+                        Eighteenth-Century</title>
+                    <title rend="italic">International Review of the Aesthetics and Sociology of
+                        Music</title>, 21.2 (1990).</bibl>
+                <bibl label="Bysshe 1710" xml:id="bysshe1710">Bysshe, Edward. <title rend="italic"
+                        >The Art of English Poetry.</title> Samuel Buckley, London (1710).</bibl>
+                <bibl label="Ciccoricco 2012" xml:id="ciccoricco2012"> Ciccoricco, David. “<title
+                        rend="quotes">The Materialities of Close Reading: 1942, 1959, 2009.</title>
+                    <title rend="italic">Digital Humanities Quarterly</title> 6.1 (2012).</bibl>
+                <bibl label="Clement et al. 2013" xml:id="clement2013"> Clement, Tanya; Tcheng,
+                    David; Auvil, Loretta; Capitanu, Boris; Barbosa, Joao. <title rend="quotes"
+                        >Distant Listening to Gertrude Stein's <title rend="quotes"
+                            >Melanchtha</title>: Using Similarity Analysis in a Discovery Paradigm
+                        to Analyze Prosody and Author Influence,</title>
+                    <title rend="italic">Literary and Linguistic Computing</title> 28.4 (2013):
+                    582-602.</bibl>
+                <bibl label="Congreve 1695" xml:id="congreve1695"> Congreve, William. <title
+                        rend="italic">Love for Love.</title> Jacob Tonson, London (1695).</bibl>
+                <bibl label="Congreve 1697" xml:id="congreve1697"> Congreve, William. <title
+                        rend="italic">The Mourning Bride.</title> Jacob Tonson, London
+                    (1697).</bibl>
+                <bibl label="Dryden 1681" xml:id="dryden1681"> Dryden, John. <title rend="italic"
+                        >The Spanish Fryar, or, The Double Discovery.</title> Richard Tonson and
+                    Jacob Tonson, London (1681).</bibl>
+                <bibl label="Dryden 1704" xml:id="dryden1704"> Dryden, John. Aurenge-Zebe, or the
+                    Grand Mogul. J. Tonnson, T. Bennet, London (1704).</bibl>
+                <bibl label="Etherege 1664" xml:id="etherege1664"> Etherege, George. <title
+                        rend="italic">The Comical Revenge, or, Love in a Tub. Henry
+                        Herringman</title>, London (1664).</bibl>
+                <bibl label="Forstall et al. 2014" xml:id="forstall2014"> Forstall, Christopher;
+                    Coffee, Neil; Buck, Thomas; Roache, Katherine; Jacobson, Sarah. <title
+                        rend="quotes">Modeling the Scholars: Detecting Intertextuality through
+                        Enhanced Word-Level N-Gram Matching,</title>
+                    <title rend="italic">Literary and Linguistic Computing</title>, 29 (2014). </bibl>
+                <bibl label="Ganascia et al. 2014" xml:id="ganascia2014"> Ganascia, Jean-Gabriel;
+                    Glaudes, Peirre; Lungo, Andrea Del. <title rend="quotes">Automatic Detection of
+                        Reuse and Citations in Literary Texts,</title>
+                    <title rend="italic">Literary and Linguistic Computing</title> 29 (2014):
+                    1-10.</bibl>
+                <bibl label="Goldsmith 1966" xml:id="goldsmith1966"> Goldsmith, Oliver. <title
+                        rend="italic">Collected Works of Oliver Goldsmith,</title> ed. Arthur
+                    Friedman. Clarendon Press, Oxford (1966).</bibl>
+                <bibl label="Halsband 1953" xml:id="halsband1953"> Halsband, Robert: <title
+                        rend="quotes">Pope, Lady Mary, and the Court Poems (1716),</title> PMLA 68.1
+                    (1953): 237-250.</bibl>
+                <bibl label="Haywood 1998" xml:id="haywood1998">Haywood, Eliza. <title rend="italic"
+                        >The History of Miss Betsy Thoughtless,</title> ed. Christine Blouch.
+                    Broadview Press, Petersborough (1998).</bibl>
+                <bibl label="Haywood 2001" xml:id="haywood2001"> Haywood, Eliza. <title
+                        rend="italic">The Dramatic Historiographer and The Parrot,</title> ed.
+                    Kathryn R. King. Pickering and Chatto, London (2001).</bibl>
+                <bibl label="Haywood 2014" xml:id="haywood2014"> Haywood, Eliza. <title
+                        rend="italic">The Invisible Spy,</title> ed. Carol Stewart. Pickering and
+                    Chatto, London (2014).</bibl>
+                <bibl label="Johnson 1729" xml:id="johnson1729"> Johnson, Charles. <title
+                        rend="italic">The Village Opera.</title> George Risk, George Ewing, and
+                    William Smith, <title rend="italic">Dublin</title> (1729).</bibl>
+                <bibl label="Lee 1677" xml:id="lee1677"> Lee, Nathaniel. <title rend="italic">The
+                        Rival Queens, or the Death of Alexander the Great.</title> James Magnes and
+                    Richard Bentley, London (1677).</bibl>
+                <bibl label="Lee 1678" xml:id="lee1678"> Lee, Nathaniel. Mithridates, King of
+                    Pontus. James Magnes and Richard Bentley, London (1678).</bibl>
+                <bibl label="Lillo 1730" xml:id="lillo1730"> Lillo, George. <title rend="italic"
+                        >Silvia, or, the Country Burial.</title> George Risk, George Ewing, and
+                    William Smith, Dublin (1730).</bibl>
+                <bibl label="Mallet 1731" xml:id="mallet1731"> Mallet, David. Eurydice. A. Millar,
+                    London (1731).</bibl>
+                <bibl label="Mews 2010" xml:id="mews2010"> Mews, Constance, Thomas Zahora, Dmitri
+                    Nikulin, and David Squire. <title rend="quotes">The Speculum morale (c. 1300)
+                        and the study of textual transformations: a research project in
+                        progress.</title> Vincent of Beauvais Newsletter (2010). </bibl>
+                <bibl label="Mitchell 1719" xml:id="mitchell1719"> Mitchell, Joseph. <title
+                        rend="italic">Lugubres Cantus: Poems on Several Grave and Important
+                        Subjects.</title> J. McEuen and T. Cox, London (1719).</bibl>
+                <bibl label="Orr 2011" xml:id="orr2011"> Orr, Leah. <title rend="quotes">The Basis
+                        for Attribution in the Canon of Eliza Haywood,</title>
+                    <title rend="italic">The Library</title>, 12.4 (2011): 335-375.</bibl>
+                <bibl label="Pope 1936" xml:id="pope1936"> Pope, Alexander. <title rend="italic"
+                        >Prose Works, Vol. 1: 1711-1720</title>, ed. Norman Ault. Oxford University
+                    Press, Oxford (1936).</bibl>
+                <bibl label="Roe et al. 2010a" xml:id="roe2010a"> Roe, Glen; Allen, Timothy;
+                    Dourard, Stéphane; Cooney, Charles; Horton, Russell; Morrissey, Robert; Olsen,
+                    Mark; Voyer, Robert. <title rend="quotes">Plundering Philosophers: Identifying
+                        Sources for the Encyclopédie,</title>
+                    <title rend="italic">Journal of the Association for History and
+                        Computing</title> 13.1 (2010).</bibl>
+                <bibl label="Roe et al. 2010b" xml:id="roe2010b"> Roe, Glenn; Horton, Russell;
+                    Olsen, Mark. <title rend="quotes">Something Borrowed: Sequence Alignment and the
+                        Identification of Similar Passages in Large Text Collections,</title>
+                    <title rend="italic">Digital Studies / Le Champ numérique</title> 2.1
+                    (2010).</bibl>
+                <bibl label="Smith et al. 2013" xml:id="smith2013"> Smith, David A.; Cordell, Ryan;
+                    Dillon, Elizabeth Maddock. <title rend="quotes">Infectious Texts: Modeling Text
+                        Reuse in Nineteenth-Century Newspapers,</title>
+                    <title rend="italic">Proceedings of the Workshop on Big Humanities</title>, IEEE
+                    Computer Society Press (2013).</bibl>
+                <bibl label="Thomas 2000" xml:id="thomas2000"> Thomas, Max: <title rend="quotes"
+                        >Eschewing Credit: Heywood, Shakespeare, and Plagiarism Before
+                        Copyright,</title> New Literary History 31.2 (2000).</bibl>
+                <bibl label="Williams 2013" xml:id="williams2013"> Williams, David-Antoine. <title
+                        rend="quotes">Method as Tautology in the Digital Humanities,</title>
+                    <title rend="italic">Literary and Linguistic Computing</title> 30.2 (2013). </bibl>
+
+            </listBibl>
+
+        </back>
+    </text>
+</TEI>

@@ -1,0 +1,1274 @@
+<?xml version="1.0" encoding="UTF-8"?><?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?><?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?><TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:cc="http://web.resource.org/cc/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dhq="http://www.digitalhumanities.org/ns/dhq">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <!-- Author should supply the title and personal information-->
+                <title type="article">Semantic Enrichment of a Multilingual Archive with Linked Open
+                    Data</title>
+                <dhq:authorInfo>
+                    <!-- Include a separate <dhq:authorInfo> element for each author -->
+                    <dhq:author_name>Max <dhq:family>De Wilde</dhq:family></dhq:author_name>
+                    <dhq:affiliation>Université libre de Bruxelles(ULB), Information Science
+                        Department</dhq:affiliation>
+                    <email>madewild@ulb.ac.be</email>
+                    <dhq:bio>
+                        <p>Max De Wilde teaches natural language processing at the Université libre
+                            de Bruxelles (ULB), and information technology at the Université de
+                            Genève (UniGe). He completed his PhD in 2015 and now mainly works as a
+                            freelance NLP consultant for the European Commission. </p>
+                    </dhq:bio>
+                </dhq:authorInfo>
+                <dhq:authorInfo>
+                    <!-- Include a separate <dhq:authorInfo> element for each author -->
+                    <dhq:author_name>Simon <dhq:family>Hengchen</dhq:family></dhq:author_name>
+                    <dhq:affiliation>University of Helsinki (UH)</dhq:affiliation>
+                    <email>simon.hengchen@helsinki.fi</email>
+                    <dhq:bio>
+                        <p>Simon Hengchen is a postdoctoral researcher at the University of Helsinki
+                            (UH). His research focusses on the semi-automatic detection of semantic
+                            change in historical, multilingual, OCRed texts. </p>
+                    </dhq:bio>
+                </dhq:authorInfo>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>Alliance of Digital Humanities Organizations</publisher>
+                <publisher>Association of Computers and the Humanities</publisher>
+
+                <!-- This information will be completed at publication -->
+                <idno type="DHQarticle-id">000328</idno>
+                <idno type="volume">011<!-- volume number, with leading zeroes: e.g. 006 --></idno>
+                <idno type="issue">4<!-- issue number, without leading zeroes: e.g. 2 --></idno>
+                <date when="2018-01-08">8 January 2018</date>
+                <dhq:articleType>article</dhq:articleType>
+                <availability>
+                    <cc:License rdf:about="https://creativecommons.org/licenses/by-nd/2.5/"/>
+                </availability>
+            </publicationStmt>
+
+            <sourceDesc>
+                <p>This is the source</p>
+            </sourceDesc>
+        </fileDesc>
+        <encodingDesc>
+            <classDecl>
+                <taxonomy xml:id="dhq_keywords">
+                    <bibl>DHQ classification scheme; full list available at <ref target="http://www.digitalhumanities.org/dhq/taxonomy.xml">http://www.digitalhumanities.org/dhq/taxonomy.xml</ref></bibl>
+                </taxonomy>
+                <taxonomy xml:id="authorial_keywords">
+                    <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+                </taxonomy>
+            </classDecl>
+        </encodingDesc>
+        <profileDesc>
+            <langUsage>
+                <language ident="en"/>
+            </langUsage>
+            <textClass>
+                <keywords scheme="#dhq_keywords">
+                    <!-- Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors -->
+                    <list type="simple">
+                        <item/>
+                    </list>
+                </keywords>
+                <keywords scheme="#authorial_keywords">
+                    <!-- Authors may include one or more keywords of their choice -->
+                    <list type="simple">
+                        <item>semantic web</item>
+                        <item>linked open data</item>
+                        <item>natural language processing</item>
+                    </list>
+                </keywords>
+            </textClass>
+        </profileDesc>
+        <revisionDesc>
+            <!-- Each change should include @who and @when as well as a brief note on what was done. -->
+            <change who="DD" when="2017-07-13">Created file</change>
+        </revisionDesc>
+    </teiHeader>
+
+    <text xml:lang="en" type="original">
+        <front>
+            <dhq:abstract>
+                <!-- Include a brief abstract of the article -->
+                <p>This paper introduces MERCKX, a Multilingual Entity/Resource Combiner &amp;
+                    Knowledge eXtractor. A case study involving the semantic enrichment of a
+                    multilingual archive is presented with the aim of assessing the relevance of
+                    natural language processing techniques such as named-entity recognition and
+                    entity linking for cultural heritage material. In order to improve the indexing
+                    of historical collections, we map entities to the Linked Open Data cloud using a
+                    language-independent method. Our evaluation shows that MERCKX outperforms
+                    similar tools on the task of place disambiguation and linking, achieving over
+                    80% precision despite lower recall scores. These results are encouraging for
+                    small and medium-size cultural institutions since they demonstrate that semantic
+                    enrichment can be achieved with limited resources.</p>
+            </dhq:abstract>
+            <dhq:teaser>
+                <!-- Include a brief teaser, no more than a phrase or a single sentence -->
+                <p>This paper introduces MERCKX, a Multilingual Entity/Resource Combiner &amp;
+                    Knowledge eXtractor.</p>
+            </dhq:teaser>
+        </front>
+        <body>
+            <div>
+                <head>1. Introduction</head>
+                <p>Libraries, Archives and Museums (LAM) are increasingly faced with budget cuts,
+                    compelling them to review their traditional ways to exploit their collections.
+                    Short-term results are often expected by funding bodies, and cultural heritage
+                    institutions are therefore encouraged to gain more value out of their data by
+                    linking them to existing knowledge bases. In this context, semantic enrichment
+                    techniques such as named-entity recognition (NER) and entity linking (EL) have
+                    attracted attention since they allow these institutions to enrich their
+                    collections semantically with few resources. For LAM, the perspective of freely
+                    reusing existing knowledge to map their collections to the Web represents a
+                    great opportunity.</p>
+                <p>Using digital methods also allows researchers to tackle larger datasets. While
+                    larger corpora do not induce better research <term>per se</term>, they allow to
+                    have a bird’s eye view on the context of a particular project. In this paper, we
+                    evaluate the relevance of NER and EL for an archive of OCRised Belgian
+                    periodicals. We focus on historical locations because our analysis, detailed in
+                    Section 3, shows that users are mainly interested in them. However, the
+                    methodology described in this paper could be extended to other types of entities
+                    present in knowledge bases.</p>
+                <p>The remainder of this paper is structured as follows: Section 2 discusses related
+                    work, sections 3 and 4 present our case-study and workflow respectively, Section
+                    5 discusses the results obtained and Section 6 concludes the paper whilst
+                    providing new research tracks.</p>
+            </div>
+            <div>
+                <head>2. Related Work</head>
+                <p>Named-entity recognition and other information extraction techniques such as
+                    entity linking have been increasingly adopted by DH practitioners, since they
+                    help small institutions to enrich their collections with semantic
+                        information<note> Semantic enrichment is the process of adding an extra
+                        layer of metadata to existing collections.</note>. According to Blanke and
+                    Kristel, <cit>
+                        <quote rend="inline" source="#blanke2013">semantically enriched library and archive federations
+                            have recently become an important part of research in digital libraries
+                            and archives</quote>
+                        <ptr target="#blanke2013"/>
+                    </cit>. This is illustrated by such projects as EHRI<note>
+                        <ref target="http://www.ehri-project.eu/">http://www.ehri-project.eu/</ref></note>, an 8-million euros EU project
+                    focusing on Holocaust research, and CENDARI<note>
+                        <ref target="http://www.cendari.eu/">http://www.cendari.eu/</ref></note>, a
+                    European Commission-funded project aiming to integrate digital resources for
+                    medieval and WWI history. Similarily, the Europeana Newspapers project<note>
+                        <ref target="http://www.europeana-newspapers.eu/">http://www.europeana-newspapers.eu/</ref></note> has been developing
+                    NER tools<note>
+                        <ref target="https://github.com/europeananewspapers/ner-corpora">https://github.com/europeananewspapers/ner-corpora</ref></note>
+                    specifically to process historical newspaper collections.</p>
+                <p>The growing of the Linked Open Data (LOD) cloud and the availability of free
+                    online tools have facilitated the access to information extraction for
+                    librarians, archivists and collections managers that are not IT experts but are
+                    eager to experiment with new technologies. The LOD Around The Clock project of
+                    the European Commission, for instance, was started to <q>help institutions and
+                        individuals in publishing and consuming quality Linked Data on the Web</q>.<note>
+                        <ref target="http://cordis.europa.eu/project/rcn/95552_en.html">
+                            http://cordis.europa.eu/project/rcn/95552_en.html</ref></note> Its main
+                    declared goal is to <q>continuously monitor and improve the quality of data
+                        links within the Linking Open Data cloud</q>. The existence of such
+                    large-scale incentives demonstrate the potential of LOD for the semantic
+                    enrichment of collections maintained in LAM.</p>
+                <p>A number of cultural institutions have experimented with NER and EL over the last
+                    decade. The Powerhouse Museum in Sydney has implemented OpenCalais within its
+                    collection management database, although no evaluation of the entities has been
+                            performed.<note><ref target="http://www.freshandnew.org/2008/03/opac20-opencalais-meets-our-museum-collection-auto-tagging-and-semantic-parsing-of-collection-data/">http://www.freshandnew.org/2008/03/opac20-opencalais-meets-our-museum-collection-auto-tagging-and-semantic-parsing-of-collection-data/</ref></note>
+                    Lin et al. also explore NER in order to create a faceted browsing interface for
+                    users of large museum collections <ptr target="#lin2010"/>, while Segers et al.
+                    offer an interesting evaluation of the extraction of people, locations and
+                    events from unstructured text in the collection management database of the
+                    Rijksmuseum in Amsterdam <ptr target="#segers2011"/>. Maturana et al. showed how
+                    LOD could be successfully integrated in a museum platform to enhance the
+                    experience of end users <ptr target="#maturana2013"/>. Their innovative semantic
+                    platform MisMuseos, a meta-museum aggregating 17 000 works from seven Spanish
+                    cultural institutions, offers users a facet-based search module, semantic
+                    content creation and graph navigation.</p>
+                <p>In the specific domain of archives, Rodriquez et al. compared the results of
+                    several NER services on a corpus of mid-20th-century typewritten documents <ptr target="#rodriquez2012"/>. A set of test data, consisting of raw and
+                    corrected OCR output, was manually annotated with people, locations, and
+                    organisations. This approach allows an evaluation of the different NER services
+                    against the manually annotated data. Their methodology was generalised for LAM
+                    by van Hooland et al. in the context of the <title rend="italic">Free Your
+                        Metadata</title> project<note>
+                        <ref target="http://freeyourmetadata.org/">http://freeyourmetadata.org/</ref></note>
+                    <ptr target="#vanhooland2015"/>, and extended to other languages such as French,
+                    by Hengchen et al. <ptr target="#hengchen2015"/>. The BBC also set up a system
+                    to connect its vast archive with current material through Semantic Web
+                    technologies <ptr target="#raimond2013"/>.</p>
+                <p>Bingel and Haider compared the performance of various entity classifiers on the
+                    DeReKo corpus of contemporary German <ptr target="#bingel2014"/>
+                    <ptr target="#kupietz2010"/>, which they say exhibits a <q>strong dispersion
+                        [with regard to] genre, register and time</q>. However, the authors concede
+                    that newspaper documents are largely prevailing and that <q>relatively few texts
+                        reach back to the mid-20th century</q>. This casts doubt over the actual
+                    strong temporal dispersion of this corpus. Moreover, although the study of NER
+                    in German is particularly challenging due to its use of capital letters for all
+                    common nouns, their evaluation remains monolingual and does not offer any
+                    insights as to how the classifiers would perform on a linguistically diverse
+                    corpus. Agirre et al. and Fernando and Stevenson considered how to adapt entity
+                    linking to cultural heritage content, but both focus exclusively on English data
+                    and did not take advantage of the multilingual structure of the Semantic Web
+                        <ptr target="#agirre2012"/>
+                    <ptr target="#fernando2012"/>. Frontini et al. exploited the French DBpedia and
+                    combined it with the BnF Linked Data<note>
+                        <ref target="http://data.bnf.fr/semanticweb">http://data.bnf.fr/semanticweb</ref></note> in order to extract
+                    mentions of less known authors, but their graph-based approach also remained
+                    monolingual <ptr target="#frontini2015"/>.</p>
+                <p>On the more focused task of extracting place names, Speriosu and Baldridge used a
+                    corpus of 20th century newswire articles and 19th century American Civil War
+                    texts to demonstrate that relying on information available in the text being
+                    processed is more effective than using external data <ptr target="#speriosu2013"/>. DeLozier et al. tackled the task of annotating a historical text corpus with
+                    geographic references <ptr target="#delozier2016"/>, while Leidner proposed an
+                    evaluation method for different systems <ptr target="#leidner2007"/>.</p>
+                <p>Finally, the periodical Aggregation and Indexing Plan for Europeana periodicals,
+                    was launched in 2005. It produced metadata for 18 million pages of news and
+                    full-text from OCR for around 10 million pages, also including a NER component
+                    performed by the National Library of the Netherlands.<note>
+                        <ref target="http://blog.kbresearch.nl/2014/03/03/ner-newspapers/">http://blog.kbresearch.nl/2014/03/03/ner-newspapers/</ref> reported on
+                        a preliminary experiment on Dutch, French and German.</note> A new website<note>
+                        <ref target="http://www.theeuropeanlibrary.org/">http://www.theeuropeanlibrary.org/</ref></note> was introduced in 2014,
+                    allowing users to cross-search and reuse over 25 million digital items and over
+                    165 million bibliographic records. However, this European Library does not use
+                    LOD resources to enrich documents, using instead its own ontology developed
+                    specifically for the project, a methodology that few institutions could afford
+                    to follow.</p>
+            </div>
+            <div>
+                <head>3. Case study</head>
+                <p>The <title rend="italic">Historische Kranten</title><note>
+                        <ref target="http://www.historischekranten.be/">http://www.historischekranten.be/</ref></note> project involved the
+                    digitization, OCR processing and online publication of over a million articles
+                    compiled from 41 Belgian newspapers published between 1818 and 1972. Such a
+                    large scope allows researchers to gather information on day-to-day activities in
+                    the Ypres region during WWI and WWII, thus offering a great potential in the
+                    context of CENDARI and other war-related Digital Humanities projects. The
+                    project has been launched under the impulse of Erfgoedcel CO7<note>
+                        <ref target="http://erfgoedcelco7.be/">http://erfgoedcelco7.be/</ref></note>, a Flemish organisation aiming to shed
+                    light on the cultural features of the Ypres region. The target audience of such
+                    a project is thus broad: it includes scientists, WWI historians, and also simply
+                    individuals interested in the history of their region. Analysing the needs of
+                    one’s target audience is central to digitisation projects, as illustrated by
+                    recent initiatives such as a Europeana user requirements group or, more
+                    recently, the Belgian Science Policy (BELSPO) funded project MADDLAIN<note>
+                        <ref target="https://www.maddlain.iminds.be">https://www.maddlain.iminds.be</ref></note>.</p>
+                <p>Articles in the <title rend="italic">Historische Kranten</title> corpus are
+                    written in Dutch, French, and English, and focus mainly on the city of Ypres and
+                    its neighbourhood. Currently, the full texts of the <title rend="italic">Historische Kranten</title> corpus have been indexed, which means that
+                    searches for particular mentions in the periodicals suffer from both noise and
+                    silence. For instance, a query on the string <soCalled>Huygens</soCalled>
+                    returns correct results about Christiaan Huygens:</p>
+                <p><hi rend="bold">Example 1.</hi> Links zien wij Christiaan Huygens die met zijn
+                    slingeruurwerk de oplossing bracht voor het meten van de tijd </p>
+                <p>But one also gets results that are not relevant in this context (noise):</p>
+                <p><hi rend="bold">Example 2.</hi> La reconnaissance du cadavre de la veuve Huygens,
+                    faite par les hommes de l’art, a fait constater l’existence de neuf blessures
+                    sur la tête </p>
+                <p>Moreover, interesting results are lost due to variations in spelling
+                    (silence):</p>
+                <p><hi rend="bold">Example 3.</hi> [...] en op het uurwerk toegepast door den
+                    Hollander Huyghens (1629-1695). </p>
+                <p>In order to get a clearer picture of the interests of users, we tracked
+                    individual queries on <ref target="http://www.historischekranten.be/">http://www.historischekranten.be/</ref> with Google Analytics over a 4-year
+                    period, yielding 124 510 results. About 4 200 unique keywords were used at least
+                    three times, of which the ten most popular are shown in Table 1. We can see that
+                    locations are especially favored by the users, which prompted us to focus
+                    preliminary work on this type of entities. Most are related to the First World
+                    War, since Ypres was the scene of four major battles during that conflict.</p>
+                <p>Interestingly, we notice that the list also contains the term <foreign xml:lang="nl">oorlog</foreign> (<soCalled>war</soCalled> in Dutch) which
+                    does not constitute a valid named entity in the sense of Kripke: <cit>
+                        <quote rend="inline" source="#kripke1982">a rigid designator designates the same object in all
+                            possible worlds in which that object exists and never designates
+                            anything else</quote>
+                        <ptr target="#kripke1982" loc="77"/>
+                    </cit>. This makes the case for a more integrated approach to information
+                    extraction able to tackle proper nouns and common nouns in a single workflow,
+                    which is precisely one of the advantages of working with Linked Open Data
+                    resources, as will be shown in Section 4.</p>
+                <table>
+                    <head>Top 10 search terms on Historische Kranten</head>
+                    <row role="label">
+                        <cell>#</cell>
+                        <cell>Term</cell>
+                        <cell>Hits</cell>
+                        <cell>Category</cell>
+                    </row>
+                    <row>
+                        <cell>1.</cell>
+                        <cell>Zillebeke</cell>
+                        <cell>398</cell>
+                        <cell>Location</cell>
+                    </row>
+                    <row>
+                        <cell>2.</cell>
+                        <cell>Passendale</cell>
+                        <cell>351</cell>
+                        <cell>Location</cell>
+                    </row>
+                    <row>
+                        <cell>3.</cell>
+                        <cell>Westouter</cell>
+                        <cell>259</cell>
+                        <cell>Location</cell>
+                    </row>
+                    <row>
+                        <cell>4.</cell>
+                        <cell>leper</cell>
+                        <cell>197</cell>
+                        <cell>Location</cell>
+                    </row>
+                    <row>
+                        <cell>5.</cell>
+                        <cell>oorlog</cell>
+                        <cell>178</cell>
+                        <cell>Concept</cell>
+                    </row>
+                    <row>
+                        <cell>6.</cell>
+                        <cell>Reninghelst</cell>
+                        <cell>163</cell>
+                        <cell>Location</cell>
+                    </row>
+                    <row>
+                        <cell>7.</cell>
+                        <cell>Bikschote</cell>
+                        <cell>149</cell>
+                        <cell>Location</cell>
+                    </row>
+                    <row>
+                        <cell>8.</cell>
+                        <cell>Merkem</cell>
+                        <cell>127</cell>
+                        <cell>Location</cell>
+                    </row>
+                    <row>
+                        <cell>9.</cell>
+                        <cell>Geluveld</cell>
+                        <cell>125</cell>
+                        <cell>Location</cell>
+                    </row>
+                    <row>
+                        <cell>10.</cell>
+                        <cell>Wijtschate</cell>
+                        <cell>121</cell>
+                        <cell>Location</cell>
+                    </row>
+                </table>
+            </div>
+            <div>
+                <head>4. MERCKX: A Knowledge Extractor</head>
+                <p>The idea behind entity linking is that knowledge bases can be leveraged to
+                    perform a full disambiguation of entities through URIs. A correct disambiguation
+                    of a mention of Huygens in a text with DBpedia URI dbr:Christiaan_Huygens would
+                    encompass mentions of <soCalled>Christian Huyghens</soCalled> (French spelling)
+                    while excluding information about the Belgian painter Léon Huygens (which has
+                    his own unique URI: dbr:Léon_Huygens) or the crater on Mars named after the
+                    Dutch astronomer, dbr:Huygens_(crater). In this section, we present MERCKX
+                    (Multilingual Entity/Resource Combiner &amp; Knowledge eXtractor), a tool that
+                    we designed in order to extract entity mentions from documents and to link them
+                    to DBpedia <ptr target="#bizer2009"/>. As the basis of most semantic web
+                    projects and an extremely diverse, multilingual, and extensive ontology, DBpedia
+                    was the obvious choice for providing the URIs.</p>
+                <p>The workflow of MERCKX for the extraction and disambiguation of entities consists
+                    of three phases: downloading resources, building the dictionary, and annotating
+                    mentions with positions and URIs. The first two steps can be time-consuming
+                    depending on the chosen entity type and additional languages, but they need to
+                    be performed only once.</p>
+                <div>
+                    <head>4.1. Downloading resources</head>
+                    <p>In order to simplify the download and decompression of the DBpedia dump, we
+                        provide a shell script doing this automatically.<note> The source code of
+                            MERCKX and related material used in this paper is available at <ref target="https://github.com/madewild/MERCKX">https://github.com/madewild/MERCKX</ref>.</note> This script
+                        invokes another one written in Python which extracts all the URIs matching a
+                        given type in the DBpedia ontology. Instances (or resources) are linked to
+                        corresponding types in the form of RDF triples (subject – predicate –
+                        object):</p>
+                    <eg>
+    &lt;http://dbpedia.org/resource/Autism&gt; 
+    &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#type&gt; 
+    &lt;http://dbpedia.org/ontology/Disease&gt;
+
+    &lt;http://dbpedia.org/resource/Aristotle&gt; 
+    &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#type&gt; 
+    &lt;http://dbpedia.org/ontology/Philosopher&gt;
+
+    &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#type&gt; 
+    &lt;http://dbpedia.org/resource/Alabama&gt; 
+    &lt;http://dbpedia.org/ontology/AdministrativeRegion&gt;
+
+    &lt;http://dbpedia.org/resource/Alabama&gt; 
+    &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#type&gt;
+    &lt;http://dbpedia.org/ontology/Place&gt; 
+                    </eg>
+                    <p>A concept can be categorised by several types, as illustrated by
+                            <soCalled>Alabama</soCalled> in the sample above, which is both an
+                            <soCalled>Administrative Region</soCalled> and a
+                            <soCalled>Place</soCalled>.</p>
+                </div>
+                <div>
+                    <head>4.2. Mapping labels to URIs</head>
+                    <p>In the second phase, MERCKX maps all the labels to their corresponding URIs
+                        in the selected languages. The relationship between URIs and labels is also
+                        expressed by triples:</p>
+                    <eg>
+    &lt;http://dbpedia.org/resource/South_Africa&gt; 
+    &lt;http://www.w3.org/2000/01/rdf-schema#label&gt; 
+    "Afrique du Sud"@fr
+
+    &lt;http://dbpedia.org/resource/Andorra&gt; 
+    &lt;http://www.w3.org/2000/01/rdf-schema#label&gt; 
+    "Andorre"@fr
+
+    &lt;http://dbpedia.org/resource/Angola&gt; 
+    &lt;http://www.w3.org/2000/01/rdf-schema#label&gt; 
+    "Angola"@fr
+
+    &lt;http://dbpedia.org/resource/Saudi_Arabia&gt; 
+    &lt;http://www.w3.org/2000/01/rdf-schema#label&gt; 
+    "Arabie saoudite"@fr 
+                    </eg>
+                    <p>To make this more legible and reduce the size of the file, the initialisation
+                        script converts this to a cleaner format, using the dbr: prefix instead of
+                        the full URI starting with <ref target="http://dbpedia.org/resource/">http://dbpedia.org/resource/</ref>, removing the recurrent
+                            <soCalled>label</soCalled> predicate, and inverting the order of the
+                        original triples:</p>
+                    <eg>
+    Afrique du Sud      dbr:South_Africa 
+    Andorre             dbr:Andorra
+    Angola              dbr:Angola 
+    Arabie saoudite     dbr:Saudi_Arabia 
+                    </eg>
+                    <p>When using more than one language, the order in which they are loaded in this
+                        lookup table is important because a label can only point to a single URI.
+                        For instance, the French label "Liège"@fr predictably corresponds to the
+                        city of dbr:Liège, but the Dutch label "Liège"@nl redirects to the homonymy
+                        page dbr:Liège_(disambiguation) which is not a valid place: it contains
+                        references to the French municipality of Le Liège and to the Liège metro
+                        station in Paris for instance. If the languages are combined in that order,
+                        the conflict between URIs will result in a decrease in recall. To reduce
+                        problems due to conflicting labels, MERCKX applies the following strategy
+                        (text in parentheses provides a concrete example for every step):</p>
+                    <list type="ordered">
+                        <item>Load the label files for each language, one by one (EN &gt; NL &gt;
+                            FR).</item>
+                        <item>Check for each label if it corresponds to the chosen type
+                            (dbo:Place).</item>
+                        <item>If the label already exists, check if the type remains the same
+                            ("Avant"@nl is already listed as a place, but is "Avant"@fr also a
+                            place?).</item>
+                        <item>If the type is the same, update the URI (yes &gt; URI FR replaces URI
+                            NL).</item>
+                        <item> If the type is different – i.e. multilingually ambiguous – remove the
+                            label (no &gt; suppress “Avant” from the file).<note> Another option
+                                would have been to keep multiple meanings in parallel, but this is
+                                currently incompatible with the design of MERCKX.</note></item>
+                    </list>
+                    <p>Table 2 shows a summary of the number of places extracted (URIs, labels by
+                        language, and combined labels).</p>
+                    <table>
+                        <head>Summary of the extracted places</head>
+                        <row role="label">
+                            <cell>URIs</cell>
+                            <cell>EN</cell>
+                            <cell>NL</cell>
+                            <cell>FR</cell>
+                            <cell>ALL</cell>
+                        </row>
+                        <row>
+                            <cell>735,062</cell>
+                            <cell>709,357</cell>
+                            <cell>194,208</cell>
+                            <cell>186,483</cell>
+                            <cell>857,911</cell>
+                        </row>
+                    </table>
+                    <p>In total, 735,062 unique locations were found in the DBpedia dump of August
+                            2014.<note> Note that this number is constantly fluctuating: as of
+                            August 2015, the figure has decreased to 725,546, which means that
+                            almost 10,000 places have been suppressed from DBpedia over the course
+                            of a year.</note> Only 709,357 of them have a corresponding English
+                        label, leaving over 25,000 without a proper lexicalised form in this
+                        language. This can be explained by the fact that English speakers do not
+                        always find it useful to mention explicitly in a Wikipedia infobox (from
+                        which DBpedia extracts structured information) that the term to refer to the
+                        city of Ypres is “Ypres” for instance. In other words, a mapping from the
+                        label "Ypres"@en to the URI dbr:Ypres may seem redundant but makes sense in
+                        a multilingual perspective, taking non-native speakers into account.</p>
+                    <p>The numbers of labels for Dutch and French are dramatically lower, 194,208
+                        and 186,483 respectively. The explanation is similar: users of the English
+                        Wikipedia/DBpedia seldom take time to encode labels in alternative
+                        languages, while speakers from these other languages are often more keen to
+                        fill information on their <soCalled>own</soCalled> language chapters (<ref target="http://nl.dbpedia.org">http://nl.dbpedia.org</ref> or <ref target="http://fr.dbpedia.org">http://fr.dbpedia.org</ref> for instance)
+                        rather than perform this tedious work for the benefit of the English central
+                        version. This state of affairs constitutes one of the major downside of the
+                        current structure of DBpedia, which is simply replicated from Wikipedia
+                        rather than organised in a language-independent manner. The overall number
+                        of labels (857,911) is not equal to the sum of the individual languages but
+                        a much lower number, since several labels were either replaced or suppressed
+                        during the steps 4 and 5 described above.</p>
+                    <p>At initialisation time, all the labels and URIs are loaded into a Python dict
+                        (json-like dictionary) data structure, allowing instant lookup during the
+                        spotting phase. After this last transformation, the data in memory look like
+                        this:</p>
+                    <eg>
+    {
+        "Afrique de Sud"  :  "dbr:South_Africa",
+        "Andorre"         :  "dbr:Andorra",
+        "Angola"          :  "dbr:Angola",
+        "Arabie saoudite" : "dbr:Saudi_Arabia",
+    }
+                    </eg>
+                    <p>At this stage, everything is in place to process textual content with
+                        MERCKX.</p>
+                </div>
+                <div>
+                    <head>4.3. Tokenizing, spotting, and annotating</head>
+                    <p>The next step is to tokenize the documents we want to enrich with the NLTK
+                            WordPunctTokenizer<note> See <ref target="http://www.nltk.org/api/nltk.tokenize.html">http://www.nltk.org/api/nltk.tokenize.html</ref> for details about
+                            how it works.</note> and to perform a simple greedy lookup<note> A
+                            greedy algorithm always takes the best immediate solution available at
+                            each stage.</note> of entities up to three tokens in length. Tokens
+                        shorter than three characters are ignored in order to reduce the noise they
+                        are likely to induce, although this comes at the price of losing locations
+                        like the municipality of Y in the Somme department.</p>
+                    <p>For the entities present in the dictionary, the longest match is chosen and
+                        annotated with its first and last characters, in addition to the
+                        corresponding URI, thereby disambiguating these entities completely. For
+                        instance, the expression <soCalled>East Yorkshire</soCalled> has a match in
+                        DBpedia, and is therefore preferred to the shorter
+                            <soCalled>Yorkshire</soCalled>. It appears in the sample from character
+                        626 to 640, and links to the URI <ref target="http://dbpedia.org/resource/East_Riding_of_Yorkshire">http://dbpedia.org/resource/East_Riding_of_Yorkshire</ref>. This
+                        corresponds to the format of the Entity Discovery and Linking track<note>
+                            <ref target="http://nlp.cs.rpi.edu/kbp/2015/">http://nlp.cs.rpi.edu/kbp/2015/</ref></note> at the Text Analysis Conference.<note>
+                            <ref target="http://www.nist.gov/tac/">http://www.nist.gov/tac/</ref></note> Once the URI is known, contextual
+                        knowledge about the entities (such as the date of birth of people and the
+                        geographic coordinates of a place, for instance) can be retrieved seamlessly
+                        from the Linked Open Data cloud, enriching the original content.</p>
+                </div>
+            </div>
+            <div>
+                <head>5. Evaluation</head>
+                <p>In this section, we describe the methodology used in order to design the
+                    reference corpus used for evaluation purposes (Section 5.1), before performing a
+                    benchmarking of some related tools (Section 5.2) and providing the results
+                    obtained along with a quantitative and qualitative analysis of errors (Section
+                    5.3).</p>
+                <div>
+                    <head>5.1. Gold-standard corpus</head>
+                    <p>In order to compute the precision, recall and F-score of MERCKX, we needed a
+                        manually constructed gold-standard corpus (GSC). In information science,
+                        precision, recall and F-score are metrics intended to measure the
+                        performance of a retrieval system. Precision is how <emph>correct</emph> a
+                        retrieval system is: it determines whether results retrieved are relevant.
+                        Recall measures the thoroughness of the system – by comparing how many
+                        relevant items are in the corpus and how many are retrieved by the system,
+                        it becomes possible to assess the performance of the system. The F-score is
+                        the harmonic mean of precision and recall: it balances out the two
+                        above-mentioned metrics into a single one – it measures a system’s
+                        reliability. Although some GSC are available online for the evaluation of
+                        entity linking, none of them is centred on digitised newspapers or the
+                        cultural heritage sector. Making the same observation, Rodriquez et al.
+                        built their own GSC for the evaluation of NER on raw OCR text, but using
+                        very different data: testimonies and newsletters, which do not compare to
+                        newspapers archives <ptr target="#rodriquez2012"/>. We therefore used a
+                        sample from our own archival corpus and asked trained annotators to indicate
+                        all valid places.</p>
+                    <div>
+                        <head>5.1.1. Sample selection</head>
+                        <p>Since the <title rend="italic">Historische Kranten</title> corpus
+                            contains 1,028,555 articles, we calculated with the help of an online tool<note>
+                                <ref target="http://www.surveysystem.com/sscalc.htm">http://www.surveysystem.com/sscalc.htm</ref></note> that a
+                            sample of at least 96 articles was needed to reach a 95% confidence
+                            level with a 10% confidence interval. This means that with 96 articles,
+                            we are 95% certain that our sample is representative of the overall
+                            corpus with a deviance of maximum 10%. The confidence interval is
+                            actually much smaller (about 5%), since the probability of a word being
+                            a location is not 50% but rather 2–3%. We therefore generated a random
+                            sample of 100 documents, divided over the three languages proportionally
+                            to the overall distribution: 49 French documents, 49 Dutch ones and 2
+                            English ones.<note> Documents in the sample contain 1430 characters on
+                                average, which is comparable to the corpus used by <ptr target="#milne2008"/>.</note> The documents range from 1831 to
+                            1970, every decade being covered by at least two documents. We then
+                            annotated all mentions of places manually with their positions in the
+                            text (first and last character) and manually disambiguated them with
+                            their corresponding DBpedia URIs, yielding a total of 662 locations in
+                            the following format:</p>
+                        <p><code>187   198   Bouvancourt</code></p>
+                        <p><code>199   205   Fismes</code></p>
+                        <p><code>561   565   Pévy</code></p>
+                        <p><code>626   640   East Yorkshire</code></p>
+                        <p><code>1076  1082  Trigny </code></p>
+                        <p><code>1145  1151  Muizon</code></p>
+                        <p><code>1200  1205  Vesle </code></p>
+                        <p>The median number of locations by document is 4.5, ranging from 1 to 62.
+                            Most places comprise only one word, but 38 of them contain two and 9
+                            have three words or more. The annotation is partly subjective: one could
+                            judge that the correct place is <soCalled>Yorkshire</soCalled> instead
+                            of <soCalled>East Yorkshire</soCalled> for instance, every location
+                            having five matching candidates in the dictionary on average. We thus
+                            had to validate the list with extra annotators before using it as a
+                            GSC.</p>
+                    </div>
+                    <div>
+                        <head>5.1.2. Cohen’s kappa</head>
+                        <p>The Cohen’s kappa coefficient measures inter-rater agreement on a scale
+                            between 0 and 1, 0 being zero agreement and 1 total agreement <ptr target="#cohen1960"/>. A value of K greater than .8 is generally
+                            considered sufficiently reliable to draw sound conclusions based on the
+                            annotation <ptr target="#carletta1996"/>. The kappa is computed as
+                            follows:</p>
+                        <figure>
+                            <head>Pr(<emph>a</emph>) stands for the relative agreement between two
+                                raters and Pr(<emph>e</emph>) for the probability of random
+                                agreement.</head>
+                            <graphic url="resources/images/figure01.png"/>
+                        </figure>
+                        <!-- Best attempt at formula: <p>&#954;&#160;=&#160;(Pr(<emph>a</emph>)-Pr(<emph>e</emph>))/((1-Pr(<emph>e</emph>))</p>-->
+                        <p>Our sample of 100 documents contained 30 186 tokens in total, spread over
+                            the three languages. For each language, in addition to our own
+                            annotation (A), an external annotator (B) was asked for every token to
+                            decide whether it was part of a place name or not. Locations containing
+                            OCR errors were accepted as long as the annotator could be reasonably
+                            sure that it was a place name. Table 2 presents the raw annotation
+                            counts, along with the kappa by language.</p>
+                        <table>
+                            <head>Cohen’s kappa for our GSC</head>
+                            <row role="label">
+                                <cell>Lang.</cell>
+                                <cell>Both</cell>
+                                <cell>A</cell>
+                                <cell>B</cell>
+                                <cell>None</cell>
+                                <cell>Tot</cell>
+                                <cell>Pr(a)</cell>
+                                <cell>Pr(e)</cell>
+                                <cell><emph>K</emph></cell>
+                            </row>
+                            <row>
+                                <cell>EN</cell>
+                                <cell>20</cell>
+                                <cell>2</cell>
+                                <cell>2</cell>
+                                <cell>678</cell>
+                                <cell>702</cell>
+                                <cell>.994</cell>
+                                <cell>.939</cell>
+                                <cell>.906</cell>
+                            </row>
+                            <row>
+                                <cell>FR</cell>
+                                <cell>197</cell>
+                                <cell>46</cell>
+                                <cell>8</cell>
+                                <cell>13422</cell>
+                                <cell>13673</cell>
+                                <cell>.996</cell>
+                                <cell>.968</cell>
+                                <cell>.877</cell>
+                            </row>
+                            <row>
+                                <cell>NL</cell>
+                                <cell>384</cell>
+                                <cell>13</cell>
+                                <cell>27</cell>
+                                <cell>15387</cell>
+                                <cell>15811</cell>
+                                <cell>.997</cell>
+                                <cell>.950</cell>
+                                <cell>.949</cell>
+                            </row>
+                        </table>
+                        <p>The average kappa of .91 shows a high agreement that is largely
+                            sufficient to consider the GSC reliable. This good score can be
+                            explained in part by the relative straightforwardness of the annotation
+                            task (LOC versus NON-LOC) compared to more complex ones involving
+                            several types of entities, and in part by the detailed instructions
+                            provided to the external annotators prior to the task. After some
+                            corrections, insertions and deletions, we were left with 654 locations
+                            that we mapped to their corresponding DBpedia resources, producing our
+                            GSC in the TAC KBP/EDL format, which is slightly different from the one
+                            used to annotate the sample:</p>
+                        <eg>
+    gsc3.txt   187   198   Bouvancourt
+    gsc3.txt   199   205   Fismes
+    gsc3.txt   561   565   Pévy
+    gsc3.txt   626   640   East Yorkshire
+    gsc3.txt   1076  1082  Trigny
+    gsc3.txt   1145  1151  Muizon
+    gsc3.txt   1200  1205  Vesle                            
+                        </eg>
+                        <p> The impact of OCR quality on entity linking also needed to be evaluated.
+                            To do so, we manually corrected the 120 places (out of 654) containing
+                            OCR errors and produced a second reference. The original sample and both
+                            GSC are also available on the GitHub page of the project.</p>
+                    </div>
+                </div>
+                <div>
+                    <head>5.2. Benchmarking</head>
+                    <p>To compare MERCKX to related systems presented in this section, we used the
+                            <title rend="italic">neleval</title> tool<note>
+                            <ref target="http://www.surveysystem.com/sscalc.htm">https://github.com/wikilinks/neleval</ref></note> which is a
+                        collection of Python evaluation scripts for the TAC<note>
+                            <ref target="http://www.nist.gov/tac/">http://www.nist.gov/tac/</ref></note> entity linking task and related
+                        Wikification, named-entity disambiguation, and cross-document coreference
+                        tasks. This utility allowed us to specify different GSC (raw OCR versus
+                        corrected), systems (DBpedia Spotlight, Zemanta, Babelfy &amp; MERCKX), and
+                        measures (simple entity match versus strong annotation match) to compare. </p>
+                    <p>According to Ruiz and Poibeau <cit>
+                            <quote rend="inline" source="#ruiz2015">the E[ntity] L[inking] literature has stressed the
+                                importance of evaluating systems on more than one measure</quote>
+                            <ptr target="#ruiz2015"/>
+                        </cit>. Following the evaluation framework made available by the authors,<note>
+                            <ref target="https://sites.google.com/site/entitylinking1">https://sites.google.com/site/entitylinking1</ref></note> we used
+                        the distinction between simple entity match (ENT), i.e. without alignment,
+                        and strong annotation match (SAM) which is stricter on entity boundaries : <cit>
+                            <quote rend="block" source="#cornolti2013">SAM requires an annotation’s position to exactly
+                                match the reference, besides requiring the entity annotated to match
+                                the reference entity. ENT ignores positions and only evaluates
+                                whether the entity proposed by the system matches the
+                                reference.</quote>
+                            <ptr target="#cornolti2013"/>
+                        </cit></p>
+                    <p>Both measures will be used to evaluate our results in Section 5.3 in order to
+                        get a more nuanced picture of what can be achieved by entity linking
+                        tools.</p>
+                    <div>
+                        <head>5.2.1. DBpedia Spotlight</head>
+                        <p>DBpedia Spotlight<note>
+                                <ref target="http://spotlight.dbpedia.org/">http://spotlight.dbpedia.org/</ref></note> allows to find
+                            entities in text and link them to DBpedia URIs. Interestingly, the
+                            authors pay special attention to quality issues and fitness for use:
+                                <q>DBpedia Spotlight allows users to configure the annotations to
+                                their specific needs through the DBpedia Ontology and quality
+                                measures such as prominence, topical pertinence, contextual
+                                ambiguity and disambiguation confidence</q>. The four stages of its
+                            workflow are spotting, candidate selection, disambiguation, and
+                            configuration (emphasis preseverd): <cit>
+                                <quote rend="block" source="#mendes2011">The <emph>spotting</emph> stage recognizes in a
+                                    sentence the phrases that may indicate a mention of a DBpedia
+                                    resource. <hi rend="italic">Candidate selection</hi> is
+                                    subsequently employed to map the spotted phrase to resources
+                                    that are candidate disambiguations for that phrase. The <hi rend="italic">disambiguation</hi> stage, in turn, uses the
+                                    context around the spotted phrase to decide for the best choice
+                                    amongst the candidates. The annotation can be customized by
+                                    users to their specific needs through <hi rend="italic">configuration</hi> parameters [ ...].</quote>
+                                <ptr target="#mendes2011"/>
+                            </cit>
+                        </p>
+                        <p>However, the original Spotlight was designed for English only, as is the
+                            case for many tools. To counterbalance this limitation, Daiber et al.
+                            developed a new multilingual version of DBpedia Spotlight, which they
+                            claim is faster, more accurate, and easier to configure <ptr target="#daiber2013"/>. This statistical version has been adopted
+                            for the online demo.<note>
+                                <ref target="http://dbpedia-spotlight.github.io/demo/">http://dbpedia-spotlight.github.io/demo/</ref></note> In
+                            addition to English, their language-independent model was tested on
+                            seven other languages: Danish, French, German, Hungarian, Italian,
+                            Russian, and Spanish. The authors reported accuracy scores for the
+                            disambiguation task ranging from 68% to 83%.</p>
+                        <p>For the spotting phase, the authors experiment with two methods: a
+                            language-independent (data-driven) one based on gazetteers and a
+                            language-dependent (rule-based) one relying on more heavy linguistic
+                            processing using Apache OpenNLP models.<note>
+                                <ref target="https://opennlp.apache.org/">https://opennlp.apache.org/</ref></note> Surprisingly, the
+                            language-dependent implementation does not improve the results
+                            significantly: it only outperforms the language-independent
+                            implementation by less than a percentage point.</p>
+                        <p>The subsequent steps are also fully language-independent: candidate
+                            selection is done by computing a score for each spot candidate as a
+                            linear combination of features with an automated estimation of the
+                            optimal cut-off threshold; disambiguation is performed by using the
+                            probabilistic model proposed by Han and Sun <ptr target="#han2011"/>;
+                            finally, configuration allows users to refine the results obtained by
+                            setting their own confidence and relevance thresholds, these scores
+                            being computed independently of the language.</p>
+                    </div>
+                    <div>
+                        <head>5.2.2. Zemanta</head>
+                        <p>Developed as a Web content enrichment platform, Zemanta<note>
+                                <ref target="http://www.zemanta.com/">http://www.zemanta.com/</ref></note> offers a NER API among other
+                            services for bloggers. It gained worldwide attention in 2010 when an
+                            evaluation campaign showed that it outperformed other state-of-the-art
+                            systems for entity disambiguation,<note> See this blog post for a
+                                detailed report on the Entity Extraction &amp; Content API
+                                Evaluation: <ref target="http://blog.viewchange.org/2010/05/entity-extraction-content-api-evaluation/">http://blog.viewchange.org/2010/05/entity-extraction-content-api-evaluation/</ref>.</note>
+                            an assessment confirmed by later studies <ptr target="#vanhooland2015"/>
+                            <ptr target="#hengchen2015"/>. Zemanta was subsequently integrated into
+                            the NERD framework <ptr target="#rizzo2012"/> and into the OpenRefine
+                            NER extension.<note>
+                                <ref target="http://freeyourmetadata.org/named-entity-extraction/">http://freeyourmetadata.org/named-entity-extraction/</ref></note>
+                            Zemanta requires an API key in order to use its services,<note>
+                                <ref target="http://papi.zemanta.com/services/rest/0.0/">http://papi.zemanta.com/services/rest/0.0/</ref></note> but the
+                            webpage to apply for one seems to have been down for a long time,
+                            preventing new users from registering (although older keys still work).
+                            Despite the fact that it officially only supports English text, Zemanta
+                            has proved in our own experience to work reasonably well on French and
+                            Dutch.</p>
+                    </div>
+                    <div>
+                        <head>5.2.3. Babelfy</head>
+                        <p>Moro et al. introduce Babelfy,<note>
+                                <ref target="http://babelfy.org/">http://babelfy.org/</ref></note> a
+                            system bridging entity linking and word sense disambiguation and based
+                            on the BabelNet<note>
+                                <ref target="http://babelnet.org/">http://babelnet.org/</ref></note>
+                            multilingual encyclopaedic dictionary and semantic network which is
+                            constructed as a mash-up of Wikipedia and WordNet <ptr target="#moro2014"/>. Aiming to bring together <q>the best of two
+                                worlds</q>, Babelfy also uses a graph-based approach but relies on
+                            semantic signatures to select and disambiguate candidates. The use of
+                            these dense subgraphs is very effective to collectively disambiguate
+                            entities that would have proven almost impossible to identify
+                            separately. Relying on a large-scale multilingual network, Babelfy
+                            officially supports 267 languages, in addition to a language-agnostic
+                            option.</p>
+                    </div>
+                </div>
+                <div>
+                    <head>5.3. Results</head>
+                    <p>Tables 3 and 4 present the results for simple entity match (ENT) and strong
+                        annotation match (SAM) respectively, with the best figures indicated in
+                        bold. MERCKX outperforms the three other systems evaluated, except for
+                        precision where Zemanta scores best.<note> Consistently with results
+                            reported by Rizzo and Troncy <ptr target="#rizzo2011"/>. Since Zemanta
+                            operates as a black box, it is difficult to learn from it in order to
+                            improve precision. Our guess is that it simply uses a higher confidence
+                            threshold, at the expense of recall.</note> The columns marked
+                            <soCalled>Raw</soCalled> show the results obtained on the original GSC,
+                        while those marked <soCalled>Corr</soCalled> indicate scores obtained on
+                        corrected OCR. Preliminary results of this experiment are presented in <ptr target="#dewilde2014"/>.</p>
+                    <table>
+                        <head>Simple entity match (ENT)</head>
+                        <row role="label">
+                            <cell>System </cell>
+                            <cell>Precision</cell>
+                            <cell/>
+                            <cell>Recall</cell>
+                            <cell/>
+                            <cell>F-score</cell>
+                            <cell/>
+                        </row>
+                        <row>
+                            <cell/>
+                            <cell>Raw</cell>
+                            <cell>Corr</cell>
+                            <cell>Raw</cell>
+                            <cell>Corr</cell>
+                            <cell>Raw</cell>
+                            <cell>Corr</cell>
+                        </row>
+                        <row>
+                            <cell>Spotlight</cell>
+                            <cell>.466</cell>
+                            <cell>.468</cell>
+                            <cell>.192</cell>
+                            <cell>.207</cell>
+                            <cell>.272</cell>
+                            <cell>.287</cell>
+                        </row>
+                        <row>
+                            <cell>Zemanta</cell>
+                            <cell role="label">.887</cell>
+                            <cell role="label">.898</cell>
+                            <cell>.333</cell>
+                            <cell>.371</cell>
+                            <cell>.485</cell>
+                            <cell>.525</cell>
+                        </row>
+                        <row>
+                            <cell>Babelfy</cell>
+                            <cell>.656</cell>
+                            <cell>.688</cell>
+                            <cell>.376</cell>
+                            <cell>.446</cell>
+                            <cell>.478</cell>
+                            <cell>.541</cell>
+                        </row>
+                        <row>
+                            <cell>MERCKX</cell>
+                            <cell>.712</cell>
+                            <cell>.744</cell>
+                            <cell role="label">.488</cell>
+                            <cell role="label">.559</cell>
+                            <cell role="label">.579</cell>
+                            <cell role="label">.638</cell>
+                        </row>
+                    </table>
+                    <table>
+                        <head>Strong annotation match (SAM)</head>
+                        <row role="label">
+                            <cell>System</cell>
+                            <cell>Precision</cell>
+                            <cell/>
+                            <cell>Recall</cell>
+                            <cell/>
+                            <cell>F-score</cell>
+                            <cell/>
+                        </row>
+                        <row>
+                            <cell/>
+                            <cell>Raw</cell>
+                            <cell>Corr</cell>
+                            <cell>Raw</cell>
+                            <cell>Corr</cell>
+                            <cell>Raw</cell>
+                            <cell>Corr</cell>
+                        </row>
+                        <row>
+                            <cell>Spotlight</cell>
+                            <cell>.235</cell>
+                            <cell>.287</cell>
+                            <cell>.190</cell>
+                            <cell>.251</cell>
+                            <cell>.210</cell>
+                            <cell>.268</cell>
+                        </row>
+                        <row>
+                            <cell>Zemanta</cell>
+                            <cell role="label">.867</cell>
+                            <cell role="label">.888</cell>
+                            <cell>.278</cell>
+                            <cell>.362</cell>
+                            <cell>.421</cell>
+                            <cell>.515</cell>
+                        </row>
+                        <row>
+                            <cell>Babelfy</cell>
+                            <cell>.662</cell>
+                            <cell>.711</cell>
+                            <cell>.321</cell>
+                            <cell>.399</cell>
+                            <cell>.433</cell>
+                            <cell>.511</cell>
+                        </row>
+                        <row>
+                            <cell>MERCKX</cell>
+                            <cell>.782</cell>
+                            <cell>.805</cell>
+                            <cell role="label">.443</cell>
+                            <cell role="label">.517</cell>
+                            <cell role="label">.566</cell>
+                            <cell role="label">.629</cell>
+                        </row>
+                    </table>
+                    <div>
+                        <head>5.3.1 Quantitative analysis</head>
+                        <p>Precision is consistently ahead of recall, with Zemanta reaching scores
+                            between 85% and 90%. The harder task of strong annotation match (taking
+                            into account the exact position of each entity in the text) does not
+                            affect precision: Babelfy and MERCKX actually improve on their scores,
+                            although Spotlight’s precision is cut by a factor of 2. This can be
+                            explained by recurrent entities that are correctly identified in all
+                            cases. In contrast, all recall scores decrease when considered from the
+                            SAM perspective. MERCKX outperforms other systems on recall, but it
+                            peaks at 49% (ENT) and 44% (SAM) only.</p>
+                        <p>Low recall scores under 50% can be explained by the multilingual context
+                            and by the lack of coverage of DBpedia for some types of locations.
+                            Whereas these would be unacceptable in a medical context where failing
+                            to retrieve a document can have dramatic consequences, a better
+                            precision is generally preferred in less critical applications. MERCKX
+                            reaches a F-score just under 60%, a ten-point improvement on both
+                            Zemanta and Babelfy which have F-scores under 50%. Spotlight fares
+                            disappointingly, with F-scores around the 25% mark. Results on corrected
+                            OCR (columns marked <soCalled>Corr</soCalled>) will be discussed
+                            separately in Section 5.3.3.</p>
+                    </div>
+                    <div>
+                        <head>5.3.2. Qualitative analysis</head>
+                        <p>MERCKX is heavily dependent on the quality of DBpedia, on which it relies
+                            for the disambiguation of entities. The errors of our system can be
+                            grouped into three categories, following the typology of Makhoul et al.:
+                            insertions, deletions, and substitutions <ptr target="#makhoul1999"/>.<note> To give a rough idea, Zemanta suffers from 9 insertions
+                                and 134 deletions on the corrected GSC with ENT measure; in
+                                comparison, MERCKX has 41 insertions but only 94 deletions
+                                (substitutions being close to nil).</note></p>
+                        <p><hi rend="bold">Insertions</hi> (spurious entities or false acceptances)
+                            are entities in the system output that do not align with any entity in
+                            the reference. A common factor causing this is multilingual ambiguity.
+                            The French adjective <soCalled>tous</soCalled>, for instance, when
+                            written with a capital <soCalled>T</soCalled>, can be incorrectly mapped
+                            to the town of dbr:Tous,_Valencia. The type check performed during the
+                            construction of the dictionary normally avoids such cases, but some
+                            problems can remain when a disambiguation page is missing: in this case,
+                            the French resource dbpedia-fr:Tous also points to the Spanish city,
+                            with no reference to the adjective. Another frequent mistake occurs when
+                            places are mentioned in the name of streets. For instance, the
+                                <soCalled>rue de Lille</soCalled> in Ypres does not really refer to
+                            the French city of Lille, and should therefore not be disambiguated with
+                            dbr:Lille. A more elaborate algorithm could try to detect such cases in
+                            order to exclude them, but it would be difficult to implement it in a
+                            language-independent manner without explicitly blacklisting words such
+                            as <soCalled>rue</soCalled>, <soCalled>straat</soCalled>,
+                                <soCalled>street</soCalled>, etc.</p>
+                        <p><hi rend="bold">Deletions</hi> (missing entities or false rejections) are
+                            entities in the reference that do not align with any entity in the
+                            system output. One of the main causes for this is the absence of the
+                            dbo:Place RDF type in the resource of a location. For instance,
+                            dbr:East_Riding_of_Yorkshire is described as a owl:Thing which is very
+                            general and therefore not helpful. However, it is also tagged as a
+                            yago:YagoGeoEntity which is more precise. Using multiple types instead
+                            of just dbo:Place could improve the recall. Another cause is the absence
+                            of a particular label (e.g. when an old spelling is used). The resource
+                            dbr:Reims, for instance, does not include a label
+                                <soCalled>Rheims</soCalled> in any of the three languages used.
+                            However, the resource dbr:Rheims does exist and redirects to dbr:Reims.
+                            Including redirections in addition to labels could also help to limit
+                            the number of missing entities.<note> Although the risk is then to
+                                introduce more noise: dbr:Cette, for instance, redirects to dbr:Sète
+                                because the spelling of the French town changed in 1927. The danger
+                                of confusion with the French determiner <term>cette</term> is
+                                obvious.</note></p>
+                        <p><hi rend="bold">Substitutions</hi> (incorrect entities) are entities in
+                            the system output that do align with entities in the reference but are
+                            scored as incorrect. These cases are far more rare than insertions and
+                            deletions. Substitutions can be due to the wrong detection of entity
+                            boundaries: <soCalled>Jette</soCalled> instead of
+                                <soCalled>Jette-Saint-Pierre</soCalled>,
+                                <soCalled>Flanders</soCalled> instead of
+                                <soCalled>West-Flanders</soCalled>. The greedy lookup mechanism of
+                            MERCKX normally prevents that, but extra spaces (<soCalled>West-
+                                Flanders</soCalled>) or long entities
+                                (<soCalled>Jette-Saint-Pierre</soCalled> contains five tokens
+                            because hyphens are tokenized separately) can prove tricky. Another
+                            possibility is the attribution of a wrong URI when two places have the
+                            same name. No case was detected in our system, but the output of DBpedia
+                            Spotlight contains an occurrence of this type of mistake: mapping
+                                <soCalled>Vitry</soCalled> to <soCalled>Vitry-le-François</soCalled>
+                            instead of <soCalled>Vitry-sur-Seine</soCalled>.</p>
+                    </div>
+                    <div>
+                        <head>5.3.3. Impact of OCR</head>
+                        <p>In similar work on Holocaust testimonies, Rodriquez et al. found that <cit>
+                                <quote rend="inline" source="#rodriquez2012">manual correction of OCR output does not
+                                    significantly improve the performance of named-entity
+                                    extraction</quote>
+                                <ptr target="#rodriquez2012"/>
+                            </cit>. In other words, even poorly digitized material with OCR mistakes
+                            could be successfully enriched to meet the needs of users. The
+                            confirmation of these findings would mean a lot to institutions that
+                            lack the funding to perform first-rate OCR on their collections or the
+                            manpower to curate them manually.</p>
+                        <p>However, contrary to this study, we see that OCR correction improves the
+                            results of all systems. Precision goes up by 1 to 3% on ENT and 5% on
+                            SAM in the case of Babelfy. Recall improvement reaches 7% on ENT and
+                            over 8% on SAM for Zemanta. Accordingly, F-scores get improved by up to
+                            6% on the corrected version, with MERCKX crossing the 60% mark on both
+                            ENT and SAM. This state of affairs can be explained by a number of
+                            factors. First, the quality of the OCR seems to be much worse in the
+                            case of the <title rend="italic">Historische Kranten</title> corpus than
+                            in the testimonies used for their study: the authors report a word
+                            accuracy of 88.6% and a character accuracy of 93.0%, whereas in the case
+                            of our sample these scores were somewhat lower: 81.7% (word accuracy on
+                            places only) and 85.2% (character accuracy). The overall word accuracy,
+                            tested on a subset of the sample, was much lower still: a mere 68.3%.
+                            Secondly, the entity linking task is harder than simple named-entity
+                            recognition: full disambiguation with an URI is more prone to suffer
+                            from OCR mistakes. Using a fuzzy matching algorithm such as the
+                            Levenshtein distance could help increase the results without needing
+                            manual correction of the OCR. Preliminary experiments with this
+                            algorithm indicate that it could lead to an improvement of about 5%
+                            F-score, bringing MERCKX close enough to the performance achieved on the
+                            corrected version of the sample, although this would come at the expense
+                            of efficiency since the Levenshtein distance has an exponential time
+                            complexity.</p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <head>6. Conclusion and Future Work</head>
+                <p>In this paper, we have shown how named-entity recognition and entity linking
+                    could easily be adopted by LAM in order to semantically enrich their
+                    collections. Compared to existing NER tools, the approach of MERCKX is to take
+                    advantage of available Linked Data resources to perform a full disambiguation of
+                    entities. This also allows to handle multiple languages seamlessly, although it
+                    comes at the price of losing some precisions in case of multilingual
+                    ambiguity.</p>
+                <p>A fully language-independent system would obviously need to incorporate labels
+                    from multiple knowledge bases, relying on a fallback mechanism when an entity
+                    does not exist in a specific language. To address the issue of low recall, one
+                    could experiment will the combination of several knowledge bases instead of
+                    DBpedia only. For place names, the aggregation of GeoNames<note>
+                        <ref target="http://www.geonames.org/">http://www.geonames.org/</ref></note>
+                    and GeoVocab<note>
+                        <ref target="http://geovocab.org/">http://geovocab.org/</ref></note> looks
+                    promising. By linking historical locations to their corresponding URIs (and, by
+                    extent, coordinates), we allow the semi-automatic creation of maps and other
+                    visualisations of the dataset – other entry points to the data than the
+                    traditional close reading approach. The system should also be tested with other
+                    corpora, and steps have been taken forward in collaborating with other cultural
+                    heritage institutions, namely the AMSAB-ISG<note>
+                        <ref target="http://www.amsab-isg.be">http://www.amsab-isg.be</ref>. The
+                        AMSAB-ISG is a cultural heritage centre that focuses on social, humanitarian
+                        and ecological movements.</note> – which holds a vast collection of Flemish
+                    socialist newspapers.</p>
+                <p>We are also experimenting with topic modelling <ptr target="#blei2003"/> – a task
+                    which has gained momentum in the last years, <ptr target="#newman2007"/>– to
+                    further optimise the end users’ search experience. By discovering latent topics
+                    in the dataset, disambiguating the topics with DBpedia concepts and grouping
+                    related news articles together – thus allowing faceted search capabilities –, we
+                    intend to suggest users with results related to their original queries. Using
+                    topic modelling to extract keywords and then harvesting the multilingual
+                    characteristics of Linked Data <ptr target="#hengchen2016"/> we hope to further
+                    improve cross-lingual search capabilities. We will then apply this methodology
+                    to other collections in order to further demonstrate the added value of natural
+                    language processing techniques in the context of Digital Humanities projects
+                    undertaken by cultural heritage institutions.</p>
+            </div>
+            <div>
+                <head>Acknowledgements</head>
+                <p>Simon Hengchen was supported by CENDARI<note>
+                        <ref target="http://www.cendari.eu/">http://www.cendari.eu/</ref></note>
+                    during the course of this research (funded by the European Union’s Seventh
+                    Framework Programme [FP72007-2013] under grant agreement n° 284432). The
+                    material used was provided courtesy of the Ypres City Archive and the CO7
+                    Heritage Cell.</p>
+            </div>
+        </body>
+        <back>
+            <listBibl>
+                <bibl xml:id="agirre2012" label="Agirre et al. 2012">Agirre, E., Barrena, A., De
+                    Lacalle, O. L., Soroa, A., Fernando, S., and Stevenson, M. (2012). <title rend="quotes">Matching Cultural Heritage Items to Wikipedia.</title> In
+                        <title rend="italic">Proceedings of the 8th International Conference on
+                        Language Resources and Evaluation (LREC)</title>, pages 1729–1735.</bibl>
+                <bibl xml:id="bingel2014" label="Bingel and Haider 2014">Bingel, J. and Haider, T.
+                    (2014). <title rend="quotes">Named Entity Tagging a Very Large Unbalanced
+                        Corpus: Training and Evaluating NE Classifiers.</title> In <title rend="italic">Proceedings of the 9th International Conference on Language
+                        Resources and Evaluation (LREC)</title>, Reykjavik, Iceland.</bibl>
+                <bibl xml:id="bizer2009" label="Bizer et al. 2009">Bizer, C., Lehmann, J.,
+                    Kobilarov, G., Auer, S., Becker, C., Cyganiak, R., and Hellmann, S. (2009).
+                        <title rend="quotes">DBpedia – A Crystallization Point for the Web of
+                        Data.</title>
+                    <title rend="italic">Web Semantics: Science, Services and Agents on the World
+                        Wide Web</title>, 7(3):154–165.</bibl>
+                <bibl xml:id="blanke2013" label="Blanke and Kristel 2013">Blanke, T. and Kristel, C.
+                    (2013). <title rend="quotes">Integrating Holocaust Research.</title>
+                    <title rend="italic">International Journal of Humanities and Arts
+                        Computing</title>, 7(1–2):41–57.</bibl>
+                <bibl xml:id="blei2003" label="Blei et al. 2003">Blei, D.M., Ng, A. Y., and Jordan,
+                    M. I. (2003). <title rend="quotes">Latent dirichlet allocation.</title>
+                    <title rend="italic">The Journal of Machine Learning Research</title>,
+                    3:993–1022.</bibl>
+                <bibl xml:id="carletta1996" label="Carletta 1996">Carletta, J. (1996). <title rend="quotes">Assessing Agreement on Classification Tasks: The Kappa
+                        Statistic.</title>
+                    <title rend="italic">Computational Linguistics</title>, 22(2):249–254.</bibl>
+                <bibl xml:id="cohen1960" label="Cohen 1960">Cohen, J. (1960). <title rend="quotes">A
+                        Coefficient of Agreement for Nominal Scales.</title>
+                    <title rend="italic">Educational and Psychological Measurement</title>,
+                    20(1):37–46.</bibl>
+                <bibl xml:id="cornolti2013" label="Cornolti et al. 2013">Cornolti, M., Ferragina,
+                    P., and Ciaramita, M. (2013). <title rend="quotes">A Framework for Benchmarking
+                        Entity-Annotation Systems.</title> In <title rend="italic">Proceedings of
+                        the 22nd International Conference on theWorldWideWeb</title>, pages
+                    249–260.</bibl>
+                <bibl xml:id="daiber2013" label="Daiber et al. 2013">Daiber, J., Jakob, M., Hokamp,
+                    C., and Mendes, P. N. (2013). <title rend="quotes">Improving Efficiency and
+                        Accuracy in Multilingual Entity Extraction.</title> In <title rend="italic">Proceedings of the 9th International Conference on Semantic
+                    Systems</title>, pages 121–124. ACM.</bibl>
+                <bibl xml:id="dewilde2014" label="DeWilde 2015">De Wilde, M. (2015). <title rend="quotes">Improving Retrieval of Historical Content with Entity
+                        Linking.</title> In <title rend="italic">New Trends in Databases and
+                        Information Systems</title>, Volume 539 of <hi rend="italic">Communications
+                        in Computer and Information Science</hi>, pages 498–504. Springer.</bibl>
+                <bibl xml:id="delozier2016" label="DeLozier et al. 2016">DeLozier, G., Wing, B.,
+                    Baldridge, J., and Nesbit, S. (2016). <title rend="quotes">Creating a novel
+                        geolocation corpus from historical texts.</title> In <title rend="italic">Proceedings of LAW X-The 10th Linguistic Annotation Workshop</title>, pages
+                    188–198.</bibl>
+                <bibl xml:id="fernando2012" label="Fernando and Stevenson 2012">Fernando, S. and
+                    Stevenson, M. (2012). <title rend="quotes">Adapting wikification to cultural
+                        heritage.</title> In <title rend="italic">Proceedings of the 6th Workshop on
+                        Language Technology for Cultural Heritage, Social Sciences, and
+                        Humanities</title>, pages 101–106. ACL.</bibl>
+                <bibl xml:id="frontini2015" label="Frontini et al. 2015">Frontini, F., Brando, C.,
+                    andGanascia, J.-G. (2015). <title rend="quotes">SemanticWeb BasedNamed Entity
+                        Linking for Digital Humanities and Heritage Texts.</title> In <title rend="italic">Proceedings of the 1st International Workshop on Semantic Web
+                        for Scientific Heritage at the 12th ESWC 2015 Conference</title>, pages
+                    77–88, Portorož, Slovenia.</bibl>
+                <bibl xml:id="han2011" label="Han and Sun 2011">Han, X. and Sun, L. (2011). <title rend="quotes">A Generative Entity-Mention Model for Linking Entities with
+                        Knowledge Base.</title> In <title rend="italic">Proceedings of the 49th
+                        Annual Meeting of the ACL: Human Language Technologies</title>, volume 1,
+                    pages 945–954, Portland, OR, USA.</bibl>
+                <bibl xml:id="hengchen2016" label="Hengchen et al. 2016">Hengchen, S., Coeckelbergs,
+                    M., van Hooland, S., Verborgh, R., and Steiner, T. (2016). <title rend="quotes">Exploring archives with probabilistic models: Topic modelling for the
+                        valorisation of digitised archives of the European Commission.</title> In
+                        <title rend="italic">First Workshop “Computational Archival Science: digital
+                        records in the age of big data”,Washington DC</title>, volume 1.</bibl>
+                <bibl xml:id="hengchen2015" label="Hengchen et al. 2015">Hengchen, S., van Hooland,
+                    S., Verborgh, R., and De Wilde, M. (2015). <foreign xml:lang="fr"><title rend="quotes">L’extraction d’entités nommées: une opportunité pour le
+                            secteur culturel?</title></foreign>
+                    <title rend="italic">Information, données &amp; documents</title>,
+                    52(2):70–79.</bibl>
+                <bibl xml:id="kripke1982" label="Kripke 1982">Kripke, S. (1982). <title rend="italic">Naming and Necessity</title>. Harvard University Press,
+                    Cambridge, MA, USA.</bibl>
+                <bibl xml:id="kupietz2010" label="Kupietz et al. 2010">Kupietz, M., Belica, C.,
+                    Keibel, H., and Witt, A. (2010). <title rend="quotes">The German Reference
+                        Corpus DeReKo: A Primordial Sample for Linguistic Research.</title> In
+                        <title rend="italic">Proceedings of the 7th International Conference on
+                        Language Resources and Evaluation (LREC)</title>, Valletta, Malta.</bibl>
+                <bibl xml:id="leidner2007" label="Leidner 2007">Leidner, J. L. (2007). <title rend="quotes">Toponym resolution in text: annotation, evaluation and
+                        applications of spatial grounding.</title> In <title rend="italic">ACM SIGIR
+                        Forum</title>, volume 41, pages 124–126. ACM.</bibl>
+                <bibl xml:id="lin2010" label="Lin et al. 2010">Lin, Y., Ahn, J.-W., Brusilovsky, P.,
+                    He, D., and Real, W. (2010). <title rend="quotes">ImageSieve: Exploratory Search
+                        of Museum Archives with Named Entity-Based Faceted Browsing.</title>
+                    <title rend="italic">Proceedings of the American Society for Information Science
+                        and Technology</title>, 47(1):1–10.</bibl>
+                <bibl xml:id="makhoul1999" label="Makhoul et al. 1999">Makhoul, J., Kubala, F.,
+                    Schwartz, R., and Weischedel, R. (1999). <title rend="quotes">Performance
+                        Measures for Information Extraction.</title> In <title rend="italic">Proceedings of the DARPA Broadcast News Transcription and Understanding
+                        Workshop</title>, pages 249–252.</bibl>
+                <bibl xml:id="maturana2013" label="Maturana et al. 2013">Maturana, R. A., Ortega,
+                    M., Alvarado, M. E., López-Sola, S., and Ibáñez, M. J. (2013). <title rend="quotes">Mismuseos.net: Art After Technology. Putting Cultural Data
+                        toWork in a Linked Data Platform.</title> LinkedUp Veni Challenge.</bibl>
+                <bibl xml:id="mendes2011" label="Mendes et al. 2011">Mendes, P. N., Jakob, M.,
+                    García-Silva, A., and Bizer, C. (2011). <title rend="quotes">DBpedia Spotlight:
+                        Shedding Light on theWeb of Documents.</title> In <title rend="italic">Proceedings of the 7th International Conference on Semantic
+                    Systems</title>, pages 1–8, Graz, Austria.</bibl>
+                <bibl xml:id="milne2008" label="Milne and Witten 2008">Milne, D. and Witten, I. H.
+                    (2008). <title rend="quotes">Learning to Link with Wikipedia.</title> In <title rend="italic">Proceedings of the 17th ACM Conference on Information and
+                        Knowledge Management</title>, pages 509–518, Napa Valley, CA, USA.</bibl>
+                <bibl xml:id="moro2014" label="Moro et al. 2014">Moro, A., Raganato, A., and
+                    Navigli, R. (2014). <title rend="quotes">Entity Linking Meets Word Sense
+                        Disambiguation: A Unified Approach.</title>
+                    <title rend="italic">Transactions of the ACL</title>, 2.</bibl>
+                <bibl xml:id="newman2007" label="Newman et al. 2007"> Newman, D., Hagedorn, K.,
+                    Chemudugunta, C., and Smyth, P. (2007). <title rend="quotes">Subject metadata
+                        enrichment using statistical topic models.</title> In <title rend="italic">Proceedings of the 7th ACM/IEEE-CS Joint Conference on Digital
+                        Libraries</title>, JCDL ’07, pages 366–375, New York, NY, USA. ACM.</bibl>
+                <bibl xml:id="raimond2013" label="Raimond et al. 2013">Raimond, Y., Smethurst,
+                    M.,McParland, A., and Lowis, C. (2013). <title rend="quotes">Using the Past to
+                        Explain the Present: Interlinking Current Affairs with Archives via the
+                        Semantic Web.</title> In <title rend="italic">The Semantic Web – ISWC
+                        2013</title>, pages 146–161. Springer.</bibl>
+                <bibl xml:id="rizzo2011" label="Rizzo and Troncy 2011">Rizzo, G. and Troncy, R.
+                    (2011). <title rend="quotes">NERD: Evaluating Named Entity Recognition Tools in
+                        the Web of Data.</title> In <title rend="italic">Proceedings of the 1st
+                        Workshop on Web Scale Knowledge Extraction (WEKEX)</title>, Bonn,
+                    Germany.</bibl>
+                <bibl xml:id="rizzo2012" label="Rizzo and Troncy 2012">Rizzo, G. and Troncy, R.
+                    (2012). <title rend="quotes">NERD: a Framework for Unifying Named Entity
+                        Recognition and Disambiguation Extraction Tools.</title> In <title rend="italic">Proceedings of the Demonstrations at the 13th Conference of
+                        the European Chapter of the ACL</title>, pages 73–76. ACL.</bibl>
+                <bibl xml:id="rodriquez2012" label="Rodriquez et al. 2012">Rodriquez, K. J., Bryant,
+                    M., Blanke, T., and Luszczynska, M. (2012). <title rend="quotes">Comparison of
+                        Named Entity Recognition Tools for Raw OCR Text.</title> In <title rend="italic">Proceedings of KONVENS 2012</title>, pages 410–414.
+                    Vienna.</bibl>
+                <bibl xml:id="ruiz2015" label="Ruiz and Poibeau 2015">Ruiz, P. and Poibeau, T.
+                    (2015). <title rend="quotes">Combining Open Source Annotators for Entity Linking
+                        through Weighted Voting.</title> In <title rend="italic">Proceedings of the
+                        4th Joint Conference on Lexical and Computational Semantics (*SEM)</title>,
+                    Denver, CO, USA.</bibl>
+                <bibl xml:id="segers2011" label="Segers et al. 2011">Segers, R., van Erp, M., van
+                    der Meij, L., Aroyo, L., Schreiber, G., Wielinga, B., van Ossenbruggen, J.,
+                    Oomen, J., and Jacobs, G. (2011). <title rend="quotes">Hacking History:
+                        Automatic Historical Event Extraction for Enriching Cultural Heritage
+                        Multimedia Collections.</title> In <title rend="italic">Proceedings of the
+                        6th International Conference on Knowledge Capture (K-CAP)</title>, Banff,
+                    Alberta, Canada.</bibl>
+                <bibl xml:id="speriosu2013" label="Speriosu and Baldridge 2013">Speriosu, M. and
+                    Baldridge, J. (2013). <title rend="quotes">Text-driven toponym resolution using
+                        indirect supervision.</title> In <title rend="italic">ACL (1)</title>, pages
+                    1466–1476.</bibl>
+                <bibl xml:id="vanhooland2015" label="van Hooland et al. 2015">[van Hooland et al.,
+                    2015] van Hooland, S., De Wilde, M., Verborgh, R., Steiner, T., and Van de
+                    Walle, R. (2015). <title rend="quotes">Exploring Entity Recognition and
+                        Disambiguation for Cultural Heritage Collections.</title>
+                    <title rend="italic">Digital Scholarship in the Humanities</title>,
+                    30(2):262–279.</bibl>
+            </listBibl>
+        </back>
+    </text>
+</TEI>

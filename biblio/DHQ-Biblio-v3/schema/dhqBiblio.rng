@@ -1,0 +1,982 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://digitalhumanities.org/dhq/ns/biblio" 
+    xmlns="http://relaxng.org/ns/structure/1.0" 
+    xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+    xmlns:dhxo="http://digitalhumanities.org/dhq/ns/xonomy-rng"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  
+  <start>
+    <choice>
+      <ref name="any.item"/>
+      <ref name="element.BiblioSet"/>
+    </choice>
+  </start>
+  
+  <define name="element.BiblioSet">
+    <element name="BiblioSet">
+      <ref name="attribute-model.global"/>
+      <optional>
+        <attribute name="ready">
+          <choice>
+            <value>true</value>
+            <value>false</value>
+          </choice>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="any.item"/>
+          <ref name="element.BiblioSet"/>
+          <ref name="element.biblioRef"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  
+  <!-- Biblio items -->
+  <define name="any.item">
+    <choice>
+      <ref name="element.ArchivalItem"/>
+      <ref name="element.Artwork"/>
+      <ref name="element.BlogEntry"/>
+      <ref name="element.Book"/>
+      <ref name="element.BookInSeries"/>
+      <ref name="element.BookSection"/>
+      <ref name="element.ConferencePaper"/>
+      <ref name="element.JournalArticle"/>
+      <ref name="element.Other"/>
+      <ref name="element.PhysicalMedia"/>
+      <ref name="element.Posting"/>
+      <ref name="element.PublicGov"/>
+      <ref name="element.Report"/>
+      <ref name="element.Series"/>
+      <ref name="element.Thesis"/>
+      <ref name="element.VideoGame"/>
+      <ref name="element.WebSite"/>
+    </choice>
+  </define>
+  
+  <define name="element.Other">
+    <element name="Other">
+      <a:documentation>"Other" permits all elements.</a:documentation>
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <optional>
+        <ref name="attribute.issuance"/>
+      </optional>
+      <!-- attribution -->
+      <choice>
+        <zeroOrMore>
+          <ref name="element.creator"/>
+        </zeroOrMore>
+        <ref name="element-model.contributors"/>
+      </choice>
+      <optional>
+        <!-- labels/references -->
+        <ref name="element-model.title"/>
+      </optional>
+      <optional>
+        <!-- macro item OR basic publication info -->
+        <choice>
+          <optional>
+            <choice>
+              <ref name="element.biblioRef"/>
+              <ref name="element.book"/>
+              <ref name="element.bookSeries"/>
+              <ref name="element.conference"/>
+              <ref name="element.journal"/>
+              <ref name="element.publication"/>
+            </choice>
+          </optional>
+          <!-- alternative to element-model.published -->
+          <group>
+            <optional>
+              <ref name="element.place"/>
+            </optional>
+            <choice>
+              <optional>
+                <ref name="element.publisher"/>
+              </optional>
+              <optional>
+                <ref name="element.archive"/>
+              </optional>
+              <optional>
+                <ref name="element.sponsor"/>
+              </optional>
+            </choice>
+            <optional>
+              <ref name="element.date"/>
+            </optional>
+          </group>
+        </choice>
+      </optional>
+      <!-- dimensions -->
+      <choice>
+        <group>
+          <optional>
+            <ref name="element.totalPages"/>
+          </optional>
+          <optional>
+            <ref name="element-model.pages"/>
+          </optional>
+        </group>
+        <ref name="element.runningTime"/>
+      </choice>
+      <zeroOrMore>
+        <ref name="element.url"/>
+      </zeroOrMore>
+      <oneOrMore>
+        <!-- <Other> must contain at least one note. -->
+        <ref name="element.note"/>
+      </oneOrMore>
+    </element>
+  </define>
+  
+  <define name="element.ArchivalItem">
+    <element name="ArchivalItem">
+      <a:documentation>Any physical archival item stored at an archive or museum.</a:documentation>
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <ref name="element-model.contributors"/>
+      <!-- alternative to element-model.title -->
+      <ref name="element.title"/>
+      <optional>
+        <ref name="element.additionalTitle"/>
+      </optional>
+      <ref name="element.formalID"/>
+      <!-- alternative to element-model.published -->
+      <ref name="element.place"/>
+      <ref name="element.archive"/>
+      <ref name="element.date"/>
+      <zeroOrMore>
+        <!-- no URL -->
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.Artwork">
+    <element name="Artwork">
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <zeroOrMore>
+        <!-- no @issuance -->
+        <ref name="element.creator"/>
+      </zeroOrMore>
+      <ref name="element-model.title"/>
+      <ref name="element-model.published"/>
+      <optional>
+        <ref name="element.url"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.BlogEntry">
+    <element name="BlogEntry">
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <ref name="attribute.issuance"/>
+      <ref name="element-model.contributors"/>
+      <ref name="element-model.title"/>
+      <ref name="element-model.published"/>
+      <ref name="element.url"/>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.Book">
+    <element name="Book">
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <attribute name="issuance">
+        <value>monographic</value>
+      </attribute>
+      <ref name="element-model.contributors"/>
+      <ref name="element-model.title"/>
+      <ref name="element-model.published"/>
+      <optional>
+        <ref name="element.totalPages"/>
+      </optional>
+      <optional>
+        <ref name="element.url"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.BookInSeries">
+    <element name="BookInSeries">
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <ref name="attribute.issuance"/>
+      <ref name="element-model.contributors"/>
+      <ref name="element-model.title"/>
+      <choice>
+        <ref name="element.bookSeries"/>
+        <ref name="element.biblioRef"/>
+      </choice>
+      <optional>
+        <ref name="element.totalPages"/>
+      </optional>
+      <optional>
+        <ref name="element.url"/>
+      </optional>
+    </element>
+  </define>
+  
+  <define name="element.BookSection">
+    <element name="BookSection">
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <ref name="element-model.contributors"/>
+      <ref name="element-model.title"/>
+      <choice>
+        <ref name="element.book"/>
+        <ref name="element.biblioRef"/>
+      </choice>
+      <optional>
+        <ref name="element-model.pages"/>
+      </optional>
+      <optional>
+        <ref name="element.url"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.ConferencePaper">
+    <element name="ConferencePaper">
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <attribute name="issuance">
+        <value>monographic</value>
+      </attribute>
+      <ref name="element-model.contributors"/>
+      <ref name="element-model.title"/>
+      <optional>
+        <choice>
+          <ref name="element.conference"/>
+          <ref name="element.biblioRef"/>
+        </choice>
+      </optional>
+      <optional>
+        <choice>
+          <ref name="element.publication"/>
+          <ref name="element.biblioRef"/>
+        </choice>
+      </optional>
+      <optional>
+        <ref name="element-model.pages"/>
+      </optional>
+      <optional>
+        <ref name="element.url"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.JournalArticle">
+    <element name="JournalArticle">
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <ref name="attribute.issuance"/>
+      <ref name="element-model.contributors"/>
+      <ref name="element-model.title"/>
+      <choice>
+        <ref name="element.journal"/>
+        <ref name="element.biblioRef"/>
+      </choice>
+      <optional>
+        <ref name="element-model.pages"/>
+      </optional>
+      <optional>
+        <ref name="element.url"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.PhysicalMedia">
+    <element name="PhysicalMedia">
+      <a:documentation>Any physical form of audiovisual media. Includes CD-ROMs, DVDs, VHSs, Film, etc.</a:documentation>
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <optional>
+        <ref name="attribute.issuance"/>
+      </optional>
+      <ref name="element-model.title"/>
+      <!-- alternative to element-model.published -->
+      <ref name="element.place"/>
+      <ref name="element.publisher"/>
+      <ref name="element.date"/>
+      <optional>
+        <ref name="element.runningTime"/>
+      </optional>
+      <zeroOrMore>
+        <!-- no URL -->
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.Posting">
+    <element name="Posting">
+      <a:documentation>Contribution to public social media forums which are not under the jurisdiction of the author (i.e. not blog posts); includes listservs, Twitter, discussion forums, comments on public documents, etc.</a:documentation>
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <!-- no @issuance -->
+      <element name="author">
+        <choice>
+          <ref name="element-model.personName"/>
+          <ref name="element.corporateName"/>
+          <ref name="element.username"/>
+        </choice>
+      </element>
+      <ref name="element-model.title"/>
+      <!-- no formalID -->
+      <ref name="element.date"/>
+      <ref name="element.url"/>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.PublicGov">
+    <element name="PublicGov">
+      <a:documentation>Any public government document. Includes court cases, legislation, constitutions, executive orders, judicial briefs, etc.</a:documentation>
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <!-- TODO contributor? assuming an agency? -->
+      <ref name="element-model.title"/>
+      <optional>
+        <!-- alternative to element-model.published -->
+        <ref name="element.place"/>
+      </optional>
+      <ref name="element.date"/>
+      <optional>
+        <ref name="element.url"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.Report">
+    <element name="Report">
+      <a:documentation>Technical reports, white papers, public government reports, technical standards, etc.</a:documentation>
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <ref name="attribute.issuance"/>
+      <optional>
+        <ref name="element-model.contributors"/>
+      </optional>
+      <ref name="element-model.title"/>
+      <optional>
+        <!-- alternative to element-model.published -->
+        <ref name="element.place"/>
+      </optional>
+      <optional>
+        <ref name="element.publisher"/>
+      </optional>
+      <ref name="element.date"/>
+      <optional>
+        <ref name="element.url"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.Series">
+    <element name="Series">
+      <a:documentation>Book series, journal series, special issues, conference proceedings, etc.</a:documentation>
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <ref name="attribute.issuance"/>
+      <zeroOrMore>
+        <ref name="element.editor"/>
+      </zeroOrMore>
+      <ref name="element-model.title"/>
+      <ref name="element-model.volume"/>
+      <optional>
+        <!-- alternative to element-model.published -->
+        <ref name="element.place"/>
+      </optional>
+      <optional>
+        <ref name="element.publisher"/>
+      </optional>
+      <ref name="element.date"/>
+      <optional>
+        <ref name="element-model.pages"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="element.url"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.Thesis">
+    <element name="Thesis">
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <attribute name="issuance">
+        <value>monographic</value>
+      </attribute>
+      <ref name="element.author"/>
+      <ref name="element.title"/>
+      <!-- alternative to element-model.published -->
+      <ref name="element.place"/>
+      <ref name="element.date"/>
+      <zeroOrMore>
+        <ref name="element.url"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.VideoGame">
+    <element name="VideoGame">
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <ref name="attribute.issuance"/>
+      <oneOrMore>
+        <ref name="element.creator"/>
+      </oneOrMore>
+      <ref name="element-model.title"/>
+      <ref name="element-model.published"/>
+      <optional>
+        <ref name="element.url"/>
+      </optional>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="element.WebSite">
+    <element name="WebSite">
+      <dhxo:class key="bibjs.xonomy.BiblioItem"/>
+      <ref name="attribute-model.item"/>
+      <ref name="attribute.issuance"/>
+      <ref name="element-model.contributors"/>
+      <ref name="element-model.title"/>
+      <ref name="element-model.published"/>
+      <ref name="element.url"/>
+      <zeroOrMore>
+        <ref name="element.note"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <!-- Macro items (the data for which may be included in the Biblio items above) -->
+  <define name="element.biblioRef">
+    <element name="biblioRef">
+      <dhxo:class key="bibjs.xonomy.BiblioRef"/>
+      <ref name="attribute-model.global"/>
+      <attribute name="key">
+        <data type="NCName"/>
+      </attribute>
+      <ref name="content-model.titleText"/>
+    </element>
+  </define>
+  
+  <define name="element.book">
+    <element name="book">
+      <dhxo:class key="bibjs.xonomy.MacroItem"/>
+      <ref name="attribute-model.global"/>
+      <ref name="attribute.issuance"/>
+      <ref name="element-model.contributors"/>
+      <ref name="element-model.title"/>
+      <choice>
+        <ref name="element-model.published"/>
+        <ref name="element.bookSeries"/>
+        <ref name="element.biblioRef"/>
+      </choice>
+      <optional>
+        <ref name="element.totalPages"/>
+      </optional>
+    </element>
+  </define>
+  
+  <define name="element.bookSeries">
+    <element name="series">
+      <dhxo:class key="bibjs.xonomy.MacroItem"/>
+      <ref name="attribute-model.global"/>
+      <ref name="attribute.issuance"/>
+      <ref name="element-model.contributors"/>
+      <ref name="element-model.title"/>
+      <ref name="element-model.published"/>
+    </element>
+  </define>
+  
+  <define name="element.conference">
+    <element name="conference">
+      <dhxo:class key="bibjs.xonomy.MacroItem"/>
+      <ref name="attribute-model.global"/>
+      <ref name="element.title"/>
+      <optional>
+        <!-- alternative to element-model.published -->
+        <ref name="element.place"/>
+      </optional>
+      <optional>
+        <ref name="element.date"/>
+      </optional>
+      <optional>
+        <ref name="element.sponsor"/>
+      </optional>
+    </element>
+  </define>
+  
+  <define name="element.journal">
+    <element name="journal">
+      <dhxo:class key="bibjs.xonomy.MacroItem"/>
+      <ref name="attribute-model.global"/>
+      <attribute name="issuance">
+        <value>continuing</value>
+      </attribute>
+      <zeroOrMore>
+        <ref name="element.editor"/>
+      </zeroOrMore>
+      <ref name="element-model.title"/>
+      <ref name="element-model.volume"/>
+      <ref name="element-model.published"/>
+    </element>
+  </define>
+  
+  <define name="element.publication">
+    <element name="publication">
+      <dhxo:class key="bibjs.xonomy.MacroItem"/>
+      <ref name="attribute-model.global"/>
+      <ref name="attribute.issuance"/>
+      <zeroOrMore>
+        <ref name="element.editor"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="element-model.title"/>
+      </optional>
+      <ref name="element-model.volume"/>
+      <ref name="element-model.published"/>
+    </element>
+  </define>
+  
+  <!-- Element models -->
+  <define name="element-model.contributors">
+    <zeroOrMore>
+      <choice>
+        <!-- element contributor { givenName, familyName }* | -->
+        <ref name="element.author"/>
+        <ref name="element.editor"/>
+      </choice>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="element.translator"/>
+    </zeroOrMore>
+    <optional>
+      <ref name="element.etal"/>
+    </optional>
+  </define>
+  
+  <define name="element-model.title">
+    <ref name="element.title"/>
+    <zeroOrMore>
+      <ref name="element.additionalTitle"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="element.formalID"/>
+    </zeroOrMore>
+  </define>
+  
+  <define name="element-model.published">
+    <optional>
+      <ref name="element.place"/>
+    </optional>
+    <optional>
+      <ref name="element.publisher"/>
+    </optional>
+    <optional>
+      <ref name="element.date"/>
+    </optional>
+  </define>
+  
+  <define name="element-model.pages">
+    <optional>
+      <ref name="element.startingPage"/>
+      <optional>
+        <ref name="element.endingPage"/>
+      </optional>
+    </optional>
+  </define>
+  
+  <define name="element-model.personName">
+    <choice>
+      <ref name="element.fullName"/>
+      <choice>
+        <group>
+          <ref name="element.givenName"/>
+          <optional>
+            <ref name="element.familyName"/>
+          </optional>
+        </group>
+        <group>
+          <ref name="element.familyName"/>
+          <optional>
+            <ref name="element.givenName"/>
+          </optional>
+        </group>
+      </choice>
+    </choice>
+  </define>
+  
+  <define name="element-model.volume">
+    <optional>
+      <ref name="element.volume"/>
+    </optional>
+    <optional>
+      <ref name="element.issue"/>
+    </optional>
+  </define>
+  
+  <!-- Content models -->
+  <define name="content-model.titleText">
+    <zeroOrMore>
+      <choice>
+        <text/>
+        <ref name="element.i"/>
+        <ref name="element.q"/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  
+  <!-- Within i, we cannot have another i (italic within italic), but we can have q elements all the way down. -->
+  <define name="content-model.qOnly">
+    <zeroOrMore>
+      <choice>
+        <text/>
+        <ref name="element.q"/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  
+  <!-- Attributes -->
+  <define name="attribute-model.global">
+    <optional>
+      <attribute name="xml:lang">
+        <data type="language"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="xml:space">
+        <choice>
+          <value>default</value>
+          <value>preserve</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  
+  <define name="attribute-model.item">
+    <ref name="attribute-model.global"/>
+    <attribute name="ID">
+      <data type="NCName"/>
+    </attribute>
+    <optional>
+      <attribute name="provenance">
+        <data type="NCName"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="dhqID">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="check-title-dupe">
+        <value>no</value>
+      </attribute>
+    </optional>
+  </define>
+  
+  <define name="attribute.issuance">
+    <attribute name="issuance">
+      <choice>
+        <value>monographic</value>
+        <value>continuing</value>
+      </choice>
+    </attribute>
+  </define>
+  
+  <!-- Attribution elements -->
+  <define name="element.author">
+    <element name="author">
+      <dhxo:class key="bibjs.xonomy.Contributor"/>
+      <ref name="attribute-model.global"/>
+      <choice>
+        <ref name="element.corporateName"/>
+        <ref name="element-model.personName"/>
+      </choice>
+    </element>
+  </define>
+  
+  <define name="element.editor">
+    <element name="editor">
+      <dhxo:class key="bibjs.xonomy.Contributor"/>
+      <ref name="attribute-model.global"/>
+      <ref name="element-model.personName"/>
+    </element>
+  </define>
+  
+  <define name="element.translator">
+    <element name="translator">
+      <dhxo:class key="bibjs.xonomy.Contributor"/>
+      <ref name="attribute-model.global"/>
+      <ref name="element-model.personName"/>
+    </element>
+  </define>
+  
+  <define name="element.creator">
+    <element name="creator">
+      <dhxo:class key="bibjs.xonomy.Contributor"/>
+      <ref name="attribute-model.global"/>
+      <ref name="element-model.personName"/>
+    </element>
+  </define>
+  
+  <define name="element.etal">
+    <element name="etal">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <empty/>
+    </element>
+  </define>
+  
+  <define name="element.givenName">
+    <element name="givenName">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <optional>
+        <attribute name="sortKey"/>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.familyName">
+    <element name="familyName">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <optional>
+        <attribute name="sortKey"/>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.fullName">
+    <element name="fullName">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.corporateName">
+    <element name="corporateName">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.username">
+    <element name="username">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <!-- Label and identifier elements -->
+  <define name="element.title">
+    <element name="title">
+      <dhxo:class key="bibjs.xonomy.Title"/>
+      <ref name="attribute-model.global"/>
+      <ref name="content-model.titleText"/>
+    </element>
+  </define>
+  
+  <define name="element.additionalTitle">
+    <element name="additionalTitle">
+      <dhxo:class key="bibjs.xonomy.Title"/>
+      <ref name="attribute-model.global"/>
+      <ref name="content-model.titleText"/>
+    </element>
+  </define>
+  
+  <define name="element.formalID">
+    <element name="formalID">
+      <dhxo:class key="bibjs.xonomy.SearchableField"/>
+      <ref name="attribute-model.global"/>
+      <optional>
+        <attribute name="type"/>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  
+  <!-- Publication-specific elements -->
+  <define name="element.volume">
+    <element name="volume">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.issue">
+    <element name="issue">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.place">
+    <element name="place">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.publisher">
+    <element name="publisher">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.sponsor">
+    <element name="sponsor">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.archive">
+    <element name="archive">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.date">
+    <element name="date">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <optional>
+        <attribute name="when">
+          <choice>
+            <data type="date"/>
+            <data type="gYear"/>
+            <data type="gYearMonth"/>
+          </choice>
+        </attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  
+  <!-- Dimensional elements -->
+  <define name="element.startingPage">
+    <element name="startingPage">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.endingPage">
+    <element name="endingPage">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.totalPages">
+    <element name="totalPages">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <define name="element.runningTime">
+    <element name="runningTime">
+      <a:documentation>Time duration (days, hours, and/or seconds)</a:documentation>
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <!-- General elements -->
+  <define name="element.url">
+    <element name="url">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <data type="anyURI"/>
+    </element>
+  </define>
+  
+  <define name="element.note">
+    <element name="note">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <text/>
+    </element>
+  </define>
+  
+  <!-- Rendition-level elements (for titles and references). -->
+  <define name="element.i">
+    <element name="i">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <ref name="content-model.qOnly"/>
+    </element>
+  </define>
+  
+  <define name="element.q">
+    <element name="q">
+      <dhxo:class key="bibjs.xonomy.ElSpec"/>
+      <ref name="attribute-model.global"/>
+      <ref name="content-model.titleText"/>
+    </element>
+  </define>
+  
+</grammar>

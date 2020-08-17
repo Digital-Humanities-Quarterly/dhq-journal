@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ant project file for DHQ zip production -->
+<project basedir="." name="zip-dhq" default="zip-flat">
+
+  <!-- writes a file listing -->
+  <target name="list-xml-files">
+    <xslt in="toc.xml" out="dhq-filelist.txt" style="makefilelist.xsl"/>
+  </target>
+  <!-- Makes a zip of the XML only, flat -->
+  <target name="zip-flat" depends="list-xml-files">
+    <zip destfile="dhq-xml.zip">
+      <mappedresources>
+        <fileset dir="../articles" includesfile="dhq-filelist.txt"/>
+        <flattenmapper/>
+      </mappedresources>
+    </zip>
+  </target>
+  <!-- Makes a zip of the XML only, in its native structure -->
+  <target name="zip" depends="list-xml-files">
+    <zip destfile="dhq-source.zip" basedir="../articles" includesfile="dhq-filelist.txt"/>
+  </target>
+
+  <!-- writes a file listing, including linked materials -->
+  <target name="list-all-files">
+    <xslt in="toc.xml" out="dhq-resourcelist.txt" style="makefilelist.xsl">
+      <param name="including" expression="everything" type="STRING"/>
+    </xslt>
+  </target>
+  <!-- Makes a zip of everything -->
+  <target name="zip-everything" depends="list-all-files">
+    <zip destfile="dhq-everything.zip" basedir="../articles" includesfile="dhq-resourcelist.txt"/>
+  </target>
+</project>

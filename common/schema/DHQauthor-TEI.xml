@@ -1,0 +1,1515 @@
+<?xml version="1.0"?>
+<!-- <?oxygen RNGSchema="./odd_schemas/odd4odds.rng" type="xml"?>  
+<?xml-model href="./odd_schemas/odd4odds.isosch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+
+
+<?xml-model href="http://www.wwp.northeastern.edu/outreach/seminars/_current/handouts/ODD_exercise/schemas/tei_customization.rnc" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+
+-->
+
+<?xml-model href="http://www.wwp.northeastern.edu/outreach/seminars/_current/handouts/ODD_exercise/schemas/tei_customization.rnc" type="application/relax-ng-compact-syntax"?>
+<TEI xmlns:rng="http://relaxng.org/ns/structure/1.0"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.tei-c.org/ns/1.0"
+  xmlns:mml="http://www.w3.org/1998/Math/MathML"
+  xml:lang="en">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>DHQ authoring schema</title>
+        <author>Wendell Piez, Julia Flanders, Syd Bauman</author>
+      </titleStmt>
+      <publicationStmt>
+        <p>for use by whoever wants it</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>created on Wednesday 03rd September 2008 02:04:26 PM by the form at
+          http://www.tei-c.org.uk/Roma/</p>
+      </sourceDesc>
+    </fileDesc>
+    <revisionDesc>
+      <change when="2020-03-30" who="jhf">
+        <list>
+          <item>finished adding MathML support to the schema: adding a <gi>moduleRef</gi> that references the MathML schema, so that the inclusion of the <gi>math</gi> element inside <gi>formula</gi> is valid. There are still some loose ends; using the <att>prefix</att> on <gi>moduleRef</gi> to provide an "mml" prefix to the <gi>math</gi> element doesn't work, so I've omitted it for now. Also, MathML is validating only partially.</item>
+        </list>
+      </change>
+      <change when="2019-11-25" who="jhf">
+        <list>
+          <item>added <gi>xenodata</gi> to support embedded iframes.</item>
+        </list>
+      </change>
+      <change when="2019-01-02" who="jhf">
+        <list>
+          <item>modified content model of <gi>label</gi> to allow <gi>bibl</gi> and <gi>q</gi> as children (to support annotated bibliographies such as 000111.xml)</item>
+          <item>changed <gi>dhq:media</gi> to <gi>tei:media</gi>, modified to permit @poster and to constrain @type; also undeleted <gi>desc</gi> to allow it to appear within <gi>media</gi></item>
+          <item>changed <tag>rng:ref name="data.pointer"</tag> to <tag>dataRef key="teidata.pointer"</tag> throughout</item>
+          <item>reworked the deletion of global attributes to achieve greater nuance and to add @source on <gi>quote</gi></item>
+          <item>changed content model of <gi>head</gi> to allow it to contain <gi>cit</gi> (to support the change from <gi>dhq:caption</gi> to <gi>head</gi> in article 000009.xml)</item>
+          <item>general debugging and validation of DHQ articles to discover and fix anomalies</item>
+        </list>
+      </change>
+      <change when="2017-11-27" who="jhf">
+        <list>
+          <item>Created new dhq:media element to better support embedded media.</item>
+          <item>Removed special values of @type on <gi>ptr</gi> which had been used to support embedded media</item>
+        </list>
+      </change>
+      <change when="2017-07-21" who="jhf">
+        <list>
+          <item>finalized constraints for foreign-language articles, made the dev version of the schema the formal public version</item>
+          <item>updated to pure ODD with Syd Bauman's help</item>
+        </list>
+      </change>
+      <change when="2017-05-20" who="jhf">
+        <list>
+          <item>made updates needed to accommodate articles in translation: added <gi>dhq:translatorInfo</gi> and children; added <att>xml:lang</att> to <gi>title</gi>; added <att>extent</att> to <gi>language</gi></item>
+          <item>made changes needed to make ODD file valid against current odd4odds schema: added <gi>rng:group</gi> around content models, reversed the deletion of the model.resourceLike class. </item>
+        </list>
+      </change>
+      <change when="2014-05-15" who="jhf">
+        <list>
+          <item>changed the definition for <gi>revisionNote</gi> to remove @changeTargets and to
+            allow <gi>ref</gi> inside <gi>revisionNote</gi></item>
+          <item>added "revisionLoc" as a value for @type on <gi>anchor</gi> (to serve as an anchor
+            for locations of revisions)</item>
+        </list>
+      </change>
+      <change when="2014-03-25" who="jhf">
+        <list>
+          <item>changed ODD to use @except and @include for element inclusion at the module
+            level</item>
+          <item>fixed problem with duplicate declaration of @type on <gi>list</gi></item>
+          <item>added @rend on <gi>table</gi> to support borders</item>
+        </list>
+      </change>
+      <change who="jhf" when="2014-03-23"> Added @biblioID to <gi>bibl</gi> to support reference to
+        centralized bibliography. </change>
+      <change who="jhf" when="2013-06-23">
+        <list>
+          <item>Experimented with adding @rend to <gi>table</gi> to support "border". Now in the
+            middle of troubleshooting problems with duplicate declarations for @type on
+              <gi>title</gi>, not sure where these came from. Entire ODD really needs to be
+            refactored.</item>
+        </list>
+      </change>
+      <change who="jhf" when="2013-06-19">
+        <list>
+          <item>add <gi>dhq:dedication</gi></item>
+        </list>
+      </change>
+      <change who="jhf" when="2013-03-09">
+        <list>
+          <item>allow <gi>listBibl</gi> in <gi>body</gi></item>
+          <item>add <gi>dhq:revisionNote</gi></item>
+          <item>add "annotated_bibliography" as a value for @type on <gi>list</gi></item>
+          <item>add @key to <gi>bibl</gi> to support centralized bibliography</item>
+        </list>
+      </change>
+      <change who="jhf" when="2011-03-03">Allow teiCorpus as root element</change>
+      <change who="jhf" when="2009-06-01">Further changes at MITH with John and Wendell: <list>
+          <item>DONE: add controlled value list for @type of <gi>idno</gi> in the
+              <gi>publicationStmt</gi></item>
+          <item> DONE: add <gi>dhq:articleType</gi></item>
+          <item> DONE: need to permit Creative Commons element inside <gi>availability</gi>
+            (substitute for required <gi>p</gi>)</item>
+          <item> Done: add <gi>dhq:family</gi> within <gi>dhq:author_name</gi> in
+              <gi>dhq:author</gi></item>
+          <item> DONE: need to require @rend on <gi>quote</gi></item>
+          <item> DONE:[p is permitted in figure] need to provide for captions in figures (use
+              <gi>p</gi>?)</item>
+          <item> DONE: [p is permitted in table] need to provide for captions in tables</item>
+          <item> DONE: fix problem that table requires more than one row</item>
+          <item> DONE: remove figure from <gi>cit</gi></item>
+          <item> DONE: remove <gi>egXML</gi></item>
+          <item> DONE: change <gi>example</gi> to use <gi>head</gi> instead of <gi>label</gi></item>
+          <item> DONE: remove <gi>address</gi></item>
+          <item> DONE: @label is now an attribute on bibl; make <gi>label</gi> required first child
+            of <gi>bibl</gi></item>
+          <item> make @xml:id required on <gi>bibl</gi> in <gi>listBibl</gi> in <gi>back</gi>
+            (Schematron?)</item>
+          <item> DONE: make <gi>teaser</gi> and <gi>abstract</gi> unavailable in ordinary
+              <gi>div</gi> currently in model.divlike; perhaps instead should simply be children of
+              <gi>front</gi>? </item>
+        </list>
+      </change>
+      <change who="jhf" when="2009-12-09">Added <gi>called</gi>, <gi>articleType</gi></change>
+    </revisionDesc>
+  </teiHeader>
+  <text>
+    <!-- Further changes to consider:
+      
+       Allow <note> inside <head>
+      Add @rend on <table> to support borders
+     
+
+More tightly constrain contents of:
+label (shouldn't have <figure>, <formula>, or <graphic>)
+ref (shouldn't have <figure>, <formula>, <graphic>, <list>,  <example>, <table>, <stage>)
+title (shouldn't have <figure>, <formula>, <graphic>, <list>,  <example>, <table>, <stage>)
+said (shouldn't have <figure>, <formula>, <graphic> or <table>
+bibl (shouldn't have <figure>, <formula>, <graphic> or <table>)
+stage (shouldn't have <figure> or <table>; should be semantically limited?)
+name (currently macro.phraseSeq; shouldn't have <figure>, <formula>, <graphic>, <bibl>, <address> - should be semantically constrained)
+foreign (shouldn't really have anything in it except PCDATA)
+hi (shouldn't really have anything)
+term (shouldn't really have anything)
+emph (shouldn't really have anything)
+email (should only have an email address)
+   -->
+    <front>
+      <divGen type="toc"/>
+    </front>
+    <body>
+      <p>A TEI schema for the DHQ journal</p>
+      <schemaSpec ident="dhq" docLang="en" xml:lang="en" prefix="dhq_" start="TEI">
+        <desc>This schema supports basic journal features.</desc>
+        <moduleRef key="core"
+          except="abbr add addrLine analytic biblStruct binaryObject cb choice corr del distinct divGen expan gap gloss headItem headLabel imprint index measure measureGrp mentioned milestone monogr num orig pb postBox postCode reg relatedItem resp respStmt rs sic street teiCorpus time unclear"/>
+        <moduleRef key="tei"/>
+        <moduleRef key="header"
+          except="abstract appInfo application authority biblFull catDesc catRef category classCode correction distributor edition editionStmt editorialDecl extent funder geoDecl handNote hyphenation interpretation namespace normalization notesStmt principal projectDesc quotation refState refsDecl rendition samplingDecl segmentation seriesStmt stdVals styleDefDecl tagUsage tagsDecl typeNote"/>
+        <moduleRef key="textstructure"
+          except="argument byline closer div1 div2 div3 div4 div5 div6 div7 docAuthor docDate docEdition docImprint docTitle imprimatur opener titlePage titlePart"/>
+        <moduleRef key="figures"/>
+        <moduleRef key="tagdocs" include="gi att val code eg"/>
+        <moduleRef key="linking" except="alt altGrp join joinGrp link linkGrp timeline when"/>
+        <moduleRef url="http://www.w3.org/Math/RelaxNG/mathml3/mathml3.rng"></moduleRef>
+        
+        
+        <!-- Removing these models from all declarations, to trim the schema 
+	     generated by Roma -->
+        <classSpec type="model" mode="delete" ident="model.pPart.edit"/>
+        <classSpec type="model" mode="delete" ident="model.gLike"/>
+        <classSpec type="model" mode="delete" ident="model.entryPart"/>
+        <classSpec type="model" mode="delete" ident="model.placeStateLike"/>
+        <classSpec type="model" mode="delete" ident="model.divGenLike"/>
+        <classSpec type="model" mode="delete" ident="model.div1Like"/>
+        <classSpec type="model" mode="delete" ident="model.sourceDescPart"/>
+        <classSpec type="model" mode="delete" ident="model.editorialDeclPart"/>
+
+
+        <!-- Removing attributes by removing the classes to which they
+	     are assigned. Some of these may be restored by virtue of
+	     other declarations. -->
+        <classSpec type="atts" ident="att.coordinated" mode="delete"/>
+        <classSpec type="atts" ident="att.damaged" mode="delete"/>
+        <classSpec type="atts" ident="att.datable.iso" mode="delete"/>
+        <classSpec type="atts" ident="att.datable.w3c" mode="delete"/>
+        <classSpec type="atts" ident="att.datable" mode="delete"/>
+        <classSpec type="atts" ident="att.declarable" mode="delete"/>
+        <classSpec type="atts" ident="att.declaring" mode="delete"/>
+        <classSpec type="atts" ident="att.dimensions" mode="delete"/>
+        <classSpec type="atts" ident="att.divLike" mode="delete"/>
+        <classSpec type="atts" ident="att.duration.iso" mode="delete"/>
+        <classSpec type="atts" ident="att.duration.w3c" mode="delete"/>
+        <classSpec type="atts" ident="att.duration" mode="delete"/>
+        <classSpec type="atts" ident="att.editLike" mode="delete"/>
+        <classSpec type="atts" ident="att.enjamb" mode="delete"/>
+        <classSpec type="atts" ident="att.entryLike" mode="delete"/>
+        <classSpec type="atts" ident="att.global.analytic" mode="delete"/>
+        <classSpec type="atts" ident="att.global.facs" mode="delete"/>
+        <classSpec type="atts" ident="att.global.linking" mode="delete"/>
+        <classSpec type="atts" ident="att.global.responsibility" mode="delete"/>
+        <classSpec type="atts" ident="att.global.change" mode="delete"/>
+        <classSpec type="atts" ident="att.global.rendition" mode="change">
+          <attList>
+            <attDef ident="rendition" mode="delete"></attDef>
+            <attDef ident="rend" mode="delete"></attDef>
+          </attList>
+        </classSpec>
+        <classSpec type="atts" ident="att.global" mode="change">
+          <attList>
+            <attDef ident="xml:id" mode="delete"></attDef>
+            <attDef ident="n" mode="delete"></attDef>
+            <attDef ident="xml:space" mode="delete"></attDef>
+            <attDef ident="xml:base" mode="delete"></attDef>
+            <attDef ident="xml:lang" mode="delete"></attDef>
+            <attDef ident="xml:id" mode="delete"></attDef>
+          </attList>
+        </classSpec>
+        <classSpec type="atts" ident="att.handFeatures" mode="delete"/>
+        <classSpec type="atts" ident="att.identified" mode="delete"/>
+        <classSpec type="atts" ident="att.interpLike" mode="delete"/>
+        <classSpec type="atts" ident="att.lexicographic" mode="delete"/>
+        <classSpec type="atts" ident="att.measurement" mode="delete"/>
+        <classSpec type="atts" ident="att.metrical" mode="delete"/>
+        <classSpec type="atts" ident="att.msExcerpt" mode="delete"/>
+        <classSpec type="atts" ident="att.naming" mode="delete"/>
+        <classSpec type="atts" ident="att.personal" mode="delete"/>
+        <classSpec type="atts" ident="att.placement" mode="delete"/>
+        <classSpec type="atts" ident="att.pointing.group" mode="delete"/>
+        <classSpec type="atts" ident="att.pointing" mode="delete"/>
+        <classSpec type="atts" ident="att.ptrLike.form" mode="delete"/>
+        <classSpec type="atts" ident="att.rdgPart" mode="delete"/>
+        <classSpec type="atts" ident="att.segLike" mode="delete"/>
+        <classSpec type="atts" ident="att.spanning" mode="delete"/>
+        <classSpec type="atts" ident="att.tableDecoration" mode="delete"/>
+        <classSpec type="atts" ident="att.textCritical" mode="delete"/>
+        <classSpec type="atts" ident="att.timed" mode="delete"/>
+        <classSpec type="atts" ident="att.transcriptional" mode="delete"/>
+        <classSpec type="atts" ident="att.translatable" mode="delete"/>
+        <classSpec type="atts" ident="att.typed" mode="delete"/>
+        <classSpec type="atts" ident="att.xmlspace" mode="delete"/>
+        <classSpec type="atts" ident="att.responsibility" mode="change">
+          <attList>
+            <attDef ident="cert" mode="delete"/>
+          </attList>
+        </classSpec>
+
+
+
+        <!-- Added elements for DHQ -->
+
+        <elementSpec ident="dhqCorpus" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>A wrapper element for a collection of DHQ articles, for use in data mining and
+            similar applications.</desc>
+          <content>
+            <elementRef key="TEI" minOccurs="1" maxOccurs="unbounded"/>
+          </content>
+          <attList>
+            <attDef ident="type" mode="add">
+              <valList type="closed">
+                <valItem ident="issue"/>
+                <valItem ident="volume"/>
+                <valItem ident="journal"/>
+              </valList>
+            </attDef>
+            <attDef ident="date" mode="add">
+              <datatype>
+                <rng:data type="date"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+        
+        
+        <!-- add dhq:citRef -->
+
+        <elementSpec ident="citRef" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <gloss>citation reference</gloss>
+          <desc>A wrapper element for the citation information associated with <gi>cit</gi></desc>
+          <content>
+            <alternate minOccurs="1" maxOccurs="unbounded">
+              <elementRef key="ptr"/>
+              <elementRef key="ref"/>
+              <elementRef key="bibl"/>
+              <textNode/>
+            </alternate>
+          </content>
+        </elementSpec>
+
+<!-- Add DHQ element passThroughCode -->
+        <elementSpec ident="passThroughCode" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>Passthrough code gets passed through to the HTML output where it can be executed. The assumption is that this code will be HTML, or something that can be embedded within an HTML document.</desc>
+          <classes mode="change">
+            <memberOf key="model.inter" mode="add"/>
+          </classes>
+          <content>
+            <sequence>
+              <alternate minOccurs="0" maxOccurs="unbounded">
+                <textNode/>
+                <anyElement/>
+              </alternate>
+            </sequence>
+          </content>
+          <attList>
+
+            <attDef ident="rend" mode="add">
+              <desc>Indicates whether the code is to be presented as block or in-line element. If "block", a border will be generated.</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="block">
+                  <desc>indicates that the embedded code should be presented as a block element</desc></valItem>
+                <valItem ident="inline">
+                  <desc>indicates that the embedded code should be presented as an inline element</desc></valItem>
+              </valList>
+               
+              
+            </attDef>
+            <attDef ident="xml:id" mode="add">
+              <desc>Provides a unique identifier for the element</desc>
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+            <attDef ident="lang" usage="rec" mode="add">
+              <desc>Identifies the formal language in which the code is expressed</desc>
+              <datatype>
+                <rng:ref name="teidata.word"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+
+        <!-- add dhq:example -->
+        <elementSpec ident="example" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>An example is similar to a figure, but presents textual information (e.g. code or a
+            sample text) instead of a graphic.</desc>
+          <classes mode="change">
+            <memberOf key="model.inter" mode="add"/>
+          </classes>
+          <content>
+            <sequence>
+              <elementRef key="head" minOccurs="0"/>
+              <alternate minOccurs="0" maxOccurs="unbounded">
+                <classRef key="model.common"/>
+	      <!--
+		  <classRef key="model.pLike"/>
+		  <classRef key="model.egLike"/>
+		  <classRef key="model.quoteLike"/>		  
+	      -->
+              </alternate>
+              <elementRef key="caption" minOccurs="0"/>
+            </sequence>
+          </content>
+          <attList>
+            <attDef ident="xml:id" mode="add">
+              <desc>Provides a unique identifier for the example item</desc>
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+            <attDef ident="xml:lang" usage="rec" mode="add">
+              <desc>Identifies the language of the element's content</desc>
+              <datatype>
+                <rng:ref name="data.language"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+        <!-- metadata elements distinctive to DHQ header -->
+        <elementSpec ident="articleType" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>Designates the type of article</desc>
+          <classes mode="change">
+            <memberOf key="model.publicationStmtPart.detail" mode="add"/>
+          </classes>
+          <content>
+            <!-- Use old-fashioned <rng:choice>, because TEI stylesheets' code for newer, better -->
+            <!-- <valList> does not work, at least for now. See TEI Stylesheets/ issue #154 at   -->
+	    <!-- https://github.com/TEIC/Stylesheets/issues/154.                                 -->
+            
+            <rng:choice>
+              <rng:value>article</rng:value>
+              <rng:value>review</rng:value>
+              <rng:value>editorial</rng:value>
+              <rng:value>opinion</rng:value>
+              <rng:value>frontmatter</rng:value>
+              <rng:value>case study</rng:value>
+              <rng:value>field report</rng:value>
+            </rng:choice>
+          </content>
+        </elementSpec>
+
+        <elementSpec ident="abstract" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>The abstract for the article. Contains one or more paragraphs.</desc>
+          <classes mode="change">
+            <memberOf key="model.divLike" mode="add"/>
+          </classes>
+
+          <content>
+            <elementRef key="p" minOccurs="1" maxOccurs="unbounded"/>
+          </content>
+          <attList>
+            <attDef ident="xml:lang">
+              <datatype>
+                <rng:ref name="data.language"/>
+              </datatype>
+            </attDef>
+          </attList>
+
+        </elementSpec>
+        <elementSpec ident="teaser" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>The teaser for the article. Contains one or more paragraphs</desc>
+          <classes mode="change">
+            <memberOf key="model.divLike" mode="add"/>
+          </classes>
+          <content>
+            <elementRef key="p"/>
+          </content>
+          <attList>
+            <attDef ident="xml:lang">
+              <datatype>
+                <rng:ref name="data.language"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="author_name" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>Contains the name of an author of the article.</desc>
+          <content>
+            <alternate minOccurs="1" maxOccurs="unbounded">
+              <textNode/>
+              <elementRef key="family"/>
+            </alternate>
+          </content>
+          <attList>
+            <attDef ident="xml:id" mode="add">
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="translator_name" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>Contains the name of a translator of the article.</desc>
+          <content>
+            <alternate minOccurs="1" maxOccurs="unbounded">
+              <textNode/>
+              <elementRef key="family"/>
+            </alternate>
+          </content>
+        </elementSpec>
+
+        <elementSpec ident="family" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>Identifies the family name of the author.</desc>
+          <content>
+            <textNode/>
+          </content>
+        </elementSpec>
+
+        <elementSpec ident="affiliation" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>Describes the author's affiliation.</desc>
+          <content>
+            <textNode/>
+          </content>
+        </elementSpec>
+
+        <elementSpec ident="bio" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>Contains a brief biography of the author. Contains one or more paragraphs.</desc>
+          <content>
+            <elementRef key="p" minOccurs="1" maxOccurs="unbounded"/>
+          </content>
+        </elementSpec>
+
+        <elementSpec ident="authorInfo" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>The <gi>authorInfo</gi> element contains contact and biographical
+            details of the author.</desc>
+          <classes mode="change">
+            <memberOf key="model.respLike" mode="add"/>
+          </classes>
+          <content>
+            <sequence>
+              <elementRef key="author_name"/>
+              <elementRef key="affiliation" minOccurs="0"/>
+              <elementRef key="email" minOccurs="0"/>
+              <elementRef key="bio" minOccurs="0"/>
+            </sequence>
+          </content>
+          <attList>
+            <attDef ident="xml:id" mode="add">
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="caption" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>A caption for an example or table. May contain either paragraphs or mixed
+            content.</desc>
+          <classes mode="change">
+            <memberOf key="model.noteLike" mode="add"/>
+          </classes>
+          <content>
+            <alternate minOccurs="0" maxOccurs="unbounded">
+              <textNode/>
+              <classRef key="model.phrase"/>
+              <classRef key="model.inter"/>
+              <classRef key="model.divPart"/>
+              <classRef key="model.global"/>
+            </alternate>
+          </content>
+        </elementSpec>
+
+        <elementSpec ident="translatorInfo" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>In DHQPublish, the <gi>translatorInfo</gi> element contains contact and biographical
+            details of the translator.</desc>
+          <classes mode="change">
+            <memberOf key="model.respLike" mode="add"/>
+          </classes>
+          <content>
+            <sequence>
+              <elementRef key="translator_name"/>
+              <elementRef key="affiliation" minOccurs="0"/>
+              <elementRef key="email" minOccurs="0"/>
+              <elementRef key="bio" minOccurs="0"/>
+            </sequence>
+          </content>
+          <attList>
+            <attDef ident="xml:id" mode="add">
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+        <elementSpec ident="revisionNote" ns="http://www.digitalhumanities.org/ns/dhq" mode="add">
+          <desc>A revisionNote contains information about a post-publication revision to the
+            article.</desc>
+          <classes mode="change">
+            <memberOf key="model.publicationStmtPart.detail" mode="add"/>
+          </classes>
+          <content>
+            <macroRef key="macro.limitedContent"/>
+          </content>
+          <attList>
+            <attDef ident="previous" mode="add">
+              <datatype>
+                <dataRef key="teidata.pointer"/>
+              </datatype>
+            </attDef>
+            <attDef ident="when">
+              <datatype>
+                <rng:ref name="data.temporal.w3c"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="dedication" ns="http://www.digitalhumanities.org/ns/dhq" mode="add">
+          <desc>A dedication contains a brief phrase of dedication; it appears at the top of the
+            article as a child of <gi>body</gi>, immediately following the heading</desc>
+          <classes mode="change">
+            <memberOf key="model.divTopPart" mode="add"/>
+          </classes>
+          <content>
+            <textNode/>
+          </content>
+        </elementSpec>
+
+
+        <!-- ================================================================================== -->
+        <!-- elements with changed content models -->
+
+        <!-- modify <media> to include @poster and to use closed list for @type-->
+       <!-- <elementSpec ident="media" mode="change">
+          <attList>
+            <attDef mode="replace" ident="type" usage="req">
+              <valList type="closed">
+                <valItem ident="audio"><desc>an audio file</desc></valItem>
+                <valItem ident="video"><desc>a video file</desc></valItem>
+              </valList>
+            </attDef>
+             
+            <attDef mode="add" ident="poster" usage="opt">
+              <desc>A pointer to an image that serves as a "poster": a static image that displays when the media is not playing.</desc>
+              <datatype>
+                <dataRef key="teidata.pointer"/>
+              </datatype>
+            </attDef>
+             
+          </attList>
+        </elementSpec> -->
+
+
+
+        <!-- Limit <eg> to contain only <hi> to permit renditional highlighting within code samples -->
+        <elementSpec ident="eg" module="tagdocs" mode="change">
+          <content>
+            <alternate minOccurs="0" maxOccurs="unbounded">
+              <elementRef key="hi"/>
+              <textNode/>
+            </alternate>
+          </content>
+        </elementSpec>
+
+        <!-- Limit content model of <front> to DHQ abstract and teaser -->
+        <elementSpec ident="front" module="textstructure" mode="replace">
+          <desc>The front matter consists of an abstract followed by a teaser.</desc>
+          <content>
+            <sequence>
+              <elementRef key="abstract" minOccurs="1" maxOccurs="unbounded"/>
+              <elementRef key="teaser" minOccurs="1" maxOccurs="unbounded"/>
+            </sequence>
+          </content>
+        </elementSpec>
+
+        <!-- Add @xml:id to <anchor> to distinguish between article and issue titles -->
+
+        <elementSpec ident="anchor" mode="change" module="core">
+          <attList>
+            <attDef ident="xml:id" mode="add">
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+            <attDef ident="type" mode="add">
+              <valList type="closed">
+                <valItem ident="revisionLoc">
+                  <desc>identifies a revision location in a revised article</desc>
+                </valItem>
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+        
+        <!-- Add @extent to <language> for articles in translation -->
+        <elementSpec ident="language" mode="change" module="header">
+          <attList>
+            <attDef ident="extent" mode="add">
+              <desc>The <att>extent</att> attribute is used on <gi>language</gi> to indicate the nature of the usage of the language in question: whether it is used for the original article, for a translation stub, or for a full translation.</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="original">
+                  <desc>indicates that the language is used for the original article</desc></valItem>
+                <valItem ident="translation_stub">
+                  <desc>indicates that the language is used for a translation stub (i.e. a placeholder or incomplete translation)</desc></valItem>
+                <valItem ident="translation">
+                  <desc>indicates that the language is used for a full translation of the article</desc>
+                </valItem>
+              </valList>
+            </attDef>
+          </attList>
+          
+        </elementSpec>
+
+
+        <!-- Add @type to <title> to distinguish between article and issue titles -->
+        <elementSpec ident="title" mode="change" module="core">
+          <attList>
+            <attDef ident="type" mode="add">
+              <desc>The <att>type</att> attribute is to be used in the header to designate and
+                distinguish the article and issue titles.</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="article"/>
+                <valItem ident="issue"/>
+              </valList>
+            </attDef>       
+       
+            <!-- add @xml:lang for articles in translation -->
+            
+                      
+            <attDef ident="xml:lang">
+              <desc>Identifies the language of the element's content</desc>
+              <datatype>
+                <rng:ref name="data.language"/>
+              </datatype>
+            </attDef>
+          
+
+
+
+            <!-- use values for @rend to distinguish intended title rendition within the body of the article -->
+            <attDef ident="rend" mode="add">
+              <desc>Describes the presentation of a title in the main body of the text and in the
+                bibliography.</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="italic">
+                  <desc/>
+                </valItem>
+                <valItem ident="none">
+                  <desc/>
+                </valItem>
+                <valItem ident="quotes">
+                  <desc/>
+                </valItem>
+              </valList>
+            </attDef>
+            
+            
+            
+            <attDef ident="level" mode="delete"/>
+          </attList>
+        </elementSpec>
+
+       <!-- add @type to <idno> -->
+            
+        <elementSpec ident="idno" mode="change" module="header">
+          <attList>
+            <attDef ident="type" mode="add">
+              <valList type="closed">
+                <valItem ident="DHQarticle-id"><desc>used for the DHQ article ID</desc></valItem>
+                <valItem ident="volume"><desc>used for the volume number</desc></valItem>
+                <valItem ident="issue"><desc>used for the issue number</desc></valItem>
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+        <!-- modify <availability> to include CC license information -->
+        <elementSpec ident="availability" mode="change" module="header">
+          <content>
+            <elementRef key="License"/>
+          </content>
+        </elementSpec>
+        <elementSpec ident="License" mode="add" ns="http://web.resource.org/cc/">
+          <attList>
+            <attDef ident="about" ns="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+              <datatype>
+                <dataRef key="teidata.pointer"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <!-- modify <back> to limit its contents to <listBibl> -->
+        <elementSpec ident="back" mode="replace" module="textstructure">
+          <content>
+            <elementRef key="listBibl" minOccurs="0"/>
+          </content>
+        </elementSpec>
+
+        <!-- modify content model of <cit> to include <dhq:citRef> (accommodating PCDATA within <cit> when authors include a descriptive phrase along with the reference  -->
+        <elementSpec ident="cit" module="core" mode="change">
+          <content>
+            <sequence>
+              <elementRef key="quote"/>
+              <alternate>
+                <elementRef key="citRef"/>
+                <alternate minOccurs="0" maxOccurs="unbounded">
+                  <elementRef key="ptr"/>
+                  <elementRef key="ref"/>
+                  <elementRef key="bibl"/>
+                  <textNode/>
+                </alternate>
+              </alternate>
+            </sequence>
+          </content>
+        </elementSpec>
+
+        <!-- modify content model of <head> to constrain its contents  -->
+        <elementSpec ident="head" mode="change" module="core">
+          <content>
+            <alternate minOccurs="0" maxOccurs="unbounded">
+              <textNode/>
+              <classRef key="model.hiLike"/>
+              <classRef key="model.dateLike"/>
+              <classRef key="model.nameLike"/>
+              <classRef key="model.emphLike"/>
+              <classRef key="model.phrase.xml"/>
+              <classRef key="model.ptrLike"/>
+              <classRef key="model.inter"/>
+              <elementRef key="quote"/>
+              <elementRef key="said"/>
+              <elementRef key="q"/>
+              <elementRef key="note"/>
+            </alternate>
+          </content>
+        </elementSpec>
+        
+        <!-- modify content model of <label> to allow <bibl> and <q> as children -->
+        <elementSpec ident="label" mode="change" module="core">
+          <content>
+            <alternate minOccurs="0" maxOccurs="unbounded">
+              <macroRef key="macro.phraseSeq"/>
+              <elementRef key="bibl"/>
+              <elementRef key="q"/>
+            </alternate>
+          </content>
+        </elementSpec>
+      
+
+        <!-- simplifying a few elements and removing unneeded attributes -->
+
+        <elementSpec module="core" ident="said" mode="change">
+          <attList>
+            <attDef ident="aloud" mode="delete"/>
+            <attDef ident="direct" mode="delete"/>
+          </attList>
+        </elementSpec>
+
+        <elementSpec module="core" ident="q" mode="change">
+          <classes mode="change">
+            <memberOf key="model.phrase" mode="add"/>
+          </classes>
+          <attList>
+            <attDef ident="type" mode="delete"/>
+          </attList>
+        </elementSpec>
+
+        <elementSpec module="core" ident="term" mode="change">
+          <attList>
+            <attDef ident="sortKey" mode="delete"/>
+            <attDef ident="target" mode="delete"/>
+            <attDef ident="cRef" mode="delete"/>
+            <attDef ident="xml:lang" usage="rec">
+              <datatype>
+                <rng:ref name="data.language"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+        <elementSpec module="core" ident="name" mode="change">
+          <attList>
+            <attDef ident="type" mode="delete"/>
+            <attDef ident="role" mode="add">
+              <desc>Specifies the role of the person named in relation to the bibliographic
+                object.</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="semi">
+                <valItem ident="translator"/>
+                <valItem ident="editor"/>
+                <valItem ident="illustrator"/>
+                <valItem ident="annotator"/>
+                <valItem ident="programmer"/>
+
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec module="core" ident="date" mode="change">
+          <attList>
+            <attDef ident="calendar" mode="delete"/>
+            <attDef ident="when">
+              <desc>Provides a date in regularized format.</desc>
+              <datatype>
+                <rng:ref name="data.temporal.w3c"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec module="core" ident="graphic" mode="change">
+          <attList>
+            <attDef ident="width" mode="delete"/>
+            <attDef ident="height" mode="delete"/>
+            <attDef ident="scale" mode="delete"/>
+
+            <attDef ident="type">
+              <desc>Classifies the type of graphic object.</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="video">
+                  <desc>A link to a video file</desc>
+                </valItem>
+              </valList>
+            </attDef>
+
+          </attList>
+        </elementSpec>
+
+
+        <elementSpec module="core" ident="lb" mode="change">
+          <attList>
+            <attDef ident="ed" mode="delete"/>
+          </attList>
+        </elementSpec>
+        <elementSpec module="core" ident="editor" mode="change">
+          <attList>
+            <attDef ident="role" mode="delete"/>
+          </attList>
+        </elementSpec>
+
+        <elementSpec module="core" ident="l" mode="change">
+          <attList>
+            <attDef ident="part" mode="delete"/>
+          </attList>
+        </elementSpec>
+        <elementSpec module="core" ident="stage" mode="change">
+          <attList>
+            <attDef ident="type" mode="delete"/>
+          </attList>
+        </elementSpec>
+
+        <elementSpec module="header" ident="TEI" mode="change">
+          <attList>
+            <attDef ident="version" mode="delete"/>
+          </attList>
+        </elementSpec>
+        
+        
+        <elementSpec module="figures" ident="formula" mode="change">
+          <content>
+            <alternate minOccurs="0" maxOccurs="unbounded">
+              <textNode/>
+              <elementRef key="note"/>
+              <elementRef key="math"/>
+              <classRef key="model.graphicLike"/>
+            </alternate>
+          </content>
+          <attList>
+            <attDef ident="rend" mode="add">
+              <valList type="closed" mode="add">
+                <valItem ident="inline"/>
+                <valItem ident="block"/>
+              </valList>
+            </attDef>
+            <attDef ident="notation" mode="change">
+              <valList type="closed" mode="replace">
+                <valItem ident="asciimath"/>
+                <valItem ident="tex"/>
+                <valItem ident="mathml"/>
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+        
+        <elementSpec ident="math" ns="http://www.w3.org/1998/Math/MathML" mode="add">
+          <content>
+            <anyElement/>
+          </content>
+        </elementSpec>
+        
+        
+        <elementSpec ident="meeting" module="core" mode="change">
+          <classes mode="change">
+            <memberOf key="model.divWrapper" mode="delete"/>
+          </classes>
+        </elementSpec>
+        
+        <!-- add xenodata to qLike to enable it to be used for embedded iFrames -->
+        <elementSpec ident="xenoData" module="header" mode="change">
+          <classes mode="change">
+            <memberOf key="model.qLike" mode="add"/>
+          </classes>
+          <attList>
+            <attDef ident="type">
+              <datatype>
+                <dataRef key="teidata.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="embed_map"/>
+                <valItem ident="embed_audio"/>
+                <valItem ident="embed_video"/>
+                <valItem ident="embed_3d"/>
+              </valList>
+            </attDef>
+            <attDef ident="subtype">
+              <datatype>
+                <dataRef key="teidata.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="soundcloud"/>
+                <valItem ident="google"/>
+              </valList>
+              
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+        <!-- adding attributes to elements -->
+        <!-- elements using rend -->
+        <elementSpec ident="quote" mode="change" module="core">
+          <attList>
+            <!-- 
+            <attDef mode="add" ident="source">
+              <datatype maxOccurs="unbounded" minOccurs="1">
+                <dataRef key="teidata.pointer"/>
+              </datatype>
+            </attDef>
+             -->
+            <attDef mode="add" ident="rend" usage="req">
+              <desc>Describes the presentation of the quoted material, whether inline or set as a
+                block.</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="inline">
+                  <desc>Designates an inline quotation (i.e. one that is flowed into the surrounding
+                    text rather than set off from it), typically containing text and inline
+                    elements.</desc>
+                </valItem>
+                <valItem ident="block">
+                  <desc>Designates a block quotation, typically containing one or more paragraphs or
+                    other chunky things.</desc>
+                </valItem>
+              </valList>
+            </attDef>
+            <attDef mode="add" ident="xml:lang" usage="rec">
+              <datatype>
+                <rng:ref name="data.language"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="epigraph" mode="change" module="core">
+          <attList>
+            <attDef ident="rend" usage="opt">
+              <desc>Describes the presentation of the quoted material, whether inline or set as a
+                block.</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="center">
+                  <desc>Designates a block quotation, typically containing one or more paragraphs or
+                    other chunky things, with the block and text centered. </desc>
+                </valItem>
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="floatingText" mode="change" module="textstructure">
+          <attList>
+            <attDef ident="xml:lang" usage="opt">
+              <desc>Identifies the language of the element's content</desc>
+              <datatype>
+                <rng:ref name="data.language"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="hi" mode="change" module="core">
+          <attList>
+            <attDef ident="rend">
+              <desc>Describes the presentation of the highlighted material.</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="bold">
+                  <desc>The designated content is intended to be rendered in bold type.</desc>
+                </valItem>
+                <valItem ident="italic">
+                  <desc>The designated content is intended to be rendered in italic type.</desc>
+                </valItem>
+                <valItem ident="monospace">
+                  <desc>The designated content is intended to be rendered in monospace type.</desc>
+                </valItem>
+                <valItem ident="quotes">
+                  <desc>The designated content is intended to be rendered within quotation marks.
+                    The nesting of single and double quotation marks will be handled by the
+                    stylesheet.</desc>
+                </valItem>
+                <valItem ident="smcaps">
+                  <desc>The designated content is intended to be rendered in small capital
+                    letters.</desc>
+                </valItem>
+                <valItem ident="subscript">
+                  <desc>The designated content is intended to be rendered as a subscript.</desc>
+                </valItem>
+                <valItem ident="superscript">
+                  <desc>The designated content is intended to be rendered as a superscript.</desc>
+                </valItem>
+                <valItem ident="underlined">
+                  <desc>The designated content is intended to be rendered with an underline.</desc>
+                </valItem>
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="text" mode="change" module="textstructure">
+          <attList>
+            <attDef ident="xml:lang" usage="rec" mode="add">
+              <desc>Identifies the language of the element's content</desc>
+              <datatype>
+                <rng:ref name="data.language"/>
+              </datatype>
+            </attDef>
+            <attDef ident="resp" mode="add">
+              <desc>Identifies the agent responsible for the content of the <gi>text</gi>
+                element</desc>
+              <datatype minOccurs="1" maxOccurs="unbounded">
+                <dataRef key="teidata.pointer"/>
+              </datatype>
+            </attDef>
+            <attDef ident="type" mode="add">
+              <desc>Identifies whether the text is in the language of its original authorship, or is a full translation, or is a stub translation (i.e. abstract only)</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="original">
+                  <desc>The text is in the language of its original authorship</desc>
+                </valItem>
+                <valItem ident="translation">
+                  <desc>The text is a full translation of the originally authored article</desc>
+                </valItem>
+                <valItem ident="translation_stub">
+                  <desc>The text is a stub or partial translation</desc>
+                </valItem>
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+
+        <!-- elements that use type -->
+        <elementSpec ident="ab" module="linking" mode="change">
+          <attList>
+            <attDef ident="part" mode="delete"/>
+            <attDef ident="type" mode="add">
+              <datatype>
+                <rng:ref name="data.name"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+        <elementSpec ident="seg" module="linking" mode="change">
+          <attList>
+
+            <attDef ident="type" mode="add">
+              <datatype>
+                <rng:ref name="data.name"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+        <elementSpec ident="list" mode="change" module="core">
+          <content>
+            <sequence>
+              <classRef key="model.divTop" minOccurs="0" maxOccurs="unbounded"/>
+              <elementRef key="item" minOccurs="1" maxOccurs="unbounded"/>
+            </sequence>
+          </content>
+          <attList>
+            <attDef ident="type" mode="replace">
+              <desc>Classifies the element.</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed" mode="replace">
+                <valItem ident="ordered">
+                  <desc>A numbered list</desc>
+                </valItem>
+                <valItem ident="unordered">
+                  <desc>A bulleted list</desc>
+                </valItem>
+                <valItem ident="simple">
+                  <desc>A list with no numbering or bullets</desc>
+                </valItem>
+                <valItem ident="gloss">
+                  <desc>A gloss list, assumes the presence of a label preceding the item.</desc>
+                </valItem>
+                <valItem ident="annotated_bibliography">
+                  <desc>An annotated bibliography, assumes the presence of a <gi>bibl</gi> within
+                      <gi>label</gi>.</desc>
+                </valItem>
+
+              </valList>
+            </attDef>
+          </attList>
+
+        </elementSpec>
+        <elementSpec ident="biblScope" mode="change" module="core">
+          <attList>
+            <attDef ident="type" mode="delete"/>
+            <attDef ident="from" mode="delete"/>
+            <attDef ident="to" mode="delete"/>
+          </attList>
+        </elementSpec>
+
+
+        <!-- elements that use xml:id -->
+
+
+        <elementSpec ident="table" mode="change" module="figures">
+          <content>
+            <sequence>
+              <elementRef key="head" minOccurs="0"/>
+              <elementRef key="row" minOccurs="1" maxOccurs="unbounded"/>
+              <elementRef key="caption" minOccurs="0"/>
+            </sequence>
+          </content>
+          <attList>
+            <attDef ident="rows" mode="delete"/>
+            <attDef ident="cols" mode="delete"/>
+            <attDef ident="xml:id" mode="add">
+              <desc>Provides a unique identifier for the table</desc>
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+            <attDef ident="rend" mode="add" usage="opt">
+              <valList type="closed">
+                <valItem ident="unbordered"/>
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+        <elementSpec ident="div" mode="change" module="textstructure">
+          <attList>
+            <attDef ident="xml:id">
+              <desc>Provides a unique identifier for the division.</desc>
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+            <attDef ident="xml:lang" usage="rec">
+              <datatype>
+                <rng:ref name="data.language"/>
+              </datatype>
+            </attDef>
+            <attDef ident="type">
+              <datatype><dataRef key="teidata.enumerated"></dataRef></datatype>
+              <valList type="closed">
+                <valItem ident="appendix"/>
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+        <elementSpec ident="figure" mode="change" module="figures">
+          <content>
+            <sequence>
+              <elementRef key="head" minOccurs="0"/>
+              <alternate minOccurs="0" maxOccurs="unbounded">
+                <elementRef key="figDesc"/>
+                <classRef key="model.graphicLike"/>
+                <elementRef key="figure"/>
+              </alternate>
+               <!-- removed optional <caption> element to reflect updated practice, 2018-05-18 -->
+            </sequence>
+          </content>
+          <attList>
+            <attDef ident="xml:id">
+              <desc>Provides a unique identifier for the figure</desc>
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+         
+        <elementSpec ident="note" mode="change" module="core">
+          <classes mode="change">
+            <memberOf key="model.common" mode="add"/>
+          </classes>
+          <attList>
+            <attDef ident="type" mode="delete"/>
+            <attDef ident="resp" mode="delete"/>
+            <attDef ident="anchored" mode="delete"/>
+            <attDef ident="target" mode="delete"/>
+            <attDef ident="targetEnd" mode="delete"/>
+            <attDef ident="xml:id" mode="add">
+              <desc>Provides a unique identifier for the note</desc>
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <!-- elements that use @role -->
+        <elementSpec ident="cell" mode="change" module="figures">
+          <attList>
+            <attDef ident="role">
+              <desc>Describes the role of the table cell</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="label">
+                  <desc>Indicates that the cell serves as a label (otherwise is assumed to be
+                    data)</desc>
+                </valItem>
+                <valItem ident="data">
+                  <desc>Indicates that the cell contains data (default value)</desc>
+                </valItem>
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+        <elementSpec ident="row" mode="change" module="figures">
+          <attList>
+            <attDef ident="role">
+              <desc>Describes the role of the table row</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="label">
+                  <desc>Indicates that the cell serves as a label (otherwise is assumed to be
+                    data)</desc>
+                </valItem>
+                <valItem ident="data">
+                  <desc>Indicates that the cell contains data (default value)</desc>
+                </valItem>
+              </valList>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+        <!-- other attributes -->
+
+        <elementSpec ident="foreign" mode="change" module="core">
+          <attList>
+            <attDef ident="xml:lang" usage="rec">
+              <desc>Identifies the language of the element's content</desc>
+              <datatype>
+                <rng:ref name="data.language"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+        <elementSpec ident="change" mode="change" module="header">
+          <attList>
+            <attDef ident="when" mode="add">
+              <desc>Provides a date in regularized format.</desc>
+              <datatype>
+                <rng:ref name="data.temporal.w3c"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+        <elementSpec ident="ref" mode="change" module="core">
+          <attList>
+            <attDef ident="target">
+              <desc>Provides a pointer to a bibliographic citation.</desc>
+              <datatype>
+                <dataRef key="teidata.pointer"/>
+              </datatype>
+            </attDef>
+            <attDef ident="loc">
+              <desc>The value will typically be either a numeric page reference or page range, or
+                else a section number (which may be numeric or alphabetic, or may conceivably use
+                some other ordering system)</desc>
+              <datatype>
+                <rng:ref name="data.text"/>
+              </datatype>
+            </attDef>
+            <attDef ident="type" mode="add" usage="rec">
+              <desc>Provides a classification of the reference</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="offline">
+                  <desc>Indicates that the reference in question does not have a linked
+                    target.</desc>
+                </valItem>
+              </valList>
+            </attDef>
+            <attDef ident="target" mode="delete"/>
+            <attDef ident="cRef" mode="delete"/>
+          </attList>
+        </elementSpec>
+
+
+
+        <elementSpec ident="ptr" mode="change" module="core">
+          <attList>
+            <attDef ident="target" mode="add">
+              <desc>Provides a pointer to a bibliographic citation.</desc>
+              <datatype>
+                <dataRef key="teidata.pointer"/>
+              </datatype>
+            </attDef>
+            <attDef ident="cRef" mode="delete"/>
+            <attDef ident="loc">
+              <desc>The value will typically be either a numeric page reference or page range, or
+                else a section number (which may be numeric or alphabetic, or may conceivably use
+                some other ordering system)</desc>
+              <datatype>
+                <rng:ref name="data.text"/>
+              </datatype>
+            </attDef>
+<!--            <attDef ident="type">
+              <desc>Permits specialized types of pointers to be identified (e.g. those pointing to
+                video or audio files).</desc>
+              <datatype>
+                <rng:ref name="data.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="video">
+                  <desc>Indicates that the pointer references a video file.</desc>
+                </valItem>
+                <valItem ident="audio">
+                  <desc>Indicates that the pointer references an audio file.</desc>
+                </valItem>
+                <valItem ident="dhq-annex-embed">
+                  <desc>Indicates that the pointer references an embedded feed from the DHQ
+                    annex.</desc>
+                </valItem>
+              </valList>
+            </attDef>
+-->          </attList>
+        </elementSpec>
+
+
+        <elementSpec ident="bibl" mode="change" module="core">
+          <classes mode="change">
+            <memberOf key="att.canonical" mode="add"/>
+            <!-- permit @key on <bibl> -->
+          </classes>
+          <attList>
+            <attDef ident="biblioID">
+              <desc>provides a reference to a centralized bibliography</desc>
+              <datatype>
+                <rng:ref name="data.text"/>
+              </datatype>
+            </attDef>
+            <attDef ident="label" mode="add">
+              <desc>Provides a label for use in generated bibliographies.</desc>
+              <datatype>
+                <rng:ref name="data.text"/>
+              </datatype>
+            </attDef>
+            <attDef ident="xml:id" mode="add">
+              <desc>Provides a unique identifier for the bibliographic item</desc>
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+        <elementSpec ident="taxonomy" mode="change" module="header">
+          <attList>
+            <attDef ident="xml:id">
+              <desc>Provides a unique identifier for the taxonomy</desc>
+              <datatype>
+                <rng:data type="ID"/>
+              </datatype>
+            </attDef>
+          </attList>
+        </elementSpec>
+
+
+        <!-- Modifying these model classes to tighten element content models -->
+        <classSpec ident="model.noteLike" type="model" mode="change">
+          <classes mode="change">
+            <memberOf key="model.phrase" mode="add"/>
+            <memberOf key="model.global" mode="delete"/>
+          </classes>
+        </classSpec>
+        <classSpec ident="model.milestoneLike" type="model" mode="change">
+          <classes mode="change">
+            <memberOf key="model.phrase" mode="add"/>
+            <memberOf key="model.global" mode="delete"/>
+          </classes>
+        </classSpec>
+        <classSpec ident="model.labelLike" type="model" mode="change">
+          <classes mode="change">
+            <memberOf key="model.inter" mode="delete"/>
+            <memberOf key="model.phrase" mode="add"/>
+          </classes>
+        </classSpec>
+        <classSpec ident="model.addressLike" type="model" mode="change">
+          <classes mode="change">
+            <memberOf key="model.phrase" mode="delete"/>
+            <memberOf key="model.pPart.data" mode="delete"/>
+          </classes>
+        </classSpec>
+
+
+      </schemaSpec>
+    </body>
+  </text>
+</TEI>

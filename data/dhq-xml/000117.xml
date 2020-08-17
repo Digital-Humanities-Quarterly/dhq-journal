@@ -1,0 +1,2221 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-model href="../../common/schema/DHQauthor-TEI.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?><?xml-model href="../../common/schema/dhqTEI-ready.sch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+   xmlns:cc="http://web.resource.org/cc/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <teiHeader>
+      <fileDesc>
+         <titleStmt>
+            <title>Comic Book Markup Language: An Introduction and Rationale</title>
+            <author>John A. Walsh</author>
+            <dhq:authorInfo>
+               <dhq:author_name>John A. <dhq:family>Walsh</dhq:family>
+               </dhq:author_name>
+               <dhq:affiliation>Indiana University</dhq:affiliation>
+               <email>jawalsh@indiana.edu</email>
+               <dhq:bio>
+                  <p> John A. Walsh is an Assistant Professor of Library and Information Science and
+                     Adjunct Assistant Professor of English at Indiana University, where he teaches
+                     and conducts research in the areas of digital humanities and digital libraries.
+                     Working with encoded texts and related images to develop scholarly digital
+                     editions, Walsh explores issues of representation, indexicality, and visuality
+                     within and among documents. Current research projects include <title
+                        rend="italic">
+                        <ref target="http://swinburneproject.org/">The Algernon Charles Swinburne
+                           Project</ref>
+                     </title>, <title rend="italic">
+                        <ref target="http://chymistry.org">The Chymistry of Isaac Newton</ref>
+                     </title>, <ref target="http://teiboilerplate.org">TEI Boilerplate</ref>, and
+                        <ref target="http://www.cbml.org">Comic Book Markup Language</ref>. </p>
+               </dhq:bio>
+            </dhq:authorInfo>
+         </titleStmt>
+         <publicationStmt>
+            <publisher>Alliance of Digital Humanities Organizations</publisher>
+            <publisher>Association of Computers and the Humanities</publisher>
+            <idno type="DHQarticle-id">000117</idno>
+            <idno type="volume">006</idno>
+            <idno type="issue">1</idno>
+            <dhq:articleType>article</dhq:articleType>
+            <date when="2012-05-18">18 May 2012</date>
+            <availability>
+               <cc:License xmlns="http://digitalhumanities.org/DHQ/namespace"
+                  rdf:about="https://creativecommons.org/licenses/by-nd/2.5/"/>
+            </availability>
+         </publicationStmt>
+         <sourceDesc>
+            <p>This TEI/XML document is the original source.</p>
+         </sourceDesc>
+      </fileDesc>
+      <encodingDesc>
+         <classDecl>
+            <taxonomy xml:id="dhq_keywords">
+               <bibl>DHQ classification scheme; full list available in the <ref
+                     target="http://www.digitalhumanities.org/dhq/taxonomy.xml">DHQ keyword
+                     taxonomy</ref>
+               </bibl>
+            </taxonomy>
+            <taxonomy xml:id="authorial_keywords">
+               <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+            </taxonomy>
+         </classDecl>
+      </encodingDesc>
+      <profileDesc>
+         <langUsage>
+            <language ident="en"/>
+         </langUsage>
+      </profileDesc>
+      <revisionDesc>
+         <change when="2013-06-20" who="Tassie Gniady">Changed "dhq:caption" to "head."</change>
+      </revisionDesc>
+   </teiHeader>
+   <text xml:lang="en">
+      <front>
+         <dhq:abstract>
+            <p> Comics, comic books, and graphic novels are increasingly the target of seriously
+               scholarly attention in the humanities. Moreover, comic books are exceptionally
+               complex documents, with intricate relationships between pictorial and textual
+               elements and a wide variety of content types within a single comic book publication.
+               The complexity of these documents, their combination of textual and pictorial
+               elements, and the collaborative nature of their production shares much in common with
+               other complex documents studied by humanists — illuminated manuscripts, artists’
+               books, illustrated poems like those of William Blake, letterpress productions like
+               those of the Kelmscott Press, illustrated children’s books, and even Web pages and
+               other born-digital media. Comic Book Markup Language, or CBML, is a TEI-based XML
+               vocabulary for encoding and analyzing comic books, comics, graphic novels, and
+               related documents. This article discusses the goals and motivations for developing
+               CBML, reviews the various content types found in comic book publications, provides an
+               overview and examples of the key features of the CBML XML vocabulary, explores some
+               of the problems and challenges in the encoding and digital representation of comic
+               books, and outlines plans for future work. The structural, textual, visual, and
+               bibliographic complexity of comic books make them an excellent subject for the
+               general study of complex documents, especially documents combining pictorial and
+               textual elements.</p>
+         </dhq:abstract>
+         <dhq:teaser>
+            <p>Comics, books, TEI, &amp; XML…</p>
+         </dhq:teaser>
+      </front>
+      <body>
+         <div>
+            <epigraph rend="center">
+               <cit>
+                  <quote rend="block" source="#amazing_fantasy_15">
+                     <p>
+                        <hi rend="bold">Science Exhibit</hi>
+                     </p>
+                     <p>
+                        <hi rend="italic">Experiments<lb/> in<lb/> Radio-Activity<lb/>
+                        </hi>
+                     </p>
+                     <p>
+                        <hi rend="italic"> Open<lb/> to the<lb/> Public<lb/>
+                        </hi>
+                     </p>
+                  </quote>
+
+                  <ref target="#amazing_fantasy_15">Lee &amp; Ditko. <title>Amazing Fantasy</title>
+                     #15, 1962.</ref>
+               </cit>
+            </epigraph>
+         </div>
+         <div>
+            <head>Introduction</head>
+            <p>This study provides an introduction and rationale for the development of Comic Book
+               Markup Language, or CBML, an XML<note>XML, or eXtensible Markup Language, is a
+                  widely-adopted metalanguage that specifies a set of rules for encoding documents
+                  and data and for creating application- and domain-specific markup languages for
+                  encoding documents and data. XML is a recommendation of the World Wide Web
+                  Consortium. See <ptr target="#bray2008"/>.</note> vocabulary for encoding
+               multiform documents that are variously called comics, comic books, and
+                  <soCalled>graphic novels</soCalled>
+               <note>I share with many comics creators and scholars a dissatisfaction with the term
+                     <hi rend="italic">graphic novel</hi>, finding it unnecessary, misleading and
+                  perpetuating of a false distinction. Wikipedia's article on <ref
+                     target="http://en.wikipedia.org/wiki/Graphic_novel#Criticism_of_the_term"
+                     >Graphic novel</ref> includes a useful summary of many of the criticisms of the
+                  term.</note> as well as other documents that integrate comics content<note>An
+                  example is Peter David's <title>Mascot to the Rescue!</title>
+                  <ptr target="#david2008"/>, a superhero-themed children’s novel that integrates
+                  comics content with more traditional narrative prose. Brian Selznick’s <title>The
+                     Invention of Hugo Cabret</title>
+                  <ptr target="#selznick2007"/> is an illustrated novel, with many of the
+                  illustrations subdivided into juxtaposed images reminiscent of comics
+                  panels.</note> or that share formal features with comics content. A markup
+               language is a set of machine-readable textual codes, or <soCalled>tags,</soCalled>
+               that are used to identify structure, semantics, and other features of documents and
+                  data.<note>Readers from the scholarly markup and digital humanities communities
+                  will be familiar with many of the general issues about text encoding discussed
+                  here. I am also hopeful that this essay will attract readers from the comics
+                  scholarship community who may not be as familiar with text encoding, and so I go
+                  into more detail about general issues of text encoding than I might
+                  otherwise.</note> The application of these codes to a document is typically a
+               necessary stage, often the most crucial and informative stage, of editing, analyzing,
+               indexing publishing, visualizing, and otherwise studying or manipulating texts in
+               digital environments. The act of encoding a document is a form of discovery, or
+               prospecting, in which the encoder maps a document's structure, identifies semantic
+               elements of interest, and documents relationships internal and external to the
+               document. Scholarly encoding is a form of both reading and writing. The reading,
+               shaped by the constraints of a markup language, is inscribed upon and embedded within
+               the digital text. As literary scholar and digital humanist Jerome McGann has noted, <cit>
+                  <quote rend="inline" source="#mcgann2001">When you mark up a text you are ipso
+                     facto reading and interpreting it. A … text marked up in TEI [a scholarly
+                     encoding language] has been subjected to a certain kind of
+                     interpretation</quote>
+                  <ptr target="#mcgann2001" loc="143"/>
+               </cit>. Sperberg-McQueen, Huitfeldt, and Renear assert that markup is constitutive of
+               meaning, markup is interpretive, markup is performative, markup acknowledges or
+               licenses inferences about the text: <cit>
+                  <quote rend="block" source="#sperbergmcqueen2000">
+                     <p>Markup is inserted into textual material not at random, but to convey some
+                        meaning.</p>
+                     <p> An author may supply markup as part of the act of composing a text; in this
+                        case the markup expresses the author’s intentions, e.g. as to the structure
+                        or appearance of the text. The author creates a section heading, for
+                        example, by creating an appropriate element in the document; the content of
+                        that element is a section heading because the author says so, and the markup
+                        is simply the method by which the author says so. The markup, that is, has
+                           <hi rend="italic">performative</hi> significance. </p>
+                     <p> In other cases, markup is supplied as part of the transcription in
+                        electronic form of pre-existing material. In such cases, markup reflects the
+                        understanding of the text held by the transcriber; we say that the markup
+                           <hi rend="italic">expresses a claim</hi> about the text. The transcriber
+                        identifies a section heading in the pre-existing text by transcribing it and
+                        tagging it as a section heading; the content of that element is a section
+                        heading if the transcriber’s interpretation is correct, but other
+                        interpreters might disagree; it is plausible to imagine discussions over
+                        whether a given way of marking up a text is correct or incorrect.<note>The
+                           reader wishing to test whether or not it is indeed <q>plausible to
+                              imagine discussions over whether a given way of marking up a text is
+                              correct or incorrect</q> is invited to browse the <ref
+                              target="http://listserv.brown.edu/archives/cgi-bin/wa?A0=TEI-L">TEI
+                              Mailing List (TEI-L) Archive</ref>, where she will find many lively
+                           and energetic debates on markup practices.</note>
+                     </p>
+                     <p> In the one case, markup is constitutive of the meaning; in the other, it is
+                        interpretive. In each case, the reader may legitimately use the markup to
+                        make inferences about the structure and properties of the text. For this
+                        reason, we say that markup <hi rend="italic">licenses certain
+                           inferences</hi> about the text. </p>
+                  </quote>
+                  <ptr target="#sperbergmcqueen2000" loc="11"/>
+               </cit>
+            </p>
+            <p>Julia Flanders' discussion of scholarly text encoding privileges the role of the
+               researcher/encoder and likens the encoded text to the scholarly article: <cit>
+                  <quote rend="block" source="#flanders2005">
+                     <p>Perhaps we need to look to the pleasure of mutability. To recuperate XML,
+                        politically and aesthetically, we should be looking not to the paradigms of
+                        XML usage that arise from librarianship and from industry-level ideas of the
+                        separability of form and content, but rather to paradigms of performance of
+                        a different kind. By shifting our view we can understand XML as a way of
+                        expressing perspectival understandings of the text: not as a way of
+                        capturing what is timeless and essential, but as a way of inscribing our own
+                        changeable will on the text — in other words, as a form of reading. Seen
+                        this way, XML's presentational flexibility derives not from a separation of
+                        presentation and content, but rather from the shifting vantage points from
+                        which the text appears to us, the shifting relationships that constrain our
+                        understanding of it, the adaptability and strategic positioning of our own
+                        readerly motivations.</p>
+                     <p> Ironically, this is a view which emerges most clearly at the margins of
+                        current digital text practice. It is not visible in the large digital
+                        library projects, whose workflow has come to resemble an industrial
+                        operation complete with offshore outsourcing, detailed division of labor,
+                        reliance on automation and robotics, and an emphasis, in the output, on
+                        uniformity and quantity (thankfully planned obsolescence has not yet become
+                        part of the strategy). But we can find it in the small projects designed by
+                        individual faculty, typically in conjunction with their teaching, to create
+                        digital versions of individual texts which serve as readings: often
+                        idiosyncratic, unscalable, representing private insight. They function more
+                        like an article than an archive, as a local, contingent expression of
+                        insight.</p>
+                  </quote>
+                  <ptr target="#flanders2005" loc="60–61"/>
+               </cit>
+            </p>
+            <p> The development of a markup language that can support such scholarly reading and
+               interpretation necessitates a careful study and analysis of the content, structure,
+               and semantics of the class or classes of documents for which the language is designed
+               — in this case, the comic book.</p>
+            <p>CBML is based on the <title>
+                  <ref target="http://www.tei-c.org/release/doc/tei-p5-doc/en/html/">Text Encoding
+                     Initiative P5: Guidelines for Electronic Text Encoding and Interchange</ref>
+               </title>. The <title>TEI Guidelines</title> are a mature conceptual model for digital
+               representation of multitudinous and disparate document types: inscriptions and
+               papyri; illuminated manuscripts; authorial holograph manuscripts; correspondence;
+               printed books of prose, verse, and drama; critical and scholarly editions;
+               born-digital documents; and more. The <title>TEI Guidelines</title>
+               <cit>
+                  <quote rend="block" source="#tei2010">make recommendations about suitable ways of
+                     representing those features of textual resources which need to be identified
+                     explicitly in order to facilitate processing by computer programs. In
+                     particular, they specify a set of markers (or tags) which may be inserted in
+                     the electronic representation of the text, in order to mark the text structure
+                     and other features of interest.</quote>
+                  <ptr target="#tei2010"/>
+               </cit> The <title>TEI Guidelines</title> are widely used in the digital humanities
+               and academic library communities and are maintained by the <ref
+                  target="http://www.tei-c.org/">TEI Consortium</ref>, an international body
+               modules, including modules for general categories of documents, such as prose, drama,
+               verse, and dictionaries.<note>Hundreds of scholarly projects are based upon
+                  underlying TEI-encoded texts and data. Examples includes my own projects: <title
+                     rend="italic">
+                     <ref target="http://www.swinburneproject.org/">The Algernon Charles Swinburne
+                        Project</ref>
+                  </title> and <title rend="italic">
+                     <ref target="http://www.chymistry.org/">Chymistry of Isaac Newton</ref>
+                  </title> , a collaboration with William R. Newman, Professor of History of Science
+                  at Indiana University. While not an exhaustive list, many other TEI-based projects
+                  may be found at <ref target="http://www.tei-c.org/Activities/Projects/"
+                     >http://www.tei-c.org/Activities/Projects/</ref>.</note> The
+                  <title>Guidelines</title> also provide additional modules that address more
+               specific textual features and metadata requirements, such as names and dates,
+               manuscript description, linking, textual criticism, and so on. And in their most
+               recent incarnation, the <title>Guidelines</title> provide elements and attributes for
+               linking transcriptions to facsimile page images. This latter feature is especially
+               useful for encoding comics and other graphics-intensive works. From these many
+               available modules, one selects a subset that meets the needs of a particular
+               document, project, collection, or analytical approach. The <title>TEI
+                  Guidelines</title> are extremely flexible, providing a vocabulary and mechanisms
+               for encoding and describing a rich diversity document types. However, recognizing
+               that not every document type and representational requirement may be anticipated, the
+                  <title>Guidelines</title> provide a well-documented system for customizing and
+               extending the provided tag set with new and modified elements and
+                  attributes.<note>See chapter 23 <title rend="quotes">Using the TEI</title> of the
+                     <title rend="italic">TEI Guidelines</title>
+                  <ptr target="#tei.ch23.2010"/> and <ref target="http://www.tei-c.org/Roma/"
+                     >Roma</ref>, an online tool for <q>generating validators for the TEI.</q>
+               </note> TEI, as delivered by the TEI Consortium, is remarkably well-suited to
+               encoding many aspects of comic books; nevertheless, conceptual clarity and practical
+               benefits may be gained from some modest modifications and additions to the stock
+                  <title>TEI Guidelines</title>. Hence CBML, a TEI customization with elements and
+               attributes for encoding many of the structures and features found in comic book
+               documents.</p>
+
+         </div>
+         <div>
+            <head>The <hi rend="italic">Book</hi> of Comic Book Markup Language</head>
+            <p>The language under discussion here is called Comic <hi rend="italic">Book</hi> Markup
+               Language in part to highlight the book-ness and bookishness of these documents, their
+               material properties and bibliographic characteristics. Graphic narratives typically
+               manifest as <soCalled>books,</soCalled> stapled or otherwise bound leaves, perhaps
+               thirty-six pages, with an interesting and complex structure, incorporating the
+               graphic narrative — the sequential art and text or <soCalled>comics</soCalled>
+               content — alongside a rich assortment of paratexts: advertisements, fan mail, and so
+               on. The emphasis on both <soCalled>comics</soCalled> and <soCalled>books</soCalled>
+               in the title of the language signals an awareness of the full range of content in the
+               material artifact and the integration of comics content with related paratextual
+               content. The material properties of the book — the codex form, the leaves and pages,
+               the physical properties of the paper — are inseparable from the structure, pacing,
+               and design of the narrative. Certainly less page-bound organizational and
+               compositional frameworks are possible, such as the newspaper strips with long-running
+               narrative arcs, in which the daily <soCalled>strip</soCalled> of three or four panels
+               is the basic structural unit.</p>
+            <p> The traditional grouping of panels into deliberately composed groups (often
+               corresponding to the physical page or the <soCalled>strip</soCalled> of a newspaper
+               daily) is being challenged by changing publishing and reading technologies. iPhones
+               and other smartphones have become popular devices for reading newly published comics
+               as well as <soCalled>reprints</soCalled> of older comics. However, a full-page grid
+               of panels is not easily readable on the smaller screen of the typical smartphone, so
+               the software interfaces on such devices focus on a single panel at a time. The
+               deliberate juxtaposition of graphic and textual elements in the original composition
+               is shattered by the interface requirements and limitations of the reading device. As
+               new comics work is increasingly targeted at such digital platforms, the traditional
+               grouping of panels into compositional units resembling pages may be abandoned for new
+               compositional strategies. Larger format devices like the iPad and other tablets are
+               better able to represent full-page compositions of panels while also allowing zooming
+               in to focus on individual panels. The isolation of a panel from its surrounding
+               context is not easily achieved in print media. While the reader's eyes and attention
+               may focus on a single panel at a time, other panels on the page remain in the
+               reader's field of vision. The migration of comics content to digital reading devices,
+               and the structural and aesthetic implications of that migration, call attention to
+               the impact of the material characteristics of the comic book document.</p>
+            <p>Comic books are often very formally self-conscious documents and express a
+               fascination with their own bibliographic identities — creators (comic book writers
+               and artists) become characters in the narrative, editorial notes refer to episodes
+               from prior issues, comic books and paratextual elements, such as advertisements, are
+               parodied within the comic book narrative, publication milestones (such as the first,
+               fiftieth, or one hundredth issue are highlighted and celebrated. These literary,
+               rhetorical, and commercial moves point to a self-awareness of the comic book as
+               document and bibliographic object.</p>
+            <p>CBML is intended primarily for representing, modeling, and analyzing twentieth- and
+               twenty-first-century comic books, daily comic strips, longer narratives or
+                  <soCalled>graphic novels,</soCalled> and Web comics and other comics content
+               published on digital platforms, such as smartphones and tablets. CBML may also serve
+               as a possible solution for encoding certain documents we might not normally
+               characterize as comics or comic books, but which share many formal characteristics
+               with comics. In his influential <title>Understanding Comics</title>, Scott McCloud's
+               definition of comics encompasses Hogarth's <ref
+                  target="http://www.soane.org/collections_legacy/the_soane_hogarths/rakes_progress/"
+                  >narrative picture series</ref>, the <ref
+                  target="http://www.tapisserie-bayeux.fr/index.php?L=1">Bayeux Tapestry</ref>, and
+               pre-Columbian picture writing as found in the <ref
+                  target="http://www.britishmuseum.org/explore/highlights/highlight_objects/aoa/c/codex_zouche-nuttall.aspx"
+                  >Codex Zouche-Nuttall</ref>
+               <ptr target="#mccloud1993" loc="10–17"/>. </p>
+         </div>
+         <div>
+            <head>Goals and Motivations</head>
+            <p>Comic books and graphic novels have been the subject of serious critical attention
+               for some time, and increasingly so with the emergence of scholarly disciplines such
+               as popular cultural studies and new areas of interest in traditional scholarly fields
+               such as English and American literature. In 1992, Art Spiegelman won the Pulitzer
+               Prize for his <title rend="italic">Maus</title>, a comic book narrative of holocaust
+               survival. In 2001, Michael Chabon won the Pulitzer Prize for his novel <title>The
+                  Amazing Adventures of Kavalier &amp; Clay</title>, which relates the experience of
+               two Jewish cousins working in the nascent comic book industry at the beginning of
+               WWII. Comic books and the mythologies they have spawned continue to be a vital part
+               of our popular culture and national consciousness. Witness the surprising and almost
+               unprecedented popularity of the recent spate of superhero feature films based on the
+               characters of Marvel and DC, the two largest publishers of comic books. In the 70s,
+               80s, and 90s, the Superman and Batman film franchises produced regular blockbusters.
+               Since the more recent financial and critical success of Marvel’s X-Men and Spider-Man
+               film franchises, the film industry has been flooded with films based on comic books,
+               many based on mainstream super hero comics, others adapted from realistic, personal,
+               and autobiographical graphic narratives, often published by smaller publishers. In
+               2012, Marvel’s <title>The Avengers</title> film from Walt Disney Studios broke all
+               previous box office records with over $200 million in ticket sales for the biggest
+               opening weekend of all time <ptr target="#barnes2012"/>.<note>Additional examples of
+                  recent comic book film adaptations include <title>From Hell</title> (2001),
+                     <title>Ghost World</title> (2001), <title>Road to Perdition</title> (2002),
+                     <title>American Splendor</title> (2003), <title>Daredevil</title> (2003),
+                     <title>Hulk</title> (2003), <title>The League of Extraordinary
+                     Gentlemen</title> (2003), <title>Catwoman</title> (2004),
+                     <title>Hellboy</title> (2004), <title>The Punisher</title> (2004),
+                     <title>Batman Begins</title> (2005), <title>Fantastic Four</title> (2005),
+                     <title>A History of Violence</title> (2005), <title>Sin City</title> (2005),
+                     <title>V for Vendetta</title> (2005), <title>300</title> (2006),
+                     <title>Superman Returns</title> (2006), <title>4: Rise of the Silver
+                     Surfer</title> (2007), <title>30 Days of Night</title> (2007), <title>Ghost
+                     Rider</title> (2007), <title>The Dark Knight</title> (2008), <title>Hellboy II:
+                     The Golden Army</title> (2008), <title>The Incredible Hulk</title> (2008),
+                     <title>Iron Man</title> (2008), <title>Punisher: War Zone </title> (2008),
+                     <title>The Spirit</title> (2008), <title>Watchmen</title> (2009),
+                     <title>Whiteout</title> (2009), <title>Iron Man 2</title> (2010),
+                     <title>Kick-Ass</title> (2010), <title>Captain America: The First
+                     Avenger</title> (2011), <title>Green Lantern</title> (2011), <title>X-Men:
+                     First Class</title>, <title>Thor</title> (2011), <title>The Dark Knight
+                     Rises</title> (2012), and <title>The Amazing Spider-Man</title> (2012). Many
+                  more film adaptations of comics are planned or in development. Extensive lists of
+                  films based on comics may be found on Wikipedia’s <title rend="quotes">
+                     <ref target="http://en.wikipedia.org/wiki/List_of_films_based_on_comics">List
+                        of Films Based on Comics</ref>
+                  </title>.</note> These few examples, which are frequently discussed in scholarly
+               articles, monographs, and in school and university classrooms, demonstrate the
+               continuing and perhaps increasing importance of comic books as an art form and
+               cultural touchstone.</p>
+            <p>Like the study of other popular art forms — film, television, jazz, rock — comics
+               scholarship is a thriving field of academic research. Scholarly books about comics
+               are being published by university presses<note>The University Press of Mississippi
+                  publishes dozens of comics related titles. See, for instance, <ptr
+                     target="#diliddo2009"/>, <ptr target="#gordon2007"/>, <ptr
+                     target="#hatfield2005"/>, <ptr target="#jeet2008"/>, <ptr target="#kunzle2007"
+                  />, and <ptr target="#lee2007"/>. Other scholarly presses are also publishing
+                  monographs on comics studies. See <ptr target="#aldama2009"/>, <ptr
+                     target="#carlin2005"/>, <ptr target="#carrier2000"/>, and <ptr
+                     target="#mclain2009"/>.</note> and articles about comics appear frequently in
+               peer-reviewed journals such as <title rend="italic">The Journal of Popular
+                  Culture</title>. In 2008, <title>English Language Notes</title>, published an
+               issue devoted to <q>Graphia: The Graphic Novel and Literary Criticism</q>
+               <ptr target="#kuskin2008"/>. <title rend="italic">
+                  <ref target="http://www.english.ufl.edu/imagetext/">ImageTexT</ref>
+               </title> is a peer-reviewed online journal devoted to the study of comics. In 2007
+                  <title rend="italic">ImageTexT</title> published a special issue on <title
+                  rend="quotes">William Blake and Visual Culture,</title> recognizing the connection
+               between modern comics and earlier art forms that integrate text and image <ptr
+                  target="#whitson2007"/>.</p>
+            <p>In light of the ongoing cultural and scholarly relevance of comics, one goal of CBML
+               is to support the study and analysis of comic books in the way that digital
+               collections of, for instance, English poetry or American fiction support the study
+               and analysis of more traditional literary forms. A large corpus of digitized comic
+               books, along with encoded transcriptions and descriptive metadata, would allow
+               scholars to search the text of comic books, search for keywords related to topics of
+               interest, search for the appearance of particular characters, or search for works by
+               particular writers and artists. Additionally, when exploited to its full potential, a
+               large CBML collection would allow searching — and other forms of computer processing
+               and computational analysis — based on structural, aesthetic, and informational and
+               documentary features peculiar to the genre of comic books.</p>
+            <p>Large digital collections of comic books would support the types of searching that is
+               now taken for granted in large digital collections of literary and other texts. This
+               sort of functionality has proven incredibly useful and has transformed the ways in
+               which scholars and students conduct research and <soCalled>read.</soCalled> This now
+               commonplace functionality though can be particularly significant for the study of
+               comics, given the complexity of the fictional universes that have developed in the
+               works of many comics publishers. For instance, major characters like Superman,
+               Batman, Spider-Man and Wolverine appear regularly in multiple titles. DC Comics'
+               Batman is the featured character in <title>Batman</title>, <title>Detective
+                  Comics</title>, and other titles; he is a prominent member of the Justice League
+               superhero teams featured in a number of different titles; and he shares adventures
+               with other heroes in titles such as <title>The Brave and the Bold</title> and
+                  <title>World’s Finest</title>. Since Batman shares the same fictional universe
+               with most of DC’s other characters, he will make frequent <soCalled>guest
+                  appearances</soCalled> across their entire line of publications. One will even
+               find publishers occasionally cooperating to merge their fictional universes and
+               publish works that feature, for instance, Superman from DC and Spider-Man from
+               Marvel. Therefore, a scholar researching the development and representation of a
+               particular character cannot confine herself to a small number of publications, but
+               must consider almost the full output of a publisher or even multiple publishers.</p>
+            <figure xml:id="figure01">
+               <head>From 1976, <title>Superman vs. the Amazing Spider-Man</title>, the first
+                  cross-over comic book featuring characters from comic book publishing giants DC
+                  (Superman) and Marvel (Spider-Man). <ptr target="#conway1976"/>
+               </head>
+               <graphic url="resources/images/walsh_2012_figure01.jpg"/>
+            </figure>
+            <p>We've been looking thus far at some of the more practical goals for CBML, providing a
+               digital format to support digital research collections that in turn support different
+               types of searching and digitally-enabled analysis. Another motivation behind the
+               development of CBML is the desire to explore more generally the modeling and
+               representation of the broader class of documents that tightly integrate pictorial
+               images and text. Comic books are just one such type of complex graphic document;
+               other examples include illuminated manuscripts; seventeenth-century alchemical
+               manuscripts, with hand-drawn figures and graphic symbols; artists’ books; artists’
+               sketchbooks; illustrated poems like those of William Blake; letterpress productions
+               like those of the Kelmscott Press; illustrated children’s books; newspaper and
+               magazine advertisements; and even Web pages and other born-digital media. Comic books
+               provide some of the more obvious examples of this integration and co-dependence of
+               image and text, but lessons learned in the modeling of comic books may be applied to
+               other forms.</p>
+            <p>Martha Rust, in her essay <title rend="quotes">
+                  <q>It's a Magical World</q>: The Page in Comics and Medieval Manuscripts,</title>
+               writes: <cit>
+                  <quote rend="block" source="#rust2008">Both medieval book artists and contemporary
+                     cartoonists make use of the page as a device for giving their readers access to
+                     a domain of representation that is beyond the regimes of either pictures or
+                     words — yet somehow in the shadow of both.</quote>
+                  <ptr target="#rust2008" loc="25"/>
+               </cit> The page is indeed one of the primary structural and compositional units of
+               comics. In TEI the page is viewed as a <soCalled>milestone,</soCalled> an empty
+               marker within the flow of the text. In comics books (and similar documents), the page
+               is not an arbitrary milestone, but a compositional feature — a composed container for
+                  <soCalled>panels</soCalled> and text.</p>
+            <figure xml:id="figure02">
+               <head>The third of twelve miniatures from the <title>Electorum parvum seu
+                     Breviculum,</title> a compilation of the writings of philosopher, theologian,
+                  logician, and poet Ramon Llull (<date>1232?-1316</date>). <ptr target="#llull1990"
+                     loc="12"/>
+               </head>
+               <graphic url="resources/images/walsh_2012_figure02.jpg"/>
+            </figure>
+            <figure xml:id="figure03">
+               <head>The ninth of twelve miniatures from the <title>Electorum parvum seu
+                     Breviculum,</title> a compilation of the writings of philosopher, theologian,
+                  logician, and poet Ramon Llull (<date>1232?-1316</date>). <ptr target="#llull1990"
+                     loc="35"/>
+               </head>
+               <graphic url="resources/images/walsh_2012_figure03.jpg"/>
+            </figure>
+            <p>The miniatures pictured in <ref target="#figure02">Figure 2</ref> and <ref
+                  target="#figure03">Figure 3</ref>, tightly integrate text and image. Moreover, we
+               find discreet, bordered, sequential images, similar to comic book panels, and text
+               representing speech, like comic book word balloons, originating from the figures’
+               mouths. In <ref target="#figure03">Figure 3</ref>, below the
+                  <soCalled>panels</soCalled> we find explanatory text, similar to the narrative
+               captions found in comic books. Such examples illustrate formal and structural
+               features of comics shared by many other document types. The analytical and
+               descriptive strategies of TEI and CBML may prove useful in studying not just modern
+               comics but an even more historically and culturally diverse assortment of document
+               types. </p>
+            <p>Perhaps the most significant motivation behind the development of CBML is the wish to
+               support for comic books and related documents the interpretive strategies and
+               inscriptions of readings — discussed in the introduction above — that occur when a
+               text is encoded. Unlike the traditional academic essay, in which a reading or
+               analysis is sprinkled with relevant quotations from primary source materials, an
+               encoded text may combine a digital representation of a full source text inscribed, in
+               the form of markup, by a reading and performance of the text. Like the image and text
+               of a comic book, the source text and the scholar's reading and analysis are
+               inextricably intermingled in the encoded document. Encoded documents are
+               metadocuments <cit>
+                  <quote rend="inline" source="#drucker2009">which describe and enhance information
+                     but also serve as performative instruments.… As texts that describe a language,
+                     naming and articulating its structures, forms, and functions they
+                     [metalanguages and metatexts] seem to trump languages that are used merely for
+                     composition or expression</quote>
+                  <ptr target="#drucker2009" loc="11"/>
+               </cit>. CBML facilitates more transformative reading strategies that have developed
+               in response to the increasing numbers of high-quality digital and digitized
+               documents. Literary scholar Franco Moretti has popularized the term <soCalled>distant
+                  reading</soCalled> to describe strategies for analyzing massive numbers of
+               literary and historical documents: <cit>
+                  <quote rend="block" source="#moretti2000"> [I]f you want to look beyond the canon
+                     … close reading will not do it. It’s not designed to do it, it’s designed to do
+                     the opposite. At bottom, it’s a theological exercise — very solemn treatment of
+                     very few texts taken very seriously — whereas what we really need is a little
+                     pact with the devil: we know how to read texts, now let’s learn how not to read
+                     them. Distant reading: where distance … <hi rend="italic">is a condition of
+                        knowledge</hi>: it allows you to focus on units that are much smaller or
+                     much larger than the text: devices, themes, tropes — or genres and systems. And
+                     if, between the very small and the very large, the text itself disappears,
+                     well, it is one of those cases when one can justifiably say, Less is more. If
+                     we want to understand the system in its entirety, we must accept losing
+                     something.</quote>
+                  <ptr target="#moretti2000" loc="57"/>
+               </cit>
+            </p>
+            <p> Digital technologies facilitate both close and distant reading strategies.
+               Individual comic books and graphic narratives may be better understood through
+               strategies of close reading, with careful attention paid to minute details of
+               linguistic and visual language and document features, but comic books as a system and
+               extended comic book narratives — which often unfold over decades in thousands or tens
+               of thousands of individual documents by hundreds of creators (writers and artists) —
+               benefit also from the distant reading (of text, image, and metadata) from comic book
+               documents.</p>
+            <p> CBML aims to support such digitally-enabled and embedded performances and readings
+               in comic books and across a range of graphics-intensive documents. This motivation is
+               not unique to the study of comics or the development of CBML, but comic books and
+               related documents do have particular, if not unique, features that must be supported
+               in markup languages if we are to realize this goal.</p>
+         </div>
+         <div>
+            <head>Encoding the Comic Book</head>
+            <p>The following sections examine features and content of comic book documents and
+               propose encoding strategies for representing, documenting, and analyzing those
+               features and content types. These encoding strategies incorporate both new elements
+               introduced in the CBML customization and existing TEI elements.</p>
+            <p>The comic book is a particularly complex class of document. A typical comic book,
+               from the early twentieth century to the present, contains diverse content types.
+               Alongside and intermingled with comics content, we may find prose fiction,
+               advertisements, editorial and promotional content, fan mail, and bibliographic
+               metadata about creators and publication details.</p>
+            <div>
+               <head>
+                  <soCalled>Comics</soCalled> Content: Sequential Art &amp; Text</head>
+               <p>By <soCalled>comics</soCalled> content, I refer to the sequential art — usually
+                  combined with text — of the comics narrative. Comics content is typically divided
+                  into panels (usually with clearly delineated borders) that include images,
+                  narrative captions, word balloons, and sound effects (POW! SMASH! FOOM!). <figure
+                     xml:id="figure04">
+                     <head>Two pages from <title>The Fantastic Four</title> #51. This example
+                        contains many of the familiar elements of comics: panels, pictures,
+                        narrative captions, word balloons, sound effects, motion lines, etc. <ptr
+                           target="#lee1966"/>
+                     </head>
+                     <graphic url="resources/images/walsh_2012_figure04.jpg"/>
+                  </figure>
+               </p>
+               <p> A great deal of comics scholarship examines these individual elements in the
+                  context of the aesthetics, architectonics, and grammar of comics — how comics
+                  work, the systems and semantics, the structural components, the mutual
+                  dependencies of text and image, and how these textual and graphic components
+                  function together to convey information, narrative, plot, character,
+                     etc.<note>Comics scholarship also includes historical studies, studies of
+                     individual writers and artists, and investigations of traditional literary
+                     issues of theme, plot, narrative and character; as well as representations of
+                     politics, class, race, and gender <ptr target="#capitanio2010"/>
+                     <ptr target="#huebner2009"/>
+                     <ptr target="#wanzo2009"/>
+                     <ptr target="#coogan2006"/>
+                     <ptr target="#emad2006"/>
+                     <ptr target="#wright2001"/>. Other fields, such as education and rhetoric,
+                     study the use of comics in the classroom to teach reading and writing <ptr
+                        target="#jacobs2007"/>
+                     <ptr target="#ranker2007"/>
+                     <ptr target="#norton2003"/>. Within the field of library science one finds
+                     research on the history of comics within libraries and on the development of
+                     comics and graphic novel collections <ptr target="#matz2004"/>
+                     <ptr target="#highsmith1993"/>
+                     <ptr target="#hoffmann1988"/>.</note> Perhaps the most well-known and
+                  influential such study is Scott McCloud’s <title>Understanding Comics</title>, a
+                  meta-comic about the art and form of comics, that includes this frequently-cited
+                  definition of comics: <figure xml:id="figure05">
+                     <head>From Scott McCloud’s <title>Understanding Comics</title>, a page
+                        summarizing McCloud’s definition of comics as <soCalled>sequential
+                           art</soCalled>: His full definition reads: <q>Juxtaposed pictorial and
+                           other images in deliberate sequence, intended to convey information
+                           and/or to produce an aesthetic response in the viewer.</q>
+                        <ptr target="#mccloud1993" loc="9"/>.</head>
+                     <graphic url="resources/images/walsh_2012_figure05.jpg"/>
+                  </figure>
+               </p>
+               <p>A possible objection to McCloud's definition is its subordination of text to
+                  image. In fact, McCloud's definition makes no mention of text. Certainly one can
+                  find examples of comics without any words, but, as McCloud acknowledges, the vast
+                  majority of comics do in fact contain a great deal of text of different types. The
+                  intricate and complex interplay between text and image is one of the defining
+                  features of most comic books. While we typically say that we <emph>watch</emph>,
+                     <emph>view</emph>, or <emph>see</emph> a film, we more often say that we
+                     <emph>read</emph> a comic. Lawrence L. Abbott, Henry John Pratt and others have
+                  emphasized the characterization of comics as a <soCalled>read</soCalled> medium
+                     <ptr target="#abbott1986"/>
+                  <ptr target="#pratt2009"/>. Abbott stresses this characterization in part to
+                  bolster his argument for the preeminence of text over image in comics: <cit>
+                     <quote rend="inline" source="#abbott1986">The perceiver is, after all, termed a
+                           <soCalled>reader</soCalled> — and the subordination of the pictorial to
+                        the literary in comic art is one of the subtlest realities of the
+                        medium</quote>
+                     <ptr target="#abbott1986" loc="156"/>
+                  </cit>. David Carrier places a similar emphasis, not just on text, but on the
+                  distinctive text — the speech balloon — of comics: <cit>
+                     <quote rend="inline" source="#carrier2000">The speech balloon is a defining
+                        element of the comic because it establishes a word/image unity that
+                        distinguishes comics from pictures illustrating a text</quote>
+                     <ptr target="#carrier2000" loc="4"/>
+                  </cit>. The ability to identify and characterize textual components of comics art
+                  and to describe and analyze the interplay between text and image is one of the
+                  chief aims of CBML. TEI provides a host of options to support extensive analysis,
+                  textual criticism, and annotation. CBML suggests applications of existing TEI
+                  markup for encoding many of the distinctive features of comics and also provides a
+                  handful of additional elements for distinctive features that are not adequately
+                  handled by existing TEI markup. </p>
+               <p>In the discussion that follows, I shall use the terms <soCalled>comics</soCalled>
+                  to refer to sequential art (and text) and <soCalled>comic book</soCalled> to refer
+                  to a document that contain comics content and, optionally, other content
+                  types.</p>
+               <div>
+                  <head>
+                     <gi>cbml:panel</gi>
+                  </head>
+                  <p>The panel — encapsulating the constituent parts of image, text, and sound
+                     effects — is the primary building block of meaning in a comics text: <cit>
+                        <quote rend="block" source="#abbott1986">The panel is the fundamental unit
+                           of comic art…. The panel is the smallest unit in which the complex
+                           interaction of text and picture operates, and one notices quickly that
+                           the <soCalled>text</soCalled> in comic art takes form according to an
+                           elaborate series of conventions.</quote>
+                        <ptr target="#abbott1986" loc="156"/>
+                     </cit> CBML provides the <gi>cbml:panel</gi>
+                     <note>In this essay, XML elements are enclosed in angle brackets (&lt;&gt;) and
+                        displayed in a monospaced font. XML attributes, by common convention, are
+                        prefixed with the <soCalled>at</soCalled> symbol (@) and are also displayed
+                        in a monospaced font. The prefix <hi rend="monospace">cbml:</hi> identifies
+                        CBML elements added to TEI using TEI customization mechanisms, e.g.,
+                           <gi>cbml:panel</gi> or <gi>cbml:balloon</gi>. Elements without the <hi
+                           rend="monospace">cbml:</hi> prefix are stock TEI elements, e.g.,
+                           <gi>div</gi> or <gi>epigraph</gi>.</note> element to represent this basic
+                     structural unit of comics. <gi>cbml:panel</gi> is a modification of TEI’s
+                        <gi>div</gi> element, which represents a generic subdivision of the text in
+                     the TEI model. </p>
+                  <figure xml:id="figure06">
+                     <head>The fifth panel of page 6, from <title>Captain America</title> #193
+                        (January, 1976), edited, written, and drawn by Jack Kirby. <ptr
+                           target="#captain_america_193"/>
+                     </head>
+                     <graphic url="resources/images/walsh_2012_figure06.jpg"/>
+                  </figure>
+                  <dhq:example xml:id="eg01">
+                     <head>CBML fragment illustrating an encoded panel from <title>Captain
+                           America</title> #193. See <ref target="#figure06">Figure 6</ref>
+                        above.</head>
+                     <eg>
+&lt;cbml:panel ana="#action-to-action" characters="#cap #anon_man" n="5" xml:id="eg_000"&gt; 
+   &lt;cbml:caption&gt; 
+     Cap acts quickly to tranquilize the gun-happy pedestrian... 
+   &lt;/cbml:caption&gt; 
+   &lt;cbml:balloon type="speech" who="#cap" xml:id="eg_007"&gt; 
+      A little &lt;emph rendition="#b"&gt;sleep&lt;/emph&gt; will do wonders for you!
+   &lt;/cbml:balloon&gt; 
+   &lt;sound&gt; SPLAT! &lt;/sound&gt; 
+   &lt;cbml:balloon type="speech" who="#anon_man"&gt; Ugh! &lt;/cbml:balloon&gt;
+&lt;/cbml:panel&gt; </eg>
+
+                  </dhq:example>
+                  <p>A few details of the above CBML fragment are worth noting, particularly the way
+                     in which both standard TEI elements and attributes are used alongside custom
+                     CBML attributes to describe the structure and semantics of the panel.</p>
+                  <p>The <gi>cbml:caption</gi> and <gi>cbml:balloon</gi> elements, described in more
+                     detail below, are used to encode these common components of comics panels. A
+                     TEI element <gi>sound</gi> is used to encode another common panel element, the
+                     graphical/textual representation of a sound in the narrative. One might imagine
+                     this element to be as peculiar to comics as the narrative caption or balloon,
+                     yet TEI provides the <gi>sound</gi> element, which seems to suffice. The
+                        <title>TEI Guidelines</title> explain that <gi>sound</gi> is intended to
+                        <quote rend="inline" source="#soundTEI">describes a sound effect or musical
+                        sequence specified within a screen play or radio script</quote>
+                     <ptr target="#soundTEI"/>. Of course a comic book is not a screen play or radio
+                     script, but comics and film share many similarities, and the scholarship on
+                     comics often notes these similarities.<note>See for instance Johanna Drucker’s
+                           <title rend="quotes">What is Graphic about Graphic Novels?"</title>
+                        <ptr target="#drucker2008"/>.</note> That the TEI element <gi>sound</gi>,
+                     designed to describe a phenomenon found in film, works so well, without any
+                     particularly wrenching semantic deformation, in the context of comic books is
+                     further evidence of the similarities shared by these two forms.</p>
+                  <p>The <att>n</att> attribute on <gi>cbml:panel</gi> is a TEI
+                        <soCalled>global</soCalled> attribute, meaning it is available on all TEI
+                     elements. The <att>n</att> attribute may be used to provide a number or other
+                     label to the element. Depending on the needs of one’s content or analysis, one
+                     could use <att>n</att> to provide a descriptive label or sequential number to a
+                     panel. In the example above, <code>n="5"</code> indicates that this panel is
+                     sequentially the fifth panel among a larger group of panels, such as those
+                     appearing on a single page.<note>Additional global attributes include
+                           <gi>xml:id</gi>, for providing an element with a unique identifier;
+                           <att>rend</att> and <att>rendition</att>, two related attributes used to
+                        describe how the element is rendered or styled in the source document; and
+                           <att>xml:lang</att>, for indicating the language of the text in the
+                        element. More global attributes, such as those used for linking and analysis
+                        are added by including optional TEI modules in one's schema.</note>
+                  </p>
+                  <p>More interesting perhaps is the <att>characters</att> attribute, a custom CBML
+                     attribute used to identify the characters appearing in any given panel. The
+                        <att>character</att> attribute contains, in TEI lingo, one or more <hi
+                        rend="monospace">data.pointer</hi> values. In the example above
+                        <code>#cap</code> and <code>#anon_man</code> point to elements, with unique
+                     identifiers of <code>cap</code> and <code>anon_man</code>, in the
+                        <gi>teiHeader</gi>. These elements in the <gi>teiHeader</gi> provide more
+                     detailed information about the characters Captain America and
+                        <soCalled>anonymous man.</soCalled> The <gi>teiHeader</gi> is a mandatory
+                     and potentially very large TEI element that prefaces the encoded transcription
+                     of the document. The <gi>teiHeader</gi> provides a great deal of detailed
+                     descriptive information and other metadata about both the digital file and the
+                     source document. And it may, for instance, provide detailed information about
+                     all the characters appearing within a given document. With a large collection
+                     of comic books encoded using these mechanisms from CBML and TEI, a search
+                     interface could provide users the ability to retrieve instantly, from thousands
+                     or tens of thousands of comics, all the panels containing a character of
+                     interest, regardless of whether or not the character's name appears in the
+                     original panel. </p>
+                  <p>In <ref target="#eg01">Example 1</ref> above the TEI <att>ana</att> attribute
+                     is used to describe the transition from the previous panel to the current
+                     panel. The attribute <att>ana</att>, short for <hi rend="italic">analysis</hi>,
+                     is another global TEI attribute (activated by inclusion of the optional TEI
+                     analysis module) that points to one or more elements containing interpretations
+                     of the element on which the <att>ana</att> attribute appears. Typically
+                        <att>ana</att> points to one or more <gi>interp</gi>, short for <hi
+                        rend="italic">interpretation</hi>, elements. The document from which the
+                     above fragment is taken also contains this code: <dhq:example>
+                        <head>CBML fragment listing a vocabulary that may be used to characterize
+                           transitions from one panel to the next. The above example uses McCloud’s
+                           transition types defined in his <title>Understanding Comics</title>
+                           <ptr target="#mccloud1993" loc="70–72"/>. Of course, the encoder/editor
+                           may choose to augment or replace McCloud’s vocabulary with any suitable
+                           typology. </head>
+                        <eg>
+&lt;interpGrp resp="#jawalsh" type="panelTransition"&gt; 
+   &lt;desc&gt;
+      The &lt;gi&gt;interp&lt;/gi&gt; elements below include vocabulary 
+      that may be used to characterize the transition from the previous 
+      panel &lt;emph&gt;to&lt;/emph&gt;the current panel. The transition 
+      types listed below are defined by Scott McCloud in his 
+      &lt;bibl&gt;&lt;title&gt;Understanding Comics&lt;/title&gt; &lt;biblScope
+      type="pp"&gt;(70-72)&lt;/biblScope&gt;&lt;/bibl&gt;.
+   &lt;/desc&gt;
+   &lt;interp xml:id="moment-to-moment"/&gt; 
+   &lt;interp xml:id="action-to-action"/&gt; 
+   &lt;interp xml:id="subject-to-subject"/&gt; 
+   &lt;interp xml:id="scene-to-scene"/&gt;
+   &lt;interp xml:id="aspect-to-aspect"/&gt; 
+   &lt;interp xml:id="non-sequitur"/&gt; 
+&lt;/interpGrp&gt; 
+                        </eg>
+                     </dhq:example> The above code provides an <soCalled>interpretation
+                        group</soCalled> (<gi>interpGrp</gi>) of type <q>panelTransition.</q> The
+                        <att>resp</att> attribute points to a unique identifier of the agent
+                     responsible for the interpretations, for instance, the editor or author of the
+                     encoded document. A description (<gi>desc</gi>) inside <gi>interpGrp</gi>,
+                     explains the purpose and rationale for the interpretation group. Finally, a
+                     sequence of <gi>interp</gi> elements lists six possible panel-to-panel
+                     transitions, using a vocabulary borrowed from Scott McCloud, as explained in
+                     the description for the interpretation group. The
+                        <att>ana</att>/<gi>interp</gi> mechanism is an extremely flexible one
+                     provided by TEI to encode multiple avenues of interpretations and analysis. One
+                     could, for instance, use this mechanism to record typologies related to visual
+                     motifs, actions and gestures, or gender representations and roles.</p>
+               </div>
+               <div>
+                  <head>
+                     <code>&lt;div type="panelGrp"&gt;</code>
+                  </head>
+                  <p>Most theories of comics distinguish between a single-panel
+                        <soCalled>cartoon</soCalled> — such as Bill Kean's <title>The Family
+                        Circus</title>, Tom Wilson's <title>Ziggy</title>, or Gary Larson's
+                        <title>The Far Side</title> — and multi-panel comics, in which the sequence
+                     and juxtaposition of multiple panels plays a fundamental role in the production
+                     of meaning in the document. McCloud explains: <figure xml:id="figure07">
+                        <head>Scott McCloud distinguishes between comics and
+                              <soCalled>cartoons</soCalled>: <cit>
+                              <quote rend="block" source="#mccloud1993">Single panels are often
+                                 lumped in with comics, yet there's no such thing as a sequence of
+                                 one! Such single panels might be classified as <soCalled>comic
+                                    art</soCalled> in the sense that they derive part of their
+                                 visual vocabulary from comics — But … they're no more comics than
+                                 [a] still of Humphrey Bogart is film.… They are cartoons … and
+                                 there's a long-standing relationship between comics and cartoons. —
+                                 But they are not the same thing! One is an approach to
+                                 picture-making — While the other is a medium.</quote>
+                              <ptr target="#mccloud1993" loc="20–21"/>
+                           </cit>
+                        </head>
+                        <graphic url="resources/images/walsh_2012_figure07.jpg"/>
+                     </figure>
+                  </p>
+                  <p> Panels, especially in print comic books, are not presented as a continuous,
+                     unbroken stream of narrative units, nor are they randomly laid out in sequence
+                     across a series of pages. The total collection of panels that make up a comics
+                     narrative are subdivided into panel groups. The sequence of panels that a
+                     reader has in her field of vision is typically an intentionally composed
+                     composite component of the larger work. For instance, a panel depicting a
+                     moment of high suspense might occur as the last panel of a recto page, forcing
+                     a lingering suspenseful pause while the reader turns the page to reveal the
+                     resolution of the suspense in the first panel of the verso page. These
+                     carefully composed panel groups often correspond to a physical page, but a
+                     panel group may share a physical page with advertisements or other content or
+                     may correspond to two physical pages of a two-page spread, in which panels are
+                     read from left to right, top to bottom across two opposing verso and recto
+                     pages. To capture this level of composition, CBML adopts the TEI <gi>div</gi>
+                     element, which is meant to encode a subdivision of the text. The
+                        <att>type</att> attribute on <gi>div</gi> is used to indicate the type of
+                     textual subdivision, e.g., chapter, act, scene, canto, etc. In this case we use
+                     the string <q>panelGrp</q> to indicate the division is a grouping of panels.
+                     Another attribute, <att>subtype</att>, is also available to distinguish further
+                     between different types of panel groups. Of course, the generic <gi>div</gi>
+                     element may also be used in CBML to encode other subdivisions, such as chapters
+                     or <soCalled>parts,</soCalled> which are commonly found in comics.</p>
+                  <dhq:example xml:id="eg_002">
+                     <head>CBML fragment illustrating the use of <code>&lt;div
+                           type="panelGrp"&gt;</code>. Panels are intentionally grouped and composed
+                        in larger compositional units, often corresponding to a physical page
+                        surface.</head>
+                     <eg>
+&lt;div type="panelGrp" xml:id="eg_002"&gt; 
+   &lt;cbml:panel characters="#david #samson"&gt; 
+      &lt;cbml:balloon type="speech" who="#david"&gt;
+         What a funny looking truck outside here… Never saw one like
+         it before! 
+      &lt;/cbml:balloon&gt; 
+      &lt;cbml:balloon type="speech" who="#samson"&gt; 
+         That’s strange! What’s it look like? 
+      &lt;/cbml:balloon&gt;
+   &lt;/cbml:panel&gt;
+   &lt;cbml:panel characters="#samson #david"&gt;
+      &lt;cbml:balloon type="speech" who="#samson"&gt;
+         You’re right--I never saw one like this before! 
+      &lt;/cbml:balloon&gt; 
+      &lt;cbml:balloon type="speech" who="#david"&gt; 
+         Wonder what it’s doing here? 
+      &lt;/cbml:balloon&gt;
+   &lt;/cbml:panel&gt; 
+   &lt;cbml:panel characters="#samson #david"&gt;
+      &lt;cbml:balloon type="speech" who="#samson"&gt; 
+         What the--!
+      &lt;/cbml:balloon&gt;
+      &lt;cbml:balloon type="speech" who="#david"&gt;
+         Gas---Help! 
+      &lt;/cbml:balloon&gt; 
+   &lt;/cbml:panel&gt; 
+   &lt;cbml:panel characters="#samson #david"&gt; 
+      &lt;cbml:balloon type="speech" who="#samson"&gt; 
+         No time to look for doors now! 
+      &lt;/cbml:balloon&gt;
+      &lt;sound&gt;Crash!&lt;/sound&gt; 
+      &lt;fw place="lower-left" type="pageNum"&gt;1&lt;/fw&gt; 
+   &lt;/cbml:panel&gt;
+&lt;/div&gt; </eg>
+                  </dhq:example>
+               </div>
+               <div>
+                  <head>
+                     <gi>cbml:caption</gi> and <gi>cbml:balloon</gi>
+                  </head>
+                  <p>A number of textual and graphic elements make up the content of individual
+                     panels. Textual content is found primarily in narrative captions and word
+                     balloons. Abbott provides a brief description of these elements: <cit>
+                        <quote rend="block" source="#abbott1986">Narration is placed in squared-off
+                           areas [narrative captions], usually colored yellow in comic books.
+                           Dialogue is located in white <q>balloons</q> that include little pointed
+                           projections indicating the speaker. Unspoken thoughts follow a similar
+                           pattern except that the balloons are billowy, and a string of small white
+                           circles leads to the thinker. Both narration and dialogue are recognized
+                           as extra-visual phenomena that may share space in the panel plane with
+                           the drawing but are not part of the scene. The visual assumption is that
+                           narration and dialogue lie on the plane of the opening through which one
+                           views the scene, augmenting the pictorial element but not part of
+                           it.</quote>
+                        <ptr target="#abbott1986" loc="156"/>
+                     </cit> Abbott’s description is accurate but incomplete. In addition to speech
+                     and thought balloons, one may find other types of balloons in comic book
+                     content. For instance, since so many genres of comics concern supernatural,
+                     speculative, fantastic, and science fiction narratives,
+                        <soCalled>telepathic</soCalled> balloons are not uncommon and are visually
+                     distinct from standard speech or thought balloons. <figure xml:id="figure08">
+                        <head>Professor Charles Xavier — leader of the X-Men, a team of
+                           super-powered mutants — is one of the more famous telepathic characters
+                           in comic books. The panel above shows Professor Xavier sending a
+                           telepathic message to his X-Men and provides an example of the
+                           distinctive balloons used to represent telepathic messages <ptr
+                              target="#lee1963"/>. The balloon is styled similarly to a thought
+                           balloon but has additional clusters of small straight lines radiating out
+                           from the billowy, bubbly thought balloon. Such a balloon might be encoded
+                           as <code>&lt;cbml:balloon type="telepathic"&gt;</code>.</head>
+                        <graphic url="resources/images/walsh_2012_figure08.jpg"/>
+                     </figure> In many comics narratives, distinctly styled
+                        <soCalled>audio</soCalled> balloons may be found emanating from radios,
+                     televisions, telephones, walkie-talkies, hi-fi speakers, and other devices.
+                     These <soCalled>audio</soCalled> balloons are usually represented by jagged
+                     pointy borders, perhaps suggestive of the electricity that powers the audio
+                     source. <figure xml:id="figure09">
+                        <head>An example, from <title>The Amazing Spider-Man</title> #5 (October
+                           1963), of an <soCalled>audio</soCalled> balloon, in which the
+                           sound/speech is produced by a television broadcast. Note the distinctive,
+                           jagged appearance of the balloon outline. The <att>subtype</att>
+                           attribute is used to indicate that this is a television broadcast, as
+                           opposed to radio or some other broadcast medium. <ptr
+                              target="#amazing_spider-man_5"/>
+                        </head>
+                        <graphic url="resources/images/walsh_2012_figure09.jpg"/>
+                     </figure>
+                     <dhq:example xml:id="eg_ae1">
+                        <head> CBML code to represent the panel depicted in <ref target="#figure09"
+                              >Figure 9</ref>. </head>
+                        <eg>&lt;cbml:panel characters="#spidey #jjj" n="3" xml:id="eg_ae1"&gt;
+                           &lt;cbml:balloon rendition="#uc" type="audio" subtype="telecast"
+                           who="#jjj" xml:id="eg_006"&gt; My name is J. Jonah Jameson, publisher of
+                           &lt;title rendition="#b"&gt;Now&lt;/title&gt; magazine and the &lt;title
+                           rendition="#b"&gt;Daily Bugle&lt;/title&gt;&lt;emph
+                           rendition="#b"&gt;!&lt;/emph&gt; I am sponsoring this program in the
+                           public interest, to expose &lt;emph
+                           rendition="#b"&gt;Spider-Man&lt;/emph&gt; to the pubic as the menace he
+                           is! &lt;/cbml:balloon&gt; &lt;/cbml:panel&gt; </eg>
+                     </dhq:example>
+                  </p>
+                  <p> One also finds a great deal of graphic stylistic variation among speech
+                     balloons. For instance, a character like the Vision, from Marvel Comics’
+                        <title>The Avengers</title> superhero team, is usually depicted with
+                     stylized speech balloons that highlight his android origins. Interestingly,
+                     when the Vision made his first appearance in <title>The Avengers</title> #57 in
+                     October 1968, his speech balloons were not styled differently from other
+                     characters. Later, the text inside the Vision’s speech balloons would be styled
+                     in a hand-written italics. The rectangular balloons with rounded corners were
+                     introduced in issue #91 in 1971. A yellowish tint was added to the balloons two
+                     months later in issue #93 and this convention has now persisted for over
+                     thirty-five years. This evolution of the graphic representation of the Vision's
+                     speech might be tied to an analysis of other aspects of the character's
+                     development. <figure xml:id="figure10">
+                        <head>The Vision’s speech balloon is styled to suggest his android origins.
+                              <ptr target="#avengers_v3_34"/>
+                        </head>
+                        <graphic url="resources/images/walsh_2012_figure10.jpg"/>
+                     </figure> The Vision's speech balloon is, however, still a speech balloon, but
+                     it is styled differently than other conventional speech balloons. TEI is
+                     equipped with a suite of elements and attributes (<gi>rendition</gi>,
+                        <att>rendition</att>, and <att>rend</att>) to describe the styling, or
+                        <soCalled>rendition</soCalled> of various elements in source documents. In
+                     primarily textual documents, the <gi>rendition</gi> element and related
+                     attributes might be used to describe details such as font family, font size,
+                     justification, and son on. The rendition features of TEI may be used in CBML
+                     contexts to describe graphical features, for instance to provide a detailed
+                     description of the distinctive styling of the android's speech balloon. </p>
+                  <p>Another convention for presenting characters’ speech and thoughts in comics
+                     eliminates balloons entirely and instead uses captions that incorporate both
+                     narrative text and the dialogue/monologue text usually found in balloons. At
+                     the other extreme are comics that contain balloons but lack narrative captions.
+                     The presence or absence of captions and balloons are particularly interesting
+                     examples of meaningful structural variation found in comics. The basic
+                     structures of the graphic panels and pictorial elements may be similar, but the
+                     structures of the textual elements are completely different. For McCloud, who
+                     privileges the pictorial, the different textual structures may be of interest
+                     but do not affect the content’s status as comics. For other scholars who
+                     privilege the textual over the pictorial — Carrier, for instance — the lack of
+                     text balloons may mean that such documents are simply illustrated stories and
+                     not comics at all <ptr target="#carrier2000" loc="4, 27–45"/>. Certainly, these
+                     structures have important generic implications. The use of separate narrative
+                     captions and balloons results in structures that closely resembles the textual
+                     structures found in drama and film, while the absence of balloons results in
+                     structures that more closely resemble prose fiction. A complete absence of
+                     narrative captions is a likely indicator of the absence of a narrator in the
+                     text, while comics with a high number of narrative captions might indicate a
+                     very strong narrative presence. An examination of the absence, presence, and
+                     frequency of narrative captions and balloons could be a useful strategy for
+                     analyzing the role of narration and the narrator in comics generally or in a
+                     particular title or author. </p>
+
+
+                  <figure xml:id="figure11">
+                     <head>Three panel's from Gibbons and Sook's <title>Kamandi</title>. These
+                        panels illustrate a style of comic book that dispenses with balloons and
+                        includes all text — narration and dialogue — in narrative captions <ptr
+                           target="#gibbons2009"/>. Hal Foster's syndicated Sunday comic strip
+                           <title>Prince Valiant</title> also famously used this style of caption
+                        and is an obvious source for Gibbons and Sook.</head>
+                     <graphic url="resources/images/walsh_2012_figure11.jpg"/>
+                  </figure>
+                  <p>In CBML, narrative captions are encoded using the <gi>cbml:caption</gi>
+                     element. TEI provides its own <gi>caption</gi> element, described in the
+                        <title>Guidelines</title> as <q>the text of a caption or other text
+                        displayed as part of a film script or screenplay.</q> The examples provided
+                     in the <title>Guidelines</title> clearly indicate that TEI’s <gi>caption</gi>
+                     element is intended for relatively brief and sparse captions, and the content
+                     model for the TEI <gi>caption</gi> element will not accommodate the complexity
+                     of many comics captions, which may consist of multiple paragraphs and dialogue.
+                     In response to the constraints of the stock TEI <gi>caption</gi> element, CBML
+                     provides its own <gi>cbml:caption</gi> element, with a richer content model, in
+                     the CBML namespace. For captions like those in <ref target="#figure11">Figure
+                        11</ref>, with embedded dialogue, one would use the TEI <gi>said</gi>
+                     element to demarcate the speech or thoughts inside <gi>cbml:caption</gi>.</p>
+               </div>
+               <div>
+                  <head>Diegetic text and <code>&lt;floatingText type="diegetic"&gt;</code>
+                  </head>
+                  <p>Diegetic documents are another important textual and graphic feature of comics
+                     narratives. Diegetic documents appear in the comics art as part of the
+                     narrative’s fictional universe. Such documents can be seen and
+                        <soCalled>read</soCalled> by the narrative's characters. We find diegetic
+                     documents or text appearing as street signs, store front signage, billboards,
+                     newspaper headlines, or even full newspaper articles. Pratt discusses clearly
+                     diegetic text and the degrees to which other text (balloons, captions, sound
+                     effects) may also be diegetic: <cit>
+                        <quote rend="block" source="#pratt2009">The words within comics have an
+                           interesting relationship to the diegesis, the story world that is
+                              <soCalled>real</soCalled> to and hence can be experienced by the
+                           characters who populate it. When a street number or a postcard is
+                           depicted in a comic, it is diegetic. Not only the reader, but also the
+                           characters can see it. However, only the reader can see the other types
+                           of words that occur in comics. The characters cannot see word balloons,
+                           sound effects, or narration (leaving aside cases where, for example,
+                           comics artists playfully have their characters interact with word
+                           balloons: breaking them, using them to float, and so on). But these
+                           features are not exactly non-diegetic. Though characters cannot see
+                           speech balloons, they can hear the words in them, and presumably each
+                           character is aware of the contents of his or her own thought balloons.
+                           When there are sound effects, characters can hear them, though the sounds
+                           heard within the diegesis may not be exactly the same as the sounds
+                           depicted in words. <soCalled>Kablammo!</soCalled> may be onomatopoetic,
+                           but it cannot capture the exact sound of an explosion. And characters may
+                           even be aware of narration, as is the case where one of the characters is
+                           also the narrator, or in the unusual situation where a character reacts
+                           directly to an impersonal narrator.</quote>
+                        <ptr target="#pratt2009" loc="108"/>
+                     </cit> The term <hi rend="italic">diegetic</hi> is frequently used in film
+                     studies to distinguish between the film score music that plays in the
+                     background but cannot be heard by the characters and the diegetic music that is
+                     part of the film's narrative sphere, for instance, when a character in the film
+                     plays the guitar or when music plays in a bar where characters meet. Famous
+                     examples from film include many of the scenes set in Rich Blaine's Café
+                     Américain in <title>Casablanca</title> and the music played by the
+                        <soCalled>Cantina Band</soCalled> in the Mos Eisley Cantina scene in the
+                     original 1977 <title>Star Wars</title> film. Below are examples of diegetic
+                     text in comics.</p>
+                  <figure xml:id="figure12">
+                     <head>From <title>Amazing Fantasy</title> #15, Peter Parker walks by a poster
+                        to the science exhibit where he receives the radioactive spider bite that
+                        results in Parker's Spider-Man powers. The poster provides an example of
+                        diegetic text, text that is part of the comic's narrative environment and
+                        that may be <soCalled>read</soCalled> by the characters as well as the
+                        reader. <ptr target="#amazing_fantasy_15"/>
+                     </head>
+                     <graphic url="resources/images/walsh_2012_figure12.jpg"/>
+                  </figure>
+                  <dhq:example xml:id="eg_af2">
+                     <head>TEI's <gi>floatingText</gi> element is used to encode diegetic text from
+                        the panel in <ref target="#figure12">Figure 12</ref>.</head>
+                     <eg>&lt;cbml:panel characters="#pparker" n="1"&gt; &lt;cbml:balloon
+                        rendition="#uc" type="speech"&gt; Some day I'll show them!
+                        &lt;sound&gt;sob&lt;/sound&gt; Some day they'll be sorry! --Sorry that they
+                        laughed at me! &lt;/cbml:balloon&gt; &lt;floatingText subtype="poster"
+                        type="diegetic"&gt; &lt;body&gt; &lt;head rendition="#uc #large"&gt;
+                        Science&lt;lb/&gt; Exhibit &lt;/head&gt; &lt;p rendition="#uc"&gt;
+                        Experiments&lt;lb/&gt; in&lt;lb/&gt; Radio-Activity &lt;/p&gt; &lt;p
+                        rendition="#uc"&gt; Open&lt;lb/&gt; to the&lt;lb/&gt; Public &lt;/p&gt;
+                        &lt;ab rendition="#right-arrow #red"&gt; Room 30 &lt;/ab&gt; &lt;/body&gt;
+                        &lt;/floatingText&gt; &lt;/cbml:panel&gt; </eg>
+                  </dhq:example>
+                  <figure xml:id="figure13">
+                     <head>From <title>Ultimate Spider-man</title> #6, newspaper headlines in the
+                        panels above are examples of diegetic text that exists simultaneously in the
+                        experienced visual field of both the characters and the reader. <ptr
+                           target="#bendis2001"/>
+                     </head>
+                     <graphic url="resources/images/walsh_2012_figure13.jpg"/>
+                  </figure>
+                  <dhq:example xml:id="eg_af3">
+                     <head>TEI's <gi>floatingText</gi> element is used to encode diegetic text from
+                        the series of panels in <ref target="#figure13">Figure 13</ref>.</head>
+                     <eg>&lt;div type="panelGrp" xml:base="eg/cbml_eg.xml"&gt; &lt;cbml:panel
+                        n="1"&gt; &lt;cbml:balloon rendition="#uc" type="speech" who="#jjj"&gt;
+                        Well, let's just see with the &lt;emph rendition="#b"&gt;distinguished
+                        competition&lt;/emph&gt; has for their headline this morning…
+                        &lt;/cbml:balloon&gt; &lt;floatingText subtype="newspaper"
+                        type="diegetic"&gt; &lt;body&gt; &lt;ab type="masthead"&gt; &lt;title
+                        rendition="#uc #large #center"&gt; New York Globe &lt;/title&gt; &lt;lb/&gt;
+                        &lt;hi rendition="#small #center #uc"&gt; New York's Oldest Daily Newspaper
+                        &lt;/hi&gt; &lt;/ab&gt; &lt;div type="news_story"&gt; &lt;head
+                        rendition="#x-large #uc #b" type="headline"&gt; Webbed Wonder&lt;lb/&gt;
+                        Wows City! &lt;/head&gt; &lt;/div&gt; &lt;/body&gt; &lt;/floatingText&gt;
+                        &lt;/cbml:panel&gt; &lt;cbml:panel n="2"&gt; &lt;cbml:balloon
+                        rendition="#uc" type="speech" who="#jjj"&gt; &lt;p&gt;Huh.&lt;/p&gt;
+                        &lt;p&gt;And let's see, what did the &lt;title
+                        rendition="#b"&gt;Journal&lt;/title&gt; run this morning?&lt;/p&gt;
+                        &lt;/cbml:balloon&gt; &lt;floatingText subtype="newspaper"
+                        type="diegetic"&gt; &lt;body&gt; &lt;ab rendition="#center #large #uc"
+                        type="masthead"&gt; The New York Journal &lt;/ab&gt; &lt;div
+                        type="news_story"&gt; &lt;head rendition="#x-large #uc #b #center"
+                        type="headline"&gt; A Spider-Man&lt;lb/&gt; Among Us &lt;/head&gt;
+                        &lt;/div&gt; &lt;/body&gt; &lt;/floatingText&gt; &lt;/cbml:panel&gt;
+                        &lt;cbml:panel n="3"&gt; &lt;cbml:balloon rendition="#uc" type="speech"
+                        who="#jjj"&gt; &lt;p&gt;And…&lt;emph rendition="#b"&gt;what,&lt;/emph&gt;
+                        pray tell, did the &lt;title rendition="#b"&gt;Daily Bugle&lt;/title&gt;
+                        decide to run this morning?&lt;/p&gt; &lt;p&gt;Some fat cat's &lt;emph
+                        rendition="#b"&gt;house&lt;/emph&gt; catches on fire.&lt;/p&gt;
+                        &lt;/cbml:balloon&gt; &lt;floatingText subtype="newspaper"
+                        type="diegetic"&gt; &lt;body&gt; &lt;ab rendition="#center #large #uc"
+                        type="masthead"&gt; Daily Bugle &lt;/ab&gt; &lt;div type="news_story"&gt;
+                        &lt;head rendition="#x-large #uc #b #center" type="headline"&gt;
+                        Osborne&lt;lb/&gt; Burning&lt;/head&gt; &lt;/div&gt; &lt;/body&gt;
+                        &lt;/floatingText&gt; &lt;/cbml:panel&gt; &lt;!-- … --&gt; &lt;/div&gt;
+                     </eg>
+                  </dhq:example>
+               </div>
+            </div>
+            <div>
+               <head>Prose Content: Fiction, Editorial, Promotional Material, Company and Industry
+                  News, Fan Mail</head>
+               <p>In addition to the comics content, a comic book will often contain more
+                  traditional prose of various sorts, including prose supplements to the comics
+                  narrative; short stories, sometimes accompanied by illustrations;<note>Golden Age
+                     comics often included such prose narratives. In fact, the first published
+                     comics work of Stan Lee, the famous co-creator of such characters as
+                     Spider-Man, the Fantastic Four, the Hulk, and Iron Man, was a prose story in
+                        <title rend="italic">Captain America Comics</title> #3 <ptr
+                        target="#lee1941"/>. More recently, Alan Moore frequently includes prose
+                     material that supplements the comics-based narrative. Examples may be found in
+                     Moore’s <title>Watchmen</title> and <title>The League of Extraordinary
+                        Gentlemen</title>.</note> editorial and promotional content from publishers,
+                  editors, writers and artists; news items from the publisher; and fan mail, often
+                  accompanied by replies from the comic book creators.</p>
+               <figure xml:id="figure14">
+                  <head>From the first issue of Alan Moore's <title>Watchmen</title>, a comics art
+                     page juxtaposed against a page of more traditional prose fiction, an excerpt
+                     from the journal of Hollis Mason, a character in Moore's narrative. <ptr
+                        target="#moore1987"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure14.jpg"/>
+               </figure>
+               <figure xml:id="figure15">
+                  <head>Marvel’s <title>Bullpen Bulletins</title> were a regular monthly feature in
+                     their line of comics. The <title>Bulletins</title> typically included <title
+                        rend="quotes">Stan Lee’s Soapbox,</title> a column by Marvel
+                     writer/editor/publisher Stan Lee, as well as smaller news items about new and
+                     upcoming comic books or television and radio programs featuring Marvel’s
+                     characters or creators. In this installment of <title>Bullpen
+                     Bulletins</title>, Stan Lee announces the departure of artist Jack Kirby, Lee's
+                     longtime collaborator and co-creator of characters such as The Fantastic Four,
+                     Thor, X-Men, The Avengers, and more. This example is taken from <title>The
+                        Avengers</title> #79 (August 1970), although the same page would have
+                     appeared in Marvel's other comic book titles published during the same
+                     publication cycle. <ptr target="#bullpen_bulletins1970"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure15.jpg"/>
+               </figure>
+               <p>Comic book fan mail has great potential value to scholars studying comics. Fan
+                  mail highlights the social aspect of comic book creation and readership; the role
+                  of the reader in the creation, expansion, and elucidation of the larger,
+                  collective fictional universes of comics narratives; the often intense and
+                  intimate interaction between creator and audience; and frequent authorial or
+                  editorial commentary. Further, fan mail is often a source for important details
+                  such as the explicit identification of otherwise uncredited creators, including
+                  writers, artists, inkers, colorists, and letterers. There are many instances, as
+                  in <ref target="#figure16">Figure 16</ref> below, in which individuals who would
+                  go on to become prominent figures in the comic book industry first appeared in
+                  comics as the authors of fan mail.</p>
+               <figure xml:id="figure16">
+                  <head>Two pages of fan mail from <title>Fantastic Four</title> #22 (January 1964).
+                     This one issue contains two separate pieces of fan mail, highlighted in red,
+                     from individuals who would later become important figures in the comic book
+                     industry. The first letter is from Dave Cockrum <ptr target="#cockrum1964"/>,
+                     the original artist on the enormously popular new X-Men team introduced by
+                     Cockrum and writer Len Wein in <title>Giant-Size X-Men</title> #1 (May 1975).
+                     The second highlighted letter is written by Roy Thomas, who became a writer and
+                     later Editor-in-Chief at Marvel Comics <ptr target="#thomas1964"/>. </head>
+                  <graphic url="resources/images/walsh_2012_figure16.jpg"/>
+               </figure>
+            </div>
+            <div>
+               <head>Advertisements</head>
+               <p>Print advertisements, particularly many of the types frequently found in comics,
+                  are themselves extremely complex documents. One cannot study the history of
+                  television in the twentieth century without careful attention to television
+                  advertising. Similarly, one cannot study the comic book without close
+                  consideration of the advertisements in document. In comic books from major
+                  publishers such as Marvel and DC, advertisements are, in terms of quantity, the
+                  dominant content type apart from the comics content.<note>As a random example,
+                        <title>Fantastic Four</title> #61 (April, 1967) contains thirty-six pages,
+                     including front and back covers, recto and verso. Of these thirty-six pages,
+                     twenty-one are devoted to comics content, twelve to advertisements, two to fan
+                     mail, and one page to other editorial content.</note> Of particular interest
+                  are the many advertisements that adopt conventions from comics. The intermingling
+                  of comics-based narrative with commercial advertisement becomes a key element in
+                  the production of meaning in the text. In addition to advertisements for
+                  third-party products, comics are rife with advertisements and other promotional
+                  materials for the comic books and other products of the publisher. These
+                  promotional materials contribute to the transformation of the publisher from
+                  commercial entity to a club or cult<note>Stan Lee, who was both a major creative
+                     force at Marvel Comics as well as its most effective and visible promoter,
+                     frequently addresses Marvel readers/fans as <q>True Believers.</q>
+                  </note> and to the process by which a reader becomes a <soCalled>fan.</soCalled>
+                  Unfortunately, this important content is usually omitted from both print and
+                  digital <soCalled>reprints</soCalled> from the comic book publishers. </p>
+               <p>Advertisements are interesting on many levels. For instance, a scholar examining
+                  gender roles in comics may be interested to know that certain advertisements are
+                  addressed directly to boys (<q>Look, Fellows!</q>) and that participation in
+                  certain activities promoted by the ads, such as selling <title>Grit</title>
+                  newspaper in one’s neighborhood, required one to answer in the affirmative the
+                  question, <q>Are you a boy?</q> Later versions of the same ad would replace
+                     <q>Look, Fellows!</q> with <q>Look, Friends!</q> and <q>Are You a Boy?</q> with
+                     <q>Male or Female?</q>
+               </p>
+               <figure xml:id="figure17">
+                  <head>An advertisement recruiting boys to sell <title>Grit</title> newspaper is
+                     addressed explicitly to boys, <q>Hey Fellows!,</q> and the clip-out, mail-in
+                     coupon requires the applicant to answer the question <q>Are you a boy?</q>
+                     <ptr target="#grit1969"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure17.jpg"/>
+               </figure>
+               <figure xml:id="figure18">
+                  <head>Highlighted detail from Grit advertisement in <ref target="#figure17">Figure
+                        17</ref>. <ptr target="#grit1969"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure18.jpg"/>
+               </figure>
+               <figure xml:id="figure19">
+                  <head>Highlighted detail from Grit advertisement in <ref target="#figure17">Figure
+                        17</ref>. <ptr target="#grit1969"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure19.jpg"/>
+               </figure>
+               <p>Other advertisements found in comics are of interest because of the ways in which
+                  they appropriate the characteristics of comics content, the dominant content type
+                  of the <soCalled>host</soCalled> document. One finds such appropriations
+                  increasingly in video and film as elaborate advertisements adopt the conventions
+                  of, for instance, music videos or short films. The televised broadcast of the
+                  National Football League’s annual Super Bowl championship has become a showcase
+                  for such advertisements. Further intermingling of commerce and
+                     <soCalled>art</soCalled> is found in the relatively recent trend of
+                  advertisements in the movie theater and product placement within television and
+                  film. Comics anticipate such trends, on a mass scale, decades before they became
+                  commonplace in other media. Comic book documents encoded with CBML would allow one
+                  easily to identify, retrieve, and analyze advertisements that contain comic book
+                  elements such as panels and balloons.</p>
+               <p>The following examples illustrate some of the variety found in comic book
+                  advertisements and the extent to which the advertisements adopt the formal
+                  conventions of comics, from advertisements that include elements like word
+                  balloons to advertisements that contain miniature multi-panel comics
+                  narratives.</p>
+               <figure xml:id="figure20">
+                  <head>This advertisement for <hi rend="italic">Big Jim’s P.A.C.K.</hi> action
+                     figures incorporates comics-styled illustration, lettering and typography,
+                     captions, and word balloons. <ptr target="#bigjim1976"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure20.jpg"/>
+               </figure>
+               <figure xml:id="figure21">
+                  <head>A 1968 advertisement for International Correspondence Schools (ICS)
+                     completely abandons traditional ad copy, format, and structure, instead
+                     employing the comics format to tell the fictional story of a high school
+                     dropout who becomes a success by using the advertised product. <ptr
+                        target="#ics1968"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure21.jpg"/>
+               </figure>
+               <div>
+                  <head>
+                     <code>&lt;div type="advert"&gt;</code>
+                  </head>
+                  <p>The advertisements typically found in comic books may be adequately described
+                     using existing TEI elements, along with custom CBML elements for those
+                     advertisements that incorporate comics features such as panels and word
+                     balloons. The generic TEI <gi>div</gi> with its <att>type</att> and
+                        <att>subtype</att> attributes may be used as the container element for
+                     advertisements. </p>
+                  <figure xml:id="figure22">
+                     <head>A small advertisement, from a page full of similarly sized
+                        advertisements, in <title>Fantastic Four</title> #65 (August 1967). The
+                        layout of the full page resembles the layout of a page of classified ads in
+                        a daily newspaper. <ptr target="#crown1967"/>
+                     </head>
+                     <graphic url="resources/images/walsh_2012_figure22.jpg"/>
+                  </figure>
+                  <dhq:example>
+                     <head>TEI/CBML code for the small advertisement featured in <ref
+                           target="#figure22">Figure 22</ref>.</head>
+                     <eg>&lt;div type="advert" xml:id="eg_003"&gt; &lt;head
+                        rend="background-color:black; color:white;" rendition="#x-large #center
+                        #uc"&gt; Poems Wanted &lt;/head&gt; &lt;ab rendition="#center #uc"
+                        type="floatingHead"&gt; To Be Set to Music &lt;/ab&gt; &lt;p&gt; Send one or
+                        more of your best poems today for &lt;emph rendition="#uc"&gt;free
+                        examination&lt;/emph&gt;. Any subject. Immediate Consideration. &lt;/p&gt;
+                        &lt;ab rendition="#center #uc" type="floatingHead"&gt; Phonograph Records
+                        Made &lt;/ab&gt; &lt;ab&gt; &lt;address&gt; &lt;addrLine rendition="#uc
+                        #large #center"&gt; &lt;orgName&gt;Crown Music Co&lt;/orgName&gt;
+                        &lt;/addrLine&gt; &lt;addrLine&gt; 49 W. 32 St., Studio 11, New York 1
+                        &lt;/addrLine&gt; &lt;/address&gt; &lt;/ab&gt; &lt;/div&gt; </eg>
+                  </dhq:example>
+               </div>
+            </div>
+            <div>
+               <head>Related Documents</head>
+               <p>Many other publications and content types that would not typically be classified
+                  as comic books incorporate the formal elements of comics. For instances, there are
+                  a number of publications that combine news, interviews, reviews, and other
+                  journalistic features about comics and the comic book industry. These publications
+                  include fanzines, such as <title>Alter Ego</title>; official fan club
+                  publications, such as Marvel’s <title rend="italic">FOOM Magazine</title>;
+                  magazines such as <title rend="italic">Wizard</title> or <title>The Jack Kirby
+                     Collector</title>; and Web sites, such as <title rend="italic">
+                     <ref target="http://www.comicbookresources.com/">Comic Book Resources</ref>
+                  </title>. <figure xml:id="figure23">
+                     <head>The cover (left) and an interior page (right) from Issue 2 (Summer 1973)
+                        of <title>FOOM Magazine</title> , the publication of Marvel’s 1970s fan club
+                        FOOM <ptr target="#foom1973" loc="front cover, 11"/>. Many comics publishers
+                        or individual publications would provide readers with an opportunity to
+                        formalize their status as fans by joining official fan clubs, such as
+                        Marvel’s Merry Marvel Marching Society and later F.O.O.M., or Friends of Ol’
+                        Marvel. These fan clubs also have publications, the digital representation
+                        of which can benefit from CBML encoding. These fan publications are
+                        important historical documents and include interviews with comics creators,
+                        news items, comic book checklists, games and puzzles, photographs and
+                        illustrations, previews, advertisements, and comics content in the form of
+                        covers and sample pages and panels from upcoming issues, reprinted comics,
+                        and original comics content created for the fan magazines.</head>
+                     <graphic url="resources/images/walsh_2012_figure23.jpg"/>
+                  </figure>
+               </p>
+               <p>The existence and relevance of these many comics-related publications is an
+                  important reason behind the decision to base CBML on TEI. Comic book content does
+                  not exist in isolation from other document types but is often integrated into
+                  essays, news articles, reviews, scholarly criticism, and so on. TEI provides
+                  robust mechanisms for encoding these more familiar document types, while CBML
+                  supplements TEI with features necessary for encoding the integrated comic book
+                  content.</p>
+               <p>One of the most noteworthy aspects of TEI is its many elements, attributes, and
+                  other structures for describing components of scholarly textual editions,
+                  including textual variants among multiple printings and editions, authorial
+                  manuscripts and typescripts, notes, annotations, and marginalia. Like many other
+                  modern documents, comic books can have complicated publication and production
+                  histories, with multiple editions and reprintings. Likewise, published comic books
+                  have their origins in authorial manuscripts and typescripts and original art with
+                  marginalia and notes of various types. See <ref target="#figure24">Figure 24</ref>
+                  and <ref target="#figure25">Figure 25</ref>. The combination of CBML elements and
+                  existing TEI elements for describing manuscripts, typescripts, and textual
+                  variants provides a suitable suite of descriptors for encoding such documents.</p>
+               <figure xml:id="figure24">
+                  <head>Stan Lee's original typescript synopsis of the origin story for
+                        <title>Fantastic Four</title> #1. Not all the elements from this initial
+                     conception, for instance Ben Grimm's romantic crush on Susan Storm, were
+                     implemented in the published story. <ptr target="#lee1961"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure24.jpg"/>
+               </figure>
+               <figure xml:id="figure25">
+                  <head>An example of original artwork for <title>X-Men</title> #17 <ptr
+                        target="#x-men17"/>. Jack Kirby's marginal notes remain visible and provide
+                     valuable clues into the artist's contributions to the plotting and scripting of
+                     the story. <ptr target="#x-men17ms"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure25.jpg"/>
+               </figure>
+            </div>
+         </div>
+         <div>
+            <head>Linking Transcription and Image</head>
+            <p>The examples above illustrate how CBML can capture a transcription of the text found
+               in a comic book. Other important features are also captured, such as the structure of
+               the comic book; the sequence of pages and panels; the grouping of panels into
+               compositional units that may or may not correspond to a physical page; classification
+               of panel transition types and analysis of individual transitions from panel to panel.
+               However, the examples above do not attempt to describe the <emph>pictures</emph> one
+               finds in the comic book, nor should they. Comic books are a visual, graphic art form
+               combining text and image. CBML/TEI/XML is a text format. While one could certainly
+               use CBML to describe details about any or all of the pictures in a comic book
+               publication, such an effort would undermine the hybrid form of the comic book. The
+               visual, pictorial, and graphic design elements of the comic book simply cannot be
+               fully or adequately described or translated as text. While many design features
+               common to textual documents, such as text size and font characteristics, may be
+               reasonably and usefully described using common TEI techniques, it would be futile and
+               impractical to attempt to describe every detail of every picture in a comic book
+               document. The encoded document, with markup containing and describing metadata,
+               structure, transcription, and analysis, should co-exist with and be linked to digital
+               facsimile page images of the comic book. Thankfully, in current digital environments
+               and on the Web, such linking and display of text and image is relatively simple, if
+               time-consuming, to accomplish. Section <ref
+                  target="http://www.tei-c.org/release/doc/tei-p5-doc/en/html/PH.html#PHFAX">11.1
+                  Digital Facsimiles</ref> in the <title>TEI Guidelines</title> describes existing
+               TEI elements and attributes for linking digital transcriptions to digital facsimile
+               images <ptr target="#tei2010"/>.</p>
+
+            <p> On the other hand, depending on the goals of any particular project employing CBML,
+               some scholars will wish to add to the encoded text some description and analysis of
+               the pictorial aspect of the comic book. If one has such needs, CBML and TEI provide
+               suitable mechanisms. Typed TEI <gi>note</gi> elements may be used to provide detailed
+               descriptions of the pictorial dimensions of the document. For example, one might use
+                  <code>&lt;note type="panelGrpDesc"&gt;</code> for a <soCalled>panel group
+                  description</soCalled> or <code>&lt;note type="panelDesc"&gt;</code> for a
+                  <soCalled>panel description.</soCalled>
+            </p>
+            <figure xml:id="figure26">
+               <head>Two panels from <title>The Incredible Hulk</title> #114. Notice the common
+                  feature of a word balloon that begins in the first panel but crosses the gutter
+                  separating the panels and extends graphically into the second panel. Such features
+                  pose challenges for the strictly hierarchical structure of XML. <ptr
+                     target="#lee1969"/>
+               </head>
+               <graphic url="resources/images/walsh_2012_figure26.jpg"/>
+            </figure>
+            <dhq:example xml:id="eg_af4">
+               <head>
+                  <code>&lt;note type="panelDesc"&gt;</code> is used in this code example to
+                  describe the pictorial content of individual panels. Similarly <code>&lt;note
+                     type="panelGrpDesc"&gt;</code> could be used to provide a description of the
+                  layout or other visual details of group of panels.</head>
+               <eg>&lt;div type="panelGrp"&gt; &lt;!-- Preceding panels omitted to conserve space.
+                  --&gt; &lt;cbml:panel characters="#hulk" n="7"&gt; &lt;note resp="#jawalsh"
+                  type="panelDesc"&gt; The hulk kneels in the grass, surrounded by trees. He leans
+                  back with hands on his head, lamenting his transformation back into Banner.
+                  &lt;/note&gt; &lt;cbml:balloon rendition="#jaggies" type="speech"&gt;
+                  No!&lt;lb/&gt; &lt;emph&gt;No!&lt;/emph&gt; &lt;/cbml:balloon&gt; &lt;cbml:balloon
+                  type="speech"&gt; It feels like-- &lt;lb/&gt; my
+                  &lt;emph&gt;blood&lt;/emph&gt;--&lt;lb/&gt; is on &lt;emph&gt;fire!&lt;/emph&gt;
+                  &lt;/cbml:balloon&gt; &lt;cbml:balloon type="speech"&gt; &lt;p&gt; My
+                  &lt;emph&gt;skins--&lt;lb/&gt; shrinking--&lt;lb/&gt; shrinking--!!&lt;/emph&gt;
+                  &lt;/p&gt; &lt;p&gt; Can't--&lt;lb/&gt; &lt;emph&gt;fight&lt;/emph&gt; it--
+                  anymore--! &lt;/p&gt; &lt;/cbml:balloon&gt; &lt;/cbml:panel&gt; &lt;cbml:panel
+                  characters="#hulk #banner" n="8"&gt; &lt;note resp="#jawalsh" type="panelDesc"&gt;
+                  Set against an abstract background, a sequence of four views of the Hulk's and
+                  Banner's head depicts the Hulk's transition back to Bruce Banner. &lt;/note&gt;
+                  &lt;cbml:caption&gt; Thus, there and then--&lt;lb/&gt;
+                  suddenly--uncontrollably--&lt;lb/&gt; the awesome
+                  &lt;emph&gt;transformation&lt;/emph&gt;&lt;lb/&gt; starts--until--
+                  &lt;/cbml:caption&gt; &lt;/cbml:panel&gt; &lt;!-- &lt;cbml:balloon --&gt;
+                  &lt;cbml:panel&gt; &lt;cbml:balloon type="speech" who="#cap" xml:id="eg_008"&gt; A
+                  little &lt;emph rendition="#b"&gt;sleep&lt;/emph&gt; will do wonders for you!
+                  &lt;/cbml:balloon&gt; &lt;/cbml:panel&gt; &lt;!-- captions --&gt;
+                  &lt;cbml:panel&gt; &lt;cbml:caption rendition="#uc" xml:id="eg_009"&gt; Thus,
+                  there and then--&lt;lb/&gt; suddenly--uncontrollably--&lt;lb/&gt; the awesome
+                  &lt;emph&gt;transformation&lt;/emph&gt;&lt;lb/&gt; starts--until--
+                  &lt;/cbml:caption&gt; &lt;/cbml:panel&gt; &lt;/div&gt; </eg>
+            </dhq:example>
+            <p> Another option is to use the <att>ana</att> attribute, illustrated <ref
+                  target="#eg01">above</ref>, to apply analytical or interpretive schemes to the
+               pictorial, graphic, and visual dimensions of the text.</p>
+            <p>Even when focusing solely on the text of comics, the transformation from handwritten
+               or printed text to unformatted digital transcription may lose important
+               information-bearing graphic and design features. For instance, in the examples in
+                  <ref target="#figure27">Figure 27</ref> below, distinct fonts and balloons are
+               used for particular characters in an attempt to represent graphically the tone,
+               timbre, or other qualities of speech, resulting in a sort of visual or synaesthetic
+               onomatopoeia. In such cases, TEI's <gi>rendition</gi> element and
+                  <att>rendition</att> and <att>rend</att> attributes may be used to describe such
+               design features.</p>
+            <figure xml:id="figure27">
+               <head>In this panel fragment from <title>Avengers</title> #27 (Apr. 2000), a great
+                  deal of information is being conveyed in the stylization of the speech balloons
+                     <ptr target="#avengers_v3_27"/>. In particular, notice the distinctive font
+                  used for the dialog of Thor, the large figure in the center of the panel. This use
+                  of distinctive fonts for specific characters is also an indicator of changing
+                  modes of production for comics. Traditionally, comics were lettered by hand. It is
+                  now increasingly common, especially among the major comic book publishers, for the
+                  lettering to be done in desktop publishing and design software using digital
+                  fonts, many of which are designed to resemble traditional hand-drawn comic book
+                  lettering, providing a digital illusion of handcrafted script. </head>
+               <graphic url="resources/images/walsh_2012_figure27.jpg"/>
+            </figure>
+         </div>
+         <div>
+            <head>Challenges: Visual Complexity</head>
+            <p>The basic structures of CBML were based on representative samples of common and
+               relatively simple structures and panel layouts. For instance, panels normally are
+               arranged in fairly regular grid patterns. 2 x 3 panel grids (three rows of two
+               rectangular, nearly square panels) are very common; 2 x 2 and 3 x 3 layouts are also
+               prevalent. <figure xml:id="figure28">
+                  <head>A page from the Captain America feature in <title>Tales of Suspense</title>
+                     #84 (Dec. 1966) by Stan Lee and Jack Kirby illustrates a very regular 2 x 3
+                     panel grid. <ptr target="#tos084"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure28.jpg"/>
+               </figure> But variation from strict and regular grid layouts is ubiquitous. Panels of
+               every size and shape — circles, triangles, irregular polygons, and fluid organic
+               shapes — are also common, as are borderless panels with ambiguous boundaries. <figure
+                  xml:id="figure29">
+                  <head>Two Golden Age examples of irregularly shaped panels. On the left is a page
+                     by Carl Burgos from <title>Marvel Mystery Comics</title> (1941) <ptr
+                        target="#burgos1941"/>. On the right is a page by Sheldon
+                        <soCalled>Shelly</soCalled> Moldoff from <title>Flash Comics</title> #5
+                     (1940) <ptr target="#moldoff1940"/>.</head>
+                  <graphic url="resources/images/walsh_2012_figure29.jpg"/>
+               </figure>
+            </p>
+            <p> Simplistic approaches to encoding the spatial and sequential relationships among
+               such panels are foiled by frequent variations and complexities in panel size, shape,
+               and arrangement and particularly by ambiguous sequential positioning of panels. As
+               determination of meaning in a textual document is dependent on a particular, usually
+               obvious, sequence of words, so is determination of meaning in a comic book dependent
+               on a particular sequence of images and panels. While a meaningful panel sequence in
+               comics is usually apparent, the conventions of graphic expression in comics are not
+               as fixed, well established, or as well known by general readers as the conventions
+               for textual expression and narrative. And just as writers and poets break rules and
+               conventions, so do comics writers and artists play with the rules and conventions of
+               comics narrative. In <ref target="#figure30">Figure 30</ref> below, a single obvious
+               sequence of panels is not at all clear — multiple valid sequential readings are
+               possible. Also note the playful use of diegetic text, with bibliographic information
+               about the creators and title of the story embedded in the pictures. Near the upper
+               left of the page is a blue-tinted panel with the names of the creators of the story:
+                  <q>LEE STERANKO SINNOT ROSEN in Another Epic!</q> The title of the story, <title
+                  rend="quotes">Tomorrow You Live Tonight I Die!,</title> appears on a calling card
+               in the panel at the lower right-hand corner of the page. <figure xml:id="figure30">
+                  <head>A page by Jim Steranko and Stan Lee from <title>Captain America</title> #111
+                        <ptr target="#captain_america_111"/>. The page illustrates ambiguous panel
+                     sequence and playful use of diegetic text.</head>
+                  <graphic url="resources/images/walsh_2012_figure30.jpg"/>
+               </figure> A <gi>note</gi> and omission of sequential numbering on the
+                  <gi>cbml:panel</gi> elements could be used in the encoding to address such
+               sequential ambiguity. </p>
+            <p>Irregular and unusual panel arrangement, composition, and presentation may pose
+               challenges for <soCalled>reading</soCalled> of the visual and textual language of
+               comic books, just as difficult syntax, unfamiliar vocabulary, neologisms, or
+               unconventional typography and punctuation may present challenges for reading
+               primarily textual content. Most comics have panels with clear borders and generous
+               gutters between borders. The borders and gutters between panels correspond to the
+               punctuation and spacing used to enhance clarity and readability in written and
+               printed texts. Panels without clear borders and gutters introduce another type of
+               visual ambiguity in comics. <ref target="#figure31">Figure 31</ref> illustrates a
+               panel group with discreet pictorial moments that correspond to panels, but these
+                  <soCalled>panels</soCalled> lack conventional borders and gutters. <figure
+                  xml:id="figure31">
+                  <head>One of many interesting examples from Will Eisner's influential
+                        <title>Comics &amp; Sequential Art</title>, this page is composed as one
+                     blended graphic lacking common panel borders and gutters. Nonetheless, the
+                     larger image may be broken down into smaller sequential visual and textual
+                     gestures that correspond closely to conventional comic book panels. On the left
+                     is the original page; on the right, I have superimposed boxes over the image to
+                     identify the discreet moments or <soCalled>panels</soCalled> present in the
+                     larger composite image. <ptr target="#eisner1985" loc="75"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure31.jpg"/>
+               </figure> At least six such pictorial moments or <soCalled>panels</soCalled> may be
+               identified in Eisner's page from <ref target="#figure31">Figure 31</ref>. The top of
+               the image depicts a man and woman running through Charles de Gaulle Airport; the next
+               element shows, from a distance, the couple as they ride up an escalator. The lines of
+               the escalator tube, extending more or less horizontally across the entire page, cause
+               this image to serve simultaneously as a discreet pictorial moment <emph>and</emph> as
+               a border or gutter separating the <soCalled>panels</soCalled> above and below the
+               escalator scene. Two more <soCalled>panels</soCalled> are found directly below the
+               escalator. On the left, the couple rush through the crowded airport; on the right,
+               they arrive at their seats on the plane they have been rushing to catch. A very
+               subtle <soCalled>panel</soCalled> emerges quietly below these two panels as the
+               aircraft, seen from a distance, takes off through the clouds. Like the distant view
+               of the escalators, this image does double duty as <soCalled>panel</soCalled> and as
+               border/gutter. In the final <soCalled>panel</soCalled> of the page, the man and
+               woman, reclined in their seats, relax and resume their conversation. In those images
+               (the escalator and the ascending aeroplane) that function as both panel and
+               border/gutter, we might say, borrowing terminology from textual criticism, that the
+               substantive content has merged with the accidentals of the document. By encoding
+               these graphic and textual moments within <gi>cbml:panel</gi> elements, the scholar
+               encoder has imposed an interpretation and asserted various claims about the document.
+               Additional <att>ana</att> attributes might be used to indicate those
+                  <soCalled>panels</soCalled> that function as both panel and border/gutter.
+                  <gi>note</gi> elements might also be used to discuss other issues related to the
+               general graphic ambiguity of the page.</p>
+            <p>In <ref target="#figure26">Figure 26</ref> above, we saw an example of a speech
+               balloon crossing the gutter from one panel into another. Another type of visual
+               ambiguity is introduced when pictorial elements cross panel boundaries and co-exist
+               is more than one panel. Since different panels often depict different physical spaces
+               and different moments in time, the presence of a pictorial element in more than one
+               panel can be particularly jarring and can be used to establish complex spatial and
+               temporal relationships. <ref target="#figure32">Figure 32</ref> below shows an
+               example of this type of visual ambiguity in an early WWII-era comic book: <figure
+                  xml:id="figure32">
+                  <head>A page from Simon and Kirby’s <title>Captain America Comics</title> #1 from
+                     1941. The page illustrates complex panel composition with pictorial and graphic
+                     elements crossing the gutters separating panels. <ptr
+                        target="#captain_america_1" loc="168"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure32.jpg"/>
+               </figure>The panels above are not uniform in shape or size. Pictorial elements, such
+               as the gun in the fifth panel and the purple-suited figure and motion lines in the
+               bottom two panels, cross the gutter separating the panels and co-exist in multiple
+               panels. These graphic moves suggest interesting spatial and temporal juxtapositions
+               and facilite visual transitions from panel to panel, breaking down the clear
+               separation of narrative moments and instigating a flow approaching (though still very
+               far removed from) the rapid frame-to-frame transitions found in film.</p>
+            <p>
+               <ref target="#figure33">Figure 33</ref> below, from Morrison and Jone's <title>Marvel
+                  Boy</title>
+               <ptr target="#morrison2000"/>, shows a more recent example of a page with both
+               ambiguous panel boundaries and overlapping panels. The central action — of the
+               blue-cloaked golden figure lifting Marvel Boy into the air — is witness to its own
+               genesis, visually encroaching on the panel depicting some moments prior in time. As
+               Marvel Boy is lifted up into the underlying panel he becomes a spectator — with the
+               reader — of himself within the previous moment. Likewise the blue-cloaked figure
+               plants a golden boot upon a future moment that proceeds from the central action. An
+               encoded CBML document might identify and analyze such transitions. One could develop
+               a taxonomy to classify the sorts of overlap phenomena found in <ref
+                  target="#figure32">Figure 32</ref> and <ref target="#figure33">Figure 33</ref> and
+               use the TEI <gi>interGrp</gi> and <gi>interp</gi> elements and the <att>ana</att>
+               attribute, discussed above, to describe and interpret the graphic features and the
+               resulting spatial and temporal relationships. <figure xml:id="figure33">
+                  <head>In Grant Morrison and J.G. Jone's <title>Marvel Boy</title>, borderless and
+                     overlapping panels confuse and complicate temporal and spatial relationships.
+                        <ptr target="#morrison2000"/>
+                  </head>
+                  <graphic url="resources/images/walsh_2012_figure33.jpg"/>
+               </figure>
+            </p>
+         </div>
+         <div>
+            <head>Serialization and Bibliographic Complexity</head>
+            <p>As is the case in many other art forms (fiction, television, film), serial
+               publication of an ongoing narrative introduces a great deal of bibliographic and
+               metadata complexity. While these issues are not unique to comics, I would argue that
+               the degree of complexity is distinct in comics. Comic books typically contain
+               serialized narratives. Often one finds <soCalled>stand-alone</soCalled> issues, which
+               contain a complete story, and often stories extend over many issues, or even many
+               issues of two or more serial titles.<note>For example, the Marvel Comics
+                     <soCalled>Avengers Defenders War</soCalled> storyline from 1973-74 takes place
+                  in two serial publications, <title>The Avengers</title> (issues #115 to #118) and
+                     <title>The Defenders</title> (issues #8 to #11).</note> In the case of
+               mainstream super hero comics, regardless of whether any particular story is more or
+               less self-contained within a single issue or extends over many issues, these
+               narratives exist in the context of larger narratives developed over many decades by
+               dozens or hundreds of individual writers and artists. Rather uniquely, characters
+               like Superman, Batman, Wonder Woman, Spider-Man, and the Hulk exist in ongoing,
+               decades-long, cross-generational narratives created by collaborative teams of
+               writers, artists, and editors. Although we find similar issues of long-running
+               narratives with changing collaborative teams in film and television, none approaches
+               the longevity and frequency of production found in the comic book
+                  narratives.<note>The closest analog might be daytime soap operas, many of which
+                  have been in production for decades and are produced more frequently (with daily
+                  episodes Monday through Friday) than typical comic book issues are published. But
+                  the longest-running soap opera, <title>Guiding Light</title>, which started on
+                  radio in 1937, ceased production in 2009. The Superman and Batman narratives,
+                  which started in 1938 and 1939, respectively, continue to be told in multiple
+                  serial publications and of course in film and other media. Another analog might be
+                  the repeated refashioning of mythological, biblical, and Arthurian narratives
+                  throughout literary history, but such recasting of shared imaginative universes
+                  are more decentralized and lack the corporate control and continuity found in the
+                  ongoing comic book narratives or soap operas.</note> Most long-running comic book
+               features, from Fawcett's original Captain Marvel to Spider-Man to Archie, have
+               complex bibliographic histories involving networks of changing titles, creators, even
+               publishers. These complex bibliographic histories, with multiple creators, are
+               relevant to textual theories about the nature of authorship and the social and
+               corporate nature of document production. In comic books we have examples of
+               collaboratively-produced narratives coupled with collaboratively-produced visual art.
+               The many metadata structures available in TEI lend themselves to description of these
+               complex bibliographic histories and relationships.</p>
+            <p>The evolution of characters over many decades in serialized tales poses documentary
+               complications that may be addressed through encoding strategies. For instance, one
+               may be interested in the DC super hero known as the Flash. The general concept of a
+               super hero named the Flash, with the power of super speed, published by the comic
+               book publisher DC, is some sort (or some sorts) of bibliographic entity — a
+               character, a subject, a title. But there is not one Flash character (or title) in the
+               DC imaginative universe. The first Flash, with the secret identity of Jay Garrick,
+               was created by Gardner Fox and artist Harry Lampert in <title>Flash Comics</title> #1
+               (January 1940). This character was revived in the 1950s, with a new costume, new
+               origin story, and new secret identity — police scientist Barry Allen. Allen
+                  <soCalled>died</soCalled> in the 1985 series <title>Crisis on Infinite
+                  Earths</title> and remained <soCalled>dead</soCalled> for over twenty (real — not
+               fictional) years . During Allen's absence, his similarly super-powered sidekick Wally
+               West took on the persona of the Flash, as did Bart Allen, Barry Allen's grandson.
+               Many other characters have undergone similar evolutions and transformations. </p>
+            <p>TEI is well-equipped to capture these complex details of character and identity. The
+                  <ref target="http://www.tei-c.org/release/doc/tei-p5-doc/en/html/ND.html#NDPERS"
+                  >prosopographical features of TEI</ref> provide a framework for modeling relations
+               among both real people (e.g., comics writers, artists, and other creators) and
+               fictional characters. </p>
+         </div>
+         <div>
+            <head>Conclusions and Future Work</head>
+
+            <p>Like most digital humanities projects and markup language development, CBML is an
+               ongoing effort. Although many diverse examples have been shown here, the extent of
+               textual and graphic variation found in the world of comics is astounding. Examples
+               here have focused on superhero comics, the most enduringly popular genre in the
+               history of the art form. However, many other important genres exist — romance, war,
+               horror, science fiction, and fantasy comics — each with their own traditions and
+               conventions. Increasingly, more realistic narratives, autobiographical works, and
+               non-fiction works are presented as comics. Japanese manga and manga-influenced comics
+               are very popular and possess a style and conventions distinct from western comics.
+               Certainly many more difficult and challenging comic book documents will be found to
+               test the general applicability of CBML and suggest additions and modifications to the
+               markup language.</p>
+            <p>An important issue, not yet addressed in this discussion, is the issue of copyright.
+               Modern comic books, which developed in the 1930s and since, are largely still under
+               copyright protection. The most popular of these, those featuring the famous super
+               heroes, are owned by massive media conglomerates. DC Comics (publishers of titles
+               featuring Superman, Batman, Wonder Woman, the Flash, etc.) is owned by Time Warner.
+               Marvel Comics (publishers of titles featuring Spider-Man, the Fantastic Four, Iron
+               Man, the Hulk, etc.) was recently acquired by the Walt Disney Company. These media
+               companies have reputations for jealously and fiercely protecting their copyrights.
+               Copyright is doubtless a challenge for scholars studying comic books, just as
+               copyright is a challenge for scholars studying film and many other twentieth- and
+               twenty-first century works. But barring further restrictive copyright legislation,
+               many of the older comic book publications will be entering the public domain in
+               coming decades. Under current U.S. Copyright Law, <title>Action Comics</title> #1
+               (June 30, 1938), featuring the first appearance of Superman, would enter the public
+               domain in 2033, 95 years after publication. And many comic books from the same period
+               are already in the public domain because the copyright was not renewed, when such
+               renewal was still necessary for an extension of copyright protection. In 2008,
+               publisher Image Comics began their Next Issue Project, a series of new comics based
+               on the narratives and characters from comic books published in the 1930s and 40s that
+               had fallen into the public domain. The first Next Issue Project comic book was
+                  <title>Fantastic Comics</title> #24 <ptr target="#fantastic_comics24"/>. It draws
+               on stories and characters from Fox Feature Syndicate's <title>Fantastic
+                  Comics</title>, the final issue of which was #23, published in November 1941. The
+               Next Issue Project has identified a number of other public domain titles, including
+               Lev Gleason Publications' <title>Silver Streak Comics</title> (twenty-three issues),
+               Quality Comics' <title>Crack Comics</title> (sixty-two issues), and Harvey Comics'
+                  <title>Speed Comics</title> (forty-four issues). These four titles alone provide
+               over 150 comic books that could be used for further collaborative development of CBML
+               and published on the Web and in other media. Certainly there is a great deal more
+               comics content in the public domain or for which permissions may be secured, and
+               nothing prevents a scholar from applying CBML markup to any text as part of a
+               strategy for reading, interpretation, and analysis. The end goal of markup is not and
+               should not always be publication of a digital surrogate. The encoding of a text may
+               be a rigorous intellectual activity that has great value as process, not just as
+               product.</p>
+            <p>CBML, as described here, focuses primarily on overall structure of the document,
+               textual content, and metadata. Significant work remains to be done giving similar
+               attention to the pictorial dimensions of the comic book. I have argued above that
+               CBML should not attempt to go too far in description of individual images and
+               pictorial details, relying instead on the presence of facsimile page images.
+               Nonetheless, in order to analyze the visual grammar and conventions of comics,
+               additional visual and pictorial features will need to be <quote rend="inline"
+                  source="#tei2010">identified explicitly in order to facilitate processing by
+                  computer programs</quote>
+               <ptr target="#tei2010"/>. Future work on CBML will include modeling frameworks for
+               analysis of pictorial and graphic features and developing taxonomies for identifying
+               such features, beyond the basic structural components of panels, balloons, captions,
+               and sound effects. </p>
+            <p>Comic books are an endlessly fascinating medium and one from which the digital
+               humanities can learn a great deal. The structural complexities of the content rivals
+               or surpasses the complexity of content famously treated by digital humanities
+               scholarship: fragmentary classical texts; medieval manuscripts; Blake's illuminated
+               work; and Rossetti's double works. The combination of text and pictures and the role
+               of visual communication in comics prefigures the multimedia and new media of digital
+               environments and the prominence of pictures, graphics, and icons found on the Web and
+               other modern digital interfaces. The corporate and collective authorship of many
+               long-running comic book narratives and the interactive relationship between creators
+               and readers/viewers/consumers of created content provide models of authorship and
+               readership that are relevant to the collaboratively created digital content that we
+               make and study in the digital humanities. </p>
+
+            <p>Ongoing development of CBML is documented at <ref target="http://www.cbml.org/"
+                  >http://www.cbml.org/</ref>. One may download the most recent schemas and TEI ODD
+               files (which define and document the CBML customizations of TEI) and example CBML
+               instance documents. <ref target="https://iulist.indiana.edu/sympa/info/cbml-l"
+                  >CBML-L</ref>, an email list for discussion of CBML, is available at <ref
+                  target="https://iulist.indiana.edu/sympa/info/cbml-l"
+                  >https://iulist.indiana.edu/sympa/info/cbml-l</ref>. In addition to ongoing
+               development and refinement of the CBML markup scheme, future research will involve
+               the creation of a large corpus of pubic domain comics encoded in CBML and the
+               development of interfaces for representing, exploring, and manipulating CBML
+               documents and associated facsimile page images. </p>
+         </div>
+         <div>
+            <head>Acknowledgments</head>
+            <p> I would like to thank <title rend="italic">DHQ</title> Editor Julia Flanders and the
+               reviewers for their very valuable feedback on this article. I would also like to
+               thank my colleagues Paul Aarstad and Michelle Dalmau for their careful reading and
+               insightful comments.</p>
+         </div>
+      </body>
+      <back>
+         <listBibl>
+            <bibl xml:id="aldama2009" label="Aldama 2009" key="aldama2009">Aldama, Frederick Luis.
+                  <title>Your Brain on Latino Comics: From Gus Arriola to Los Bros
+               Hernandez</title>. <pubPlace>Austin</pubPlace>: <publisher>U of Texas P</publisher>,
+                  <date when="2009">2009</date>. Print.</bibl>
+            <bibl xml:id="abbott1986" label="Abbott 1986" key="abbott1986">Abbott, Lawrence L.
+                  <title rend="quotes">Comic Art: Characteristics and Potentialities of a Narrative
+                  Medium.</title>
+               <title rend="italic">Journal of Popular Culture</title> 19 (<date when="1986"
+                  >1986</date>): 155-176. Print.</bibl>
+            <bibl xml:id="barnes2012" label="Barnes 2012" key="barnes2012">Barnes, Brooks. <title
+                  rend="quotes">‘Avengers’ Vanquish Box-Office Rivals.</title>
+               <title rend="italic">New York Times</title> 7 May 2012, New York ed.: C1.
+               Print.</bibl>
+
+            <bibl xml:id="bendis2001" label="Bendis and Bagley 2001" key="bendis2001">Bendis Brian
+               Michael and Mark Bagley. <title rend="italic">Ultimate Spider-Man</title>
+               <biblScope>#6</biblScope> (<date when="2001-04">Apr. 2001</date>). <publisher>Marvel
+                  Comics</publisher>. Print.</bibl>
+
+            <bibl xml:id="bigjim1976" label="Big Jim's P.A.C.K. 1976" key="bigjim1976">
+               <name>Big Jim's P.A.C.K.</name> by Mattel. Advertisement. <title>Captain
+                  America</title>
+               <biblScope>#193</biblScope> (<date when="1976-01">Jan. 1976</date>),
+                  <publisher>Marvel Comics</publisher>: [9]. Print.</bibl>
+
+            <bibl xml:id="bullpen_bulletins1970" label="Bullpen Bulletins 1970"
+               key="bullpen_bulletins1970">
+               <title rend="quotes">Bullpen Bulletins.</title>
+               <title rend="italic">The Avengers</title>
+               <biblScope>#79</biblScope> (<date when="1973-08">Aug. 1973</date>), <publisher>Marvel
+                  Comics</publisher>: [30]. Print.</bibl>
+            <bibl xml:id="burgos1941" label="Burgos 1941" key="burgos1941">Burgos, Carl. <title
+                  rend="italic">Marvel Mystery Comics</title>. <date when="1941">1941</date>. <title
+                  rend="italic">The Great Comic Book Heroes</title>. Ed. Jules Feiffer.
+                  <pubPlace>New York</pubPlace>: <publisher>Bonanza Books</publisher>, <date
+                  when="1965">1965</date>. 84-98. Print.</bibl>
+
+            <bibl xml:id="avengers_v3_27" label="Busiek and Pérez 2000a" key="avengers_v3_27"
+               >Busiek, Kurt and <author>George Pérez</author>. <title>The Avengers</title>
+               <biblScope>#27</biblScope> (<date when="2000-04">Apr. 2000</date>), <publisher>Marvel
+                  Comics</publisher>. Print.</bibl>
+
+            <bibl xml:id="avengers_v3_34" label="Busiek and Pérez 2000b" key="avengers_v3_34"
+               >Busiek, Kurt and <author>George Pérez</author>. <title>The Avengers</title>
+               <biblScope>#32</biblScope> (<date when="2000-11">Nov. 2000</date>), <publisher>Marvel
+                  Comics</publisher>. Print.</bibl>
+            <bibl xml:id="capitanio2010" label="Capitanio 2010" key="capitanio2010">Capitanio, Adam.
+                  <title rend="quotes">
+                  <q>The Jekyll and Hyde of the Atomic Age</q>: <title>The Incredible Hulk</title>
+                  as the Ambiguous Embodiment of Nuclear Power.</title>
+               <title rend="italic">The Journal of Popular Culture</title>
+                  43.<biblScope>2</biblScope> (<date when="2010">2010</date>): 249-270.
+               Print.</bibl>
+            <bibl xml:id="carlin2005" label="Carlin, Karasik, and Walker 2005" key="carlin2005">
+               <editor>Carlin, John</editor>, Paul Karasik, and Brian Walker, eds. <title>Masters of
+                  American Comics</title>. <pubPlace>New Haven, CT</pubPlace>: <publisher>Yale
+                  UP</publisher>, <date when="2005">2005</date>. Print.</bibl>
+
+            <bibl xml:id="carrier2000" label="Carrier 2000" key="carrier2000">Carrier, David.
+                  <title>The Aesthetics of Comics</title>. <pubPlace>University Park, PA</pubPlace>:
+                  <publisher>U of Pennsylvania P</publisher>, <date when="2000">2000</date>.
+               Print.</bibl>
+            <bibl xml:id="cockrum1964" label="Cockrum 1964" key="cockrum1964">Cockrum, Dave.
+                  <title>Letter to Stan Lee and Jack Kirby. <date when="1964-01">January
+                     1964.</date>
+               </title>
+               <title rend="quotes">Fantastic 4 Fan Page.</title>
+               <title rend="italic">The Fantastic Four</title>
+               <biblScope>#22</biblScope> (<date when="1964-01">Jan. 1964</date>), <publisher>Marvel
+                  Comics</publisher>: [29]. Print.</bibl>
+
+            <bibl xml:id="conway1976" label="Conway 1976" key="conway1976">Conway, Gerry and
+                  <author>Ross Andru</author>. <title>Superman vs. the Amazing Spider-Man</title>.
+               New York: DC Comics &amp; Marvel Comics, <date when="1976">1976</date>. Print.</bibl>
+
+            <bibl xml:id="coogan2006" label="Coogan 2006" key="coogan2006">Coogan, Peter.
+                  <title>Superhero: The Secret Origin of a Genre</title>.
+                  <pubPlace>Austin</pubPlace>: <publisher>MonkeyBrain Books</publisher>, <date
+                  when="2006">2006</date>. Print.</bibl>
+
+            <bibl xml:id="crown1967" label="Crown 1967" key="crown1967">
+               <name>Crown Music Co.</name>. Advertisement. <title rend="italic">Fantastic
+                  Four</title>
+               <biblScope>#65</biblScope> (<date when="1967-08">Aug. 1967</date>), <publisher>Marvel
+                  Comics</publisher>: [22]. Print.</bibl>
+            <bibl xml:id="david2008" label="David 2008" key="david2008">David, Peter. <title>Mascot
+                  to the Rescue!</title>. <pubPlace>New York</pubPlace>: <publisher>Harper
+                  Collins</publisher>, <date when="2008">2008</date>. Print.</bibl>
+            <bibl xml:id="diliddo2009" label="Di Liddo 2009" key="diliddo2009">Di Liddo, Annalisa.
+                  <title>Alan Moore: Comics as Performance, Fiction as Scalpel</title>.
+                  <pubPlace>Jackson</pubPlace>: <publisher>UP of Mississippi</publisher>, <date
+                  when="2009">2009</date>. Print.</bibl>
+
+            <bibl xml:id="drucker2008" label="Drucker 2008" key="drucker2008">Drucker, Johanna.
+                  <title rend="quotes">What is Graphic about Graphic Novels?</title>
+               <title rend="italic">English Language Notes.</title> 46:2 (<date when="2008"
+                  >2008</date>): 39-55. Print.</bibl>
+
+            <bibl xml:id="drucker2009" label="Drucker 2009" key="drucker2009c">Drucker, Johanna.
+                  <title>SpecLab: Digital Aesthetics and Projects in Speculative Computing</title>.
+                  <pubPlace>Chicago</pubPlace>: <publisher>U of Chicago P</publisher>, <date
+                  when="2009">2009</date>. Print.</bibl>
+
+            <bibl xml:id="eisner1985" label="Eisner 1985" key="eisner1985">Eisner, Will.
+                  <title>Comics &amp; Sequential Art</title>. <pubPlace>Tamarac, FL</pubPlace>:
+                  <publisher>Poorhouse Press</publisher>, <date when="1985">1985</date>.</bibl>
+
+            <bibl xml:id="emad2006" label="Emad 2006" key="emad2006">Emad, Mitra C. <title
+                  rend="quotes">Reading Wonder Woman’s Body: Mythologies of Gender and
+                  Nation.</title>
+               <title rend="italic">The Journal of Popular Culture</title>
+                  39.<biblScope>6</biblScope> (<date when="2006">2006</date>): 954-984.
+               Print.</bibl>
+            <bibl xml:id="fantastic_comics24" label="Fantastic Comics 2009" key="fantastic_comics24">
+               <title>Fantastic Comics</title>
+               <biblScope>#24</biblScope> (<date when="2008-01">Jan. 2009</date>), <publisher>Image
+                  Comics</publisher>. Print.</bibl>
+
+            <bibl xml:id="flanders2005" label="Flanders 2005" key="flanders2005">Flanders, Julia.
+                  <title rend="quotes">Digital Humanities and the Politics of Scholarly
+                  Work.</title> Diss. Brown U, <date when="2005">2005</date>. Web. <ptr
+                  target="http://dev.stg.brown.edu/staff/Julia_Flanders/pubs/flanders_dissertation.xhtml"
+               />.</bibl>
+
+            <bibl xml:id="foom1973" label="FOOM 1973" key="foom1973">
+               <title>FOOM</title>
+               <date when="1973">Summer 1973</date>. Marvel Comics Group. Print.</bibl>
+
+            <bibl xml:id="gibbons2009" label="Gibbons and Sook 2009" key="gibbons2009">Gibbons, Dave
+               and <author>Ryan Sook</author>. <title>Kamandi: The Last Boy on Earth</title>.
+                  <title>Wednesday Comics</title>
+               <biblScope>#2</biblScope> (<date when="2009-09">Sep. 2009</date>), <publisher>DC
+                  Comics</publisher>. Print.</bibl>
+
+            <bibl xml:id="gordon2007" label="Gordon, Jancovich, and McAllister 2007"
+               key="gordon2007">
+               <editor>Gordon, Ian</editor>, Mark Jancovich, and Matthew P. McAllister, eds.
+                  <title>Film and Comic Books</title>. <pubPlace>Jackson</pubPlace>: <publisher>UP
+                  of Mississippi</publisher>, <date when="2007">2007</date>. Print.</bibl>
+
+            <bibl xml:id="grit1969" label="Grit 1969" key="grit1969">
+               <name>Grit Publishing Company</name>. Advertisement. <title rend="italic">The
+                  Fantastic Four</title>
+               <biblScope>#93</biblScope> (<date when="1969-12">Dec. 1969</date>), <publisher>Marvel
+                  Comics</publisher>: [9]. Print.</bibl>
+            <bibl xml:id="hatfield2005" label="Hatfield 2005" key="hatfield2005">Hatfield, Charles.
+                  <title>Alternative Comics: An Emerging Literature</title>.
+                  <pubPlace>Jackson</pubPlace>: <publisher>UP of Mississippi</publisher>, <date
+                  when="2005">2005</date>. Print.</bibl>
+
+            <bibl xml:id="highsmith1993" label="Highsmith 1993" key="highsmith1993">Highsmith, Doug.
+                  <title rend="quotes">Developing a <q>Focused</q> Comic Book Collection in an
+                  Academic Library.</title>
+               <title rend="italic">The Acquisitions Librarian</title> 4.<biblScope>8</biblScope>
+                  (<date when="1993">1993</date>): 59-68. Print.</bibl>
+            <bibl xml:id="hoffmann1988" label="Hoffmann 1988" key="hoffmann1988">Hoffmann, Frank.
+                  <title rend="quotes">Comic Books in Libraries, Archives and Media Centers.</title>
+               <title rend="italic">The Serials Librarian</title> 16.<biblScope>1</biblScope> (<date
+                  when="1988">1988</date>): 167-198. Print.</bibl>
+
+            <bibl xml:id="huebner2009" label="Huebner 2009" key="huebner2009">Huebner, Andrew J.
+                  <title rend="quotes">Secret Identity Crisis: Comic Books and the Unmasking of Cold
+                  War America.</title>
+               <title rend="italic">The Sixties: A Journal of History, Politics and Culture</title>
+                  2.<biblScope>2</biblScope> (<date when="2009">2009</date>): 268-270. Print.</bibl>
+            <bibl xml:id="ics1968" label="International Correspondence Schools 1968" key="ics1968">
+               <name>International Correspondence Schools</name>. Advertisement. <title>Fantastic
+                  Four</title>
+               <biblScope>#78</biblScope> (<date when="1968-09">Sep. 1968</date>), <publisher>Marvel
+                  Comics</publisher>: [4]. Print.</bibl>
+
+            <bibl xml:id="jacobs2007" label="Jacobs 2007" key="jacobs2007">Jacobs, Dale. <title
+                  rend="quotes">More Than Words: Comics as a Means of Teaching Multiple
+                  Literacies.</title>
+               <title rend="italic">English Journal</title> 96.<biblScope>3</biblScope> (<date
+                  when="2007">2007</date>): 19–25. Print.</bibl>
+            <bibl xml:id="jeet2008" label="Jeet 2008" key="heer2008">
+               <editor>Jeet, Heer</editor>, and Kent Worcester, eds. <title>A Comics Studies
+                  Reader</title>. <pubPlace>Jackson</pubPlace>: <publisher>UP of
+                  Mississippi</publisher>, <date when="2008">2008</date>. Print.</bibl>
+            <bibl xml:id="x-men17ms" label="Kirby and Lee 1965?" key="x-men17ms">Kirby, Jack and
+                  <author>Stan Lee</author>. <title rend="italic">The X-Men</title>
+               <biblScope>#17</biblScope>
+               <date when="1965">1965?</date> MS. <title rend="italic">Jack Kirby Collector</title>
+               <biblScope>46</biblScope> (<date when="2006">2006</date>): 20. Print.</bibl>
+
+            <bibl xml:id="x-men17" label="Kirby and Lee 1966" key="x-men17">Kirby, Jack and
+                  <author>Stan Lee</author>. <title>The X-Men</title>
+               <biblScope>#17</biblScope> (<date when="1966-02">Feb. 1966</date>), <pubPlace>Canam
+                  Publishers Sales [Marvel Comics]</pubPlace>. Print.</bibl>
+
+            <bibl xml:id="captain_america_193" label="Kirby 1976" key="captain_america_193">Kirby,
+               Jack. <title>Captain America</title>
+               <biblScope>#193</biblScope> (<date when="1976-01">Jan. 1976</date>),
+                  <publisher>Marvel Comics</publisher>. Print.</bibl>
+
+            <bibl xml:id="kunzle2007" label="Kunzle 2007" key="kunzle2007">Kunzle, David.
+                  <title>Father of the Comic Strip: Rodolphe Töpffer</title>.
+                  <pubPlace>Jackson</pubPlace>: <publisher>UP of Mississippi</publisher>, <date
+                  when="2007">2007</date>. Print.</bibl>
+
+            <bibl xml:id="kuskin2008" label="Kuskin 2008" key="kuskin2008">
+               <editor>Kuskin, William</editor>. <title>Graphia: The Graphic Novel and Literary
+                  Criticism</title>. Spec. issue of <title>English Language Notes</title> 46.2
+                  (<date when="2008">2008</date>). Print.</bibl>
+
+            <bibl xml:id="lee1941" label="Lee 1941" key="lee1941">Lee, Stan. <title rend="quotes"
+                  >Captain America Foils the Traitor's Revenge.</title>
+               <title>Captain America Comics</title>
+               <biblScope>#3</biblScope> (<date when="1941-05">May 1941</date>). <title>Marvel
+                  Visionaries: Stan Lee</title>. Ed. <editor>Jeff Youngquist</editor>. <pubPlace>New
+                  York</pubPlace>: <publisher>Marvel Comics</publisher>, <date when="2005"
+                  >2005</date>. 7-8. Print.</bibl>
+            <bibl xml:id="lee1961" label="Lee 1961" key="lee1961">Lee, Stan. <title rend="quotes"
+                  >Fantastic Four Synopsis</title>
+               <date when="1961">1961</date> TS. <title rend="italic">The Marvel Vault.</title> By
+               Roy Thomas and Peter Sanderson. <pubPlace>Philadelphia</pubPlace>: <publisher>Running
+                  Press</publisher>, <date when="2007">2007</date>: 67. Print.</bibl>
+
+
+            <bibl xml:id="amazing_fantasy_15" label="Lee and Ditko 1962" key="amazing_fantasy_15"
+               >Lee, Stan and <author>Steve Ditko</author>. <title>Amazing Fantasy</title>
+               <biblScope>#15</biblScope> (<date when="1962-09">Sep. 1962</date>), <publisher>Atlas
+                  Magazines [Marvel Comics]</publisher>. Print.</bibl>
+
+            <bibl xml:id="amazing_spider-man_5" label="Lee and Ditko 1963"
+               key="amazing_spider-man_5">Lee, Stan and <author>Steve Ditko</author>. <title>Amazing
+                  Spider-Man</title>
+               <biblScope>#5</biblScope> (<date when="1963-09">Sep. 1963</date>),
+                  <publisher>Non-Pareil Publishing [Marvel Comics]</publisher>. Print.</bibl>
+
+            <bibl xml:id="lee1963" label="Lee and Kirby 1963" key="lee1963">Lee, Stan and
+                  <author>Jack Kirby</author>. <title>The X-Men</title>
+               <biblScope>#1</biblScope> (<date when="1963-09">Sep. 1963</date>), <publisher>Canam
+                  Publishers [Marvel Comics]</publisher>. Print.</bibl>
+
+            <bibl xml:id="lee1966" label="Lee and Kirby 1966a" key="lee1966">Lee, Stan and
+                  <author>Jack Kirby</author>. <title>Fantastic Four</title>
+               <biblScope>#51</biblScope> (<date when="1966-06">June 1966</date>), <publisher>Canam
+                  Publishers [Marvel Comics]</publisher>. Print.</bibl>
+
+            <bibl xml:id="tos084" label="Lee and Kirby 1966b" key="tos084">Lee, Stan and
+                  <author>Jack Kirby</author>. <title rend="quotes">The Super-Adaptoid!</title>
+               <title>Tales of Suspense</title>
+               <biblScope>#84</biblScope> (<date when="1966-12">Dec. 1966</date>), <publisher>Vista
+                  Publications [Marvel Comics]</publisher>: [18-30], (1-10). Print.</bibl>
+
+            <bibl xml:id="captain_america_111" label="Lee and Steranko 1969"
+               key="captain_america_111">Lee, Stan and <author>Jim Steranko</author>. <title>Captain
+                  America</title>
+               <biblScope>#111</biblScope> (<date when="1969-03">Mar. 1969</date>),
+                  <publisher>Marvel Comics</publisher>: [1]. Print.</bibl>
+
+            <bibl xml:id="lee1969" label="Lee and Trimpe 1969" key="lee1969">Lee, Stan and
+                  <author>Herb Trimpe</author>. <title>The Incredible Hulk</title>
+               <biblScope>#114</biblScope> (<date when="1969-04">Apr. 1969</date>),
+                  <publisher>Marvel Comics</publisher>. Print.</bibl>
+
+            <bibl xml:id="lee2007" label="Lee and McLaughlin 2007" key="lee2007a">
+               <author>Lee, Stan and Jeff McLaughlin</author>. <title>Stan Lee:
+                  Conversations</title>. <pubPlace>Jackson</pubPlace>: <publisher>UP of
+                  Mississippi</publisher>, <date when="2007">2007</date>. Print.</bibl>
+
+            <bibl xml:id="llull1990" label="Llull and Pereira 1990" key="llull1990">Llull, Ramon,
+               and Michela Pereira. <title>Raimundi Lulli Opera Latina</title>.
+                  <pubPlace>Turnholti</pubPlace>: <publisher>Brepols</publisher>, <date when="1990"
+                  >1990</date>. Print. Corpus Christianorum Continuatio Mediaevalis 77.</bibl>
+
+            <bibl xml:id="matz2004" label="Matz 2004" key="matz2004">Matz, Chris. <title
+                  rend="quotes">Collecting Comic Books for an Academic Library.</title>
+               <title rend="italic">Collection Building</title> 23.<biblScope>2</biblScope> (<date
+                  when="2004">2004</date>): 96-99. Print.</bibl>
+
+            <bibl xml:id="mclain2009" label="McLain 2009" key="mclain2009">McLain, Karline.
+                  <title>India’s Immortal Comic Books: Gods, Kings, and Other Heroes</title>.
+                  <pubPlace>Bloomington</pubPlace>: <publisher>Indiana UP</publisher>, <date
+                  when="2009">2009</date>. Print.</bibl>
+
+            <bibl xml:id="mccloud1993" label="McCloud 1993" key="mccloud1993">McCloud, Scott. <title
+                  rend="italic">Understanding Comics: The Invisible Art.</title> Northampton:
+               Tundra, <date when="1993">1993</date>. Print.</bibl>
+
+            <bibl xml:id="mcgann2001" label="McGann 2001" key="mcgann2001a">McGann, Jerome. <title
+                  rend="quotes">Rethinking Textuality.</title>
+               <title>Radiant Textuality: Literature After the World Wide Web</title>. <pubPlace>New
+                  York</pubPlace>: <publisher>Palgrave</publisher>, <date when="2001">2001</date>.
+               137-160. Print.</bibl>
+
+            <bibl xml:id="moldoff1940" label="Moldoff 1940" key="moldoff1940">
+               <author>Moldoff, Sheldon</author>. <title rend="italic">Flash Comics</title> #5.
+                  <date when="1940">1940</date>. <title rend="italic">The Great Comic Book
+                  Heroes</title>. Ed. Jules Feiffer. <pubPlace>New York</pubPlace>:
+                  <publisher>Bonanza Books</publisher>, <date when="1965">1965</date>. 132-141.
+               Print.</bibl>
+
+            <bibl xml:id="moore1987" label="Moore 1987" key="moore1987">Moore, Alan and <author>Dave
+                  Gibbons</author>. <title>Watchmen</title>. New York: DC Comics, <date when="1987"
+                  >1987</date>. Print.</bibl>
+
+            <bibl xml:id="moretti2000" label="Moretti 2000" key="moretti2000">Moretti, Franco.
+               “Conjectures on World Literature.” <title>New Left Review</title> 1 (<date
+                  when="2000">2000</date>): 54-68. Print.</bibl>
+
+            <bibl xml:id="morrison2000" label="Morrison 2000" key="morrison2000">Morrison, Grant and
+                  <author>J.G. Jones</author>. <title>Marvel Boy</title>
+               <biblScope>#4</biblScope> (<date when="2000-11">Nov. 2000</date>), <publisher>Marvel
+                  Comics</publisher>: 20. Print.</bibl>
+
+            <bibl xml:id="norton2003" label="Norton 2003" key="norton2003">Norton, Bonny. <title
+                  rend="quotes">The Motivating Power of Comic Books: Insights from Archie Comic
+                  Readers.</title>
+               <title rend="italic">Reading Teacher</title> 57.<biblScope>2</biblScope> (<date
+                  when="2003">2003</date>): 140-147. Print.</bibl>
+
+            <bibl xml:id="pratt2009" label="Pratt 2009" key="pratt2009">Pratt, Henry John. <title
+                  rend="quotes">Narrative in Comics.</title>
+               <title rend="italic">The Journal of Aesthetics and Art Criticism</title> 67:1 (<date
+                  when="2009">2009</date>): 107-117. Print.</bibl>
+
+            <bibl xml:id="ranker2007" label="Ranker 2007" key="ranker2007">
+               <author>Ranker, Jason</author>. <title rend="quotes">Using Comic Books as
+                  Read-Alouds: Insights on Reading Instruction From an English as a Second Language
+                  Classroom.</title>
+               <title rend="italic">Reading Teacher</title> 62.<biblScope>4</biblScope> (<date
+                  when="2007">2007</date>): 296-305. Print.</bibl>
+
+            <bibl xml:id="rust2008" label="Rust 2008" key="rust2008">Rust, Martha. <title
+                  rend="quotes">
+                  <q>It's a Magical World</q>: The Page in Comics and Medieval Manuscripts.</title>
+               <title rend="italic">English Language Notes.</title> 46:2 (<date when="2008"
+                  >2008</date>): 23-38. Print.</bibl>
+            <bibl xml:id="selznick2007" label="Selznick 2007" key="selznick2007">Selznick, Brian.
+                  <title>The Invention of Hugo Cabret</title>. <pubPlace>New York</pubPlace>:
+                  <publisher>Scholastic</publisher>, <date when="2007">2007</date>.</bibl>
+            <bibl xml:id="captain_america_1" label="Simon and Kirby 1965" key="captain_america_1"
+               >Simon, Joe and <author>Jack Kirby</author>. <title>Captain America Comics</title>
+               <biblScope>#1</biblScope> (<date when="1941-03">Mar. 1941</date>). <title>The Great
+                  Comic Book Heroes</title>. Ed. <editor>Jules Feiffer</editor>. <pubPlace>New
+                  York</pubPlace>: <publisher>Bonanza Books</publisher>, <date when="1965"
+                  >1965</date>. 163-170. Print.</bibl>
+
+            <bibl xml:id="soundTEI" label="TEI 2010a" key="soundTEI">
+               <title rend="quotes">
+                  <gi>sound</gi>.</title>
+               <title rend="quotes">Appendix C: Elements.</title>
+               <title>TEI P5: Guidelines for Electronic Text Encoding and Interchange</title>. Ed.
+               TEI Consortium. Vers. 1.6.0. <publisher>TEI Consortium</publisher>, <date
+                  when="2010-02-20">20 Feb. 2010</date>. Web. <date when="2010-04-04">4 Apr.
+                  2010</date>. <ptr
+                  target="http://www.tei-c.org/release/doc/tei-p5-doc/en/html/ref-sound.html"
+               />.</bibl>
+
+            <bibl xml:id="sperbergmcqueen2000" label="Sperberg-McQueen, Huitfeldt, and Renear 2000"
+               key="sperbergmcqueen2000">
+               <author>Sperberg-McQueen, C. M.</author>, <author>Huitfeldt, C.</author>, &amp;
+                  <author>Renear, A.</author> (<date when="2000">2000</date>). <title rend="quotes"
+                  >Meaning and interpretation of markup.</title>
+               <title rend="italic">Markup Languages: Theory &amp; Practice</title>,
+                  2(<biblScope>3</biblScope>), 215-34.</bibl>
+
+            <bibl xml:id="tei.ch23.2010" label="TEI 2010b" key="tei.ch23.2010">
+               <editor>TEI Consortium</editor>, ed. <title rend="quotes">Using the TEI.</title>
+               <title>TEI P5: Guidelines for Electronic Text Encoding and Interchange</title>. Vers.
+               1.6.0. <publisher>TEI Consortium</publisher>, <date when="2010-02-20">20 Feb.
+                  2010</date>. Web. <date when="2010-04-04">4 Apr. 2010</date>. <ptr
+                  target="http://www.tei-c.org/release/doc/tei-p5-doc/en/html/USE.html"/>. </bibl>
+
+            <bibl xml:id="tei2010" label="TEI 2010c" key="tei2010">
+               <editor>TEI Consortium</editor>, ed. <title>TEI P5: Guidelines for Electronic Text
+                  Encoding and Interchange</title>. Vers. 1.6.0. <publisher>TEI
+                  Consortium</publisher>, <date when="2010-02-20">20 Feb. 2010</date>. Web. <date
+                  when="2010-04-04">4 Apr. 2010</date>. <ptr
+                  target="http://www.tei-c.org/release/doc/tei-p5-doc/en/html/"/>. </bibl>
+
+            <bibl xml:id="thomas1964" label="Thomas 1964" key="thomas1964">Thomas, Roy.
+                  <title>Letter to Stan Lee and Jack Kirby. <date when="1964-01">January
+                     1964.</date>
+               </title>
+               <title rend="quotes">Fantastic 4 Fan Page.</title>
+               <title rend="italic">The Fantastic Four</title>
+               <biblScope>#22</biblScope> (<date when="1964-01">Jan. 1964</date>), <publisher>Marvel
+                  Comics</publisher>: [30]. Print.</bibl>
+
+            <bibl xml:id="wanzo2009" label="Wanzo 2009" key="wanzo2009">
+               <author>Wanzo, Rebecca</author>. <title rend="quotes">Wearing Hero-Face: Black
+                  Citizens and Melancholic Patriotism in <title>Truth: Red, White, and
+                  Black</title>.</title>
+               <title>The Journal of Popular Culture</title>
+               42.<biblScope>2</biblScope> (<date when="2009"
+                  >2009</date>): 339-362. Print.</bibl>
+
+            <bibl xml:id="whitson2007" label="Whitson 2007" key="whitson2007">
+               <editor>Whitson, Roger</editor> and <editor>Donald Ault</editor>, eds. <title>William
+                  Blake and Visual Culture</title>. Spec. issue of <title>ImageText</title> 3.2
+                  (<date when="2007">2007</date>). Web. <date when="2010-04-09">9 Apr. 2010</date>.
+                  <ptr target="http://www.english.ufl.edu/imagetext/archives/v3_2/"/>.</bibl>
+
+            <bibl xml:id="bray2008" label="Bray 2008" key="bray2008">Bray, Tim, et al. <title
+                  rend="italic">Extensible Markup Language (XML) 1.0</title>. 5th ed. World Wide Web
+               Consortium, 2008. Web. 11 May 2012. <ptr target="http://www.w3.org/TR/REC-xml/"
+               />.</bibl>
+
+            <bibl xml:id="wright2001" label="Wright 2001" key="wright2001">Wright, Bradford W.
+                  <title rend="italic">Comic Book Nation : The Transformation of Youth Culture in
+                  America</title>. <pubPlace>Baltimore</pubPlace>: <publisher>Johns Hopkins
+                  UP</publisher>, <date when="2001">2001</date>. Print.</bibl>
+
+
+
+         </listBibl>
+      </back>
+   </text>
+</TEI>
