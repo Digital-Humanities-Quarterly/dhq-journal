@@ -175,728 +175,915 @@
          </dhq:teaser>
       </front>
       <body>
+         <div>
+            <head>1. Introduction</head>
+            <p>This article introduces the project <title rend="italic">Digging into Early Colonial
+                  Mexico: A Large–Scale Computational Analysis of Sixteenth–Century Historical
+                  Sources</title>, and describes the progress achieved so far.<note>This project
+                  operates thanks to a grant received from the 2017 <title rend="quotes">Digging
+                     into Data</title> initiative of the Trans–Atlantic Platform for Social Sciences
+                  and Humanities Research (T-AP). T-AP is a consortium supported by research
+                  institutions in 16 countries, among them the Economic and Social Research Council
+                  (ESRC, UK), the Foundation for Science and Technology (FCT, Portugal), and the
+                  National Council of Science and Technology (CONACyT, México). This project is
+                  conducted by three teams of historians, archaeologists, geographers, linguists and
+                  computer scientists from the following institutions: The Digital Humanities Hub
+                  and the History Department of Lancaster University, UK; The Instituto de
+                  Engenharia de Sistemas e Computadores, Investigação e Desenvolvimento em Lisboa,
+                  INESC–ID, University of Lisbon, Portugal; and the Instituto Nacional de
+                  Antropología e Historia in México. The website of the project can be accessed at:
+                     <ref target="http://www.lancaster.ac.uk/digging-ecm"
+                     >http://www.lancaster.ac.uk/digging-ecm</ref>. </note> The project focuses on
+               developing novel methods and tools for mining new knowledge from textual and
+               pictorial historical records to facilitate the study of early Latin American history.
+               It concentrates on one of the most important corpora related to the geography,
+               culture, religion, economy, and history of native and Spanish peoples in Mexico and
+               Guatemala, namely the <title rend="italic">Relaciones Geográficas de la Nueva
+                  España</title> (Geographic Reports from New Spain), and specifically those
+               compiled between 1577 and 1585, hereafter referred to as RGs.</p>
+            <p>The proposed methodology — called Geographical Text Analysis (GTA) — enables the
+               automatic markup of words referring both to place names (toponyms) and analytical
+               concepts relevant to historical research, and adds geospatial intelligence to the
+               parsing of texts. This process is useful not only to find the most salient terms in
+               textual corpora or to identify and disambiguate personal and geographical names, but
+               also to facilitate the discovery of unsuspected data patterns and relationships, such
+               as spatial correlation of events, interaction of people, links of persons and themes
+               to places, and many others.</p>
+            <p>One of the main contributions of this project has been the development of an
+               analytical model based on deep-learning and adapted to the specific challenges found
+               in texts like the RGs. In order to achieve named entity recognition, disambiguation
+               and classification, GTA employs methodologies from the fields of Natural Language
+               Processing (NLP), Corpus Linguistics (CL) and Machine Learning (ML). Although NLP, CL
+               and ML techniques are used frequently in textual analysis today, they are most
+               commonly applied to contemporary texts composed in English. Little work has been done
+               to adapt their use to historical corpora written in old language forms like the
+               sixteenth–century Spanish.<note>NLP techniques have often been applied to annotated
+                  texts written in modern English, and a few have been tried with historical
+                  documents composed in earlier forms of speech in several languages <ptr
+                     target="#borin2007"/>
+                  <ptr target="#brooke2015"/>
+                  <ptr target="#byrne2007"/>
+                  <ptr target="#crane2006"/>
+                  <ptr target="#ehrmann2016"/>
+                  <ptr target="#grover2008"/>
+                  <ptr target="#sprugnoli2017"/>
+                  <ptr target="#vanhooland2015"/>
+                  <ptr target="#won2018"/>.</note> The RG corpus additionally contains other
+               features that complicate the use of such tools, which makes very difficult the
+               automatic <q>reading</q> of the documents. These include the presence of
+               multi-lingual expressions in Nahuatl, Zapotec, Otomi, and many other indigenous
+               languages <ptr target="#harvey1972"/>, as well vocabulary only used in certain
+               regions at the time. </p>
+            <p>A second contribution of our project has been to facilitate, using Geographical
+               Information Systems (GIS), the automatic linking of the results of these processes of
+               textual analysis with locational data. This combination of NLP, CL and ML techniques
+               with spatial analysis methods creates powerful resources to discover unsuspected
+               geographies in the textual reports. Our model will allow scholars of colonial Latin
+               America to learn new information, extract it, cross–link it to other document
+               resources, and, most importantly, study significant historical topics, such as those
+               we discuss in section 3.5 below. </p>
+            <p>Apart from the GTA model itself, we foresee several other products of this project.
+               The first is a digital version of the RGs corpus, annotated in accordance with
+               analytical categories that can be applied to other corpora through an interoperable
+               ontology. The second is a digital gazetteer containing geographic coordinates as well
+               as political, cultural, administrative and physical data, not only of the
+               sixteenth-century sites mentioned in the RGs, but from other relevant sources and
+               historical periods. The third is a set of software tools that link the spatial
+               information contained in the gazetteer with the textual and pictorial contents of the
+               RGs in order to facilitate the discovery and analysis of geographies not immediately
+               apprehended with normal reading. </p>
+            <p>In writing this paper, our goal is to raise awareness about the possibilities of
+               applying computer-assisted methods to the analysis of historical texts. Thus, we
+               describe every step of GTA in the context of our specific study case, hoping that
+               this will encourage more Humanities researchers to adopt this kind of approach.</p>
+            <p>The rest of the article is organized as follows: Section 2 provides an overview of
+               the <title rend="italic">Relaciones Geográficas</title> corpus; Section 3 describes
+               our analytic methodology and reports on our progress; Section 4 describes future
+               applications to the study of history; and the final section offers a general
+               conclusion.</p>
+         </div>
+         <div>
+            <head>2. The Sixteenth Century Relaciones Geográficas de la Nueva España</head>
+            <p>The compilation of the <title rend="italic">Relaciones Geográficas de la Nueva
+                  España</title> was part of a large, long–standing project, sponsored first by
+               Emperor Charles V and then by King Philip II, who sought to collect geographic,
+               economic, historic and cultural information from all the kingdoms and territories
+               under their rule. The initiative emerged not only from the need to control the
+               exploitation of resources and resolve important issues such as land possession,
+               management of labor and the transfer of privileges to colonists, but also to compile
+               scientific knowledge and fulfill intellectual curiosity <ptr target="#delgado2010"/>
+               <ptr target="#delagarza1983"/>. This involved both collecting descriptions and making
+               maps <ptr target="#mundy1996" loc="1–27"/>. The whole project included Castile,
+               Aragon, Italy, the Netherlands, Portugal (since its annexation in 1581), and the
+               viceroyalties of Peru and New Spain.</p>
+            <p>For the New World enterprise, the Spanish king, through the Council of Indies,
+               commissioned his leading cosmographers to gather information by means of
+               questionnaires. These were conceived by Juan de Ovando and sent to the Indies in 1569
+               (37 questions), 1570 (200 questions) and 1573 (135 questions). The responses that
+               came back to Madrid, however, were scarce, probably because the burden of collecting
+               data was put on high-level ecclesiastical and government officials who lacked the
+               necessary knowledge or were not willing to answer so many questions. </p>
+            <p>The project was revived by Juan López de Velasco, cosmographer–chronicler of Philip
+               II, who in 1577 devised more feasible enquiries. The first one attempted to gather
+               observations about moon eclipses from various parts of the Indies <ptr
+                  target="#cline1964"/>. This would allow solving the elusive problem of determining
+               longitude coordinates for the American territories, which in turn would make it
+               possible to establish correctly the position of the Indies with respect to Europe in
+               a universal map <ptr target="#edwards1969"/>
+               <ptr target="#mundy1996" loc="17–9"/>. A second independent enquiry sought to
+               complete the scarce descriptions received in the previous years, sending only fifty
+               carefully formulated questions to be answered not by high-level authorities, as in
+               previous attempts, but by <foreign xml:lang="es">corregidores</foreign> and <foreign
+                  xml:lang="es">alcaldes mayores</foreign>, the local administrative officials with
+               direct knowledge of the situation in towns, villages and hamlets, who also received
+               printed instructions on how to answer the survey. Figure 1 shows the first page (out
+               of three) of the printed <title rend="italic">Instrucción y Memoria</title> sent as a
+               guide to the respondents.</p>
+            <p>The questionnaire included very detailed information about the life in New Spain. One
+               single query might cover topics such as demography, type of settlements,
+               intercultural opinions, and ethnolinguistics.<note>To give a complete picture of the
+                  enquiry, we reproduce the questions list in Appendix 1. The questionnaire in
+                  Spanish can also be found in <ref target="#delagarza1983" loc="7–12">De la Garza
+                     (1983: 7-12)</ref> and <ref target="#acuna1982" loc="73–8">Acuña (1982-1988,
+                     vol. 1: 73-78)</ref>, as well as in English publications by <ref
+                     target="#nutall1926">Nutall (1926)</ref>, <ref target="#cline1964">Cline
+                     (1964,</ref>
+                  <ref target="#cline1972a" loc="234–7">1972c: 234-237)</ref>, <ref
+                     target="#mundy1996" loc="227–30">Mundy (1996: 227–230)</ref>, and <ref
+                     target="#bravo-garcia2018" loc="417–22">Bravo-García (2018:
+                  417-422)</ref>.</note> There are also questions about local history, including the
+               names and settlement of towns, and about agricultural and mineral resources. See
+               Appendix 1 for a complete translation of the questionnaire. </p>
+            <p>Responses to the questionnaire were produced between 1579 and 1585 and are now held
+               in Spain, Scotland, and the United States. In total there are 168 written reports
+               corresponding to an equal number of main <foreign xml:lang="es">cabeceras</foreign>
+                  (<q>head-towns</q> or main districts). These also contain descriptions of 248
+               subordinate jurisdictions, 414 towns and many smaller villages and hamlets <ptr
+                  target="#cline1964"/>. Together they cover more than half the political
+               subdivisions existing in New Spain circa 1580 <ptr target="#cline1972c"/>.<note>The
+                  census of these RGs published by <ref target="#cline1964">Cline (1964</ref>, <ref
+                     target="#cline1972d">1972d</ref>) and updated by <ref target="#acuna1982">Acuña
+                     (1982–1988)</ref> enumerates 34 RGs from Antequera; 17 from Michoacán; 15 from
+                  Tlaxcala; 54 from Yucatán; 2 from Guatemala; 34 from Mexico and 12 from Nueva
+                  Galicia (i.e. Guadalajara), though <ref target="#cline1972d">Cline (1972d)</ref>
+                  counts only 33 from Mexico. The collection is spread across four repositories: 80
+                  documents are in the Archivo General de Indias in Seville; 46 in the Real Academia
+                  de la Historia in Madrid; 41 in the Latin American Collection of the Benson
+                  Library, University of Texas; and one in the Glasgow University Library. Two
+                  handmade transcriptions of the RGs, made by Joaquín García Icazbalceta, are now in
+                  the National Library of Mexico City <ptr target="#cline1964" loc="359"/>
+                  <ptr target="#acuna1982" loc="9"/>.</note> Figure 2 reproduces one of the
+               manuscript pages of the Relación de Atlatlauhca (present–day Atlatlauhcán,
+               Morelos).</p>
+            <p>Alongside the texts, the corpus contains 78 maps. Some were painted by indigenous
+               artists following native representations of places and landscape (Figure 3 and Figure
+               4), while others were clearly drawn by creoles or peninsular Spaniards (Figure 5). In
+               the words of <ref target="#robertson1972" loc="243">Robertson (1972: 243)</ref>, they
+               represent <quote rend="inline">the largest single group of interrelated early
+                  colonial pictorial manuscripts which has come down to us.</quote><note> The latest
+                  comprehensive analysis of these maps is by <ref target="#mundy1996">Mundy
+                     (1996)</ref>.</note> Of these maps, 23 came from Mexico; 3 from Michoacán; 1
+               from Nueva Galicia; 21 from Oaxaca; 18 from Tlaxcala; 3 from Yucatán and 2 from
+               Guatemala. There are also accounts of 26 manuscripts and 16 maps lost centuries ago
+                  <ptr target="#cline1972c" loc="Tables 6 and 10"/>
+               <ptr target="#robertson1972"/>, as well as an additional map that disappeared more
+               recently <ptr target="#mundy1996" loc="226"/>. </p>
+            <p>Despite the fact that some authors failed to answer several questions, both the texts
+               and the maps offer favorable conditions to test new approaches for the analysis of
+               large historical corpora. The corpus of RGs offers highly structured information —
+               due to the standardized questionnaire — which gives the reports a degree of
+               homogeneity rarely seen in other sixteenth–century collections. The geographic
+               descriptions also cover more than half the territory of New Spain and the level of
+               detail is remarkable not only in terms of orography, landscape, and natural
+               resources, but also the way of life of native peoples and colonists, as well as the
+               interactions between different social groups. Such richness, consistency, and span
+               facilitate comparative research across small, medium, and large areas on topics of
+               social, historical, ethnographic, linguistic, economic, and political interest.</p>
+            <p>A further reason for selecting the RGs is a desire to improve the accessibility and
+               valorization of the corpus as a main source for historical enquiry. Seminal research
+               has been conducted by <ref target="#cline1972">Cline (1972)</ref>, <ref
+                  target="#bravo-garcia2018">Bravo-García (2018)</ref>, <ref target="#gerhard1972"
+                  >Gerhard (1972)</ref>, <ref target="#gruzinski1991">Gruzinski (1991)</ref>, <ref
+                  target="#morenotoscano1968">Moreno Toscano (1968)</ref>, <ref target="#mundy1996"
+                  >Mundy (1996)</ref> and a few other scholars <ptr target="#cacereslorenzo2013"/>
+               <ptr target="#delgadolopez2010"/>. The publications by <ref target="#cline1972">Cline
+                  (1972)</ref> and <ref target="#gerhard1972">Gerhard (1972)</ref>, for example,
+               were ground-breaking works of Mexican historical geography. <ref
+                  target="#morenotoscano1968">Moreno Toscano (1968)</ref>, on the other hand, used
+               the complete textual information of the RGs to perform a matrix analysis oriented to
+               reconstruct the economic geography of New Spain, whilst <ref target="#mundy1996"
+                  >Mundy (1996)</ref> analyzed all the surviving maps to identify continuities and
+               changes in the indigenous cartographic tradition during the colonial period. For his
+               part, <ref target="#gruzinski1991" loc="77–103">Gruzinski (1991: 77-103)</ref> has
+               approached the corpus by studying how the contrasting — sometimes conflicting —
+               worldview of conquistadors and native peoples shaped the responses to the
+               questionnaire, pointing out interesting details about the colonization of the
+               imaginary.</p>
+            <p>Single documents of the <title rend="italic">Relaciones</title> have also been the
+               focus of historical research <ptr target="#afanador-pujol2015"/>
+               <ptr target="#ballesteros2005"/>
+               <ptr target="#barlow1949"/>
+               <ptr target="#fernandez2006"/>
+               <ptr target="#morato-moreno2017"/>
+               <ptr target="#mundy2013"/>
+               <ptr target="#nutall1926"/> (among others), but in general the textual and
+               cartographic documents have served as ancillary sources in regional studies, rather
+               than as a principal mine of data <ptr target="#dahlgren1954"/>
+               <ptr target="#brand1960"/>
+               <ptr target="#gibson1967"/>. This is due perhaps to the difficulty of cross–linking
+               information among the many documents or to a lack of tools for uncovering
+               non–explicit knowledge hidden in the subtext of the answers to the questionnaire.</p>
+         </div>
+         <div>
+            <head>3. Methodology and current progress </head>
+            <p>As discussed in the introduction, we are developing advanced tools for unveiling new
+               information from the RGs corpus by applying a methodology known as Geographical Text
+               Analysis (GTA). The resulting digital resources and software tools will be released
+               at the end of the project under an open-access license. The methodology was
+               originally produced by some members of this project to reveal new, unsuspected
+               patterns of information by focusing on the geographic components of the historical
+               narrative <ptr target="#cooper2011"/>
+               <ptr target="#murrieta2015"/>
+               <ptr target="#donaldson2015"/>
+               <ptr target="#gregory2015"/>
+               <ptr target="#porter2015"/>
+               <ptr target="#martins2017"/>
+               <ptr target="#murrieta-flores2017"/>
+               <ptr target="#gregory2018"/>. </p>
+            <p>We are now in the process of refining and extending this methodology with
+               contributions from all members of this project and from researchers engaged in
+               parallel initiatives (e.g., <ref target="#santos2017">Santos et al. 2017</ref>; <ref
+                  target="#santos2018">Santos et al. 2018</ref>; <ref target="#won2018">Won et al.,
+                  2018</ref>). In this particular project we followed four phases: obtaining a
+               computer-readable corpus, the creation of a gazetteer, the semantic annotation and
+               geoparsing of the corpus, and data mining and historical analysis. In the following
+               sections, we discuss each stage in detail.</p>
+            <div>
+               <head>3.1 First phase: Obtaining a computer-readable corpus</head>
+               <p>The first phase of the methodology is obtaining computer–readable files from the
+                  more comprehensive editions of the RGs. We began with Francisco del Paso y
+                  Troncoso’s <title rend="italic">Papeles de Nueva España</title>, which contains a
+                  significant portion of the corpus. Transcriptions from the original manuscripts
+                  were already available in electronic format, but it was necessary to identify and
+                  correct significant errors caused by the Optical Character Recognition (OCR)
+                  software. This is a common problem with old documents, to which Alpert–Abrams
+                  offers an approach in her 2016 article on the corpus known as <title rend="italic"
+                     >Primeros Libros</title>.</p>
+               <p>After completing six volumes of <title rend="italic">Papeles de Nueva
+                     España</title> (Del Paso y Troncoso 1905), the work continued with the RGs from
+                  Yucatán, published in volume 11 of <title rend="italic">Colección de documentos
+                     inéditos de las posesiones de España en ultramar</title> (1898). Additionally,
+                  thanks to a generous permission from the National Autonomous University of Mexico
+                  (UNAM), we were also able to digitize a more recent version of the 54 RGs from
+                  Yucatán transcribed and edited by <ref target="#delagarza1983">De la Garza
+                     (1983)</ref> and to acquire in a digital format 114 RGs published in ten
+                  volumes by <ref target="#acuna1982">Acuña (1982–1988)</ref>. In the end, we
+                  obtained two versions of the whole corpus in machine–readable format: the first
+                  one includes the notes, references and commentary from the scholars who
+                  transcribed and studied the documents, while the second contains only the
+                  transcription of the original RGs texts. A third version that includes all the NLP
+                  annotations was produced during the third phase of the project.</p>
+            </div>
+            <div>
+               <head>3.2 Second phase: Creation of a gazetteer</head>
+               <p>The second phase starts with a compilation of all the place names that exist in
+                  the corpus as well as many others from relevant sources, and then solving any
+                  linguistic and locational uncertainties that prevent their unequivocal
+                  identification.</p>
+               <div>
+                  <head>3.2.1 Compilation of place names.</head>
+                  <p>This is done by extracting toponym indices from published editions of the RGs,
+                     as well as from comprehensive studies on the historic geography of New Spain
+                        (<ref target="#gerhard1972a">Gerhard 1972a</ref>, <ref
+                        target="#gerhard1972b">1972b</ref>, <ref target="#gerhard1991">1991</ref>;
+                        <ref target="#cline1972a">Cline 1972a</ref>, <ref target="#cline1972b"
+                        >1972b</ref>, <ref target="#cline1972c">1972c</ref>; <ref
+                        target="#morenotoscano1968">Moreno Toscano, 1968</ref>; <ref
+                        target="#tanck2005">Tanck de Estrada et al., 2005</ref>). Through this
+                     procedure, the UK and Mexican teams were able to compile a list of 14,654 place
+                     names (<ref target="#liceras-garrido2019">Liceras-Garrido et al.
+                     2019</ref>).</p>
+               </div>
+               <div>
+                  <head>3.2.2 Linguistic disambiguation.</head>
+                  <p>The resulting list was then subjected to a linguistic disambiguation process,
+                     during which the most difficult challenges were dealing with place names found
+                     in different native languages, as well as resolving name variations and
+                     spelling inconsistencies. Important names of cities, like Tlaxcala, have
+                     remained in original form since the sixteenth century, but many others have
+                     changed significantly over time for a variety of reasons, including: historic
+                        causes;<note>For instance, Antequera is now Oaxaca.</note> renaming due to
+                     changes in the boundaries of original settlements;<note>In one example,
+                        sixteenth–century Cempoala (Hidalgo) moved from a hill to a valley to
+                        guarantee access to water, which caused severe alterations on its
+                        limits.</note> and addition of words such as the name of a patron saint to
+                     an indigenous toponym.<note>Tetlapayac, for instance, is the modern Santiago
+                        Teltlapayac.</note> Another problem relates to spelling variations of the
+                     same toponym,<note>Quauhyocan is also written as Quacyocan, for example.</note>
+                     the application of Castilian transliterations to the names of ancient
+                        settlements,<note>For example, ancient Quahnahuac is modern
+                        Cuernavaca.</note> or dealing with homonymies.<note>Tetela, for instance,
+                        refers both to a town in modern Morelos and to a settlement in Puebla, and
+                        towns called Atlatlauhca can be found both in Morelos — origin of an RG —
+                        and Oaxaca.</note>
+                  </p>
+                  <p>State–of–the–art methods to tackle these challenges are discussed in <ref
+                        target="#nick2017">Nick and Tent (2017)</ref> and <ref target="#santos2015"
+                        >Santos et al. (2015</ref>, <ref target="#santos2017">2017</ref>, <ref
+                        target="#santos2018">2018</ref>). Additionally, there is a valuable body of
+                     research on the subject of Mexican toponomy, so we have benefited from
+                     publications by <ref target="#anayamonroy1960">Anaya Monroy (1960)</ref>, <ref
+                        target="#guzmanbetancourt1987">Guzmán Betancourt (1987</ref>, <ref
+                        target="#guzmanbetancourt1989">1989</ref>, <ref
+                        target="#guzmanbetancourt1998">1998</ref>), <ref target="#lefevre2017"
+                        >Lefevre and Paredes Martínez (2017)</ref>, <ref target="#leonportilla2002"
+                        >León Portilla (2002)</ref>, <ref target="#marquez1998">Márquez and Ramos
+                        Navarro Wold (1998)</ref>, <ref target="#mundy2014">Mundy (2014)</ref>, <ref
+                        target="#muntzel2010">Muntzel and Villegas Molina (2010)</ref>, etc. This
+                     adds to the exhaustive research done by the editors of the RGs, especially <ref
+                        target="#acuna1982">Acuña (1982–1988)</ref>, <ref target="#delagarza1983">De
+                        la Garza (1983)</ref> and <ref target="#delpaso1905">Del Paso y Troncoso
+                        (1905)</ref>. </p>
+               </div>
+               <div>
+                  <head>3.2.3. Geographic disambiguation.</head>
+                  <p>Another challenge at this stage is finding latitude and longitude coordinates
+                     of towns and villages. The solution involves, first, detecting and merging
+                     duplicate entries by comparing the place name list with records found in online
+                     geographical databases, such as the catalogue of indigenous localities,
+                     produced by Instituto Nacional de Estadística Geografía a Informática (INEGI)
+                     and Comisión Nacional para el Conocimiento y Uso de la Biodiversidad (CONABIO);<note>
+                        <ref target="http://www.cdi.gob.mx/localidades2010-gobmx/"
+                           >http://www.cdi.gob.mx/localidades2010-gobmx/</ref>
+                     </note> the geographic dataset created for the cartography of Mexico by INEGI;
+                     the general registrar of archaeological sites compiled by Instituto Nacional de
+                     Antropología e Historia (INAH);<note>
+                        <ref target="http://registropublico.inah.gob.mx/index.php"
+                           >http://registropublico.inah.gob.mx/index.php</ref>
+                     </note> the GeoNames geographical database;<note>
+                        <ref target="http://www.geonames.org/">http://www.geonames.org/</ref>
+                     </note> and the Getty Thesaurus of Geographical Names.<note>
+                        <ref
+                           target="http://www.getty.edu/research/tools/vocabularies/tgn/index.html"
+                           >http://www.getty.edu/research/tools/vocabularies/tgn/index.html</ref>
+                     </note> Through both linguistic and locational disambiguation, we were able to
+                     obtain 12,748 correct names. Of these, we have so far been able to pin-point
+                     3919 physical locations (Figure 6), which are the entries used for the
+                     gazetteer.</p>
+                  <p>The structure of the gazetteer complies with Linked Open Data standards to
+                     guarantee its interoperability between different systems and repositories and
+                     facilitate its application into other projects. We have relied on the
+                     experience of massive reference resources like the Getty Thesaurus of
+                     Geographical Names<note>
+                        <ref target="http://www.getty.edu/research/tools/vocabularies/tgn/"
+                           >http://www.getty.edu/research/tools/vocabularies/tgn/</ref></note> and
+                     especially the Alexandria Digital Library Gazetteer (ADL), from which we
+                     adopted the relational database schema <ptr target="#hill2000"/>
+                     <ptr target="#hill1999"/>. For importing and exporting data, we adopted the
+                     file format JSON, created by the World Historical Gazetteer<note><ref
+                           target="http://whgazetteer.org">http://whgazetteer.org</ref></note>,
+                     which is now an accepted standard in many textual annotation and analysis
+                     platforms, such as Recogito. The database of our gazetteer will be made
+                     available through the World Historical Gazetteer, the Pelagios Network, and
+                     through Recogito. In addition, the gazetteer will be also available in a
+                     standalone downloadable GIS format from the project’s website and
+                     repositories.</p>
+               </div>
+            </div>
+            <div>
+               <head>3.3 Third phase: Semantic annotation of the corpus</head>
+               <p>The third stage comprises four tasks: defining an annotation schema by selecting
+                  the most relevant analytic categories for the intended historical analysis;
+                  annotating manually, and in accordance with the previously defined annotation
+                  schema, two different samples of documents: one for training the NLP deep-learning
+                  model and another one to validate it; tuning the deep-learning model to
+                  automatically perform name entity recognition, disambiguation and classification,
+                  in order to obtain a fully annotated corpus; and assessing the performance of the
+                  model in accordance with the gold-standard validated by experts. </p>
+               <div>
+                  <head>3.3.1 Defining the annotation schema (ontology).</head>
+                  <p>The selection of the ontology categories can be done by consensus among expert
+                     linguists and historians, or with the help of automatic computer methods that
+                     extract a <quote rend="inline">seed ontology</quote> directly from the corpus
+                        <ptr target="#eynard2012"/>. The first method is more time-consuming, but it
+                     is simpler and on many occasions yields better results, so this was the
+                     approach we followed.</p>
+                  <p>The RGs ontology contains 21 entity classes and many more sub-categories
+                     relevant to social, political, territorial and economic terms appearing
+                     recurrently through the RGs (Table 2). For example, the general entity class
+                        <q>architecture</q> includes sub-categories such as <q>domestic</q> and
+                        <q>religious,</q> which offers the possibility to distinguish between house
+                     and convent buildings described in texts. Another class <q>cosmogony</q>
+                     includes sub-categories such as <q>ritual,</q>
+                     <q>festivity,</q>
+                     <q>deity,</q> etc. Each entity type follows the definitions and linked-data
+                     standards of DBpedia to ensure the interoperability of our dataset.</p>
+               </div>
+               <div>
+                  <head>3.3.2 Manual annotation of text samples for training the NLP model.</head>
+                  <p>Using such entity classes we carried out a manual annotation of two samples of
+                     18 out of 168 documents (10% of the corpus) from the RGs using the online
+                     tagging tools developed by Tagtog, a commercial company that generously
+                     provided a free license to our project.<note><ref target="www.tagtog.net"
+                           >www.tagtog.net</ref></note> In order to ensure the quality of the
+                     annotated samples, five experts tagged the same documents independently. We
+                     then obtain statistics on the level of consensus among the experts by using the
+                     inter-annotator agreement tool from Tagtog. Figure 7 illustrates an annotated
+                     document.</p>
+               </div>
+               <div>
+                  <head>3.3.3 Development of the NLP deep-learning model.</head>
+                  <p>Once the training and gold-standard sample data are available, the actual
+                     development of the NLP model can begin. Our team in Portugal, led by Bruno
+                     Martins, combined two state-of-the-art approaches of deep-learning: neural
+                     networks and word embedding.</p>
+                  <div>
+                     <head>3.3.3.1 Neural networks.</head>
+                     <p>A neural network is a computational model, loosely inspired on the neural
+                        structure of the brain, that is able to <q>learn by example</q> how to
+                        perform repetitive complex tasks. In the NLP and CL fields, it is applied,
+                        among other things, to perform word classification, or the assigning of a
+                        label to each word in an input text, indicating whether it belongs to a
+                        certain semantic category (e.g. toponym, person, animal, plant, institution,
+                        cultural concept), or to a <q>part-of-speech</q> syntactic category (i.e.
+                        noun, pronoun, adjective, determiner, verb, adverb, preposition,
+                        conjunction, and interjection).</p>
+                     <p>Modern NLP software libraries leverage such statistical models <ptr
+                           target="#goldberg2017"/>, making probabilistic decisions on the best
+                        annotations for previously unseen texts. One of the best is SpaCy. To run a
+                        deep-learning model in SpaCy we need to conduct a training phase during
+                        which the software is fed with the training data sample (in our case 10% of
+                        the corpus). This annotated training sample contains many known examples of
+                        the kind of words expected in the unannotated text (the remaining 90% of the
+                        corpus). </p>
+                     <p>Because we know the correct answers — thanks to the gold-standard data
+                        sample — , we can give the model feedback on its predictions in the form of
+                        an error gradient or the loss function that calculates the difference
+                        between the training example and the expected output. If the accuracy of the
+                        annotations is not sufficient, then an iterative refining process can be
+                        carried out until accomplishing satisfactory results.</p>
+                     <p>Then, to link the gazetteer with the corpus texts, it is necessary to assign
+                        correct longitude and latitude coordinates to each toponym recognized by the
+                        neural network. The Mordecai geoparsing library <ptr target="#halterman2017"
+                        /> is a good tool for that job. It takes as input the place names recognized
+                        by SpaCy, and uses an index over the contents of the gazetteer to find the
+                        potential coordinates of extracted place names. In other words, the names
+                        recognized in the text are matched against similar names in the gazetteer.
+                        Through this process the gazetteer and the corpus are finally linked and
+                        ready for the implementation of query tools.</p>
+                  </div>
+                  <div>
+                     <head>3.3.3.2 Word-embedding.</head>
+                     <p>Complementing the above procedures, the word–embedding algorithm makes it
+                        easier for the neural network to distinguish all of the different semantic
+                        contexts in which a word might be used. This process follows the idea that
+                           <quote rend="inline">a word is characterized by the company it
+                           keeps</quote>
+                        <ptr target="#firth1957"/>. For example, in the phrase <quote rend="inline"
+                           >[t]he order of San Francisco was established in these lands in
+                           1524,</quote> the term <q>San Francisco</q> refers to an institution, but
+                        in <quote rend="inline">[t]he mendicant friars helped the poor following the
+                           teachings of San Francisco,</quote> the same term refers to a person. In
+                        another context, it could mean a geographic location, as for instance in the
+                        sentence <quote rend="inline">San Francisco Tlalcilalcalpan is inhabited at
+                           the present by 18,721 people.</quote></p>
+                     <p>We specifically pre-trained a word–embedding algorithm in an unsupervised
+                        way to statistically predict the meaning of words in the context of real
+                        natural language utterances. Thus, we needed training data sufficiently big
+                        and varied to tackle the specific challenges of the RGs. One is that the
+                        spelling in the corpus varies considerably among the many authors. This is
+                        sometimes, in part, because words are spelled in accordance with their Latin
+                        origin, rather than their actual pronunciation. Another is that the corpus
+                        borrows heavily on vocabulary from indigenous languages, especially place
+                        names, and terms to identify flora, fauna, cultural concepts, etc.</p>
+                     <p>Given the fact that the structure of modern Spanish still resembles to a
+                        high degree the language recorded in the RGs, we decided to combine modern
+                        and historical data sources to train our model. Contemporary data came from
+                        several Spanish corpora such as ANCora <ptr target="#taule2008"/>, IMPACT-es
+                           <ptr target="#sanchez-martinez2013"/>, or the <title rend="italic">Corpus
+                           del Español</title>, <note>
+                           <ref target="https://www.corpusdelespanol.org"
+                              >https://www.corpusdelespanol.org</ref>
+                        </note> while numerous examples of sixteenth–century Spanish texts from
+                        different archives and ten dictionaries of indigenous languages <ptr
+                           target="#garciacubas1888"/>
+                        <ptr target="#penafiel1987"/>
+                        <ptr target="#robelo1897"/>
+                        <ptr target="#robelo1900"/>
+                        <ptr target="#robelo1902a"/>
+                        <ptr target="#robelo1902b"/>
+                        <ptr target="#robelo1904"/>
+                        <ptr target="#robelo1905"/>
+                        <ptr target="#starr1920"/> provided resources to deal with the language
+                        complexities particular to New Spain.</p>
+                     <p>By thus leveraging modern and historical data in a combined training
+                        dataset, we can simultaneously benefit from having large amounts of
+                        contextual information from which the model can learn more easily, together
+                        with some data representing the specificities of historical Spanish.
+                        Furthermore, to avoid problems with out-of-vocabulary words, such as those
+                        brought forward by the inconsistent spelling or cultural expressions, we
+                        used a word–embedding method that also creates representations for
+                        sub-words, and which is able to reconstruct entire word representations from
+                        such sub-words <ptr target="#bojanowski2017"/>.</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div>
+            <head>4. Future Work: Data mining and historical analysis</head>
+            <p>At this stage, several data mining and analysis procedures can be carried out. The
+               first is an adaptation of collocation analysis — a technique from Corpus Linguistics
+               (CL) — which allows for extracting the most statistically significant phrases that
+               are found next to a term or keyword of interest (the <q>collocates,</q> in CL
+               jargon). Our variant of the technique is <term>geographic collocation
+               analysis</term>, originally developed by the research group at Lancaster <ptr
+                  target="#gregory2015"/>
+               <ptr target="#murrieta-flores2015"/>
+               <ptr target="#murrieta-flores2017a"/>
+               <ptr target="#murrieta-flores2017b"/>. This facilitates the recognition and
+               retrieval, across the corpus, of all place names that collocate or are close to a
+               keyword of interest according to a predefined proximity threshold, usually defined in
+               terms of the maximum number of words between the search–term and the collocate. In
+               this manner, if a researcher is interested in investigating economic aspects related
+               to agriculture, they could retrieve, for instance, all phrases in the context of
+               words like <foreign xml:lang="es">maíz</foreign>, <foreign xml:lang="es"
+                  >siembra</foreign>, <foreign xml:lang="es">subsistencia</foreign>, <foreign
+                  xml:lang="es">mantenimientos</foreign>, <foreign xml:lang="es">comida</foreign>
+               (i.e. <q>maize</q>, <q>sowing</q>, <q>subsistence</q>, <q>sustenance</q>,
+               <q>food</q>), which would appear linked to a map showing the geographic locations
+               where such terms appear. </p>
+            <p>Furthermore, by putting words in context through collocation, a historian could
+               extract in a few seconds — as opposed to the weeks that it would take to access the
+               information without GTA tools — interesting details about the first colonists in New
+               Spain. Such a query, for instance, might involve running a collocate search of the
+               word “conquistador” (Figure 8). Another type of search can be conducted using general
+               categories, such as employing the term <q>food</q> to retrieve words like
+                  <q>beans,</q>
+               <q>fish,</q> or <q>bread</q> (Figure 9).</p>
+            <p>In the following subsections, we highlight several topics of historic analysis that
+               we plan to examine through this research.</p>
+            <div>
+               <head>4.1 Historical phenomena changing the face of New Spain at the end of the
+                  sixteenth century</head>
+               <p>One area of application for the techniques detailed in this study is understanding
+                  the coexistence of competing systems of land ownership and labor in New Spain
+                  during the colonial period. In New Spain during the short time of compilation of
+                  the RGs, there was a strong debate about the system of <foreign xml:lang="es"
+                     >encomiendas</foreign> and the desire to replace it with the so-called <foreign
+                     xml:lang="es">repartimientos</foreign>. The <foreign xml:lang="es"
+                     >encomienda</foreign> was the right to exploit the labor of indigenous
+                  populations, granted by the Spanish Crown to conquistadors, who at the beginning
+                  of the colonization held this privilege in perpetuity and could, therefore, pass
+                  it to their descendants with little intervention from the royal government in
+                  Madrid. In contrast, the <foreign xml:lang="es">repartimiento</foreign> only
+                  allocated the labor force of native workers for a fixed period of time in exchange
+                  for a meager remuneration. The latter gave the royal government more control over
+                  its subjects and resources. Neither the holders of <foreign xml:lang="es"
+                     >encomiendas</foreign> nor <foreign xml:lang="es">repartimientos</foreign> were
+                  allowed to appropriate lands, as private property was reserved for <foreign
+                     xml:lang="es">haciendas</foreign>. These three systems coexisted in the 1570s
+                  despite the enactment of the so-called New Laws in 1542, which attempted to
+                  protect the rights of the indigenous populations and prevent the dispossession of
+                  their lands by abolishing the <foreign xml:lang="es">encomiendas</foreign>.
+                  Throughout the texts of the RGs, therefore, it is common to find claims by
+                  conquistadors’ descendants of their <foreign xml:lang="es">encomienda</foreign>
+                  rights, and others defending the benefits of <foreign xml:lang="es"
+                     >repartimientos</foreign>. A comprehensive study of the claims and contentions
+                  found in the RG corpus would improve our understanding of the period.</p>
+            </div>
+            <div>
+               <head>4.2 The local government organization of New Spain toward the third quarter of
+                  the sixteenth century</head>
+               <p>A second application of these methodologies has to do with disambiguating local
+                  structures of governance in New Spain. The early colonial period was a time when
+                  the functions and spheres of influence of the four branches of colonial government
+                  were not well defined, and consequently the spatial boundaries of the judicial,
+                  administrative, military and ecclesiastical jurisdictions overlapped (Figure 10).
+                  This was especially true at the municipal level. Consequently, the corpus contains
+                  terms associated with several kinds of jurisdictions whose meanings were not
+                  consistent throughout the vast territory of New Spain (e.g. <hi rend="italic"
+                     >partidos de clérigos</hi>, <hi rend="italic">distrito de mision</hi>, <hi
+                     rend="italic">custodia</hi>, <hi rend="italic">guardianía</hi>, <hi
+                     rend="italic">vicaría, presidencia, </hi>etc.). The subject has been a matter
+                  of ongoing debate among historians (Gerhard, 1972b: 66), but we believe that
+                  applying collocation analysis for extracting the contextual use of such words
+                  would shed light on how those institutions functioned in parallel to <hi
+                     rend="italic">alcaldías mayores</hi> and <hi rend="italic">corregimientos</hi>
+                  and this would be an important contribution to the knowledge of this period.</p>
+            </div>
+            <div>
+               <head>4.3 Settlement pattern analysis to elucidate the territorial organization of
+                  New Spain </head>
+               <p>A third area for future study has to do with demarcating the boundaries of
+                  territories in New Spain. By reading the RGs, we could attempt to identify the
+                  names and boundaries (<foreign xml:lang="es">linderos</foreign>) of towns
+                  belonging to <foreign xml:lang="es">corregimientos</foreign> (territorial
+                  demarcations for administrative and judicial purposes) mentioned in the corpus.
+                  Circa 1570, there were 200 of such units whose frontiers have been outlined by
+                     <ref target="#gerhard1972a">Gerhard (1972a)</ref>. However, the smaller
+                  demarcations (towns, villages) suffered adjustments in boundaries and
+                  jurisdictions. As Gerhard points out, at the time of the RGs, <quote rend="inline"
+                     >[e]arly civil and ecclesiastical divisions lost importance and were
+                     eliminated; others came into being as a result of conquest, proselytization,
+                     mining activity, and other causes</quote>
+                  <ptr target="#gerhard1972b" loc="66–9"/>. The application of a mathematical model
+                  that analyzes the maximum available territory around each settlement within a
+                  region, like the one proposed by <ref target="#ducke2008">Ducke and Kroefges
+                     (2008)</ref>, could provide preliminary hypotheses on such demarcations. These
+                  would then be tested against the actual historical information extracted from the
+                  corpus through geographic collocation analysis. One of the many ways that such a
+                  study could begin is by extracting references on the routes that local
+                  administrators take for their visits to towns within their jurisdiction, the
+                  distances they traversed, the geographic features and topography of the landscape,
+                  etc. (Figure 10) This, and much other information, is available throughout the
+                  corpus, but more specifically in the answers to questions 7, 8, 11, and 12 (see
+                     <ref target="#appendix01">Appendix 1</ref>).</p>
+            </div>
+            <div>
+               <head>4.4 Analysis of historical diseases</head>
+               <p>A fourth research question has to do with our understanding of the outbreak of
+                  disease (1576-1581) that took the lives of half the population of New Spain during
+                  the early colonial period <ptr target="#acuna-soto2004"/>. This was the second
+                  time that <foreign xml:lang="es">cocoliztli</foreign> (as the epidemic was called)
+                  had decimated the native population, causing the disappearance of whole
+                  communities, shortages in labor-force for the <foreign xml:lang="es"
+                     >encomiendas</foreign> and <foreign xml:lang="es">repartimientos</foreign>, the
+                  displacement of people over different regions, or, on the contrary, the
+                  congregation of survivors (sometimes of different ethnic communities) in new
+                  Indian towns, all of which altered dramatically the traditional settlement pattern
+                     <ptr target="#gerhard1972a" loc="24"/>. How did this phenomenon vary over
+                  different regions? How many people died in each locality? How did this epidemic
+                  compare with others in the past? How did the new settlement change in comparison
+                  with Prehispanic times? These are all questions that GTA could help to answer by
+                  collocating words and phrases related to health (such as diseases, symptoms, and
+                  remedies) and analyzing them with spatial mathematical models of disease
+                  contagion. </p>
+            </div>
+            <div>
+               <head>4.5 The spatial distribution of natural resources (flora, fauna, minerals,
+                  etc.) and exploitation practices at the time of the RGs</head>
+               <p>A fifth application of our methodology has to do with the study of natural
+                  resources. GTA will allow the extraction and analysis of regional historical
+                  information on natural resources such as plants. There are already interesting
+                  archaeological, historical and ethnographic research related to plants and their
+                  use in Mesoamerica, medicinal and otherwise <ptr target="#alboreszarate2015"/>
+                  <ptr target="#chavezmejia2020"/>
+                  <ptr target="#hersch1999"/>. Some further research has been also dedicated to
+                  assessing the importance of the trees and edible plants introduced by Europeans.
+                  With the annotation of the RGs in this project and the development of GTA, it is
+                  now possible not only to extract information regarding native and European plants
+                  introduced in the different regions of New Spain, but also to contribute to
+                  further debates. It is known, for instance, that Mesoamerican cultures had an
+                  extended knowledge of plants for medicinal use and most of the research about this
+                  has been carried out using colonial primary sources. We could now create a map of
+                  all the plants mentioned in the RGs and compare this dataset with archaeological
+                  data and other primary sources that were dedicated to the recording of medicinal
+                  plants, such as the Códice Badiano or the Historia Natural de Nueva España. This
+                  would allow researchers, for instance, to assess the continuation in the use of
+                  specific plants for remedies and consumption in specific regions of New Spain.
+                  Other interesting avenues of possible research with GTA analysis are the
+                  availability of food and animals both native and introduced, the use of natural
+                  resources, the existence of cultural artefacts, the presence of priests and
+                  religious orders in particular regions, as well as types of architecture.</p>
+            </div>
+            <div>
+               <head>4.6 Exchange networks, trading practices and communication routes</head>
+               <p>An additional topic is the study of exchange networks and trading practices, as
+                  well as communication routes, both terrestrial and aquatic, among the populations
+                  described in the RGs. One such study has already been conducted by <ref
+                     target="#favila-vazquez2019">Favila-Vázquez (2019)</ref>, who successfully
+                  reconstructed aquatic communication networks in the Rio Balsas region by
+                  extracting information from the responses available to queries 38 to 47 of the RGs
+                  (Figure 11). These contain crucial data regarding navigation by sea, including
+                  location of ports and coastal landscape. Together with data from question 19
+                  (focused on fluvial networks), the extraction of data from the RGs corpus allowed
+                  Favila-Vázquez to reconstruct a riverine and coastal system of communication that
+                  explains the spatial connectivity of the Valley of Mexico to the Pacific coast. 
+               </p>
+            </div>
+         </div>
+         <div>
+            <head>5. Conclusion</head>
+            <p>Geographical Text Analysis can make an important contribution to the study of massive
+               corpora, like the RGs, by expediting the extraction and analysis of specific
+               information that would be too slow or cumbersome to find in big datasets through
+               traditional reading methods. It also can provide tools to uncover patterns behind the
+               narrative of historical sources and link them to their geographic locations. Thus,
+               GTA creates a way for historians to apply what in computational literary studies is
+               called <q>distant reading.</q><note>The premise of distance reading is that there are
+                  simply too many documents for anyone to read and study simultaneously and within
+                  the limits of the human brain and under the time imposed by contemporary academic
+                  schedules.</note>
+            </p>
+            <p>At the same time, the use of geographic collocations and the concept of <q>keywords
+                  in context</q> permit a more detailed, granular comprehension of the corpus by
+               identifying those parts that deserve a <q>close reading.</q> This flexibility has
+               been demonstrated in previous research projects employing GTA <ptr
+                  target="#donaldson2017"/>
+               <ptr target="#murrieta-flores2017a"/>
+               <ptr target="#taylor2017"/>. Having a multiplicity of <q> place names in context</q>
+               associated with keywords of interest opens an unprecedented range of possibilities in
+               terms of identifying information patterns and hypothesis–testing across large
+               corpora, which in turn allows answering historical questions in a way that would be
+               impossible otherwise. </p>
+            <p>In such a context, the proposal of GTA must not be seen as an attempt to replace the
+               careful micro study of historical sources practiced by modern historians. More
+               exactly, GTA is a methodology for parsing and crosslinking information at a macro
+               scale throughout a whole corpus in a relatively short period of time, so historians
+               can use their efforts and time more efficiently to focus on the more important
+               documents or fragments of texts.</p>
+            <p>One of the main contributions of our project specifically has been adapting named
+               entity recognition, disambiguation, and classification techniques to text collections
+               that either belong to specific historical periods or might pose a further challenge
+               due to their multi–language nature. We have succeeded in developing a new
+               deep-learning model to process the language of the RGs despite the orthographic
+               variance across the corpus and the high frequency of indigenous vocabulary.
+               Nevertheless, there is still much work to be done, especially for the indigenous
+               languages of the Americas <ptr target="#mager2018"/>. </p>
+            <p>Finally, we have already produced a significant number of digital datasets of value,
+               such as the gazetteer, which includes not only sixteenth–century localities but place
+               names from other Mexican historic periods. Hopefully, these will prove valuable
+               resources for humanists engaged in studying the Latin American historical and
+               archaeological past. The methods and tools being developed by the project have the
+               advantage of being generic, and therefore, applicable to other corpora. </p>
+            <p>We are committed to releasing the digital products and software tools through several
+               repositories, including GitHub and our own online platform. Our hope is that scholars
+               from diverse fields will be able to identify the desired information, extract it,
+               cross–link it to other document resources, and most importantly, answer significant
+               research questions: Where do certain phenomena happen more often? Who was responsible
+               for certain events? What was happening in specific places at certain times? Such kind
+               of enquiry will take historical analysis a step further, contributing significantly
+               to advancing research on the colonial period in Latin America, and humanities
+               research more generally. </p>
+         </div>
 
-         <p>1. Introduction</p>
-         <p>DELETE THIS LATER This article introduces the project <title rend="italic">Digging into
-               Early Colonial Mexico: A Large–Scale Computational Analysis of Sixteenth–Century
-               Historical Sources</title>, and describes the progress achieved so far.<note> This
-               project operates thanks to a grant received from the 2017 “Digging into Data”
-               initiative of the Trans–Atlantic Platform for Social Sciences and Humanities Research
-               (T-AP). T-AP is a consortium supported by research institutions in 16 countries,
-               among them the Economic and Social Research Council (ESRC, UK), the Foundation for
-               Science and Technology (FCT, Portugal), and the National Council of Science and
-               Technology (CONACyT, México). This project is conducted by three teams of historians,
-               archaeologists, geographers, linguists and computer scientists from the following
-               institutions: The Digital Humanities Hub and the History Department of Lancaster
-               University, UK; The Instituto de Engenharia de Sistemas e Computadores, Investigação
-               e Desenvolvimento em Lisboa, INESC–ID, University of Lisbon, Portugal; and the
-               Instituto Nacional de Antropología e Historia in México. The website of the project
-               can be accessed at: <ref target="http://www.lancaster.ac.uk/digging-ecm"
-                  >http://www.lancaster.ac.uk/digging-ecm</ref>
-            </note> The project focuses on developing novel methods and tools for mining new
-            knowledge from textual and pictorial historical records to facilitate the study of early
-            Latin American history. It concentrates on one of the most important corpora related to
-            the geography, culture, religion, economy, and history of native and Spanish peoples in
-            Mexico and Guatemala, namely the <title rend="italic">Relaciones Geográficas de la Nueva
-               España</title> (Geographic Reports from New Spain), and specifically those compiled
-            between 1577 and 1585, hereafter referred to as RGs.</p>
-         <p>The proposed methodology — called Geographical Text Analysis (GTA) — enables the
-            automatic markup of words referring both to place names (toponyms) and analytical
-            concepts relevant to historical research, and adds geospatial intelligence to the
-            parsing of texts. This process is useful not only to find the most salient terms in
-            textual corpora or to identify and disambiguate personal and geographical names, but
-            also to facilitate the discovery of unsuspected data patterns and relationships, such as
-            spatial correlation of events, interaction of people, links of persons and themes to
-            places, and many others.</p>
-         <p>One of the main contributions of this project has been the development of an analytical
-            model based on deep-learning and adapted to the specific challenges found in texts like
-            the RGs. In order to achieve named entity recognition, disambiguation and
-            classification, GTA employs methodologies from the fields of Natural Language Processing
-            (NLP), Corpus Linguistics (CL) and Machine Learning (ML). Although NLP, CL and ML
-            techniques are used frequently in textual analysis today, they are most commonly applied
-            to contemporary texts composed in English. Little work has been done to adapt their use
-            to historical corpora written in old language forms like the sixteenth–century
-               Spanish.<note> NLP techniques have often been applied to annotated texts written in
-               modern English, and a few have been tried with historical documents composed in
-               earlier forms of speech in several languages (Borin et al. 2007; Brooke et al. 2015;
-               Byrne 2007; Crane and Jones 2006; Ehrmann et al. 2016; Grover et al. 2008; Sprugnoli
-               et al. 2017; Van Hooland et al. 2015; Won et al. 2018). </note> The RG corpus
-            additionally contains other features that complicate the use of such tools, which makes
-            very difficult the automatic “reading” of the documents. These include the presence of
-            multi-lingual expressions in Nahuatl, Zapotec, Otomi, and many other indigenous
-            languages (Harvey, 1972), as well vocabulary only used in certain regions at the time. </p>
-         <p>A second contribution of our project has been to facilitate, using Geographical
-            Information Systems (GIS), the automatic linking of the results of these processes of
-            textual analysis with locational data. This combination of NLP, CL and ML techniques
-            with spatial analysis methods creates powerful resources to discover unsuspected
-            geographies in the textual reports. Our model will allow scholars of colonial Latin
-            America to learn new information, extract it, cross–link it to other document resources,
-            and, most importantly, study significant historical topics, such as those we discuss in
-            section 3.5 below. </p>
-         <p>Apart from the GTA model itself, we foresee several other products of this project. The
-            first is a digital version of the RGs corpus, annotated in accordance with analytical
-            categories that can be applied to other corpora through an interoperable ontology. The
-            second is a digital gazetteer containing geographic coordinates as well as political,
-            cultural, administrative and physical data, not only of the sixteenth-century sites
-            mentioned in the RGs, but from other relevant sources and historical periods. The third
-            is a set of software tools that link the spatial information contained in the gazetteer
-            with the textual and pictorial contents of the RGs in order to facilitate the discovery
-            and analysis of geographies not immediately apprehended with normal reading. </p>
-         <p>In writing this paper, our goal is to raise awareness about the possibilities of
-            applying computer-assisted methods to the analysis of historical texts. Thus, we
-            describe every step of GTA in the context of our specific study case, hoping that this
-            will encourage more Humanities researchers to adopt this kind of approach.</p>
-         <p>The rest of the article is organized as follows: Section 2 provides an overview of the
-               <hi rend="italic">Relaciones Geográficas</hi> corpus; Section 3 describes our
-            analytic methodology and reports on our progress; Section 4 describes future
-            applications to the study of history; and the final section offers a general
-            conclusion.</p>
-         <p>2. The Sixteenth Century Relaciones Geográficas de la Nueva España</p>
-         <p>The compilation of the <hi rend="italic">Relaciones Geográficas de la Nueva España</hi>
-            was part of a large, long–standing project, sponsored first by Emperor Charles V and
-            then by King Philip II, who sought to collect geographic, economic, historic and
-            cultural information from all the kingdoms and territories under their rule. The
-            initiative emerged not only from the need to control the exploitation of resources and
-            resolve important issues such as land possession, management of labor and the transfer
-            of privileges to colonists, but also to compile scientific knowledge and fulfill
-            intellectual curiosity (Delgado López 2010; De la Garza 1983). This involved both
-            collecting descriptions and making maps (Mundy 1996: 1–27). The whole project included
-            Castile, Aragon, Italy, the Netherlands, Portugal (since its annexation in 1581), and
-            the viceroyalties of Peru and New Spain.</p>
-         <p>For the New World enterprise, the Spanish king, through the Council of Indies,
-            commissioned his leading cosmographers to gather information by means of questionnaires.
-            These were conceived by Juan de Ovando and sent to the Indies in 1569 (37 questions),
-            1570 (200 questions) and 1573 (135 questions). The responses that came back to Madrid,
-            however, were scarce, probably because the burden of collecting data was put on
-            high-level ecclesiastical and government officials who lacked the necessary knowledge or
-            were not willing to answer so many questions. </p>
-         <p>The project was revived by Juan López de Velasco, cosmographer–chronicler of Philip II,
-            who in 1577 devised more feasible enquiries. The first one attempted to gather
-            observations about moon eclipses from various parts of the Indies (Cline 1964). This
-            would allow solving the elusive problem of determining longitude coordinates for the
-            American territories, which in turn would make it possible to establish correctly the
-            position of the Indies with respect to Europe in a universal map (Edwards 1969; Mundy
-            1996: 17–19). A second independent enquiry sought to complete the scarce descriptions
-            received in the previous years, sending only fifty carefully formulated questions to be
-            answered not by high-level authorities, as in previous attempts, but by <hi
-               rend="italic">corregidores </hi>and <hi rend="italic">alcaldes mayores, </hi>the
-            local administrative officials with direct knowledge of the situation in towns, villages
-            and hamlets, who also received printed instructions on how to answer the survey. Figure
-            1 shows the first page (out of three) of the printed<hi rend="italic"> Instrucción y
-               Memoria</hi> sent as a guide to the respondents.</p>
-         <p>The questionnaire included very detailed information about the life in New Spain. One
-            single query might cover topics such as demography, type of settlements, intercultural
-            opinions, and ethnolinguistics.<note> To give a complete picture of the enquiry, we
-               reproduce the questions list in Appendix 1. The questionnaire in Spanish can also be
-               found in De la Garza (1983: 7-12) and Acuña (1982-1988, vol. 1: 73-78), as well as in
-               English publications by Nutall (1926), Cline (1964, 1972c: 234-237), Mundy (1996:
-               227–230), and Bravo-García (2018: 417-422).</note> There are also questions about
-            local history, including the names and settlement of towns, and about agricultural and
-            mineral resources. See Appendix 1 for a complete translation of the questionnaire. </p>
-         <p>Responses to the questionnaire were produced between 1579 and 1585 and are now held in
-            Spain, Scotland, and the United States. In total there are 168 written reports
-            corresponding to an equal number of main <hi rend="italic">cabeceras </hi>(“head-towns”
-            or main districts). These also contain descriptions of 248 subordinate jurisdictions,
-            414 towns and many smaller villages and hamlets (Cline 1964). Together they cover more
-            than half the political subdivisions existing in New Spain circa 1580 (Cline,
-               1972c).<note> The census of these RGs published by Cline (1964, 1972d) and updated by
-               Acuña (1982–1988) enumerates 34 RGs from Antequera; 17 from Michoacán; 15 from
-               Tlaxcala; 54 from Yucatán; 2 from Guatemala; 34 from Mexico and 12 from Nueva Galicia
-               (i.e. Guadalajara), though Cline (1972d) counts only 33 from Mexico. The collection
-               is spread across four repositories: 80 documents are in the Archivo General de Indias
-               in Seville; 46 in the Real Academia de la Historia in Madrid; 41 in the Latin
-               American Collection of the Benson Library, University of Texas; and one in the
-               Glasgow University Library. Two handmade transcriptions of the RGs, made by Joaquín
-               García Icazbalceta, are now in the National Library of Mexico City (Cline, 1964: 359;
-               (Acuña, 1982-1988, vol. 1: 9).</note> Figure 2 reproduces one of the manuscript pages
-            of the Relación de Atlatlauhca (present–day Atlatlauhcán, Morelos).</p>
-         <p>Alongside the texts, the corpus contains 78 maps. Some were painted by indigenous
-            artists following native representations of places and landscape (Figure 3 and Figure
-            4), while others were clearly drawn by creoles or peninsular Spaniards (Figure 5). In
-            the words of Robertson (1972: 243), they represent “…the largest single group of
-            interrelated early colonial pictorial manuscripts which has come down to us.”<note> The
-               latest comprehensive analysis of these maps is by Mundy (1996).</note> Of these maps,
-            23 came from Mexico; 3 from Michoacán; 1 from Nueva Galicia; 21 from Oaxaca; 18 from
-            Tlaxcala; 3 from Yucatán and 2 from Guatemala. There are also accounts of 26 manuscripts
-            and 16 maps lost centuries ago (Cline 1972c: tables 6 and 10; Robertson 1972), as well
-            as an additional map that disappeared more recently (Mundy 1996: 226). </p>
-         <p>Despite the fact that some authors failed to answer several questions, both the texts
-            and the maps offer favorable conditions to test new approaches for the analysis of large
-            historical corpora. The corpus of RGs offers highly structured information — due to the
-            standardized questionnaire — which gives the reports a degree of homogeneity rarely seen
-            in other sixteenth–century collections. The geographic descriptions also cover more than
-            half the territory of New Spain and the level of detail is remarkable not only in terms
-            of orography, landscape, and natural resources, but also the way of life of native
-            peoples and colonists, as well as the interactions between different social groups. Such
-            richness, consistency, and span facilitate comparative research across small, medium,
-            and large areas on topics of social, historical, ethnographic, linguistic, economic, and
-            political interest.</p>
-         <p>A further reason for selecting the RGs is a desire to improve the accessibility and
-            valorization of the corpus as a main source for historical enquiry. Seminal research has
-            been conducted by Cline (1972), Bravo-García (2018), Gerhard (1972), Gruzinski (1991),
-            Moreno Toscano (1968), Mundy (1996) and a few other scholars (Cáceres Lorenzo, 2013;
-            Delgado López, 2010). The publications by Cline (1972) and Gerhard (1972), for example,
-            were ground-breaking works of Mexican historical geography. Moreno Toscano (1968), on
-            the other hand, used the complete textual information of the RGs to perform a matrix
-            analysis oriented to reconstruct the economic geography of New Spain, whilst Mundy
-            (1996) analyzed all the surviving maps to identify continuities and changes in the
-            indigenous cartographic tradition during the colonial period. For his part, Gruzinski
-            (1991: 77-103) has approached the corpus by studying how the contrasting — sometimes
-            conflicting — worldview of conquistadors and native peoples shaped the responses to the
-            questionnaire, pointing out interesting details about the colonization of the
-            imaginary.</p>
-         <p>Single documents of the <hi rend="italic">Relaciones</hi> have also been the focus of
-            historical research (Afanador-Pujol, 2015; Ballesteros 2005; Barlow, 1949; Fernández
-            Christlieb and Garza Merodio, 2006; Morato-Moreno, 2017; Mundy, 2013; Nutall 1926, among
-            others), but in general the textual and cartographic documents have served as ancillary
-            sources in regional studies, rather than as a principal mine of data (Dahlgren, 1954;
-            Brand, 1960; Gibson, 1967). This is due perhaps to the difficulty of cross–linking
-            information among the many documents or to a lack of tools for uncovering non–explicit
-            knowledge hidden in the subtext of the answers to the questionnaire.</p>
-         <p>3. Methodology and current progress </p>
-         <p>As discussed in the introduction, we are developing advanced tools for unveiling new
-            information from the RGs corpus by applying a methodology known as Geographical Text
-            Analysis (GTA). The resulting digital resources and software tools will be released at
-            the end of the project under an open-access license. The methodology was originally
-            produced by some members of this project to reveal new, unsuspected patterns of
-            information by focusing on the geographic components of the historical narrative (Cooper
-            and Gregory 2011; Murrieta et al. 2015; Donaldson et al. 2015; Gregory et al. 2015;
-            Porter et al. 2015; Martins and Murrieta–Flores 2017; Murrieta–Flores and Gregory 2017;
-            Gregory et al. 2018). </p>
-         <p>We are now in the process of refining and extending this methodology with contributions
-            from all members of this project and from researchers engaged in parallel initiatives
-            (e.g., Santos et al. 2017; Santos et al. 2018; Won et al., 2018). In this particular
-            project we followed four phases: obtaining a computer-readable corpus, the creation of a
-            gazetteer, the semantic annotation and geoparsing of the corpus, and data mining and
-            historical analysis. In the following sections, we discuss each stage in detail.</p>
-         <p>3.1 First phase: Obtaining a computer-readable corpus</p>
-         <p>The first phase of the methodology is obtaining computer–readable files from the more
-            comprehensive editions of the RGs. We began with Francisco del Paso y Troncoso’s <hi
-               rend="italic">Papeles de Nueva España</hi>, which contains a significant portion of
-            the corpus. Transcriptions from the original manuscripts were already available in
-            electronic format, but it was necessary to identify and correct significant errors
-            caused by the Optical Character Recognition (OCR) software. This is a common problem
-            with old documents, to which Alpert–Abrams offers an approach in her 2016 article on the
-            corpus known as <hi rend="italic">Primeros Libros</hi>.</p>
-         <p>After completing six volumes of <hi rend="italic">Papeles de Nueva España</hi> (Del Paso
-            y Troncoso 1905), the work continued with the RGs from Yucatán, published in volume 11
-            of <hi rend="italic">Colección de documentos inéditos de las posesiones de España en
-               ultramar</hi> (1898). Additionally, thanks to a generous permission from the National
-            Autonomous University of Mexico (UNAM), we were also able to digitize a more recent
-            version of the 54 RGs from Yucatán transcribed and edited by De la Garza (1983) and to
-            acquire in a digital format 114 RGs published in ten volumes by Acuña (1982–1988). In
-            the end, we obtained two versions of the whole corpus in machine–readable format: the
-            first one includes the notes, references and commentary from the scholars who
-            transcribed and studied the documents, while the second contains only the transcription
-            of the original RGs texts. A third version that includes all the NLP annotations was
-            produced during the third phase of the project.</p>
-         <p>3.2 Second phase: Creation of a gazetteer</p>
-         <p>The second phase starts with a compilation of all the place names that exist in the
-            corpus as well as many others from relevant sources, and then solving any linguistic and
-            locational uncertainties that prevent their unequivocal identification.</p>
-         <p>3.2.1 Compilation of place names<hi rend="italic">. </hi>This is done by extracting
-            toponym indices from published editions of the RGs, as well as from comprehensive
-            studies on the historic geography of New Spain (Gerhard 1972a, 1972b, 1991; Cline 1972a,
-            1972b, 1972c; Moreno Toscano, 1968; Tanck de Estrada et al., 2005). Through this
-            procedure, the UK and Mexican teams were able to compile a list of 14,654 place names
-            (Liceras-Garrido et al. 2019).</p>
-         <p>3.2.2 Linguistic disambiguation<hi rend="italic">.</hi> The resulting list was then
-            subjected to a linguistic disambiguation process, during which the most difficult
-            challenges were dealing with place names found in different native languages, as well as
-            resolving name variations and spelling inconsistencies. Important names of cities, like
-            Tlaxcala, have remained in original form since the sixteenth century, but many others
-            have changed significantly over time for a variety of reasons, including: historic
-               causes;<note> For instance, Antequera is now Oaxaca.</note> renaming due to changes
-            in the boundaries of original settlements;<note> In one example, sixteenth–century
-               Cempoala (Hidalgo) moved from a hill to a valley to guarantee access to water, which
-               caused severe alterations on its limits.</note> and addition of words such as the
-            name of a patron saint to an indigenous toponym.<note> Tetlapayac, for instance, is the
-               modern Santiago Teltlapayac.</note> Another problem relates to spelling variations of
-            the same toponym,<note> Quauhyocan is also written as Quacyocan, for example.</note> the
-            application of Castilian transliterations to the names of ancient settlements,<note> For
-               example, ancient Quahnahuac is modern Cuernavaca.</note> or dealing with
-               homonymies.<note> Tetela, for instance, refers both to a town in modern Morelos and
-               to a settlement in Puebla, and towns called Atlatlauhca can be found both in Morelos
-               — origin of an RG — and Oaxaca.</note>
-         </p>
-         <p>State–of–the–art methods to tackle these challenges are discussed in Nick and Tent
-            (2017) and Santos et al. (2015, 2017, 2018). Additionally, there is a valuable body of
-            research on the subject of Mexican toponomy, so we have benefited from publications by
-            Anaya Monroy (1960), Guzmán Betancourt (1987, 1989, 1998), Lefevre and Paredes Martínez
-            (2017), León Portilla (2002), Márquez and Ramos Navarro Wold (1998), Mundy (2014),
-            Muntzel and Villegas Molina (2010), etc. This adds to the exhaustive research done by
-            the editors of the RGs, especially Acuña (1982–1988), De la Garza (1983) and Del Paso y
-            Troncoso (1905). </p>
-         <p>3.3.3. Geographic disambiguation. Another challenge at this stage is finding latitude
-            and longitude coordinates of towns and villages. The solution involves, first, detecting
-            and merging duplicate entries by comparing the place name list with records found in
-            online geographical databases, such as the catalogue of indigenous localities, produced
-            by Instituto Nacional de Estadística Geografía a Informática (INEGI) and Comisión
-            Nacional para el Conocimiento y Uso de la Biodiversidad (CONABIO);<note>
-               <ref target="http://www.cdi.gob.mx/localidades2010-gobmx/"
-                  >http://www.cdi.gob.mx/localidades2010-gobmx/</ref>
-            </note> the geographic dataset created for the cartography of Mexico by INEGI; the
-            general registrar of archaeological sites compiled by Instituto Nacional de Antropología
-            e Historia (INAH);<note>
-               <ref target="http://registropublico.inah.gob.mx/index.php"
-                  >http://registropublico.inah.gob.mx/index.php</ref>
-            </note> the GeoNames geographical database;<note>
-               <ref target="http://www.geonames.org/">http://www.geonames.org/</ref>
-            </note> and the Getty Thesaurus of Geographical Names.<note>
-               <ref target="http://www.getty.edu/research/tools/vocabularies/tgn/index.html"
-                  >http://www.getty.edu/research/tools/vocabularies/tgn/index.html</ref>
-            </note> Through both linguistic and locational disambiguation, we were able to obtain
-            12,748 correct names. Of these, we have so far been able to pin-point 3919 physical
-            locations (Figure 6), which are the entries used for the gazetteer.</p>
-         <p>The structure of the gazetteer complies with Linked Open Data standards to guarantee its
-            interoperability between different systems and repositories and facilitate its
-            application into other projects. We have relied on the experience of massive reference
-            resources like the Getty Thesaurus of Geographical Names<note>
-               http://www.getty.edu/research/tools/vocabularies/tgn/</note> and especially the
-            Alexandria Digital Library Gazetteer (ADL), from which we adopted the relational
-            database schema (Hill, 2000; Hill et al., 1999). For importing and exporting data, we
-            adopted the file format JSON, created by the World Historical Gazetteer<note>
-               http://whgazetteer.org</note>, which is now an accepted standard in many textual
-            annotation and analysis platforms, such as Recogito. The database of our gazetteer will
-            be made available through the World Historical Gazetteer, the Pelagios Network, and
-            through Recogito. In addition, the gazetteer will be also available in a standalone
-            downloadable GIS format from the project’s website and repositories.</p>
-         <p>3.4 Third phase: Semantic annotation of the corpus</p>
-         <p>The third stage comprises four tasks: defining an annotation schema by selecting the
-            most relevant analytic categories for the intended historical analysis; annotating
-            manually, and in accordance with the previously defined annotation schema, two different
-            samples of documents: one for training the NLP deep-learning model and another one to
-            validate it; tuning the deep-learning model to automatically perform name entity
-            recognition, disambiguation and classification, in order to obtain a fully annotated
-            corpus; and assessing the performance of the model in accordance with the gold-standard
-            validated by experts. </p>
-         <p>3.4.1 Defining the annotation schema (ontology). The selection of the ontology
-            categories can be done by consensus among expert linguists and historians, or with the
-            help of automatic computer methods that extract a “seed ontology” directly from the
-            corpus (Eynard et al., 2012). The first method is more time-consuming, but it is simpler
-            and on many occasions yields better results, so this was the approach we followed.</p>
-         <p>The RGs ontology contains 21 entity classes and many more sub-categories relevant to
-            social, political, territorial and economic terms appearing recurrently through the RGs
-            (Table 2). For example, the general entity class “architecture” includes sub-categories
-            such as “domestic” and religious”, which offers the possibility to distinguish between
-            house and convent buildings described in texts. Another class “cosmogony” includes
-            sub-categories such as “ritual”, “festivity”, “deity”, etc. Each entity type follows the
-            definitions and linked-data standards of DBpedia to ensure the interoperability of our
-            dataset.</p>
-         <p>3.4.2 Manual annotation of text samples for training the NLP model. Using such entity
-            classes we carried out a manual annotation of two samples of 18 out of 168 documents
-            (10% of the corpus) from the RGs using the online tagging tools developed by Tagtog, a
-            commercial company that generously provided a free license to our project.<note>
-               www.tagtog.net</note> In order to ensure the quality of the annotated samples, five
-            experts tagged the same documents independently. We then obtain statistics on the level
-            of consensus among the experts by using the inter-annotator agreement tool from Tagtog.
-            Figure 7 illustrates an annotated document.</p>
-         <p>3.4.3 Development of the NLP deep-learning model. Once the training and gold-standard
-            sample data are available, the actual development of the NLP model can begin. Our team
-            in Portugal, led by Bruno Martins, combined two state-of-the-art approaches of
-            deep-learning: neural networks and word embedding.</p>
-         <p>3.4.3.1 Neural networks. A neural network is a computational model, loosely inspired on
-            the neural structure of the brain, that is able to "learn by example" how to perform
-            repetitive complex tasks. In the NLP and CL fields, it is applied, among other things,
-            to perform word classification, or the assigning of a label to each word in an input
-            text, indicating whether it belongs to a certain semantic category (e.g. toponym,
-            person, animal, plant, institution, cultural concept), or to a “part-of-speech”
-            syntactic category (i.e. noun, pronoun, adjective, determiner, verb, adverb,
-            preposition, conjunction, and interjection).</p>
-         <p>Modern NLP software libraries leverage such statistical models (Goldberg, 2017), making
-            probabilistic decisions on the best annotations for previously unseen texts. One of the
-            best is SpaCy. To run a deep-learning model in SpaCy we need to conduct a training phase
-            during which the software is fed with the training data sample (in our case 10% of the
-            corpus). This annotated training sample contains many known examples of the kind of
-            words expected in the unannotated text (the remaining 90% of the corpus). </p>
-         <p>Because we know the correct answers — thanks to the gold-standard data sample — , we can
-            give the model feedback on its predictions in the form of an error gradient or the loss
-            function that calculates the difference between the training example and the expected
-            output. If the accuracy of the annotations is not sufficient, then an iterative refining
-            process can be carried out until accomplishing satisfactory results.</p>
-         <p>Then, to link the gazetteer with the corpus texts, it is necessary to assign correct
-            longitude and latitude coordinates to each toponym recognized by the neural network. The
-            Mordecai geoparsing library (Halterman, 2017) is a good tool for that job. It takes as
-            input the place names recognized by SpaCy, and uses an index over the contents of the
-            gazetteer to find the potential coordinates of extracted place names. In other words,
-            the names recognized in the text are matched against similar names in the gazetteer.
-            Through this process the gazetteer and the corpus are finally linked and ready for the
-            implementation of query tools.</p>
-         <p>3.4.3.2 Word-embedding. Complementing the above procedures, the word–embedding algorithm
-            makes it easier for the neural network to distinguish all of the different semantic
-            contexts in which a word might be used. This process follows the idea that "a word is
-            characterized by the company it keeps" (Firth, 1957). For example, in the phrase “[t]he
-            order of San Francisco was established in these lands in 1524”, the term <hi
-               rend="italic">San Francisco</hi> refers to an institution, but in “[t]he mendicant
-            friars helped the poor following the teachings of San Francisco”, the same term refers
-            to a person. In another context, it could mean a geographic location, as for instance in
-            the sentence “San Francisco Tlalcilalcalpan is inhabited at the present by 18,721
-            people.”</p>
-         <p>We specifically pre-trained a word–embedding algorithm in an unsupervised way to
-            statistically predict the meaning of words in the context of real natural language
-            utterances. Thus, we needed training data sufficiently big and varied to tackle the
-            specific challenges of the RGs. One is that the spelling in the corpus varies
-            considerably among the many authors. This is sometimes, in part, because words are
-            spelled in accordance with their Latin origin, rather than their actual pronunciation.
-            Another is that the corpus borrows heavily on vocabulary from indigenous languages,
-            especially place names, and terms to identify flora, fauna, cultural concepts, etc.</p>
-         <p>Given the fact that the structure of modern Spanish still resembles to a high degree the
-            language recorded in the RGs, we decided to combine modern and historical data sources
-            to train our model. Contemporary data came from several Spanish corpora such as ANCora
-            (Taulé et al., 2008), IMPACT-es (Sánchez-Martínez et al., 2013), or the <hi
-               rend="italic">Corpus del Español,</hi>
-            <note>
-               <ref target="https://www.corpusdelespanol.org">https://www.corpusdelespanol.org</ref>
-            </note> while numerous examples of sixteenth–century Spanish texts from different
-            archives and ten dictionaries of indigenous languages (García Cubas, 1888-1991;
-            Peñafiel, 1897; Robelo, 1897, 1900, 1902, 1902b; 1904; 1905; Starr, 1920) provided
-            resources to deal with the language complexities particular to New Spain.</p>
-         <p>By thus leveraging modern and historical data in a combined training dataset, we can
-            simultaneously benefit from having large amounts of contextual information from which
-            the model can learn more easily, together with some data representing the specificities
-            of historical Spanish. Furthermore, to avoid problems with out-of-vocabulary words, such
-            as those brought forward by the inconsistent spelling or cultural expressions, we used a
-            word–embedding method that also creates representations for sub-words, and which is able
-            to reconstruct entire word representations from such sub-words (Bojanowski et al.,
-            2017).</p>
-         <p>4. Future Work: Data mining and historical analysis</p>
-         <p>At this stage, several data mining and analysis procedures can be carried out. The first
-            is an adaptation of collocation analysis — a technique from Corpus Linguistics (CL) —
-            which allows for extracting the most statistically significant phrases that are found
-            next to a term or keyword of interest (the “collocates,” in CL jargon). Our variant of
-            the technique is <hi rend="italic">geographic collocation analysis</hi>, originally
-            developed by the research group at Lancaster (Gregory et al., 2015, Murrieta-Flores et
-            al., 2015, 2017a, 2017b). This facilitates the recognition and retrieval, across the
-            corpus, of all place names that collocate or are close to a keyword of interest
-            according to a predefined proximity threshold, usually defined in terms of the maximum
-            number of words between the search–term and the collocate. In this manner, if a
-            researcher is interested in investigating economic aspects related to agriculture, they
-            could retrieve, for instance, all phrases in the context of words like <hi rend="italic"
-               >maíz</hi>, <hi rend="italic">siembra</hi>, <hi rend="italic">subsistencia</hi>, <hi
-               rend="italic">mantenimientos, comida</hi> (i.e. maize, sowing, subsistence,
-            sustenance, food), which would appear linked to a map showing the geographic locations
-            where such terms appear. </p>
-         <p>Furthermore, by putting words in context through collocation, a historian could extract
-            in a few seconds — as opposed to the weeks that it would take to access the information
-            without GTA tools — interesting details about the first colonists in New Spain. Such a
-            query, for instance, might involve running a collocate search of the word “conquistador”
-            (Figure 8). Another type of search can be conducted using general categories, such as
-            employing the term <hi rend="italic">food</hi> to retrieve words like <hi rend="italic"
-               >beans, fish, </hi>or <hi rend="italic">bread</hi> (Figure 9).</p>
-         <p>In the following subsections, we highlight several topics of historic analysis that we
-            plan to examine through this research.</p>
-         <p>4.1 Historical phenomena changing the face of New Spain at the end of the sixteenth
-            century</p>
-         <p>One area of application for the techniques detailed in this study is understanding the
-            coexistence of competing systems of land ownership and labor in New Spain during the
-            colonial period. In New Spain during the short time of compilation of the RGs, there was
-            a strong debate about the system of <hi rend="italic">encomiendas </hi>and the desire to
-            replace it with the so-called <hi rend="italic">repartimientos</hi>. The <hi
-               rend="italic">encomienda</hi> was the right to exploit the labor of indigenous
-            populations, granted by the Spanish Crown to conquistadors, who at the beginning of the
-            colonization held this privilege in perpetuity and could, therefore, pass it to their
-            descendants with little intervention from the royal government in Madrid. In contrast,
-            the <hi rend="italic">repartimiento</hi> only allocated the labor force of native
-            workers for a fixed period of time in exchange for a meager remuneration. The latter
-            gave the royal government more control over its subjects and resources. Neither the
-            holders of <hi rend="italic">encomiendas </hi>nor <hi rend="italic">repartimientos</hi>
-            were allowed to appropriate lands, as private property was reserved for <hi
-               rend="italic">haciendas</hi>. These three systems coexisted in the 1570s despite the
-            enactment of the so-called New Laws in 1542, which attempted to protect the rights of
-            the indigenous populations and prevent the dispossession of their lands by abolishing
-            the <hi rend="italic">encomiendas</hi>. Throughout the texts of the RGs, therefore, it
-            is common to find claims by conquistadors’ descendants of their <hi rend="italic"
-               >encomienda</hi> rights, and others defending the benefits of <hi rend="italic"
-               >repartimientos</hi>. A comprehensive study of the claims and contentions found in
-            the RG corpus would improve our understanding of the period.</p>
-         <p>4.2 The local government organization of New Spain toward the third quarter of the
-            sixteenth century</p>
-         <p>A second application of these methodologies has to do with disambiguating local
-            structures of governance in New Spain. The early colonial period was a time when the
-            functions and spheres of influence of the four branches of colonial government were not
-            well defined, and consequently the spatial boundaries of the judicial, administrative,
-            military and ecclesiastical jurisdictions overlapped (Figure 10). This was especially
-            true at the municipal level. Consequently, the corpus contains terms associated with
-            several kinds of jurisdictions whose meanings were not consistent throughout the vast
-            territory of New Spain (e.g. <hi rend="italic">partidos de clérigos</hi>, <hi
-               rend="italic">distrito de mision</hi>, <hi rend="italic">custodia</hi>, <hi
-               rend="italic">guardianía</hi>, <hi rend="italic">vicaría, presidencia, </hi>etc.).
-            The subject has been a matter of ongoing debate among historians (Gerhard, 1972b: 66),
-            but we believe that applying collocation analysis for extracting the contextual use of
-            such words would shed light on how those institutions functioned in parallel to <hi
-               rend="italic">alcaldías mayores</hi> and <hi rend="italic">corregimientos</hi> and
-            this would be an important contribution to the knowledge of this period.</p>
-         <p>4.3 Settlement pattern analysis to elucidate the territorial organization of New Spain </p>
-         <p>A third area for future study has to do with demarcating the boundaries of territories
-            in New Spain. By reading the RGs, we could attempt to identify the names and boundaries
-               (<hi rend="italic">linderos</hi>) of towns belonging to <hi rend="italic"
-               >corregimientos</hi> (territorial demarcations for administrative and judicial
-            purposes) mentioned in the corpus. Circa 1570, there were 200 of such units whose
-            frontiers have been outlined by Gerhard (1972a). However, the smaller demarcations
-            (towns, villages) suffered adjustments in boundaries and jurisdictions. As Gerhard
-            points out, at the time of the RGs, “[e]arly civil and ecclesiastical divisions lost
-            importance and were eliminated; others came into being as a result of conquest,
-            proselytization, mining activity, and other causes” (Gerhard, 1972b: 66-69). The
-            application of a mathematical model that analyzes the maximum available territory around
-            each settlement within a region, like the one proposed by Ducke and Kroefges (2008),
-            could provide preliminary hypotheses on such demarcations. These would then be tested
-            against the actual historical information extracted from the corpus through geographic
-            collocation analysis. One of the many ways that such a study could begin is by
-            extracting references on the routes that local administrators take for their visits to
-            towns within their jurisdiction, the distances they traversed, the geographic features
-            and topography of the landscape, etc. (Figure 10) This, and much other information, is
-            available throughout the corpus, but more specifically in the answers to questions 7, 8,
-            11, and 12 (see Appendix 1).</p>
-         <p>4.4 Analysis of historical diseases</p>
-         <p>A fourth research question has to do with our understanding of the outbreak of disease
-            (1576-1581) that took the lives of half the population of New Spain during the early
-            colonial period (Acuña-Soto et al., 2004). This was the second time that <hi
-               rend="italic">cocoliztli</hi> (as the epidemic was called) had decimated the native
-            population, causing the disappearance of whole communities, shortages in labor-force for
-            the <hi rend="italic">encomiendas</hi> and <hi rend="italic">repartimientos</hi>, the
-            displacement of people over different regions, or, on the contrary, the congregation of
-            survivors (sometimes of different ethnic communities) in new Indian towns, all of which
-            altered dramatically the traditional settlement pattern (Gerhard, 1972a: 24). How did
-            this phenomenon vary over different regions? How many people died in each locality? How
-            did this epidemic compare with others in the past? How did the new settlement change in
-            comparison with Prehispanic times? These are all questions that GTA could help to answer
-            by collocating words and phrases related to health (such as diseases, symptoms, and
-            remedies) and analyzing them with spatial mathematical models of disease contagion. </p>
-         <p>4.5 The spatial distribution of natural resources (flora, fauna, minerals, etc.) and
-            exploitation practices at the time of the RGs</p>
-         <p>A fifth application of our methodology has to do with the study of natural resources.
-            GTA will allow the extraction and analysis of regional historical information on natural
-            resources such as plants. There are already interesting archaeological, historical and
-            ethnographic research related to plants and their use in Mesoamerica, medicinal and
-            otherwise (Álbores Zárate, 2015; Chávez Mejía, 2020; Hersch, 1999). Some further
-            research has been also dedicated to assessing the importance of the trees and edible
-            plants introduced by Europeans. With the annotation of the RGs in this project and the
-            development of GTA, it is now possible not only to extract information regarding native
-            and European plants introduced in the different regions of New Spain, but also to
-            contribute to further debates. It is known, for instance, that Mesoamerican cultures had
-            an extended knowledge of plants for medicinal use and most of the research about this
-            has been carried out using colonial primary sources. We could now create a map of all
-            the plants mentioned in the RGs and compare this dataset with archaeological data and
-            other primary sources that were dedicated to the recording of medicinal plants, such as
-            the Códice Badiano or the Historia Natural de Nueva España. This would allow
-            researchers, for instance, to assess the continuation in the use of specific plants for
-            remedies and consumption in specific regions of New Spain. Other interesting avenues of
-            possible research with GTA analysis are the availability of food and animals both native
-            and introduced, the use of natural resources, the existence of cultural artefacts, the
-            presence of priests and religious orders in particular regions, as well as types of
-            architecture.</p>
-         <p>4.6 Exchange networks, trading practices and communication routes</p>
-         <p>An additional topic is the study of exchange networks and trading practices, as well as
-            communication routes, both terrestrial and aquatic, among the populations described in
-            the RGs. One such study has already been conducted by Favila-Vázquez (2019), who
-            successfully reconstructed aquatic communication networks in the Rio Balsas region by
-            extracting information from the responses available to queries 38 to 47 of the RGs
-            (Figure 11). These contain crucial data regarding navigation by sea, including location
-            of ports and coastal landscape. Together with data from question 19 (focused on fluvial
-            networks), the extraction of data from the RGs corpus allowed Favila-Vázquez to
-            reconstruct a riverine and coastal system of communication that explains the spatial
-            connectivity of the Valley of Mexico to the Pacific coast.  </p>
-         <p>5. Conclusion</p>
-         <p>Geographical Text Analysis can make an important contribution to the study of massive
-            corpora, like the RGs<hi rend="italic">,</hi> by expediting the extraction and analysis
-            of specific information that would be too slow or cumbersome to find in big datasets
-            through traditional reading methods. It also can provide tools to uncover patterns
-            behind the narrative of historical sources and link them to their geographic locations.
-            Thus, GTA creates a way for historians to apply what in computational literary studies
-            is called “distant reading.”<note> The premise of distance reading is that there are
-               simply too many documents for anyone to read and study simultaneously and within the
-               limits of the human brain and under the time imposed by contemporary academic
-               schedules.</note>
-         </p>
-         <p>At the same time, the use of geographic collocations and the concept of “keywords in
-            context” permit a more detailed, granular comprehension of the corpus by identifying
-            those parts that deserve a “close reading.” This flexibility has been demonstrated in
-            previous research projects employing GTA (Donaldson et al., 2017; Murrieta–Flores et
-            al., 2017; Taylor et al., 2017). Having a multiplicity of “place names in context”
-            associated with keywords of interest opens an unprecedented range of possibilities in
-            terms of identifying information patterns and hypothesis–testing across large corpora,
-            which in turn allows answering historical questions in a way that would be impossible
-            otherwise. </p>
-         <p>In such a context, the proposal of GTA must not be seen as an attempt to replace the
-            careful micro study of historical sources practiced by modern historians. More exactly,
-            GTA is a methodology for parsing and crosslinking information at a macro scale
-            throughout a whole corpus in a relatively short period of time, so historians can use
-            their efforts and time more efficiently to focus on the more important documents or
-            fragments of texts.</p>
-         <p>One of the main contributions of our project specifically has been adapting named entity
-            recognition, disambiguation, and classification techniques to text collections that
-            either belong to specific historical periods or might pose a further challenge due to
-            their multi–language nature. We have succeeded in developing a new deep-learning model
-            to process the language of the RGs despite the orthographic variance across the corpus
-            and the high frequency of indigenous vocabulary. Nevertheless, there is still much work
-            to be done, especially for the indigenous languages of the Americas (Mager et al. 2018). </p>
-         <p>Finally, we have already produced a significant number of digital datasets of value,
-            such as the gazetteer, which includes not only sixteenth–century localities but place
-            names from other Mexican historic periods. Hopefully, these will prove valuable
-            resources for humanists engaged in studying the Latin American historical and
-            archaeological past. The methods and tools being developed by the project have the
-            advantage of being generic, and therefore, applicable to other corpora. </p>
-         <p>We are committed to releasing the digital products and software tools through several
-            repositories, including GitHub and our own online platform. Our hope is that scholars
-            from diverse fields will be able to identify the desired information, extract it,
-            cross–link it to other document resources, and most importantly, answer significant
-            research questions: Where do certain phenomena happen more often? Who was responsible
-            for certain events? What was happening in specific places at certain times? Such kind of
-            enquiry will take historical analysis a step further, contributing significantly to
-            advancing research on the colonial period in Latin America, and humanities research more
-            generally. </p>
-         <p>Appendix 1. The Questionnaire of the Relaciones Geográficas<note> Reproduced from Mundy,
-               Barbara. 1996. The mapping of New Spain. Indigenous cartography and the maps of the
-               Relaciones Geográficas, Appendix B, pp. 227-230. Chicago: The University of Chicago
-               Press.</note>
-         </p>
-         <p>MEMORANDUM OF THE THINGS THAT ARE TO BE ANSWERED, AND OF THAT WHICH SHALL BE TAKEN INTO
-            ACCOUNT.</p>
-         <p>l. Firstly: For towns of Spaniards, state the name of the district or province in which
-            it lies. What does this name mean in the native language, and why is it so called?</p>
-         <p>2. Who was the discoverer and conqueror of this province? By whose order was it
-            discovered? In what year was it discovered and conquered, as far as is readily
-            known?</p>
-         <p>3. What is the general climate and character of the province or district? Is it very
-            cold or hot, humid or dry? Does it have much or little rain, and when, approximately,
-            does it fall? How violently and from where does the wind blow, and at what times of the
-            year?</p>
-         <p>4. Is the terrain flat or rugged, clear or wooded, with many or few rivers or springs,
-            abundant in or lacking water? Is it fertile or without pasture, abundant or lacking in
-            fruits and sustenance?</p>
-         <p>5. Are there many or few Indians? Were there more or fewer at other times, and what are
-            the known causes of this? Are they presently settled in planned and permanent towns?
-            Describe the degree and quality of their intelligence, inclinations, and way of life.
-            Are there different languages in the province or a general language that all speak? </p>
-         <p>6. What is the latitude, or the altitude of the Pole Star, at each Spanish town, if it
-            has been taken and is known, or if anyone knows how to observe it? Or on which days of
-            the year does the sun not cast a shadow at midday?</p>
-         <p>7. What are the league distances and the direction of each Spanish city or town in the
-            district to the city of its <hi rend="italic">Audiencia, </hi>or to the town where the
-            governor to whom it is subject</p>
-         <p>resides? </p>
-         <p>8. Likewise, what are the league distances and the direction of each Spanish city or
-            town to adjacent ones? Are these leagues long or short, through flat or hilly land, over
-            straight or winding roads, easy or difficult to travel? </p>
-         <p>9. What are the present and former names and surnames of each city or town? Why are they
-            so called, if known? Who gave each its name, who was its founder, by whose order was it
-            settled? What year was it founded? How many residents did the settlement first have, and
-            how many does it have now? 10. Describe the sites upon which each town is established.
-            Is each upon a height, or low-lying, or on a plain? Make a map of the layout of the
-            town, its streets, plazas and other features, noting the monasteries, as well as can be
-            sketched easily on paper. On it show which part of the town faces south or north.</p>
-         <p>11. For native towns, state only how far they are from the town in whose corregimiento
-            or jurisdiction they are, and how far they lie from their cabecera de doctrina. </p>
-         <p>12. In addition, state how far the native towns lie from surrounding native or Spanish
-            towns. Declare for all their direction from these other towns. Are the leagues long or
-            short, the roads through level or hilly land, straight or winding?</p>
-         <p>13. What does the name of this [native] town mean in the indigenous language? Why is it
-            called this, if known? What is the name of the language spoken by the natives of this
-            town?</p>
-         <p>14. Who were their rulers in heathen times? What rights did their former lords have over
-            them? What did they pay in tribute? What forms of worship, rites, and good or evil
-            customs did they practice? </p>
-         <p>15. How were they governed? With whom did they wage war? How did they battle? What was
-            their battle dress and clothing like, both formerly and now? What was their former and
-            is their present means of subsistence? Were they more or less healthy than now and what
-            are reasons for this that you may know?</p>
-         <p>16. For all towns, both Spanish and native, describe the sites where they are
-            established. Are they in the mountains, in valleys, or on open flat land? Give the names
-            of the mountains, valleys, and districts, and for each, tell what the name means in the
-            indigenous language. </p>
-         <p>17. Is the land or site healthy or unhealthy? If unhealthy, why (if it is known)? What
-            illnesses commonly occur, and what cures are commonly used for them? </p>
-         <p>18. How far or near, and in what direction does each town lie from a nearby prominent
-            mountain or range? Supply its name.</p>
-         <p>19. What major river or rivers flow nearby? How distant and in what direction do they
-            lie? How great is their flow? Is there anything notable known about their sources,
-            water, orchards and other growth along their banks? Are there or could there be
-            irrigated lands of value?</p>
-         <p>20. What are the significant lakes, lagoons, or springs within the town boundaries? Note
-            anything remarkable about them.</p>
-         <p>21. What are the volcanoes, caves, and all other notable and remarkable aspects of
-            nature in the district worthy of being known?</p>
-         <p>22. Which wild trees and their fruits are commonly found in the district? What are the
-            uses of them and their woods, and to what good are they or could they be put?</p>
-         <p>23. Which cultivated trees and fruit orchards are in the region? Which were brought from
-            Spain and elsewhere? Do these grow well?</p>
-         <p>24. What are the grains and seed plants, and other garden plants and vegetables that are
-            or have been used as sustenance for the natives?</p>
-         <p>25. Which were brought from Spain? Does the land yield wheat, barley, wine, or olive
-            oil, and in what quantities? Is there silk or cochineal in the region, and in what
-            quantities?</p>
-         <p>26. What are the herbs or aromatic plants that the natives use for healing? What are
-            their medicinal or poisonous properties? </p>
-         <p>27. What animals and birds, both wild and domestic, are in the region? Which ones were
-            brought from Spain, and how well have they bred and multiplied?</p>
-         <p>28. In the region or within the town lands, are there any gold or silver mines or
-            sources of other metals, or black or colored pigments? </p>
-         <p>29. Are there any quarries of precious stone, jasper, marble, or other notable ones?
-            What value might they have?</p>
-         <p>30. Are there sources of salt in the town or nearby? If [residents] lack salt and other
-            items necessary for their sustenance or clothing, where do they procure all these
-            things? </p>
-         <p>31. How are the houses built and what is their form? What building materials are found
-            in the town, or brought from elsewhere?</p>
-         <p>32. What are the towns' fortifications? Are there barracks, or any fortified or
-            impregnable places within the boundaries of the district?</p>
-         <p>33. Through what dealings, trade, and profits do both Spaniards and Indians live and
-            sustain themselves? What are the items involved and with what do they pay their tribute? </p>
-         <p>34. In which diocese of the archbishopric, bishopric, or abbey does each town lie? In
-            which district does each lie? How many leagues and in which direction does each town lie
-            from the town of the cathedral and the cabecera of the district? Are the leagues long or
-            short, along straight or winding roads, and through flat or hilly land?</p>
-         <p>35. In each town, what are the cathedral and parish church or churches? What is the
-            number of endowed church offices and allotments for clergymen's salaries in each? Do any
-            have a chapel or significant endowment, and, if so, whose it is and who established
-            it?</p>
-         <p>36. What are the monasteries or convents of each Order? By whom and when were they
-            founded? How many notable things do they contain? And what is the number of
-            religious?</p>
-         <p>37. What are the hospitals, schools, and charitable institutions in the towns? By whom
-            and when were they founded?</p>
-         <p>38. If the towns are on the seacoast, in addition to the above, report in your account
-            the nature of the sea in the vicinity, whether it is calm or stormy, the nature of the
-            storms and other dangers. What times, approximately, are they frequent?</p>
-         <p>39. Is there beach or cliffs along the coast? What are the prominent reefs and other
-            dangers to navigation along it?</p>
-         <p>40. How great are the tides and tidal ranges? On which days and at which hours do they
-            occur? In which season are they greater or lesser?</p>
-         <p>41. What are the notable capes, points, bights, and bays in the district? Note their
-            names and sizes, as well as can be determined.</p>
-         <p>42. What are the ports and landings along the coast? Make a map showing their shape and
-            layout as can be drawn on a sheet of paper, in which form and proportion can be
-            seen.</p>
-         <p>43. What is their size and capacity? Note their approximate width and length in leagues
-            and paces, as well as can be determined. Also note how may ships they will
-            accommodate.</p>
-         <p>44. What is the depth in fathoms of each? Is the bottom clear? Are there any shallows
-            and shoals? Indicate their locations, and whether the port is free of shipworm and other
-            impediments.</p>
-         <p>45. What directions do their entrances and exits face? With which winds must one enter
-            and depart?</p>
-         <p>46. What are their advantages or lack of them in the way of firewood, water, and
-            provisions? What are the favorable or unfavorable considerations for entering and
-            remaining?</p>
-         <p>47. What are the names of the islands along the coast? Why are they so named? Make a
-            map, if possible, of their form and shape, showing their length, width, and lay of the
-            land. Note the soil, pastures, trees, and resources they may have, their birds and
-            animals, and the notable rivers and springs.</p>
-         <p>48. Where are the abandoned Spanish towns located in the region? When were they settled
-            and abandoned? What is known about the reasons for abandonment?</p>
-         <p>49. Describe any other of the notable aspects of nature, and any notable qualities of
-            the soil, air, and sky in any part of the region.</p>
-         <p>50. Having completed the account, the persons who have collaborated on it will sign it.
-            It must be returned without delay, along with these directions, to the person from whom
-            it was received.</p>
-         <p>Acknowledgements</p>
-         <p>We would like to thank the generous grant awarded by the 2017 T–AP initiative of the
-            Trans–Atlantic Platform in Social Sciences and Humanities Research, as well as the
-            support received in each country by the Economic and Social Research Council (ESRC, UK)
-            (ES/R003890/1), the Foundation for Science and Technology (FCT, Portugal), and the
-            Consejo Nacional de Ciencia y Tecnología (project 275015). Likewise, we would like to
-            thank the Red Conacyt de Tecnologías Digitales para la Difusión del Patrimonio Cultural
-            (project 294971), also supported by Conacyt.</p>
+         <div type="appendix" xml:lang="appendix01">
+            <head>The Questionnaire of the Relaciones Geográficas<note>Reproduced from Mundy,
+                  Barbara. 1996. The mapping of New Spain. Indigenous cartography and the maps of
+                  the Relaciones Geográficas, Appendix B, pp. 227-230. Chicago: The University of
+                  Chicago Press.</note>
+            </head>
+            <list type="unordered">
+               <head>Memorandum Of The Things That Are To Be Answered, And Of That Which Shall Be
+                  Taken Into Account.</head>
+               <item>l. Firstly: For towns of Spaniards, state the name of the district or province
+                  in which it lies. What does this name mean in the native language, and why is it
+                  so called?</item>
+               <item>2. Who was the discoverer and conqueror of this province? By whose order was it
+                  discovered? In what year was it discovered and conquered, as far as is readily
+                  known?</item>
+               <item>3. What is the general climate and character of the province or district? Is it
+                  very cold or hot, humid or dry? Does it have much or little rain, and when,
+                  approximately, does it fall? How violently and from where does the wind blow, and
+                  at what times of the year?</item>
+               <item>4. Is the terrain flat or rugged, clear or wooded, with many or few rivers or
+                  springs, abundant in or lacking water? Is it fertile or without pasture, abundant
+                  or lacking in fruits and sustenance?</item>
+               <item>5. Are there many or few Indians? Were there more or fewer at other times, and
+                  what are the known causes of this? Are they presently settled in planned and
+                  permanent towns? Describe the degree and quality of their intelligence,
+                  inclinations, and way of life. Are there different languages in the province or a
+                  general language that all speak? </item>
+               <item>6. What is the latitude, or the altitude of the Pole Star, at each Spanish
+                  town, if it has been taken and is known, or if anyone knows how to observe it? Or
+                  on which days of the year does the sun not cast a shadow at midday?</item>
+               <item>7. What are the league distances and the direction of each Spanish city or town
+                  in the district to the city of its <hi rend="italic">Audiencia, </hi>or to the
+                  town where the governor to whom it is subject</item>
+               <item>resides? </item>
+               <item>8. Likewise, what are the league distances and the direction of each Spanish
+                  city or town to adjacent ones? Are these leagues long or short, through flat or
+                  hilly land, over straight or winding roads, easy or difficult to travel? </item>
+               <item>9. What are the present and former names and surnames of each city or town? Why
+                  are they so called, if known? Who gave each its name, who was its founder, by
+                  whose order was it settled? What year was it founded? How many residents did the
+                  settlement first have, and how many does it have now? 10. Describe the sites upon
+                  which each town is established. Is each upon a height, or low-lying, or on a
+                  plain? Make a map of the layout of the town, its streets, plazas and other
+                  features, noting the monasteries, as well as can be sketched easily on paper. On
+                  it show which part of the town faces south or north.</item>
+               <item>11. For native towns, state only how far they are from the town in whose
+                  corregimiento or jurisdiction they are, and how far they lie from their cabecera
+                  de doctrina. </item>
+               <item>12. In addition, state how far the native towns lie from surrounding native or
+                  Spanish towns. Declare for all their direction from these other towns. Are the
+                  leagues long or short, the roads through level or hilly land, straight or
+                  winding?</item>
+               <item>13. What does the name of this [native] town mean in the indigenous language?
+                  Why is it called this, if known? What is the name of the language spoken by the
+                  natives of this town?</item>
+               <item>14. Who were their rulers in heathen times? What rights did their former lords
+                  have over them? What did they pay in tribute? What forms of worship, rites, and
+                  good or evil customs did they practice? </item>
+               <item>15. How were they governed? With whom did they wage war? How did they battle?
+                  What was their battle dress and clothing like, both formerly and now? What was
+                  their former and is their present means of subsistence? Were they more or less
+                  healthy than now and what are reasons for this that you may know?</item>
+               <item>16. For all towns, both Spanish and native, describe the sites where they are
+                  established. Are they in the mountains, in valleys, or on open flat land? Give the
+                  names of the mountains, valleys, and districts, and for each, tell what the name
+                  means in the indigenous language. </item>
+               <item>17. Is the land or site healthy or unhealthy? If unhealthy, why (if it is
+                  known)? What illnesses commonly occur, and what cures are commonly used for them? </item>
+               <item>18. How far or near, and in what direction does each town lie from a nearby
+                  prominent mountain or range? Supply its name.</item>
+               <item>19. What major river or rivers flow nearby? How distant and in what direction
+                  do they lie? How great is their flow? Is there anything notable known about their
+                  sources, water, orchards and other growth along their banks? Are there or could
+                  there be irrigated lands of value?</item>
+               <item>20. What are the significant lakes, lagoons, or springs within the town
+                  boundaries? Note anything remarkable about them.</item>
+               <item>21. What are the volcanoes, caves, and all other notable and remarkable aspects
+                  of nature in the district worthy of being known?</item>
+               <item>22. Which wild trees and their fruits are commonly found in the district? What
+                  are the uses of them and their woods, and to what good are they or could they be
+                  put?</item>
+               <item>23. Which cultivated trees and fruit orchards are in the region? Which were
+                  brought from Spain and elsewhere? Do these grow well?</item>
+               <item>24. What are the grains and seed plants, and other garden plants and vegetables
+                  that are or have been used as sustenance for the natives?</item>
+               <item>25. Which were brought from Spain? Does the land yield wheat, barley, wine, or
+                  olive oil, and in what quantities? Is there silk or cochineal in the region, and
+                  in what quantities?</item>
+               <item>26. What are the herbs or aromatic plants that the natives use for healing?
+                  What are their medicinal or poisonous properties? </item>
+               <item>27. What animals and birds, both wild and domestic, are in the region? Which
+                  ones were brought from Spain, and how well have they bred and multiplied?</item>
+               <item>28. In the region or within the town lands, are there any gold or silver mines
+                  or sources of other metals, or black or colored pigments? </item>
+               <item>29. Are there any quarries of precious stone, jasper, marble, or other notable
+                  ones? What value might they have?</item>
+               <item>30. Are there sources of salt in the town or nearby? If [residents] lack salt
+                  and other items necessary for their sustenance or clothing, where do they procure
+                  all these things? </item>
+               <item>31. How are the houses built and what is their form? What building materials
+                  are found in the town, or brought from elsewhere?</item>
+               <item>32. What are the towns' fortifications? Are there barracks, or any fortified or
+                  impregnable places within the boundaries of the district?</item>
+               <item>33. Through what dealings, trade, and profits do both Spaniards and Indians
+                  live and sustain themselves? What are the items involved and with what do they pay
+                  their tribute? </item>
+               <item>34. In which diocese of the archbishopric, bishopric, or abbey does each town
+                  lie? In which district does each lie? How many leagues and in which direction does
+                  each town lie from the town of the cathedral and the cabecera of the district? Are
+                  the leagues long or short, along straight or winding roads, and through flat or
+                  hilly land?</item>
+               <item>35. In each town, what are the cathedral and parish church or churches? What is
+                  the number of endowed church offices and allotments for clergymen's salaries in
+                  each? Do any have a chapel or significant endowment, and, if so, whose it is and
+                  who established it?</item>
+               <item>36. What are the monasteries or convents of each Order? By whom and when were
+                  they founded? How many notable things do they contain? And what is the number of
+                  religious?</item>
+               <item>37. What are the hospitals, schools, and charitable institutions in the towns?
+                  By whom and when were they founded?</item>
+               <item>38. If the towns are on the seacoast, in addition to the above, report in your
+                  account the nature of the sea in the vicinity, whether it is calm or stormy, the
+                  nature of the storms and other dangers. What times, approximately, are they
+                  frequent?</item>
+               <item>39. Is there beach or cliffs along the coast? What are the prominent reefs and
+                  other dangers to navigation along it?</item>
+               <item>40. How great are the tides and tidal ranges? On which days and at which hours
+                  do they occur? In which season are they greater or lesser?</item>
+               <item>41. What are the notable capes, points, bights, and bays in the district? Note
+                  their names and sizes, as well as can be determined.</item>
+               <item>42. What are the ports and landings along the coast? Make a map showing their
+                  shape and layout as can be drawn on a sheet of paper, in which form and proportion
+                  can be seen.</item>
+               <item>43. What is their size and capacity? Note their approximate width and length in
+                  leagues and paces, as well as can be determined. Also note how may ships they will
+                  accommodate.</item>
+               <item>44. What is the depth in fathoms of each? Is the bottom clear? Are there any
+                  shallows and shoals? Indicate their locations, and whether the port is free of
+                  shipworm and other impediments.</item>
+               <item>45. What directions do their entrances and exits face? With which winds must
+                  one enter and depart?</item>
+               <item>46. What are their advantages or lack of them in the way of firewood, water,
+                  and provisions? What are the favorable or unfavorable considerations for entering
+                  and remaining?</item>
+               <item>47. What are the names of the islands along the coast? Why are they so named?
+                  Make a map, if possible, of their form and shape, showing their length, width, and
+                  lay of the land. Note the soil, pastures, trees, and resources they may have,
+                  their birds and animals, and the notable rivers and springs.</item>
+               <item>48. Where are the abandoned Spanish towns located in the region? When were they
+                  settled and abandoned? What is known about the reasons for abandonment?</item>
+               <item>49. Describe any other of the notable aspects of nature, and any notable
+                  qualities of the soil, air, and sky in any part of the region.</item>
+               <item>50. Having completed the account, the persons who have collaborated on it will
+                  sign it. It must be returned without delay, along with these directions, to the
+                  person from whom it was received.</item>
+            </list>
+         </div>
+         <div type="acknowledgements">
+            <head>Acknowledgements</head>
+            <p>We would like to thank the generous grant awarded by the 2017 T–AP initiative of the
+               Trans–Atlantic Platform in Social Sciences and Humanities Research, as well as the
+               support received in each country by the Economic and Social Research Council (ESRC,
+               UK) (ES/R003890/1), the Foundation for Science and Technology (FCT, Portugal), and
+               the Consejo Nacional de Ciencia y Tecnología (project 275015). Likewise, we would
+               like to thank the Red Conacyt de Tecnologías Digitales para la Difusión del
+               Patrimonio Cultural (project 294971), also supported by Conacyt.</p>
+         </div>
 
          <p>Figure captions</p>
          <p>Figure 1. First page of the printed <hi rend="italic">Instrucción y Memoria</hi> sent by
@@ -1118,7 +1305,7 @@
                Universidad Nacional Autónoma de México. Facultada de Filosofía y Letras, Instituto
                de Investigaciones Filológicas. Programa de Maestría y Doctorado en Estudios
                Mesoamericanos.</bibl>
-            <bibl xml:id="fernández2006" label="Fernández Christlieb 2006">Fernández Christlieb,
+            <bibl xml:id="fernandez2006" label="Fernández Christlieb 2006">Fernández Christlieb,
                Federico and Gustavo Garza Merodio. 2006. <title rend="quotes">La pintura de la
                   Relación Geográfica de Metztitlán, 1579</title>. <title rend="italic">Secuencia.
                   Revista de historia y ciencias sociales</title> 66: 160-186.</bibl>
@@ -1278,109 +1465,132 @@
                   >Digital Humanities Quarterly</title> 11(1). <ref
                   target="http://www.digitalhumanities.org/dhq/vol/11/1/000283/000283.html"
                   >http://www.digitalhumanities.org/dhq/vol/11/1/000283/000283.html</ref>.</bibl>
-            <bibl xml:id="murrieta-flores2017b" label="Murrieta-Flores and Gregory 2017">Murrieta–Flores, Patricia, and Ian N. Gregory. 2017. <title rend="quotes">Cruzando Fronteras en
-               humanidades digitales: Análisis geográfico de textos de interés histórico y
-               arqueológico con sistemas de información geográfica</title>. In <title rend="italic"
-                  >Arqueología computacional. Nuevos enfoques para la documentación, análisis y
-                  difusión del patrimonio cultural</title>, edited by Diego Jiménez–Badillo, pp.
-               199–212. México: Instituto Nacional de Antropología e Historia.</bibl>
-            <bibl xml:id="nick2017" label="Nick and Tent 2017">Nick, I. M., and Jan Tent. 2017. <title rend="quotes">Guest editorial on indigenous names and toponyms</title>.
+            <bibl xml:id="murrieta-flores2017b" label="Murrieta-Flores and Gregory 2017"
+               >Murrieta–Flores, Patricia, and Ian N. Gregory. 2017. <title rend="quotes">Cruzando
+                  Fronteras en humanidades digitales: Análisis geográfico de textos de interés
+                  histórico y arqueológico con sistemas de información geográfica</title>. In <title
+                  rend="italic">Arqueología computacional. Nuevos enfoques para la documentación,
+                  análisis y difusión del patrimonio cultural</title>, edited by Diego
+               Jiménez–Badillo, pp. 199–212. México: Instituto Nacional de Antropología e
+               Historia.</bibl>
+            <bibl xml:id="nick2017" label="Nick and Tent 2017">Nick, I. M., and Jan Tent. 2017.
+                  <title rend="quotes">Guest editorial on indigenous names and toponyms</title>.
                   <title rend="italic">Names, A Journal of Onomastics</title> 65(4): 190–193.</bibl>
-            <bibl xml:id="nuttall1926" label="Nuttall 1926">Nuttall, Zellia, (Ed.). 1926. <title ref="quotes">Official reports on the towns of Tequizistlan,
-               Tepechpan, Acolman, and San Juan Teotihuacan, sent by Francisco de Castañeda to His
-               Majesty, Philip II, and the Council of the Indies, in 1580</title>. <title rend="italic"
-                  >Papers of the Peabody Museum of Archaeology and Ethnology</title>, 11(2): 45–84.
-               Cambridge, Massachusetts: Harvard University.</bibl>
-            <bibl xml:id="pedrote2019" label="Pedrote Romero and Bravo-García 2019">Pedrote Romero, Antonio and Eva Bravo-García. 2019. <title rend="quotes">La autoría de las Relaciones
-               Geográficas mexicanas: Las voces náhuatl a través de los redactores</title>. <title
-                  rend="italic">Anuario de Estudios Americanos, 76(1): 123-153.</title> Doi: <ref
-                  target="https://doi.org/10.3989/aeamer.2019.1.06"
-               >10.3989/aeamer.2019.1.06</ref>.</bibl>
-            <bibl xml:id="penafiel1897" label="Peñafiel 1987">Peñafiel, Antonio. 1897. <title rend="italic">Nomenclatura geográfica de México,
-                  etimologías de los nombres de lugar correspondientes a los principales idiomas que
-                  se hablan en la República</title>. 3 vols. México: Oficina tipográfica de la
-               Secretaria de Fomento. <ref target="http://archive.org/details/nomenclaturageog00pe"
+            <bibl xml:id="nuttall1926" label="Nuttall 1926">Nuttall, Zellia, (Ed.). 1926. <title
+                  ref="quotes">Official reports on the towns of Tequizistlan, Tepechpan, Acolman,
+                  and San Juan Teotihuacan, sent by Francisco de Castañeda to His Majesty, Philip
+                  II, and the Council of the Indies, in 1580</title>. <title rend="italic">Papers of
+                  the Peabody Museum of Archaeology and Ethnology</title>, 11(2): 45–84. Cambridge,
+               Massachusetts: Harvard University.</bibl>
+            <bibl xml:id="pedrote2019" label="Pedrote Romero and Bravo-García 2019">Pedrote Romero,
+               Antonio and Eva Bravo-García. 2019. <title rend="quotes">La autoría de las Relaciones
+                  Geográficas mexicanas: Las voces náhuatl a través de los redactores</title>.
+                  <title rend="italic">Anuario de Estudios Americanos, 76(1): 123-153.</title>
+                  Doi: <ref target="https://doi.org/10.3989/aeamer.2019.1.06"
+                  >10.3989/aeamer.2019.1.06</ref>.</bibl>
+            <bibl xml:id="penafiel1897" label="Peñafiel 1987">Peñafiel, Antonio. 1897. <title
+                  rend="italic">Nomenclatura geográfica de México, etimologías de los nombres de
+                  lugar correspondientes a los principales idiomas que se hablan en la
+                  República</title>. 3 vols. México: Oficina tipográfica de la Secretaria de
+               Fomento. <ref target="http://archive.org/details/nomenclaturageog00pe"
                   >http://archive.org/details/nomenclaturageog00pe</ref>.</bibl>
-            <bibl xml:id="porter2015" label="Porter et al. 2015">Porter, Catherine, Paul Atkinson, and Ian Gregory. 2015. <title rend="quotes">Geographical Text
-               Analysis: A new approach to understanding nineteenth–century mortality</title>. <title
+            <bibl xml:id="porter2015" label="Porter et al. 2015">Porter, Catherine, Paul Atkinson,
+               and Ian Gregory. 2015. <title rend="quotes">Geographical Text Analysis: A new
+                  approach to understanding nineteenth–century mortality</title>. <title
                   rend="italic">Health &amp; Place,</title> 36 (November): 25–34.
                doi:10.1016/j.healthplace.2015.08.010.</bibl>
-            <bibl xml:id="robelo1897" label="Robelo 1897">Robelo, Cecilio Agustín. 1897. <title rend="italic">Nombres geográficos indígenas
-                  del estado de Morelos. Estudio crítico de varias obras de Toponomatología
-                  nahoa</title>. Cuernavaca: Luis G. Miranda, impresor. <ref
-                  target="http://archive.org/details/nombresgeogrfi00robeuoft"
+            <bibl xml:id="robelo1897" label="Robelo 1897">Robelo, Cecilio Agustín. 1897. <title
+                  rend="italic">Nombres geográficos indígenas del estado de Morelos. Estudio crítico
+                  de varias obras de Toponomatología nahoa</title>. Cuernavaca: Luis G. Miranda,
+               impresor. <ref target="http://archive.org/details/nombresgeogrfi00robeuoft"
                   >http://archive.org/details/nombresgeogrfi00robeuoft</ref>.</bibl>
-            <bibl xml:id="robelo1900" label="Robelo 1900">Robelo, Cecilio Agustín. 1900. <title rend="italic">Nombres Geográficos Indígenas
-                  Del Estado de México: Estudio Crítico Etimológico</title>. Cuernavaca: Luis G.
-               Miranda impresor. <ref target="http://cd.dgb.uanl.mx/handle/201504211/14251"
+            <bibl xml:id="robelo1900" label="Robelo 1900">Robelo, Cecilio Agustín. 1900. <title
+                  rend="italic">Nombres Geográficos Indígenas Del Estado de México: Estudio Crítico
+                  Etimológico</title>. Cuernavaca: Luis G. Miranda impresor. <ref
+                  target="http://cd.dgb.uanl.mx/handle/201504211/14251"
                   >http://cd.dgb.uanl.mx//handle/201504211/14251</ref>.</bibl>
-            <bibl xml:id="robelo1902a" label="Robelo 1902a">Robelo, Cecilio Agustín. 1902a. <title rend="italic">Nombres geográficos mexicanos
-                  del estado de Veracruz: Estudio critico etimológico</title>. Cuernavaca: Luis G.
-               Miranda impresor.</bibl>
-            <bibl xml:id="robelo1902b" label="Robelo 1902b">Robelo, Cecilio Agustín. 1902b. <title rend="italic">Toponimia
-                  tarasco-hispano-nahoa</title>. Cuernavaca: Impr. de J. D. Rojas. <ref
-                  target="http://archive.org/details/toponimiatarasc00robegoog"
+            <bibl xml:id="robelo1902a" label="Robelo 1902a">Robelo, Cecilio Agustín. 1902a. <title
+                  rend="italic">Nombres geográficos mexicanos del estado de Veracruz: Estudio
+                  critico etimológico</title>. Cuernavaca: Luis G. Miranda impresor.</bibl>
+            <bibl xml:id="robelo1902b" label="Robelo 1902b">Robelo, Cecilio Agustín. 1902b. <title
+                  rend="italic">Toponimia tarasco-hispano-nahoa</title>. Cuernavaca: Impr. de J. D.
+               Rojas. <ref target="http://archive.org/details/toponimiatarasc00robegoog"
                   >http://archive.org/details/toponimiatarasc00robegoog</ref>.</bibl>
-            <bibl xml:id="robelo1904" label="Robelo 1904">Robelo, Cecilio Agustín. 1904. <title rend="italic">Diccionario de aztequismos, ó
-                  sea, catalogo de las palabras del idioma nahuatl, azteca ó mexicano, introducidas
-                  al idioma castellano bajo diversas formas.</title> Cuernavaca: Printed by the
-               author. <ref target="https://catalog.hathitrust.org/Record/009024985"
+            <bibl xml:id="robelo1904" label="Robelo 1904">Robelo, Cecilio Agustín. 1904. <title
+                  rend="italic">Diccionario de aztequismos, ó sea, catalogo de las palabras del
+                  idioma nahuatl, azteca ó mexicano, introducidas al idioma castellano bajo diversas
+                  formas.</title> Cuernavaca: Printed by the author. <ref
+                  target="https://catalog.hathitrust.org/Record/009024985"
                   >https://catalog.hathitrust.org/Record/009024985</ref>.</bibl>
-            <bibl xml:id="robelo1905" label="Robelo 1905">Robelo, Cecilio Agustín. 1905. <title rend="italic">Diccionario de mitología
-                  náhuatl</title>. México: Ediciones Fuente Cultural; Librería Navarro. <ref
+            <bibl xml:id="robelo1905" label="Robelo 1905">Robelo, Cecilio Agustín. 1905. <title
+                  rend="italic">Diccionario de mitología náhuatl</title>. México: Ediciones Fuente
+               Cultural; Librería Navarro. <ref
                   target="https://catalog.hathitrust.org/Record/001940449"
                   >https://catalog.hathitrust.org/Record/001940449</ref>.</bibl>
-            <bibl xml:id="robertson1972" label="Robertson 1972">Robertson, Donald. 1972. <title rend="quotes">The pinturas (maps) of the <title rend="italic"
-                  >Relaciones Geográficas</title> with a catalog</title>. In <title rend="italic">Handbook
-                  of Middle American Indians, Volume 12: Guide to Ethnohistorical Sources, Part
+            <bibl xml:id="robertson1972" label="Robertson 1972">Robertson, Donald. 1972. <title
+                  rend="quotes">The pinturas (maps) of the <title rend="italic">Relaciones
+                     Geográficas</title> with a catalog</title>. In <title rend="italic">Handbook of
+                  Middle American Indians, Volume 12: Guide to Ethnohistorical Sources, Part
                   One</title>, edited by Howard F. Cline, pp. 243–278. Austin: University of Texas
                Press.</bibl>
-            <bibl xml:id="sanchez-martinez2013" label="Sánchez–Martínez et al. 2013">Sánchez–Martínez, Felipe, Isabel Martínez–Sempere, Xavier Ivars–Ribes, and Rafael
-               C. Carrasco. 2013. <title rend="quotes">An Open diachronic corpus of historical Spanish: Annotation
-               criteria and automatic modernisation of spelling</title>. <title rend="italic"
-                  >arXiv:1306.3692 [cs]</title>, June. <ref target="http://arxiv.org/abs/1306.3692">http://arxiv.org/abs/1306.3692</ref>.</bibl>
-            <bibl xml:id="santos2015" label="Santos et al. 2015">Santos, João, Ivo Anastácio, and Bruno Martins. 2015. <title rend="quotes">Using machine learning
-               methods for disambiguating place references in textual documents</title>. <title
-                  rend="italic">GeoJournal</title> 80(3): 375–392.
-               doi:10.1007/s10708–014–9553–y.</bibl>
-            <bibl xml:id="snatos2017" label="Santos et al. 2017">Santos, Rui, Patricia Murrieta–Flores, and Bruno Martins. 2017. <title rend="quotes">Learning to
-               combine multiple string similarity metrics for effective toponym matching</title>. <title
+            <bibl xml:id="sanchez-martinez2013" label="Sánchez–Martínez et al. 2013"
+               >Sánchez–Martínez, Felipe, Isabel Martínez–Sempere, Xavier Ivars–Ribes, and Rafael C.
+               Carrasco. 2013. <title rend="quotes">An Open diachronic corpus of historical Spanish:
+                  Annotation criteria and automatic modernisation of spelling</title>. <title
+                  rend="italic">arXiv:1306.3692 [cs]</title>, June. <ref
+                  target="http://arxiv.org/abs/1306.3692"
+               >http://arxiv.org/abs/1306.3692</ref>.</bibl>
+            <bibl xml:id="santos2015" label="Santos et al. 2015">Santos, João, Ivo Anastácio, and
+               Bruno Martins. 2015. <title rend="quotes">Using machine learning methods for
+                  disambiguating place references in textual documents</title>. <title rend="italic"
+                  >GeoJournal</title> 80(3): 375–392. doi:10.1007/s10708–014–9553–y.</bibl>
+            <bibl xml:id="snatos2017" label="Santos et al. 2017">Santos, Rui, Patricia
+               Murrieta–Flores, and Bruno Martins. 2017. <title rend="quotes">Learning to combine
+                  multiple string similarity metrics for effective toponym matching</title>. <title
                   rend="italic">International Journal of Digital Earth</title>.
                doi:10.1080/17538947.2017.1371253.</bibl>
-            <bibl xml:id="santos2018" label="Santos et al. 2018">Santos, Rui, Patricia Murrieta–Flores, Pável Calado, and Bruno Martins. 2018.
-               <title rend="quotes">Toponym matching through deep neural networks</title>. <title rend="italic">International
+            <bibl xml:id="santos2018" label="Santos et al. 2018">Santos, Rui, Patricia
+               Murrieta–Flores, Pável Calado, and Bruno Martins. 2018. <title rend="quotes">Toponym
+                  matching through deep neural networks</title>. <title rend="italic">International
                   Journal of Geographical Information Science</title> 32(2): 324–348.
                doi:10.1080/13658816.2017.1390119.</bibl>
-            <bibl xml:id="sprugnoli2017" label="Sprugnoli et al. 2017">Sprugnoli, Rachele, Giovanni Moretti, Bruno Kessler, Sara Tonelli, and Stefano
-               Menini. 2017. <title rend="quotes">Fifty years of European history through the lens of Computational
-               Linguistics: The De Gasperi Project</title>. <title rend="italic">Italian Journal of
+            <bibl xml:id="sprugnoli2017" label="Sprugnoli et al. 2017">Sprugnoli, Rachele, Giovanni
+               Moretti, Bruno Kessler, Sara Tonelli, and Stefano Menini. 2017. <title rend="quotes"
+                  >Fifty years of European history through the lens of Computational Linguistics:
+                  The De Gasperi Project</title>. <title rend="italic">Italian Journal of
                   Computational Linguistics</title> 2(2): 89–100.</bibl>
-            <bibl xml:id="starr1920" label="Starr 1920">Starr, Frederick. 1920. <title rend="italic">Aztec place-names, their meaning and
-                  mode of composition, selected from the Spanish of Agustin de la Rosa, Antonio
-                  Peñafiel and Cecilio A. Robelo</title>. Chicago: Privately printed by the author.
-                  <ref target="https://catalog.hathitrust.org/Record/001360976"
+            <bibl xml:id="starr1920" label="Starr 1920">Starr, Frederick. 1920. <title rend="italic"
+                  >Aztec place-names, their meaning and mode of composition, selected from the
+                  Spanish of Agustin de la Rosa, Antonio Peñafiel and Cecilio A. Robelo</title>.
+               Chicago: Privately printed by the author. <ref
+                  target="https://catalog.hathitrust.org/Record/001360976"
                   >https://catalog.hathitrust.org/Record/001360976</ref>.</bibl>
-            <bibl xml:id="tanck2005" label="Tanck de Estrada 2005">Tanck de Estrada, Dorothy. 2005. <title rend="italic">Atlas ilustrado de los
-                  pueblos de indios</title>. México: El Colegio de México, El Colegio Mexiquense,
-               Comisión Nacional para el Desarrollo de los Pueblos Indígenas, and Fomento Cultural
-               Banamex.</bibl>
-            <bibl xml:id="taule2008" label="Taulé et al. 2008">Taulé, Mariona, M. Antònia Martí, and Marta Recasens. 2008. <title rend="quotes">AnCora: Multilevel
-               annotated corpora for Catalan and Spanish</title>. <title rend="italic">LREC 2008</title>.
-               <ref target="https://aclanthology.info/papers/L08–1222/l08–1222">https://aclanthology.info/papers/L08–1222/l08–1222</ref>.</bibl>
-            <bibl>Taylor, Joanna E., Ian N. Gregory, and Christopher E. Donaldson. 2017. Combining
-               close and distant reading: A multiscalar analysis of the English Lake District’s
-               historical soundscape. <title rend="italic">International Journal of Humanities and
+            <bibl xml:id="tanck2005" label="Tanck de Estrada 2005">Tanck de Estrada, Dorothy. 2005.
+                  <title rend="italic">Atlas ilustrado de los pueblos de indios</title>. México: El
+               Colegio de México, El Colegio Mexiquense, Comisión Nacional para el Desarrollo de los
+               Pueblos Indígenas, and Fomento Cultural Banamex.</bibl>
+            <bibl xml:id="taule2008" label="Taulé et al. 2008">Taulé, Mariona, M. Antònia Martí, and
+               Marta Recasens. 2008. <title rend="quotes">AnCora: Multilevel annotated corpora for
+                  Catalan and Spanish</title>. <title rend="italic">LREC 2008</title>. <ref
+                  target="https://aclanthology.info/papers/L08–1222/l08–1222"
+                  >https://aclanthology.info/papers/L08–1222/l08–1222</ref>.</bibl>
+            <bibl xml:id="taylor2017" label="Taylor et al. 2017">Taylor, Joanna E., Ian N. Gregory,
+               and Christopher E. Donaldson. 2017. <title rend="quotes">Combining close and distant
+                  reading: A multiscalar analysis of the English Lake District’s historical
+                  soundscape</title>. <title rend="italic">International Journal of Humanities and
                   Arts Computing</title>, 12(2): 163-182. <ref
                   target="http://eprints.lancs.ac.uk/89167/"
                >http://eprints.lancs.ac.uk/89167/</ref>.</bibl>
-            <bibl>Van Hooland, S., M. de Wilde, R. Verborgh, T. Steiner, and R. Van de Walle. 2015.
-               Exploring entity recognition and disambiguation for cultural heritage collections.
-                  <title rend="italic">Digital Scholarship in the Humanities</title> 30(2): 262–279.
-               doi:10.1093/llc/fqt067.</bibl>
-            <bibl>Won, Miguel, Patricia Murrieta–Flores, and Bruno Martins. 2018. Ensemble named
-               entity recognition (NER): Evaluating NER Tools in the identification of place names
-               in historical corpora. <title rend="italic">Frontiers in Digital Humanities</title>
-               5. doi:10.3389/fdigh.2018.00002.</bibl>
+            <bibl xml:id="vanhooland2015" label="Van Hooland et al. 2015">Van Hooland, S., M. de
+               Wilde, R. Verborgh, T. Steiner, and R. Van de Walle. 2015. <title rend="quotes"
+                  >Exploring entity recognition and disambiguation for cultural heritage
+                  collections</title>. <title rend="italic">Digital Scholarship in the
+                  Humanities</title> 30(2): 262–279. doi:10.1093/llc/fqt067.</bibl>
+            <bibl xml:id="won2018" label="Won et al. 2018">Won, Miguel, Patricia Murrieta–Flores,
+               and Bruno Martins. 2018. <title rend="quotes">Ensemble named entity recognition
+                  (NER): Evaluating NER Tools in the identification of place names in historical
+                  corpora</title>. <title rend="italic">Frontiers in Digital Humanities</title> 5.
+               doi:10.3389/fdigh.2018.00002.</bibl>
          </listBibl>
       </back>
    </text>
