@@ -6,6 +6,7 @@
         <xsl:param name="docurl"/>
         <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
         <div id="footer"> 
+            <div style="float:left">
             <!--DHQ Preview Web Site: Content in Draft Form. Final version will appear: <a
                 href="http://www.digitalhumanities.org/dhq/" class="footer"
                 >http://www.digitalhumanities.org/dhq/</a>. <br/> -->URL: <xsl:value-of
@@ -27,9 +28,11 @@
             </xsl:attribute><xsl:attribute name="class">
                 <xsl:value-of select="'footer'"/>
             </xsl:attribute>The Alliance of Digital Humanities Organizations</a><br />Affiliated with: <a>
-                <xsl:attribute name="href"><xsl:value-of select="'http://llc.oxfordjournals.org/'"/></xsl:attribute><xsl:value-of select="'Literary and Linguistic Computing'"/></a>
-            <br/> Copyright 2005 - <script type="text/javascript">
-                document.write(currentDate.getFullYear());</script> <br/> <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
+                <xsl:attribute name="href"><xsl:value-of select="'https://academic.oup.com/dsh'"/></xsl:attribute><xsl:value-of select="'Digital Scholarship in the Humanities'"/></a>
+            <br/> DHQ has been made possible in part by the <a href="https://www.neh.gov/">National Endowment for the Humanities</a>.<br />Copyright 2005 - <script type="text/javascript">
+                document.write(currentDate.getFullYear());</script> <br/> <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>
+            </div>
+            <img style="max-width:200px;float:right;" src="https://www.neh.gov/sites/default/files/styles/medium/public/2019-08/NEH-Preferred-Seal820.jpg?itok=VyHHX8pd"/>
         </div>
         
     </xsl:template>
