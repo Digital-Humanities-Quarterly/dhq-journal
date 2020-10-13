@@ -27,7 +27,11 @@
                 <xsl:value-of select="'http://www.digitalhumanities.org'"/>
             </xsl:attribute><xsl:attribute name="class">
                 <xsl:value-of select="'footer'"/>
-            </xsl:attribute>The Alliance of Digital Humanities Organizations</a><br />Affiliated with: <a>
+            </xsl:attribute>The Alliance of Digital Humanities Organizations</a> and <a><xsl:attribute name="href">
+                <xsl:value-of select="'http://www.ach.org'"/>
+            </xsl:attribute><xsl:attribute name="class">
+                <xsl:value-of select="'footer'"/>
+            </xsl:attribute>The Association for Computers and the Humanities</a><br />Affiliated with: <a>
                 <xsl:attribute name="href"><xsl:value-of select="'https://academic.oup.com/dsh'"/></xsl:attribute><xsl:value-of select="'Digital Scholarship in the Humanities'"/></a>
             <br/> DHQ has been made possible in part by the <a href="https://www.neh.gov/">National Endowment for the Humanities</a>.<br />Copyright 2005 - <script type="text/javascript">
                 document.write(currentDate.getFullYear());</script> <br/> <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>
