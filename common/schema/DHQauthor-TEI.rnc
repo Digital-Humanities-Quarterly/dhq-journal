@@ -9,12 +9,13 @@ namespace rng = "http://relaxng.org/ns/structure/1.0"
 namespace sch = "http://purl.oclc.org/dsdl/schematron"
 namespace tei = "http://www.tei-c.org/ns/1.0"
 namespace teix = "http://www.tei-c.org/ns/Examples"
+namespace xi = "http://www.w3.org/2001/XInclude"
 namespace xlink = "http://www.w3.org/1999/xlink"
 
-# Schema generated from ODD source 2020-06-29T14:44:40Z. .
-# TEI Edition: Version 4.0.0. Last updated on
-#	13th February 2020, revision ccd19b0ba
-# TEI Edition Location: http://www.tei-c.org/Vault/P5/Version 4.0.0/
+# Schema generated from ODD source 2020-11-02T21:20:08Z. .
+# TEI Edition: Version 4.1.0. Last updated on
+#	19th August 2020, revision b414ba550
+# TEI Edition Location: https://www.tei-c.org/Vault/P5/Version 4.1.0/
 #  This schema supports basic journal features. 
 
 #
@@ -1127,7 +1128,7 @@ dhq_macro.paraContent =
 dhq_macro.limitedContent =
   (text | dhq_model.limitedPhrase | dhq_model.inter)*
 dhq_macro.phraseSeq =
-  (text | dhq_model.qLike | dhq_model.phrase | dhq_model.global)*
+  (text | dhq_model.attributable | dhq_model.phrase | dhq_model.global)*
 dhq_macro.phraseSeq.limited =
   (text | dhq_model.limitedPhrase | dhq_model.global)*
 dhq_macro.specialPara =
@@ -1379,12 +1380,12 @@ dhq_model.nameLike.agent_sequenceOptional = dhq_name?
 dhq_model.nameLike.agent_sequenceOptionalRepeatable = dhq_name*
 dhq_model.nameLike.agent_sequenceRepeatable = dhq_name+
 dhq_model.segLike = dhq_seg
-dhq_model.hiLike = dhq_hi
-dhq_model.hiLike_alternation = dhq_hi
-dhq_model.hiLike_sequence = dhq_hi
-dhq_model.hiLike_sequenceOptional = dhq_hi?
-dhq_model.hiLike_sequenceOptionalRepeatable = dhq_hi*
-dhq_model.hiLike_sequenceRepeatable = dhq_hi+
+dhq_model.hiLike = dhq_hi | dhq_q
+dhq_model.hiLike_alternation = dhq_hi | dhq_q
+dhq_model.hiLike_sequence = dhq_hi, dhq_q
+dhq_model.hiLike_sequenceOptional = dhq_hi?, dhq_q?
+dhq_model.hiLike_sequenceOptionalRepeatable = dhq_hi*, dhq_q*
+dhq_model.hiLike_sequenceRepeatable = dhq_hi+, dhq_q+
 dhq_model.emphLike =
   dhq_foreign
   | dhq_emph
@@ -1521,42 +1522,20 @@ dhq_model.quoteLike_sequence = dhq_quote, dhq_cit
 dhq_model.quoteLike_sequenceOptional = dhq_quote?, dhq_cit?
 dhq_model.quoteLike_sequenceOptionalRepeatable = dhq_quote*, dhq_cit*
 dhq_model.quoteLike_sequenceRepeatable = dhq_quote+, dhq_cit+
-dhq_model.qLike =
-  dhq_model.quoteLike
-  | dhq_said
-  | dhq_q
-  | dhq_xenoData
-  | dhq_floatingText
-dhq_model.qLike_alternation =
-  dhq_model.quoteLike_alternation
-  | dhq_said
-  | dhq_q
-  | dhq_xenoData
-  | dhq_floatingText
-dhq_model.qLike_sequence =
-  dhq_model.quoteLike_sequence,
-  dhq_said,
-  dhq_q,
-  dhq_xenoData,
-  dhq_floatingText
-dhq_model.qLike_sequenceOptional =
-  dhq_model.quoteLike_sequenceOptional?,
-  dhq_said?,
-  dhq_q?,
-  dhq_xenoData?,
-  dhq_floatingText?
-dhq_model.qLike_sequenceOptionalRepeatable =
+dhq_model.attributable =
+  dhq_model.quoteLike | dhq_said | dhq_floatingText
+dhq_model.attributable_alternation =
+  dhq_model.quoteLike_alternation | dhq_said | dhq_floatingText
+dhq_model.attributable_sequence =
+  dhq_model.quoteLike_sequence, dhq_said, dhq_floatingText
+dhq_model.attributable_sequenceOptional =
+  dhq_model.quoteLike_sequenceOptional?, dhq_said?, dhq_floatingText?
+dhq_model.attributable_sequenceOptionalRepeatable =
   dhq_model.quoteLike_sequenceOptionalRepeatable*,
   dhq_said*,
-  dhq_q*,
-  dhq_xenoData*,
   dhq_floatingText*
-dhq_model.qLike_sequenceRepeatable =
-  dhq_model.quoteLike_sequenceRepeatable+,
-  dhq_said+,
-  dhq_q+,
-  dhq_xenoData+,
-  dhq_floatingText+
+dhq_model.attributable_sequenceRepeatable =
+  dhq_model.quoteLike_sequenceRepeatable+, dhq_said+, dhq_floatingText+
 dhq_model.respLike =
   dhq_author
   | dhq_editor
@@ -1615,10 +1594,11 @@ dhq_model.inter =
   | dhq_model.biblLike
   | dhq_model.listLike
   | dhq_model.stageLike
-  | dhq_model.qLike
+  | dhq_model.attributable
   | dhq_passThroughCode
   | dhq_example
-dhq_model.common = dhq_model.divPart | dhq_model.inter | dhq_note
+dhq_model.common =
+  dhq_model.divPart | dhq_model.inter | dhq_q | dhq_note
 dhq_model.phrase =
   dhq_model.segLike
   | dhq_model.highlighted
@@ -1642,6 +1622,8 @@ dhq_model.limitedPhrase =
   | dhq_model.phrase.xml
   | dhq_model.pPart.data
 dhq_model.divLike = dhq_div | dhq_abstract | dhq_teaser
+dhq_model.annotationLike = dhq_note | dhq_annotation
+dhq_model.annotationPart.body = dhq_ptr | dhq_ref | dhq_note
 dhq_model.teiHeaderPart =
   dhq_encodingDesc | dhq_profileDesc | dhq_xenoData
 dhq_model.encodingDescPart =
@@ -1656,8 +1638,10 @@ dhq_model.standOffPart =
   dhq_model.global.meta
   | dhq_model.biblLike
   | dhq_model.listLike
+  | dhq_model.annotationLike
   | dhq_listChange
   | dhq_seg
+  | dhq_listAnnotation
 dhq_att.formula.attributes = dhq_att.formula.attribute.formula
 dhq_att.formula.attribute.formula =
   [
@@ -1781,6 +1765,9 @@ dhq_hi =
       | 
         ## The designated content is intended to be rendered with an underline.
         "underlined"
+      | 
+        ## The designated content is intended to be rendered with a strikethrough.
+        "strikethrough"
     }?,
     empty
   }
@@ -2432,8 +2419,8 @@ dhq_sp =
        | dhq_model.pLike
        | dhq_model.listLike
        | dhq_model.stageLike
-       | dhq_model.qLike),
-      dhq_model.global*)+),
+       | dhq_model.attributable),
+      (dhq_model.global* | dhq_q))+),
     dhq_att.global.attributes,
     dhq_att.ascribed.directed.attributes,
     empty
@@ -2579,6 +2566,12 @@ dhq_availability =
     }?,
     empty
   }
+dhq_licence =
+  
+  ## contains information about a licence or other legal agreement applicable to the text. [2.2.4. Publication, Distribution, Licensing, etc.]
+  element tei:licence {
+    dhq_macro.specialPara, dhq_att.global.attributes, empty
+  }
 dhq_sourceDesc =
   
   ## (source description) describes the source(s) from which an electronic text was derived or generated, typically a bibliographic description in the case of a digitized text, or a phrase such as "born digital" for a text which has no previous existence. [2.2.7. The Source Description]
@@ -2609,7 +2602,7 @@ dhq_schemaRef =
   }
 dhq_prefixDef =
   
-  ## (prefix definition) defines a prefixing scheme used in data.pointer values, showing how abbreviated URIs using the scheme may be expanded into full URIs. [16.2.3. Using Abbreviated Pointers]
+  ## (prefix definition) defines a prefixing scheme used in teidata.pointer values, showing how abbreviated URIs using the scheme may be expanded into full URIs. [16.2.3. Using Abbreviated Pointers]
   element tei:prefixDef {
     dhq_model.pLike*,
     dhq_att.global.attributes,
@@ -2623,7 +2616,7 @@ dhq_prefixDef =
   }
 dhq_listPrefixDef =
   
-  ## (list of prefix definitions) contains a list of definitions of prefixing schemes used in data.pointer values, showing how abbreviated URIs using each scheme may be expanded into full URIs. [16.2.3. Using Abbreviated Pointers]
+  ## (list of prefix definitions) contains a list of definitions of prefixing schemes used in teidata.pointer values, showing how abbreviated URIs using each scheme may be expanded into full URIs. [16.2.3. Using Abbreviated Pointers]
   element tei:listPrefixDef {
     (dhq_desc*, (dhq_prefixDef | dhq_listPrefixDef)+),
     dhq_att.global.attributes,
@@ -2864,7 +2857,7 @@ dhq_revisionDesc =
   }
 dhq_change =
   
-  ## documents a change or set of changes made during the production of a source document, or during the revision of an electronic file. [2.6. The Revision Description 2.4.1. Creation 11.7. Identifying Changes and Revisions]
+  ## documents a change or set of changes made during the production of a source document, or during the revision of an electronic file. [2.6. The Revision Description 2.4.1. Creation 11.6. Identifying Changes and Revisions]
   element tei:change {
     dhq_macro.specialPara,
     dhq_att.ascribed.attributes,
@@ -2882,7 +2875,7 @@ dhq_change =
   }
 dhq_listChange =
   
-  ## groups a number of change descriptions associated with either the creation of a source text or the revision of an encoded text. [2.6. The Revision Description 11.7. Identifying Changes and Revisions]
+  ## groups a number of change descriptions associated with either the creation of a source text or the revision of an encoded text. [2.6. The Revision Description 11.6. Identifying Changes and Revisions]
   element tei:listChange {
     (dhq_desc*, (dhq_listChange | dhq_change)+),
     dhq_att.global.attributes,
@@ -3423,6 +3416,90 @@ dhq_standOff =
          "         "
        ],
     dhq_att.global.attributes,
+    empty
+  }
+dhq_listAnnotation =
+  [
+    a:documentation [
+      "contains a list of annotations, typically encoded as "
+      ns1:code [ "<annotation>" ]
+      ", "
+      ns1:code [ "<annotationBlock>" ]
+      ", or "
+      ns1:code [ "<note>" ]
+      ", possibly organized with nested "
+      ns1:code [ "<listAnnotation>" ]
+      " elements. [16.10. The standOff Container]"
+    ]
+  ]
+  element tei:listAnnotation {
+    (dhq_model.headLike*,
+     dhq_model.labelLike*,
+     (dhq_model.annotationLike | dhq_listAnnotation)+),
+    dhq_att.global.attributes,
+    dhq_att.notated.attributes,
+    empty
+  }
+dhq_annotation =
+  [
+    a:documentation [
+      "represents an annotation following the "
+      ns1:a [
+        href = "#WADM"
+        "Web\x{a}" ~
+        "      Annotation Data Model"
+      ]
+      ". [16.10. The standOff Container]"
+    ]
+  ]
+  element tei:annotation {
+    (dhq_revisionDesc*, dhq_licence*, dhq_model.annotationPart.body*),
+    dhq_att.global.attributes,
+    
+    ##
+    attribute motivation {
+      list {
+        (
+         ## intent is to assess the target resource in some way, rather than simply make a comment about it
+         "assessing"
+         | 
+           ## intent is to create a bookmark to the target or part thereof
+           "bookmarking"
+         | 
+           ## intent is to classify the target in some way
+           "classifying"
+         | 
+           ## intent is to comment about the target
+           "commenting"
+         | 
+           ## intent is to describe the target, rather than (for example) comment on it
+           "describing"
+         | 
+           ## intent is to request an edit or a change to the target resource
+           "editing"
+         | 
+           ## intent is to highlight the target resource or a segment thereof
+           "highlighting"
+         | 
+           ## intent is to assign an identity to the target
+           "identifying"
+         | 
+           ## intent is to link to a resource related to the target
+           "linking"
+         | 
+           ## intent is to assign some value or quality to the target
+           "moderating"
+         | 
+           ## intent is to ask a question about the target
+           "questioning"
+         | 
+           ## intent is to reply to a previous statement, either an annotation or another resource
+           "replying"
+         | 
+           ## intent is to associate a tag with the target
+           "tagging")+
+      }
+    }?,
     empty
   }
 dhq_citRef =
