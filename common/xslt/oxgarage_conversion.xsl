@@ -17,8 +17,12 @@
     
     <!-- DHQ Template Setup -->
     <xsl:template match="TEI">
-        <?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
-        <?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>
+        <xsl:processing-instruction name="oxygen">
+            <xsl:text>RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"</xsl:text>
+        </xsl:processing-instruction>
+        <xsl:processing-instruction name="oxygen">
+            <xsl:text>SCHSchema="../../common/schema/dhqTEI-ready.sch"</xsl:text>
+        </xsl:processing-instruction>
         <TEI xmlns="http://www.tei-c.org/ns/1.0"
             xmlns:cc="http://web.resource.org/cc/"
             xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
