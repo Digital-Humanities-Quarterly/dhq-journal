@@ -12,7 +12,8 @@ xquery version "3.1";
   declare namespace tei="http://www.tei-c.org/ns/1.0";
   declare namespace wwp="http://www.wwp.northeastern.edu/ns/textbase";
 (:  OPTIONS  :)
-  (:declare option output:indent "no";:)
+  declare option output:media-type "text/xml";
+  declare option output:method "xml";
 
 (:~
   
@@ -21,7 +22,7 @@ xquery version "3.1";
   2020
  :)
  
- declare context item external := doc("../zotero_testing/dhq-biblio_bookChapters.xml");
+ declare context item external := doc("../zotero_testing/dhq-biblio_genres.xml");
  
 (:  VARIABLES  :)
   declare variable $xsl-crosswalk-location := "../apps/transforms/zotero-tei-to-biblio-items.xsl";
@@ -98,7 +99,8 @@ xquery version "3.1";
                   'bill',
                   'case',
                   'hearing',
-                  'patent'
+                  'patent',
+                  'statute'
                 )
             }
         }, map {
@@ -152,7 +154,7 @@ return
               'source-node': $record,
               'stylesheet-params': map { QName((),'biblio-genre'): $genre }
             })?output,
-          text { "&#13;" }
+          text { "&#xa;" }
         )
     }
   </BiblioSet>

@@ -16,8 +16,7 @@
     2020
   -->
   
-  <xsl:output encoding="UTF-8" indent="yes" method="xml" 
-     omit-xml-declaration="no"/>
+  <xsl:output encoding="UTF-8" indent="yes" method="xml" omit-xml-declaration="no"/>
   <xsl:mode on-no-match="shallow-skip"/>
   
  <!--  PARAMETERS  -->
@@ -90,7 +89,8 @@
               'bill',
               'case',
               'hearing',
-              'patent'
+              'patent',
+              'statute'
             )
         }, map {
           'biblioGenre': 'Report',
@@ -187,11 +187,15 @@
       <xsl:if test="$useIssuance">
         <xsl:attribute name="issuance" select="$useIssuance"/>
       </xsl:if>
-      <xsl:apply-templates select="analytic"/>
+      <xsl:apply-templates select="analytic">
+        <xsl:with-param name="genre" select="$biblio-genre" tunnel="yes"/>
+      </xsl:apply-templates>
       <xsl:choose>
         <xsl:when test="$biblio-genre eq 'BookSection'">
           <book issuance="monographic">
-            <xsl:apply-templates select="monogr"/>
+            <xsl:apply-templates select="monogr">
+              <xsl:with-param name="genre" select="$biblio-genre" tunnel="yes"/>
+            </xsl:apply-templates>
           </book>
         </xsl:when>
         <xsl:when test="$biblio-genre eq 'ConferencePaper'">
@@ -199,17 +203,28 @@
         </xsl:when>
         <xsl:when test="$biblio-genre eq 'JournalArticle'">
           <journal issuance="continuing">
-            <xsl:apply-templates select="monogr"/>
+            <xsl:apply-templates select="monogr">
+              <xsl:with-param name="genre" select="$biblio-genre" tunnel="yes"/>
+            </xsl:apply-templates>
           </journal>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="monogr"/>
+          <xsl:apply-templates select="monogr">
+            <xsl:with-param name="genre" select="$biblio-genre" tunnel="yes"/>
+          </xsl:apply-templates>
         </xsl:otherwise>
       </xsl:choose>
       <!-- TODO: URLs, DOIs, notes... -->
       <url>
         <xsl:value-of select="@corresp"/>
       </url>
+      <xsl:if test="$biblio-genre = 'BiblioItem'">
+        <note>
+          <xsl:text>Could not determine Biblio genre. Zotero type is </xsl:text>
+          <q><xsl:value-of select="@type"/></q>
+          <xsl:text>.</xsl:text>
+        </note>
+      </xsl:if>
     </xsl:element>
   </xsl:template>
   
@@ -276,6 +291,41 @@
     <formalID type="{@type}">
       <xsl:call-template name="proceed-allowing-text"/>
     </formalID>
+  </xsl:template>
+  
+  <xsl:template match="name">
+    <corporateName>
+      <xsl:call-template name="proceed-allowing-text"/>
+    </corporateName>
+  </xsl:template>
+  
+  <xsl:template match="respStmt">
+    <xsl:param name="genre" as="xs:string?" tunnel="yes"/>
+    <xsl:choose>
+      <xsl:when test="$genre = ('Artwork', 'Other', 'VideoGame')">
+        <creator>
+          <xsl:apply-templates/>
+        </creator>
+      </xsl:when>
+      <xsl:when test="$genre = 'BiblioItem'">
+        <author>
+          <xsl:apply-templates/>
+        </author>
+      </xsl:when>
+      <xsl:otherwise>
+        <note>
+          <xsl:text>Could not decide on a contribution type for </xsl:text>
+          <q><xsl:value-of select="string-join(persName/*, ' ')"/></q>
+          <xsl:text>. Responsibility was listed as </xsl:text>
+          <q><xsl:value-of select="resp/normalize-space()"/></q>
+          <xsl:text>.</xsl:text>
+        </note>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="respStmt/persName">
+    <xsl:apply-templates/>
   </xsl:template>
   
   <xsl:template match="surname">
