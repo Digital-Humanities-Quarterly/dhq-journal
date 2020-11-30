@@ -15,12 +15,12 @@
     </xsl:template>
     
     <xsl:template name="citeGameDemoHeadHooks">
-        <script src="resources/cite_game_demo/test-deps/base64-js/base64js.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="resources/cite_game_demo/test-deps/jszip.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="resources/cite_game_demo/test-deps/FileSaver.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="resources/cite_game_demo/test-deps/base64-js/base64js.min.js" type="text/javascript" charset="utf-8"><xsl:comment>Gimme some comment!</xsl:comment></script>
+        <script src="resources/cite_game_demo/test-deps/jszip.min.js" type="text/javascript" charset="utf-8"><xsl:comment>Gimme some comment!</xsl:comment></script>
+        <script src="resources/cite_game_demo/test-deps/FileSaver.min.js" type="text/javascript" charset="utf-8"><xsl:comment>Gimme some comment!</xsl:comment></script>
         
-        <script src="resources/cite_game_demo/citestate.js" type="text/javascript" charset="utf-8"></script>
-        <script src="resources/cite_game_demo/recorder/recorder-worker.js" type="text/javascript" charset="utf-8"></script>
+        <script src="resources/cite_game_demo/citestate.js" type="text/javascript" charset="utf-8"><xsl:comment>Gimme some comment!</xsl:comment></script>
+        <script src="resources/cite_game_demo/recorder/recorder-worker.js" type="text/javascript" charset="utf-8"><xsl:comment>Gimme some comment!</xsl:comment></script>
         <script>
             
             function manageLoadState(stateData){
