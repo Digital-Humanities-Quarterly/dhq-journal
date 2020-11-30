@@ -21,7 +21,7 @@
         
         <script src="resources/cite_game_demo/citestate.js" type="text/javascript" charset="utf-8"><xsl:comment>Gimme some comment!</xsl:comment></script>
         <script src="resources/cite_game_demo/recorder/recorder-worker.js" type="text/javascript" charset="utf-8"><xsl:comment>Gimme some comment!</xsl:comment></script>
-        <script src="resources/head_code.js" type="text/javascript" charset="utf-8"><xsl:comment>Gimme some comment!</xsl:comment></script>
+        <script src="resources/cite_game_demo/head_code.js" type="text/javascript" charset="utf-8"><xsl:comment>Gimme some comment!</xsl:comment></script>
            
     </xsl:template>
     
