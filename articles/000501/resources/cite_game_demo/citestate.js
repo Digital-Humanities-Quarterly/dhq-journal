@@ -82,7 +82,7 @@
         var instance;
         var moduleObject = {
             locateFile: function(url) {
-                return window.CiteState.scriptRoot+"emulators/"+url;
+                return window.CiteState.scriptRoot+"resources/emulators/"+url;
             },
             targetID:targetID,
             instanceID: window.CiteState.getNextInstanceID(),
