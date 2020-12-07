@@ -367,7 +367,7 @@
         if (!(emulator in LoadedEmulators) && !(emulator in PendingEmulators)) {
             //Need to track pending to prevent multiple loads of any emulator script if initializing more than one
             PendingEmulators[emulator] = null; //this could be any type of value, just need something there
-            var script = window.CiteState.scriptRoot+"emulators/" + emulator + ".js";
+            var script = window.CiteState.scriptRoot+"resources/emulators/" + emulator + ".js";
             //load the script on the page
             var scriptElement = document.createElement("script");
             scriptElement.src = script;
