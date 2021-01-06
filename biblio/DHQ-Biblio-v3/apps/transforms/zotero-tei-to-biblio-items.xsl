@@ -141,10 +141,14 @@
   </xsl:template>
   
   <xsl:template match="/">
-    <xsl:processing-instruction name="xml-model">
-      <xsl:text>href="</xsl:text><xsl:value-of select="$relaxng-path"/><xsl:text>" </xsl:text>
-      <xsl:text>type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:text>
-    </xsl:processing-instruction>
+    <!-- If the path to the RelaxNG schema has been provided, output a processing instruction to 
+      associate the output XML to the Biblio schema. -->
+    <xsl:if test="normalize-space($relaxng-path) ne ''">
+      <xsl:processing-instruction name="xml-model">
+        <xsl:text>href="</xsl:text><xsl:value-of select="normalize-space($relaxng-path)"/><xsl:text>" </xsl:text>
+        <xsl:text>type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"</xsl:text>
+      </xsl:processing-instruction>
+    </xsl:if>
     <xsl:apply-templates select="processing-instruction() | node()"/>
   </xsl:template>
   
@@ -190,28 +194,31 @@
       <xsl:apply-templates select="analytic">
         <xsl:with-param name="genre" select="$biblio-genre" tunnel="yes"/>
       </xsl:apply-templates>
+      <xsl:variable name="monogrFields" as="node()*">
+        <xsl:apply-templates select="monogr">
+          <xsl:with-param name="genre" select="$biblio-genre" tunnel="yes"/>
+        </xsl:apply-templates>
+      </xsl:variable>
+      <!-- Several Biblio genres will need to wrap data from the <tei:monogr> in a Biblio macro item. By 
+        default, no wrapping element is used. -->
       <xsl:choose>
         <xsl:when test="$biblio-genre eq 'BookSection'">
           <book issuance="monographic">
-            <xsl:apply-templates select="monogr">
-              <xsl:with-param name="genre" select="$biblio-genre" tunnel="yes"/>
-            </xsl:apply-templates>
+            <xsl:copy-of select="$monogrFields"/>
           </book>
         </xsl:when>
         <xsl:when test="$biblio-genre eq 'ConferencePaper'">
-          <!-- TODO -->
+          <publication issuance="continuing">
+            <xsl:copy-of select="$monogrFields"/>
+          </publication>
         </xsl:when>
         <xsl:when test="$biblio-genre eq 'JournalArticle'">
           <journal issuance="continuing">
-            <xsl:apply-templates select="monogr">
-              <xsl:with-param name="genre" select="$biblio-genre" tunnel="yes"/>
-            </xsl:apply-templates>
+            <xsl:copy-of select="$monogrFields"/>
           </journal>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="monogr">
-            <xsl:with-param name="genre" select="$biblio-genre" tunnel="yes"/>
-          </xsl:apply-templates>
+          <xsl:copy-of select="$monogrFields"/>
         </xsl:otherwise>
       </xsl:choose>
       <!-- TODO: URLs, DOIs, notes... -->
@@ -297,6 +304,18 @@
     <corporateName>
       <xsl:call-template name="proceed-allowing-text"/>
     </corporateName>
+  </xsl:template>
+  
+  <xsl:template match="publisher">
+    <publisher>
+      <xsl:call-template name="proceed-allowing-text"/>
+    </publisher>
+  </xsl:template>
+  
+  <xsl:template match="pubPlace">
+    <place>
+      <xsl:call-template name="proceed-allowing-text"/>
+    </place>
   </xsl:template>
   
   <xsl:template match="respStmt">
