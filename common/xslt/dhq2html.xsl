@@ -758,19 +758,32 @@
                 </object>
             </xsl:when>
             <xsl:when test="ancestor::tei:p or parent::tei:cell">
-                <a href="{@url}" rel="external"><img src="{@url}">
+                <a href="{@url}" rel="external">
+                    <xsl:call-template name="createImgTag">
+                        <xsl:with-param name="url" select="@url"/>
+                        <xsl:with-param name="style" select="@style"/>
+                        <xsl:with-param name="altText" select="../tei:figDesc/text()"/>
+                    </xsl:call-template>
+                    <!--
+                    <img src="{@url}">
                     <xsl:attribute name="alt">
                         <xsl:value-of select="../tei:figDesc/text()"/>
                     </xsl:attribute>
-                </img></a>
+                </img>--></a>
             </xsl:when>
             <xsl:otherwise><div class="ptext">
                 <a href="{@url}" rel="external">
+                    <xsl:call-template name="createImgTag">
+                        <xsl:with-param name="url" select="@url"/>
+                        <xsl:with-param name="style" select="@style"/>
+                        <xsl:with-param name="altText" select="../tei:figDesc/text()"/>
+                    </xsl:call-template>
+                    <!--
 		<img src="{@url}">
                     <xsl:attribute name="alt">
                         <xsl:value-of select="../tei:figDesc/text()"/>
                     </xsl:attribute>
-                </img></a>
+                </img>--></a>
             </div>
             </xsl:otherwise>
             </xsl:choose>
@@ -779,7 +792,7 @@
 	<xsl:param name="url"/>
 	<xsl:param name="style"/>
 	<xsl:param name="altText"/>
-<img src="{$url}" style="{style}" alt="{$altText}" /> 
+<img src="{$url}" style="{$style}" alt="{$altText}" /> 
 </xsl:template> 
     <xsl:template match="tei:media">
         <xsl:param name="mediaURL">
