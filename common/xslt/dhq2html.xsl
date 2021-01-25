@@ -765,7 +765,8 @@
                 </img></a>
             </xsl:when>
             <xsl:otherwise><div class="ptext">
-                <a href="{@url}" rel="external"><img src="{@url}">
+                <a href="{@url}" rel="external">
+		<img src="{@url}">
                     <xsl:attribute name="alt">
                         <xsl:value-of select="../tei:figDesc/text()"/>
                     </xsl:attribute>
@@ -774,7 +775,12 @@
             </xsl:otherwise>
             </xsl:choose>
     </xsl:template>
-    
+   <xsl:template name="createImgTag">
+	<xsl:param name="url"/>
+	<xsl:param name="style"/>
+	<xsl:param name="altText"/>
+<img src="{$url}" style="{style}" alt="{$altText}" /> 
+</xsl:template> 
     <xsl:template match="tei:media">
         <xsl:param name="mediaURL">
             <xsl:value-of select="@url"/>
