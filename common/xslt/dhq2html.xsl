@@ -764,12 +764,7 @@
                         <xsl:with-param name="style" select="@style"/>
                         <xsl:with-param name="altText" select="../tei:figDesc/text()"/>
                     </xsl:call-template>
-                    <!--
-                    <img src="{@url}">
-                    <xsl:attribute name="alt">
-                        <xsl:value-of select="../tei:figDesc/text()"/>
-                    </xsl:attribute>
-                </img>--></a>
+                </a>
             </xsl:when>
             <xsl:otherwise><div class="ptext">
                 <a href="{@url}" rel="external">
@@ -778,12 +773,7 @@
                         <xsl:with-param name="style" select="@style"/>
                         <xsl:with-param name="altText" select="../tei:figDesc/text()"/>
                     </xsl:call-template>
-                    <!--
-		<img src="{@url}">
-                    <xsl:attribute name="alt">
-                        <xsl:value-of select="../tei:figDesc/text()"/>
-                    </xsl:attribute>
-                </img>--></a>
+                </a>
             </div>
             </xsl:otherwise>
             </xsl:choose>
