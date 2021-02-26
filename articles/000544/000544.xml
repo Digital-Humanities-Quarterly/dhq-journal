@@ -291,8 +291,8 @@
                         consist mostly of such named entities, successful NER would chunk almost the
                         entire text. Unfortunately, modern NER systems do not perform well on
                         historical text. We have tested some of the best NER systems like Stanford
-                        NER, which has f-score of over 90% on modern texts, but it has performed
-                        badly on our test case. We have not calculated exact measure, but the
+                        NER, which has an f-score of over 90% on modern texts, but it has performed
+                        badly on our test case. We have not the calculated exact measure, but the
                         results were so flawed that it seemed needless to do a formal evaluation. </p>
                     <p>Another important standard task in this context would be Entity resolution,
                         also called record linkage or record deduplication, where different
@@ -361,10 +361,10 @@
                         first Croatian king, Kralj Tomislav, <q>Kralj</q> means king – it is a
                         title, not a first name, and <q>Tomislav</q> is the first name. In the
                         modern language, however, <q>Kralj</q> is a quite common last name.
-                        Situation gets even more complicated with noble titles, maiden names,
+                        The situation gets even more complicated with noble titles, maiden names,
                         etc.</p>
                     <p>It would be very helpful to have an accurate proper name parser, the results
-                        of which could be used in a more advanced analysis. To the best of authors’
+                        of which could be used in a more advanced analysis. To the best of the authors’
                         knowledge, this problem did not receive much attention in NLP related
                         communities. </p>
                 </div>
@@ -430,7 +430,7 @@
                     <head>Dataset</head>
                     <p>The test set for the models consisted of 1774 transcribed records from the
                         census, including name expressions, gender and nobility labels. The
-                        available dataset of 4018 labelled modern international names (12 075
+                        available dataset of 4018 labelled modern international names (12,075
                         tokens) was used for the initial training and test dataset. </p>
                 </div>
             </div>
@@ -473,15 +473,15 @@
                 <head>Rule based-system</head>
                 <p>The rule-based model was implemented in the Potassco ASP system <ptr
                         target="#leuschel2014"/>. </p>
-                <p>Head of the rules were in the following form: <code>tag(I,P,[tag],[weight],
-                        [level])</code> where <code>I</code> is id of record, <code>P</code> is
+                <p>Head of the rules were in the following form: <code>tag(I,P,<hi rend="italic">[tag],[weight], [level]</hi>)</code> where <code>I</code> is id of record, <code>P</code> is
                     position of token in name expression, <code>[tag]</code> is one of the tags from
                     the tag set, <code>[weight]</code> is an estimation of certainty of the rule,
                     and <code>[level]</code> represents generality of the rule, as explained below.
                     Rule body is a set of (possible negated) features. An example of this rule is:
-                        <code>tag(I,P,n_title_b,70,1) :- lexc(I,P,n_title_b,_,_),
-                        wordform(I,P,"LlLlLl"), wordform(I,P-1,"LuLlLl"), lexc2(I,P-1,n_fn,_,1),
-                        lexc2(I,P+1,n_ln,_,1), not specExists(I,P,1).</code> It defines that token
+<eg>tag(I,P,n_title_b,70,1) :- lexc(I,P,n_title_b,_,_),
+wordform(I,P,"LlLlLl"), wordform(I,P-1,"LuLlLl"), lexc2(I,P-1,n_fn,_,1),
+lexc2(I,P+1,n_ln,_,1), not specExists(I,P,1).</eg> 
+                    It defines that token
                     at position <code>P</code> is a title if it has a dictionary entry for title at
                     any frequency, it is lowercase (<q>LlLlLl</q> wordform), token before it is
                     capitalized and the most frequently used first name, and the token after is the
@@ -498,86 +498,19 @@
                 <div>
                     <head>Learning rules</head>
                     <p>The pseudo code for the preliminary rule induction system was as follows.</p>
-                    <table>
-                        <row>
-                            <cell cols="4">
-                                <code>Generate all features of examples in the training set</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell cols="4">
-                                <code>Generalize features [replace constants with variables,
-                                    relativize positions]</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell cols="4">
-                                <code>Select top-n features (eliminate all with low chi-square in
-                                    the training set)</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell cols="4">
-                                <code>for lev in 1 to maxLevel</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell/>
-                            <cell cols="3">
-                                <code>predicted = tag training set with rules up to level
-                                    lev-1</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell/>
-                            <cell cols="3">
-                                <code>for tag in tag-set</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell/>
-                            <cell/>
-                            <cell cols="2">
-                                <code>for x in power set of features up to length
-                                    maxCardinality</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell/>
-                            <cell/>
-                            <cell/>
-                            <cell>
-                                <code>gain = count false negative matching x in predicted</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell/>
-                            <cell/>
-                            <cell/>
-                            <cell>
-                                <code>loss = count true negative matching x in predicted</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell/>
-                            <cell/>
-                            <cell/>
-                            <cell>
-                                <code>if gain>loss add x to rules candidates</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell cols="4">
-                                <code>for y in rules candidates sorted by gain-loss</code>
-                            </cell>
-                        </row>
-                        <row>
-                            <cell/>
-                            <cell cols="3">
-                                <code>if rules does not overlap with rules add y to rules</code>
-                            </cell>
-                        </row>
-                    </table>
+                    <eg>Generate all features of examples in the training set
+Generalize features [replace constants with variables, relativize positions]
+Select top-n features (eliminate all with low chi-square in the training set)
+for lev in 1 to maxLevel
+	predicted = tag training set with rules up to level lev-1
+	for tag in tag-set
+		for x in power set of features up to length maxCardinality
+			gain = count false negative matching x in predicted
+			loss = count true negative matching x in predicted
+			if gain>loss add x to rules candidates
+		for y in rules candidates sorted by gain-loss
+			if rules does not overlap with rules add y to rules	
+                    </eg>
                     <p>The hyper-parameters <code>maxLevel</code> and <code>maxCardinality</code>
                         control the number of level of specific rules and the number of atoms in
                         rules. For performance reasons, the learning system was implemented in
@@ -610,30 +543,30 @@
                     <row role="label">
                         <cell/>
                         <cell cols="2">
-                            <hi rend="bold">Initial model</hi>
+                            Initial model
                         </cell>
                         <cell cols="2">
-                            <hi rend="bold">Improved model</hi>
+                            Improved model
                         </cell>
                     </row>
                     <row role="label">
                         <cell/>
                         <cell>
-                            <hi rend="italic">SM rules</hi>
+                            SM rules
                         </cell>
                         <cell>
-                            <hi rend="italic">CRF</hi>
+                            CRF
                         </cell>
                         <cell>
-                            <hi rend="italic">SM rules</hi>
+                            SM rules
                         </cell>
                         <cell>
-                            <hi rend="italic">CRF</hi>
+                            CRF
                         </cell>
                     </row>
                     <row>
                         <cell role="label">
-                            <hi rend="bold">Accuracy rate</hi>
+                            Accuracy rate
                         </cell>
                         <cell role="data">79.82%</cell>
                         <cell role="data">67.93%</cell>
@@ -642,7 +575,7 @@
                     </row>
                     <row>
                         <cell role="label">
-                            <hi rend="bold">Support</hi>
+                            Support
                         </cell>
                         <cell role="data">1416</cell>
                         <cell role="data">1205</cell>
@@ -666,10 +599,10 @@
                         <head>Gender and nobility evaluation table</head>
                         <row role="label">
                             <cell cols="5">
-                                <hi rend="bold">Nobility status prediction</hi>
+                                Nobility status prediction
                             </cell>
                             <cell cols="5">
-                                <hi rend="bold">Gender prediction</hi>
+                                Gender prediction
                             </cell>
                         </row>
                         <row role="label">
@@ -685,7 +618,7 @@
                             <cell>support</cell>
                         </row>
                         <row role="data">
-                            <cell>Noble</cell>
+                            <cell role="label">Noble</cell>
                             <cell>0.98</cell>
                             <cell>1.0</cell>
                             <cell>0.99</cell>
@@ -697,7 +630,7 @@
                             <cell>192</cell>
                         </row>
                         <row role="data">
-                            <cell>Common</cell>
+                            <cell role="label">Common</cell>
                             <cell>1.0</cell>
                             <cell>0.85</cell>
                             <cell>0.92</cell>
