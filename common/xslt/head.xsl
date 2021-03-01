@@ -38,6 +38,7 @@ s.parentNode.insertBefore(ga, s);
           <xsl:comment>WTF?</xsl:comment>
             <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><xsl:comment>Gimme some comment!</xsl:comment></script>
             <script>
+                <!-- The predefined skipHtmlTags array lists the names of the tags whose contents should not be processed by MathJaX (other than to look for ignore/process classes as listed below). You can add to (or remove from) this list to prevent MathJax from processing mathematics in specific contexts. In the example below, `code` and `pre` are **removed** from the skipHtmlTags array. See http://docs.mathjax.org/en/latest/options/document.html . -->
                 MathJax = {
                     options: {
                         skipHtmlTags: {'[-]': ['code', 'pre']}
