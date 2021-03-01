@@ -37,6 +37,13 @@ s.parentNode.insertBefore(ga, s);
 
           <xsl:comment>WTF?</xsl:comment>
             <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><xsl:comment>Gimme some comment!</xsl:comment></script>
+            <script>
+                MathJax = {
+                    options: {
+                        skipHtmlTags: {'[-]': ['code', 'pre']}
+                    }
+                };
+            </script>
             <script id="MathJax-script" async=""
                 src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"><xsl:comment>Gimme some comment!</xsl:comment>
             </script>     
