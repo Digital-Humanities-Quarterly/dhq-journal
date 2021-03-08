@@ -10,7 +10,7 @@
     <xsl:import href="../../../../common/xslt/template_editorial_article.xsl"/>
   
     <xsl:template match="tei:ab[@type = 'imageGallery']">
-        <div id="galleria" style="margin-left:auto; margin-right:auto;">
+        <div class="galleria" style="margin-left:auto; margin-right:auto;">
             <xsl:for-each select=".//tei:figure">
                 <img>
                     <xsl:attribute name="src">
@@ -47,10 +47,10 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
         
         <!-- load Galleria -->
-        <script src="/dhq/common/galleria/galleria-1.5.7.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/galleria.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
         
         <style>
-            #galleria{ width: 950px; height: 1200px; background: #000; padding:20px; border:2px solid #D5DFE9; }
+            .galleria{ width: 1200px; height: 1400px; background: #000; padding:20px; border:2px solid #D5DFE9; }
         </style> 
         
     </xsl:template>
@@ -62,12 +62,10 @@
     
     <xsl:template name="galleriaBodyHooks">
         <script>
-            
-            // Load the Azur theme
-            Galleria.loadTheme('/dhq/common/galleria/themes/azur/galleria.azur.min.js');
-            
-            // Initialize Galleria
-            Galleria.run('#galleria', { trueFullscreen: true});
+            (function() {
+            Galleria.loadTheme('https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/themes/classic/galleria.classic.min.js');
+            Galleria.run('.galleria');
+            }());
             
         </script>
     </xsl:template>
