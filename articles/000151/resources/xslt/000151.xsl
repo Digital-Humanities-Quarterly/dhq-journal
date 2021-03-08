@@ -10,7 +10,7 @@
     <xsl:import href="../../../../common/xslt/template_editorial_article.xsl"/>
     
     <xsl:template match="tei:ab[@type = 'imageGallery']">
-        <div id="galleria" style="margin-left:auto; margin-right:auto;">
+        <div class="galleria" style="margin-left:auto; margin-right:auto;">
             <xsl:for-each select=".//tei:figure">
                 <img>
                     <xsl:attribute name="src">
@@ -34,11 +34,11 @@
     <xsl:template name="galleriaHeadHooks">
         <!-- load jQuery -->
         <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"><xsl:comment>Gimme some comment!</xsl:comment></script> -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
         
         <!-- load Galleria -->
         <!-- <script src="/dhq/common/galleria/galleria-1.2.9.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script> -->
-        <script src="/dhq/common/galleria/galleria-1.5.7.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/galleria.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
         
         <style>
             #galleria{ width: 800px; height: 500px; background: #000 }
@@ -53,14 +53,10 @@
     
     <xsl:template name="galleriaBodyHooks">
         <script>
-           (function() { 
-            	// Load the Azur theme
-            	Galleria.loadTheme('/dhq/common/galleria/themes/classic/galleria.classic.min.js');
-            
-            // Initialize Galleria
-            	Galleria.run('#galleria', { trueFullscreen: true});
-            	//Galleria.run('#galleria');
-	   }());
+            (function() {
+            Galleria.loadTheme('https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/themes/classic/galleria.classic.min.js');
+            Galleria.run('.galleria');
+            }());
             
         </script>
     </xsl:template>
