@@ -25,24 +25,4 @@
         <script src="resources/cite_game_demo/utilities.js" type="text/javascript" charset="utf-8"><xsl:comment>Gimme some comment!</xsl:comment></script>
     </xsl:template>
     
-    
-    <xsl:template name="customBody">
-        <xsl:call-template name="galleriaBodyHooks"/>
-    </xsl:template>
-    
-    <xsl:template name="galleriaBodyHooks">
-        <script>
-           (function() { 
-            	// Load the Azur theme
-            	Galleria.loadTheme('/dhq/common/galleria/themes/classic/galleria.classic.min.js');
-            
-            // Initialize Galleria
-            	Galleria.run('#galleria', { trueFullscreen: true});
-            	//Galleria.run('#galleria');
-	   }());
-            
-        </script>
-    </xsl:template>
-
-    
 </xsl:stylesheet>
