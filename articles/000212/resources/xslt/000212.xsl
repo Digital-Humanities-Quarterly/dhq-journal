@@ -10,7 +10,7 @@
     <xsl:import href="../../../../common/xslt/template_editorial_article.xsl"/>
   
     <xsl:template match="tei:ab[@type = 'imageGallery']">
-        <div id="galleria" style="margin-left:auto; margin-right:auto;">
+        <div class="galleria" style="margin-left:auto; margin-right:auto;">
             <xsl:for-each select=".//tei:figure">
                 <img>
                     <xsl:attribute name="src">
