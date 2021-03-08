@@ -41,7 +41,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/galleria.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
         
         <style>
-            #galleria{ width: 800px; height: 500px; background: #000 }
+            .galleria{ width: 800px; height: 500px; background: #000 }
         </style> 
         
     </xsl:template>
