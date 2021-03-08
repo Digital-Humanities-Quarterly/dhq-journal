@@ -49,7 +49,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/galleria.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
         
         <style>
-            .galleria{ width: 800px; height: 500px; background: #000 }
+            .galleria{ width: 1200px; height: 1400px; background: #000; padding:20px; border:2px solid #D5DFE9; }
         </style> 
         
     </xsl:template>
