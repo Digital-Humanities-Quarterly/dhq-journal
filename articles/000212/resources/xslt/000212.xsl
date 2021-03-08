@@ -47,10 +47,10 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
         
         <!-- load Galleria -->
-        <script src="/dhq/common/galleria/galleria-1.5.7.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/galleria.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
         
         <style>
-            #galleria{ width: 1200px; height: 1400px; background: #000; padding:20px; border:2px solid #D5DFE9; }
+            .galleria{ width: 1200px; height: 1400px; background: #000; padding:20px; border:2px solid #D5DFE9; }
         </style> 
         
     </xsl:template>
@@ -61,18 +61,13 @@
     </xsl:template>
     
     <xsl:template name="galleriaBodyHooks">
-	<script>
-           (function() {
-                // Load the Azur theme
-                Galleria.loadTheme('/dhq/common/galleria/themes/classic/galleria.classic.min.js');
-
-            // Initialize Galleria
-                //Galleria.run('#galleria', { trueFullscreen: true});
-                Galleria.run('#galleria');
-           }());
+        <script>
+            (function() {
+            Galleria.loadTheme('https://cdnjs.cloudflare.com/ajax/libs/galleria/1.5.7/themes/classic/galleria.classic.min.js');
+            Galleria.run('.galleria');
+            }());
             
         </script>
-
     </xsl:template>
 
     
