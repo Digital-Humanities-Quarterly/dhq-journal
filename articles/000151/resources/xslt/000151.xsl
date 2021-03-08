@@ -10,7 +10,7 @@
     <xsl:import href="../../../../common/xslt/template_editorial_article.xsl"/>
     
     <xsl:template match="tei:ab[@type = 'imageGallery']">
-        <div id="galleria" style="margin-left:auto; margin-right:auto;">
+        <div class="galleria" style="margin-left:auto; margin-right:auto;">
             <xsl:for-each select=".//tei:figure">
                 <img>
                     <xsl:attribute name="src">
@@ -34,7 +34,7 @@
     <xsl:template name="galleriaHeadHooks">
         <!-- load jQuery -->
         <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"><xsl:comment>Gimme some comment!</xsl:comment></script> -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
         
         <!-- load Galleria -->
         <!-- <script src="/dhq/common/galleria/galleria-1.2.9.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script> -->
