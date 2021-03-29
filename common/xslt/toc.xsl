@@ -131,8 +131,10 @@
     <xsl:choose>
       <xsl:when test="ancestor::cluster">
         <div class="cluster">
-          <h3>Case Studies</h3>
-          <xsl:apply-templates/>
+            <xsl:if test="not(title)">
+              <h3>Case Studies</h3>
+            </xsl:if>
+            <xsl:apply-templates/>
         </div>
       </xsl:when>
       <xsl:otherwise>
@@ -163,7 +165,9 @@
         <xsl:choose>
             <xsl:when test="ancestor::cluster">
                 <div class="cluster">
-                    <h3>Issues in Digital Humanities</h3>
+                    <xsl:if test="not(title)">
+                        <h3>Issues in Digital Humanities</h3>
+                    </xsl:if>
                     <xsl:apply-templates/>
                 </div>
             </xsl:when>
@@ -178,8 +182,10 @@
         <xsl:choose>
             <xsl:when test="ancestor::cluster">
                 <div class="cluster">
+               	  <xsl:if test="not(title)">
                     <h3>Reviews</h3>
-                    <xsl:apply-templates/>
+                  </xsl:if>
+                  <xsl:apply-templates/>
                 </div>
             </xsl:when>
             <xsl:otherwise>
@@ -193,7 +199,9 @@
         <xsl:choose>
             <xsl:when test="ancestor::cluster">
                 <div class="cluster">
-                    <h3>Posters</h3>
+               	    <xsl:if test="not(title)">
+                     <h3>Posters</h3>
+                    </xsl:if>
                     <xsl:apply-templates/>
                 </div>
             </xsl:when>
