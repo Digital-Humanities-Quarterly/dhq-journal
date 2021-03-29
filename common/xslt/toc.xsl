@@ -220,7 +220,7 @@
 
     <xsl:template match="title">
         <xsl:choose>
-        	<xsl:when test="parent::list[@id='articles'] and ancestor::cluster">
+        	<xsl:when test="(parent::list[@id='articles'] or parent::list[@id='case_studies'] or parent::list[@id='issues'] or parent::list[@id='reviews'] or parent::list[@id='field_reports'])  and ancestor::cluster">
         		<h3>
         			<xsl:apply-templates/>
         		</h3>
