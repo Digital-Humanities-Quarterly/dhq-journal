@@ -103,8 +103,7 @@
         </xsl:choose>
     </xsl:template>
     <xsl:template name="body-end-scripts">
-        <script src="https://myCDN.com/prism@v1.x/components/prism-core.min.js"><!-- gimme some comment --></script>
-        <script src="https://myCDN.com/prism@v1.x/plugins/autoloader/prism-autoloader.min.js"><!-- gimme some comment --></script>
+        <script>hljs.highlightAll();</script>
     </xsl:template>
         
     
