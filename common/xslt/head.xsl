@@ -55,7 +55,9 @@ s.parentNode.insertBefore(ga, s);
           <script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"><xsl:comment> serialize </xsl:comment>
           </script>
           <xsl:comment>End newstuff</xsl:comment>-->
-          
+          <!-- prism syntax highligher -->
+            <link href="https://myCDN.com/prism@v1.x/themes/prism.css" rel="stylesheet" />
+            
           
 <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"><xsl:comment>Gimme some comment!</xsl:comment></script>
             <xsl:call-template name="customHead"/> 
