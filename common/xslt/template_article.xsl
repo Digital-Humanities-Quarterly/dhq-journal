@@ -103,8 +103,8 @@
         </xsl:choose>
     </xsl:template>
     <xsl:template name="body-end-scripts">
-        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/prism.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
-        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.17.1/plugins/autoloader/prism-autoloader.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
+        <script src="https://myCDN.com/prism@v1.x/components/prism-core.min.js"><!-- gimme some comment --></script>
+        <script src="https://myCDN.com/prism@v1.x/plugins/autoloader/prism-autoloader.min.js"><!-- gimme some comment --></script>
     </xsl:template>
         
     
