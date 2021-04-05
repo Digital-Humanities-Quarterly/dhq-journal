@@ -56,7 +56,9 @@ s.parentNode.insertBefore(ga, s);
           </script>
           <xsl:comment>End newstuff</xsl:comment>-->
           <!-- prism syntax highligher -->
-            <link href="https://myCDN.com/prism@v1.x/themes/prism.css" rel="stylesheet" />
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
+                
             
           
 <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"><xsl:comment>Gimme some comment!</xsl:comment></script>
