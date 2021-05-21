@@ -816,6 +816,18 @@
         <blockquote class="eg">
             <pre>
                 <code>
+                    <xsl:if test="@lang">
+                        <xsl:attribute name="class">
+                        <xsl:choose>
+                            <xsl:when test="@lang = 'unspecified'">
+                                <xsl:value-of select="'plaintext'"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="@lang"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                        </xsl:attribute>
+                    </xsl:if>
                     <xsl:apply-templates/>
                 </code>
             </pre>
