@@ -816,7 +816,7 @@
         <blockquote class="eg">
             <pre>
                 <code>
-                    <xsl:if test="@lang">
+                    <xsl:if test="@lang and normalize-space(@lang) != 'code_general'">
                         <xsl:attribute name="class">
                         <xsl:choose>
                             <xsl:when test="@lang = 'unspecified'">
