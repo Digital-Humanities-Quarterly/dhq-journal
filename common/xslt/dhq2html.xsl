@@ -820,7 +820,7 @@
                         <xsl:attribute name="class">
                         <xsl:choose>
                             <xsl:when test="@lang = 'unspecified'">
-                                <xsl:value-of select="'plaintext'"/>
+                                <xsl:value-of select="'language-plaintext'"/>
                             </xsl:when>
                             <xsl:otherwise>
                                 <xsl:value-of select="@lang"/>
