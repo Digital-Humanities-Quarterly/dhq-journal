@@ -818,14 +818,7 @@
                 <code>
                     <xsl:if test="@lang and normalize-space(@lang) != 'code_general'">
                         <xsl:attribute name="class">
-                        <xsl:choose>
-                            <xsl:when test="@lang = 'unspecified'">
-                                <xsl:value-of select="'language-plaintext'"/>
-                            </xsl:when>
-                            <xsl:otherwise>
                                 <xsl:value-of select="@lang"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
                         </xsl:attribute>
                     </xsl:if>
                     <xsl:apply-templates/>
