@@ -126,7 +126,7 @@
 				<xsl:with-param name="docurl" select="$fpath"/>
 				<xsl:with-param name="id" select="$id"/>
 			</xsl:call-template>
-			
+		<!--	
 			<xsl:call-template name="commentscount">
 			</xsl:call-template>
 
@@ -134,6 +134,7 @@
 			   <xsl:with-param name="docurl" select="$fpath"/>
    	                   <xsl:with-param name="id" select="$id"/>
                         </xsl:call-template>
+-->
 			
                         <!-- Use the URL generated to pass to the footer -->
                         <xsl:call-template name="footer">
