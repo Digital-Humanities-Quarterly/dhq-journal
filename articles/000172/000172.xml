@@ -621,55 +621,84 @@
 
                 <dhq:example>
                     <head>Script 1. extract_faces.py</head>
-                    <eg>#!/usr/bin/python # Loop through images and feed to facial detection script
-                        import os import face_detect #rootdir =
-                        "/home/tim/mycode/recordsearch/src/recordsearchtools/files/E752" rootdir =
-                        "/home/tim/mycode/recordsearch/src/recordsearchtools/files/ST84-1" #rootdir
-                        = "/home/tim/mycode/recordsearch/src/recordsearchtools/files/test" #rootdir
-                        =
-                        "/home/tim/mycode/recordsearch/src/recordsearchtools/files/ST84-1/1907-391-400-[1731871]"
-                        for root, dirs, files in os.walk(rootdir, topdown=True): for file in files:
-                        print 'Processing %s' % file face_detect.process_image(os.path.join(root,
-                        file))</eg>
+                    <eg lang="python">#!/usr/bin/python 
+# Loop through images and feed to facial detection script
+import os 
+import face_detect 
+#rootdir = "/home/tim/mycode/recordsearch/src/recordsearchtools/files/E752" 
+rootdir = "/home/tim/mycode/recordsearch/src/recordsearchtools/files/ST84-1" 
+#rootdir = "/home/tim/mycode/recordsearch/src/recordsearchtools/files/test" 
+#rootdir = "/home/tim/mycode/recordsearch/src/recordsearchtools/files/ST84-1/1907-391-400-[1731871]"
+for root, dirs, files in os.walk(rootdir, topdown=True): 
+	for file in files:
+			print 'Processing %s' % file 
+		face_detect.process_image(os.path.join(root, file))</eg>
                 </dhq:example>
 
 
                 <dhq:example>
                     <head>Script 2. face_detect.py</head>
-                    <eg>#!/usr/bin/python # face_detect.py # Face Detection using OpenCV. Based on
-                        script at: #
-                        http://creatingwithcode.com/howto/face-detection-in-static-images-with-python/
-                        # Usage: python face_detect.py [image filename] import sys,os from opencv.cv
-                        import * from opencv.highgui import * from PIL import Image, ImageOps
-                        CLASSIFIER =
-                        '/usr/share/doc/opencv-doc/examples/haarcascades/haarcascade_frontalface_default.xml'
-                        CROP_DIR = '/home/tim/mycode/recordsearch/src/recordsearchtools/files/crops'
-                        def detect_objects(fn, image): """Detects faces and then crops the image."""
-                        #grayscale = cvCreateImage(cvSize(image.width, image.height), 8, 1)
-                        #cvCvtColor(image, grayscale, CV_BGR2GRAY) storage = cvCreateMemStorage(0)
-                        cvClearMemStorage(storage) #cvEqualizeHist(grayscale, grayscale) cascade =
-                        cvLoadHaarClassifierCascade(CLASSIFIER, cvSize(1,1)) faces =
-                        cvHaarDetectObjects(image, cascade, storage, 1.3, 3,
-                        CV_HAAR_DO_CANNY_PRUNING, cvSize(20,20)) if faces: i = 1 for f in faces:
-                        #newfn = fn + ".output.jpg" #os.system("convert %s -stroke red -fill none
-                        -draw 'rectangle %d,%d %d,%d' %s" % (fn, f.x, f.y, f.x+f.width,
-                        f.y+f.height, newfn)) #os.system("mv %s %s.orig" % (fn, fn)) #os.system("mv
-                        %s %s" % (newfn, fn)) #print("[(%d,%d) -&gt; (%d,%d)]" % (f.x, f.y,
-                        f.x+f.width, f.y+f.height)) file, ext = os.path.splitext(fn) im =
-                        Image.open(fn) # Increase selected area by 50px on each side then crop im =
-                        im.crop((f.x-50, f.y-50, f.x+f.width+50, f.y+f.height+50)) # Minor contrast
-                        adjustment im = ImageOps.autocontrast(im, cutoff=0.5) im.load() crop =
-                        '%s/%s_crop_%s.jpg' % (CROP_DIR, os.path.basename(file), i) im.save(crop,
-                        "JPEG") check_crop(crop) i += 1 def check_crop(crop): """Try to reduce false
-                        positives by doing a second pass and deleting images that fail.""" image =
-                        cvLoadImage(crop); storage = cvCreateMemStorage(0)
-                        cvClearMemStorage(storage) cascade = cvLoadHaarClassifierCascade(CLASSIFIER,
-                        cvSize(1,1)) faces = cvHaarDetectObjects(image, cascade, storage, 1.3, 3,
-                        CV_HAAR_DO_CANNY_PRUNING, cvSize(20,20)) if faces: if faces[0] is None:
-                        os.remove(crop) else: os.remove(crop) def process_image(fn): image =
-                        cvLoadImage(fn); detect_objects(fn, image) def main(): image =
-                        cvLoadImage(sys.argv[1]); detect_objects(sys.argv[1], image) if __name__ ==
-                        "__main__": main() </eg>
+                    <eg lang="python">#!/usr/bin/python 
+# face_detect.py 
+# Face Detection using OpenCV. Based on script at: 
+# http://creatingwithcode.com/howto/face-detection-in-static-images-with-python/ 
+# Usage: python face_detect.py [image filename] 
+import sys,os 
+from opencv.cv import * 
+from opencv.highgui import * 
+from PIL import Image, ImageOps 
+CLASSIFIER = '/usr/share/doc/opencv-doc/examples/haarcascades/haarcascade_frontalface_default.xml' 
+CROP_DIR = '/home/tim/mycode/recordsearch/src/recordsearchtools/files/crops' 
+def detect_objects(fn, image): 
+	"""Detects faces and then crops the image.""" 
+	#grayscale = cvCreateImage(cvSize(image.width, image.height), 8, 1) 
+	#cvCvtColor(image, grayscale, CV_BGR2GRAY) 
+	
+	storage = cvCreateMemStorage(0) 
+	cvClearMemStorage(storage) 
+	#cvEqualizeHist(grayscale, grayscale) 
+	cascade = cvLoadHaarClassifierCascade(CLASSIFIER, cvSize(1,1)) 
+	faces = cvHaarDetectObjects(image, cascade, storage, 1.3, 3, 
+CV_HAAR_DO_CANNY_PRUNING, cvSize(20,20)) 
+	if faces: 
+		i = 1 
+		for f in faces: 
+			#newfn = fn + ".output.jpg" 
+			#os.system("convert %s -stroke red -fill none -draw 'rectangle %d,%d %d,%d' %s" % (fn, f.x, f.y, f.x+f.width, f.y+f.height, newfn)) 
+			#os.system("mv %s %s.orig" % (fn, fn)) 
+			#os.system("mv %s %s" % (newfn, fn)) 
+			#print("[(%d,%d) -&gt; (%d,%d)]" % (f.x, f.y, f.x+f.width, f.y+f.height)) 
+			file, ext = os.path.splitext(fn) 
+			im = Image.open(fn) 
+			# Increase selected area by 50px on each side then crop 
+			im = im.crop((f.x-50, f.y-50, f.x+f.width+50, f.y+f.height+50)) 
+			# Minor contrast adjustment 
+			im = ImageOps.autocontrast(im, cutoff=0.5) 
+			im.load() 
+			crop = '%s/%s_crop_%s.jpg' % (CROP_DIR, os.path.basename(file), i) 
+			im.save(crop, "JPEG") 
+			check_crop(crop) 
+			i += 1 
+def check_crop(crop): 
+	"""Try to reduce false positives by doing a second pass and deleting images that fail.""" 
+	image = cvLoadImage(crop); 
+	storage = cvCreateMemStorage(0) 
+	cvClearMemStorage(storage) 
+	cascade = cvLoadHaarClassifierCascade(CLASSIFIER, cvSize(1,1)) 
+	faces = cvHaarDetectObjects(image, cascade, storage, 1.3, 3, CV_HAAR_DO_CANNY_PRUNING, cvSize(20,20)) 
+	if faces: 
+		if faces[0] is None: 
+			os.remove(crop) 
+		else: 
+			os.remove(crop) 
+def process_image(fn): 
+	image = cvLoadImage(fn); 
+	detect_objects(fn, image) 
+def main(): 
+	image = cvLoadImage(sys.argv[1]); 
+	detect_objects(sys.argv[1], image) 
+	if __name__ == "__main__": 
+		main() </eg>
                 </dhq:example>
                 <p>For a DH <soCalled>hacker</soCalled> these scripts are rich in humanist detail,
                     from the cultural phenomenon that is Github, to the problems posed by finding
