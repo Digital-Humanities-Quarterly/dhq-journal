@@ -327,12 +327,19 @@
                critical statistics: population density, the likelihood of fire, pollution, land
                value, and the function that drew Alan Kay’s attention to <title rend="italic"
                   >Micropolis</title>, a neighborhood’s crime rate.</p>
-            <eg> 413 for (int x = 0; x &lt; WORLD_W; x += crimeRateMap.MAP_BLOCKSIZE) { 414 for (int
-               y = 0; y &lt; WORLD_H; y += crimeRateMap.MAP_BLOCKSIZE) { 415 int z =
-               landValueMap.worldGet(x, y); 416 if (z &gt; 0) { 417 ++numz; 418 z = 128 - z; 419 z
-               += populationDensityMap.worldGet(x, y); 420 z = min(z, 300); 421 z -=
-               policeStationMap.worldGet(x, y); 422 z = clamp(z, 0, 250); 423
-               crimeRateMap.worldSet(x, y, (Byte)z); 424 totz += z; </eg>
+            <eg lang="c++">413	for (int x = 0; x &lt; WORLD_W; x += crimeRateMap.MAP_BLOCKSIZE) { 
+414		for (int y = 0; y &lt; WORLD_H; y += crimeRateMap.MAP_BLOCKSIZE) { 
+415 		int z = landValueMap.worldGet(x, y); 
+416			if (z &gt; 0) { 
+417				++numz; 
+418				z = 128 - z; 
+419				z += populationDensityMap.worldGet(x, y); 
+420				z = min(z, 300); 
+421				z -= policeStationMap.worldGet(x, y); 
+422				z = clamp(z, 0, 250); 
+423				crimeRateMap.worldSet(x, y, (Byte)z); 
+424				totz += z;                
+            </eg>
             <p>The manual tells us what this code does. But what does it mean? In the most general
                sense, these lines generate information for game engine about the game’s own state.
                The first several lines provide the scan mechanism, as the existing crime rate map of
@@ -379,17 +386,22 @@
                rates. For example, land that has no value — land that hasn’t been built upon or
                utilized in the player’s city — has no crime rate. This shows up in lines
                433–434:</p>
-            <eg> } else { crimeRateMap.worldSet(x, y, 0); </eg>
+            <eg lang="c++">} else { 
+   crimeRateMap.worldSet(x, y, 0); </eg>
             <p>Because of this strict algorithm, there is no chance of a neighborhood existing
                outside of this model. The algorithm is totalizing and deterministic, absolutely so.
                A populous neighborhood with little police presence can never be crime-free. Crime is
                endemic, epidemic. </p>
             <p>Land value is likewise reduced to set formula, seen in this equation in lines
                264–271:</p>
-            <eg> if (landValueFlag) { /* LandValue Equation */ dis = 34 -
-               getCityCenterDistance(worldX, worldY) / 2; dis = dis &lt;&lt;2; dis +=
-               terrainDensityMap.get(x &gt;&gt;1, y &gt;&gt;1); dis -= pollutionDensityMap.get(x,
-               y); if (crimeRateMap.get(x, y) &gt; 190) { dis -= 20; } </eg>
+            <eg lang="c++">if (landValueFlag) {   /* LandValue Equation */ 
+	dis = 34 - getCityCenterDistance(worldX, worldY) / 2; 
+	dis = dis &lt;&lt;2; 
+	dis += terrainDensityMap.get(x &gt;&gt;1, y &gt;&gt;1); 
+	dis -= pollutionDensityMap.get(x, y); 
+	if (crimeRateMap.get(x, y) &gt; 190) { 
+		dis -= 20; 
+	} </eg>
             <p>These lines stipulate that land value is a function of the property’s distance from
                the city center, the type of terrain, the nearby pollution, and the crime rate.
                Again, though, players will likely discover this algorithm for themselves, or else
@@ -490,21 +502,43 @@
                at, but to illustrate the extra-functional significance of comments in code, examine
                the section that begins at line 109, where the probability of the different possible
                disasters is defined:</p>
-            <eg> 109 if (!getRandom(DisChance[x])) { 110 switch (getRandom(8)) { 111 case 0: 112
-               case 1: 113 setFire(); // 2/9 chance a fire breaks out 114 break; 115 case 2: 116
-               case 3: 117 makeFlood(); // 2/9 chance for a flood 118 break; 119 case 4: 120 // 1/9
-               chance nothing happens (was airplane crash, 121 // which EA removed after 9/11, and
-               requested it be 122 // removed from this code) 123 break; 124 case 5: 125
-               makeTornado(); // 1/9 chance tornado 126 break; 127 case 6: 128 makeEarthquake(); //
-               1/9 chance earthquake 129 break; 130 case 7: 131 case 8: 132 // 2/9 chance a scary
-               monster arrives in a dirty town 133 if (pollutionAverage &gt; /* 80 */ 60) { 134
-               makeMonster(); 135 } 136 break; </eg>
+            <eg lang="c++">109 	if (!getRandom(DisChance[x])) { 
+110 		switch (getRandom(8)) { 
+111 			case 0: 
+112				case 1: 
+113 				setFire(); // 2/9 chance a fire breaks out 
+114 				break; 
+115 			case 2: 
+116				case 3: 
+117 				makeFlood(); // 2/9 chance for a flood 
+118 				break; 
+119 			case 4: 
+120 				// 1/9 chance nothing happens (was airplane crash, 
+121 				// which EA removed after 9/11, and requested it be 
+122 				// removed from this code) 
+123 				break; 
+124 			case 5: 
+125					makeTornado(); // 1/9 chance tornado 
+126 				break; 
+127 			case 6: 
+128 				makeEarthquake(); // 1/9 chance earthquake 
+129 				break; 
+130 			case 7: 
+131 			case 8: 
+132 				// 2/9 chance a scary monster arrives in a dirty town 
+133 				if (pollutionAverage &gt; /* 80 */ 60) { 
+134 					makeMonster(); 
+135 				} 
+136 				break; </eg>
             <p>In the midst of rather generic biblical disasters (22% chance of fire in line 113 and
                22% chance of flood in line 117), there is a startling excision of code, the trace of
                which is only visible in the programmer’s comments. These full-line comments in lines
                119–123 can be identified by the double slashes that precede them:</p>
-            <eg> case 4: // 1/9 chance nothing happens (was airplane crash, // which EA removed
-               after 9/11, and requested it be // removed from this code) break; </eg>
+            <eg lang="c++">         case 4: 
+               // 1/9 chance nothing happens (was airplane crash, 
+               // which EA removed after 9/11, and requested it be 
+               // removed from this code) 
+               break; </eg>
 
             <p>These comments reveal that in the original <title rend="italic">SimCity</title> there
                was a 1 out of 9 chance that an airplane would crash into the city. After 9/11 this
@@ -689,10 +723,18 @@
                actions that should occur when a generic character is fatally hit by Oswald’s
                rifle:</p>
 
-            <eg> // Generic character’s killed action // —————————————————————- // This is the
-               action that a character takes when they should die if // they’ve got no special
-               animation for it // —————————————————————- [ACTION] &lt;NAME&gt; PersonKilled
-               &lt;DIE&gt; 0 0 &lt;RAGDOLL&gt; </eg>
+            <eg lang="nohighlight">// Generic character’s killed action 
+// —————————————————————- 
+// This is the action that a character takes when they should die if 
+// they’ve got no special animation for it 
+// —————————————————————- 
+[ACTION] 
+&lt;NAME&gt; 
+PersonKilled
+&lt;DIE&gt; 
+0 
+0 
+&lt;RAGDOLL&gt; </eg>
 
             <p>The code comments — the marginalia — in <title rend="italic">JFK: Reloaded</title>’s
                WAD file at first blush resemble <term>enarratio</term>, not only helping readers to
@@ -705,8 +747,15 @@
                   <ptr target="#parkes1999" loc="90"/>
                </cit>. For example, in the following snippet, Jackie Kennedy’s actions are
                defined:</p>
-            <eg> // ————————————————————————— // Jackie cradling JFK before the money shot //
-               ————————————————————————— [ACTION] &lt;NAME&gt; JackieCradleJFK &lt;CONCERNED&gt; 0 0 </eg>
+            <eg lang="nohighlight">// ————————————————————————— 
+// Jackie cradling JFK before the money shot 
+//————————————————————————— 
+[ACTION] 
+&lt;NAME&gt; 
+JackieCradleJFK 
+&lt;CONCERNED&gt; 
+0 
+0 </eg>
 
 
             <p>The comment provides the context for these lines of code (<term>enarratio</term>) but
@@ -759,10 +808,17 @@
                misogynistic tone of the comments becomes even more troubling in the following
                snippet of code, which defines Nellie Connally’s actions when her husband, Texas
                Governor John Connally, is shot:</p>
-            <eg> // ————————————————————————— // Nelly shoving Connally’s bonce down into her minge,
-               // in a last desparate attempt to get oral sex out of // him before he croaks //
-               ————————————————————————— [ACTION] &lt;NAME&gt; NellyShoveConnally &lt;CONCERNED&gt;
-               0 0 </eg>
+            <eg>// ————————————————————————— 
+// Nelly shoving Connally’s bonce down into her minge,
+// in a last desparate attempt to get oral sex out of 
+// him before he croaks
+//————————————————————————— 
+[ACTION] 
+&lt;NAME&gt; 
+NellyShoveConnally 
+&lt;CONCERNED&gt;               
+0 
+0 </eg>
             <p>In three lines of code commentary, the developers at Traffic absolutely undermine the
                entire stated pedagogical project of their docu-game. Their outwardly respectful
                   <q>interactive reconstruction of John F. Kennedy’s assassination</q> is undone by
