@@ -268,8 +268,9 @@
                         <option value="findtext">Find Text</option>
                         <option value="colloc">Collocation</option>
                     </select> -->
-|&#x00a0;
-<!--
+
+                    <!--|&#x00a0;
+
 		   <xsl:text>Discuss</xsl:text>
 			(<a>
                         	<xsl:attribute name="href">
