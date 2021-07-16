@@ -1003,6 +1003,14 @@
         </xsl:if>
     </xsl:template>
     
+    <xsl:template name="style">
+        <xsl:if test="@style">
+            <xsl:attribute name="style">
+                <xsl:value-of select="@style"/>
+            </xsl:attribute>
+        </xsl:if>
+    </xsl:template>
+    
     <xsl:template match="*" mode="id">
         <xsl:value-of select="@xml:id"/>
         <xsl:if test="not(@xml:id)">
@@ -1238,6 +1246,7 @@
                 </xsl:otherwise>
             </xsl:choose>
             <xsl:call-template name="id"/>
+            <xsl:call-template name="style"/>
             <xsl:apply-templates/>
         </tr>
     </xsl:template>
@@ -1264,7 +1273,8 @@
                     <xsl:value-of select="@align"/>
                 </xsl:attribute>
             </xsl:if>
-
+            <xsl:call-template name="id"/>
+            <xsl:call-template name="style"/>
             <xsl:apply-templates/>
         </td>
     </xsl:template>
