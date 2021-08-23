@@ -792,7 +792,18 @@
         </xsl:param>
         <xsl:choose>
             <xsl:when test="@mimeType='video/mp4'">
-                <div><iframe src="{$mediaURL}" width="640" height="524" frameborder="0" allow="autoplay; fullscreen" allowfullscreen=""><xsl:comment>Gimme some comment!</xsl:comment></iframe></div>
+                <div><iframe src="{$mediaURL}" width="640" height="524" frameborder="0" allow="autoplay; fullscreen" allowfullscreen="">
+                    <xsl:attribute name="style">
+                        <xsl:choose>
+                            <xsl:when test="@style">
+                                <xsl:value-of select="@style"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="'width:640px; height:524px'"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <xsl:comment>Gimme some comment!</xsl:comment></iframe></div>
             </xsl:when>
             <xsl:when test="@mimeType='audio/mpeg'">
                 <audio controls="">
