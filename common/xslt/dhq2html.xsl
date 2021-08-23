@@ -793,13 +793,23 @@
         <xsl:choose>
             <xsl:when test="@mimeType='video/mp4'">
                 <div><iframe src="{$mediaURL}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen="">
-                    <xsl:attribute name="style">
+                    <xsl:attribute name="width">
                         <xsl:choose>
-                            <xsl:when test="@style">
-                                <xsl:value-of select="@style"/>
+                            <xsl:when test="@width">
+                                <xsl:value-of select="@width"/>
                             </xsl:when>
                             <xsl:otherwise>
-                                <xsl:value-of select="'width:640px; height:524px'"/>
+                                <xsl:value-of select="'640'"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <xsl:attribute name="height">
+                        <xsl:choose>
+                            <xsl:when test="@height">
+                                <xsl:value-of select="@height"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="'524'"/>
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
