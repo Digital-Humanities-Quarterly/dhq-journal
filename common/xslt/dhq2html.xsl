@@ -792,7 +792,7 @@
         </xsl:param>
         <xsl:choose>
             <xsl:when test="@mimeType='video/mp4'">
-                <div><iframe src="{$mediaURL}" width="640" height="524" frameborder="0" allow="autoplay; fullscreen" allowfullscreen="">
+                <div><iframe src="{$mediaURL}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen="">
                     <xsl:attribute name="style">
                         <xsl:choose>
                             <xsl:when test="@style">
