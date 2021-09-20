@@ -18,6 +18,7 @@
     <!--<xsl:strip-space elements="dhqBiblio:*"/>-->
   
     <!-- <xsl:param name="aprilfool" select="'true'"/> -->
+    <xsl:param name="oldest_vol_with_pdf" select="number('13')" as="xs:double"/>
     <xsl:param name="context"/>
     <xsl:param name="docurl"/>   
     <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
@@ -140,7 +141,7 @@
         -->
         <div class="DHQarticle">
             <xsl:call-template name="pubInfo"/>
-            <xsl:call-template name="toolbar_top"/>
+            <xsl:call-template name="toolbar"/>
             <xsl:apply-templates/>
             <xsl:call-template name="notes"/>
             <xsl:call-template name="bibliography"/>
@@ -220,71 +221,22 @@
                 </xsl:attribute>
                 <xsl:text>XML</xsl:text>
             </a>
+            <xsl:if test="$vol_no_zeroes >= $oldest_vol_with_pdf">
+                |&#x00a0;
+                <a rel="external">
+                    <xsl:attribute name="href">
+                        <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.pdf')"/>
+                    </xsl:attribute>
+                    <xsl:text>PDF</xsl:text>
+                </a>
+            </xsl:if>
             |&#x00a0;
             <a href="#" onclick="javascript:window.print();"
-                title="Click for print friendly version">Print Article</a>
+                title="Click for print friendly version">Print</a>
         </div> 
     </xsl:template>
     
-    <xsl:template name="toolbar_top">
-        <div class="toolbar">
-            <form id="taporware" action="get">
-                <div>
-                    <a>
-                        <xsl:choose>
-                            <xsl:when test="$published">
-                                <xsl:attribute name="href">
-                                    <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
-                                </xsl:attribute>
-                                <xsl:value-of select="$assigned-issue/title"/>
-                                <xsl:value-of select="concat(' ',$vol_no_zeroes,'.',$issue)"/>
-                                <!--
-                                <xsl:value-of select="concat(': v',$vol_no_zeroes)"/>
-                                <xsl:value-of select="concat(' n',$issue)"/>
-                                -->
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:attribute name="href">
-                                    <xsl:value-of select="concat('/',$context,'/preview/index.html')"/>
-                                </xsl:attribute>
-                                <xsl:text>Preview</xsl:text>
-                            </xsl:otherwise>
-                        </xsl:choose>
-                    </a>
-                    &#x00a0;|&#x00a0;
-                    <a rel="external">
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
-                        </xsl:attribute>
-                        <xsl:text>XML</xsl:text>
-                    </a>
-<!-- 
-                    |&#x00a0;
-                    <a href="#" onclick="javascript:window.print();"
-                        title="Click for print friendly version">Print Article</a>&#x00a0;|&#x00a0;
-                    <select name="taportools" onchange="javascript:gototaporware(this);">
-                        <option>Taporware Tools</option>
-                        <option value="listword">List Words</option>
-                        <option value="findtext">Find Text</option>
-                        <option value="colloc">Collocation</option>
-                    </select> -->
-
-                    <!--|&#x00a0;
-
-		   <xsl:text>Discuss</xsl:text>
-			(<a>
-                        	<xsl:attribute name="href">
-					<xsl:value-of select="concat('/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',$id,'.html','#disqus_thread')"/>
-				</xsl:attribute>
-				<xsl:attribute name="data-disqus-identifier">
-					<xsl:value-of select="$id"/>
-				</xsl:attribute>
-				Comments
-			</a>)-->
-                </div>
-            </form>
-        </div>
-    </xsl:template>
+   
     
     <xsl:template match="tei:teiHeader">
         <div class="DHQheader">
