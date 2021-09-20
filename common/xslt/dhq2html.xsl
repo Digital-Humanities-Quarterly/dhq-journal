@@ -18,7 +18,7 @@
     <!--<xsl:strip-space elements="dhqBiblio:*"/>-->
   
     <!-- <xsl:param name="aprilfool" select="'true'"/> -->
-    <xsl:param name="oldest_vol_with_pdf" select="number('13')" as="xs:double"/>
+    <xsl:param name="oldest_vol_with_pdf" select="number('20')" as="xs:double"/>
     <xsl:param name="context"/>
     <xsl:param name="docurl"/>   
     <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
