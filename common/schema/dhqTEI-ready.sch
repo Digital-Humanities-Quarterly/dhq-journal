@@ -230,7 +230,7 @@
     </rule>
     <rule context="tei:formula">
       <let name="notation-type" value="string-join((@rend,@notation),'-')"/>
-      <assert test="@notation=('tex','asciimath')">Unknown @notation on formula</assert>
+      <assert test="@notation=('tex','asciimath', 'mathml')">Unknown @notation on formula</assert>
       <!-- 's' flag for dot-all or the test fails when \n is present     -->
       <assert test="not($notation-type='inline-tex') or matches(string(.),'^\\\(.*\\\)$','s')">inline-tex math is expected to present wrapped escaped parentheses \( ... \)</assert>
       <assert test="not($notation-type='block-tex') or matches(string(.),'^\$\$.*\$\$$','s')">block-tex math is expected to present '$$' delimiters at start and end</assert>
