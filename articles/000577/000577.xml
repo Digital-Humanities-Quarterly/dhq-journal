@@ -1,0 +1,1731 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
+<?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+   xmlns:mml="http://www.w3.org/1998/Math/MathML">
+   <teiHeader>
+      <fileDesc>
+         <titleStmt>
+            <!--Author should supply the title and personal information-->
+            <title type="article" xml:lang="en">Automated Transcription of Non-Latin Script
+               Periodicals: A Case Study in the Ottoman Turkish Print Archive</title>
+            <!--Add a <title> with appropriate @xml:lang for articles in languages other than English-->
+            <dhq:authorInfo>
+               <!--Include a separate <dhq:authorInfo> element for each author-->
+               <dhq:author_name>Suphan <dhq:family>Kirmizialtin</dhq:family>
+               </dhq:author_name>
+               <dhq:affiliation>NYUAD</dhq:affiliation>
+               <email>N/A</email>
+               <dhq:bio>
+                  <p/>
+               </dhq:bio>
+            </dhq:authorInfo>
+            <dhq:authorInfo>
+               <!--Include a separate <dhq:authorInfo> element for each author-->
+               <dhq:author_name>David Joseph <dhq:family>Wrisley</dhq:family>
+               </dhq:author_name>
+               <dhq:affiliation>NYUAD</dhq:affiliation>
+               <email>N/A</email>
+               <dhq:bio>
+                  <p/>
+               </dhq:bio>
+            </dhq:authorInfo>
+         </titleStmt>
+         <publicationStmt>
+            <publisher>Alliance of Digital Humanities Organizations</publisher>
+            <publisher>Association for Computers and the Humanities</publisher>
+            <!--This information will be completed at publication-->
+            <idno type="DHQarticle-id">0005777</idno>
+            <idno type="volume">015</idno>
+            <idno type="issue">4</idno>
+            <date/>
+            <dhq:articleType>article</dhq:articleType>
+            <availability>
+               <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>
+            </availability>
+         </publicationStmt>
+         <sourceDesc>
+            <p>This is the source</p>
+         </sourceDesc>
+      </fileDesc>
+      <encodingDesc>
+         <classDecl>
+            <taxonomy xml:id="dhq_keywords">
+               <bibl>DHQ classification scheme; full list available at <ref
+                     target="http://www.digitalhumanities.org/dhq/taxonomy.xml"
+                     >http://www.digitalhumanities.org/dhq/taxonomy.xml</ref>
+               </bibl>
+            </taxonomy>
+            <taxonomy xml:id="authorial_keywords">
+               <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+            </taxonomy>
+         </classDecl>
+      </encodingDesc>
+      <profileDesc>
+         <langUsage>
+            <language ident="en" extent="original"/>
+            <!--add <language> with appropriate @ident for any additional languages-->
+         </langUsage>
+         <textClass>
+            <keywords scheme="#dhq_keywords">
+               <!--Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors-->
+               <list type="simple">
+                  <item/>
+               </list>
+            </keywords>
+            <keywords scheme="#authorial_keywords">
+               <!--Authors may include one or more keywords of their choice-->
+               <list type="simple">
+                  <item/>
+               </list>
+            </keywords>
+         </textClass>
+      </profileDesc>
+      <revisionDesc>
+         <!--Each change should include @who and @when as well as a brief note on what was done.-->
+         <change/>
+      </revisionDesc>
+   </teiHeader>
+   <text xml:lang="en" type="original">
+      <front>
+         <dhq:abstract>
+            <!--Include a brief abstract of the article-->
+            <p>Our study discusses the automated transcription with deep learning methods of a
+               digital newspaper collection printed in a historical language, Arabic-script Ottoman
+               Turkish (OT), dating to the late nineteenth- and early twentieth-century. We situate
+               OT text collections within a larger history of digitization of periodicals,
+               underscoring special challenges faced by Arabic script languages. Our paper
+               approaches the question of automated transcription non-Latin script languages, such
+               as OT, from the broader perspective of debates surrounding OCR use for historical
+               archives. In our study with OT, we have opted for training handwritten text
+               recognition (HTR) models that generate transcriptions in the left-to-right, Latin
+               writing system familiar to contemporary readers of Turkish, and not, as some scholars
+               may expect, in right-to-left Arabic script text. As a one-to-one correspondence
+               between the writing systems of OT and modern Turkish does not exist, we also discuss
+               approaches to transcription and the creation of ground truth and argue that the
+               challenges faced in the training of HTR models also draw into question
+               straightforward notions of transcription, especially where divergent writing systems
+               are involved. Finally, we reflect on potential domain bias of HTR models in other
+               historical languages exhibiting spatio-temporal variance as well as the significance
+               of working between writing systems for language communities that also have
+               experienced language reform and script change.</p>
+         </dhq:abstract>
+         <dhq:teaser>
+            <!--Include a brief teaser, no more than a phrase or a single sentence-->
+            <p/>
+         </dhq:teaser>
+      </front>
+      <body>
+         <div>
+            <head>Introduction</head>
+            <p>Imagine that you are a researcher starting a Ph.D. project or a new book. In addition
+               to identifying a topic, conducting a literature review, and fine-tuning your research
+               question, you will also need to navigate an extensive archive of millions of
+               documents large parts of which are yet to be cataloged; some collections have been
+               opened to researchers only in recent decades and the digitization of the archive is
+               still at its earliest stages, making a keyword searchable corpus unavailable.[1] This
+               situation is the reality of historical research in the Ottoman archives at the time
+               of writing this article. In addition to the challenges of accessibility of the
+               archive, there is also a fundamental question of script literacy; Ottoman Turkish
+               (OT) is written in Arabic script that most Turkish speakers today cannot read. To
+               what scholarly apparatus would historians of differing skill levels turn for doing
+               their work — annotating and transcribing for recall, or simply combing through the
+               most relevant sections of the archive — when these documents are printed in a writing
+               system that is foreign to their contemporary script habitus? It might seem that we
+               are speaking about a many century's old historical situation, but in the case of OT,
+               archival documents created as little as one hundred years ago are not accessible to
+               speakers of modern Turkish who have not received a specialized education in OT.</p>
+            <p>In Istanbul, where the central archive of the Ottoman State and several of the most
+               important research libraries in the field of Ottoman studies are located, there is an
+               informal market of hireable transcribers to meet the demand for transcription of OT
+               historical documents to Latin script modern Turkish. Consisting mainly of students
+               and graduates of departments of history and Turkish literature, the informal labor of
+               this market offers its services to scholars who do not have the time required to
+               transcribe their documents. In the absence of extensive digitization of archives,
+               these transcribers also provide on-site research services for their individual
+               clients, many of whom do not live, or work regularly, in Istanbul.[2]</p>
+            <p>As the digitization of Ottoman-era archives is underway[3], our article concerns one
+               approach to increasing searchable (and computational) access to them. We discuss
+               experiments that we carried out by automatically transcribing a small amount of the
+               holdings of the larger Ottoman archive: two Ottoman Turkish periodical series from
+               the <ref target="http://www.tufs.ac.jp/common/fs/asw/tur/htu/">Hakkı Tarık Us (HTU)
+                  Digital Repository</ref>. With some 1,500 periodicals and an estimated number of
+               400,000 pages, the HTU online archive is perhaps the most comprehensive digital
+               collection of the Ottoman Turkish press from the 1840s to the 1920s. Originally the
+               private library of Mr. Hakkı Tarık Us (1889-1956), the digitization (2003-2010) of
+               this collection was a collaboration between Beyazıt State Library in Istanbul and
+               Tokyo University of Foreign Studies. Despite being online for a little more than a
+               decade, searchability of the HTU documents is still unavailable. </p>
+            <p>Whereas some newspaper mass digitization projects in the world were "launched under
+               circumstances in which searchability was not a priority," (Salmi, 2021, p.45)[4] it
+               is not known to us if this was the case with the HTU corpus or whether OCR-based text
+               creation was simply technically impossible at the time, or both. In the mid- to
+               late-2000s, the HTU platform digitized images in DjVu format — a format that offers a
+               corresponding text layer for each image — the choice of which presumably was to
+               leverage the linguistic skills of literate Ottomanists to transcribe the documents to
+               modern Turkish.[5] Unfortunately, this format was already outdated at the time
+               (Baykal, 2011, pp.206-208). Although the file format would have allowed for the
+               creation of a text layer for the HTU as early as 2010, the promise of a text
+               searchable OT corpus remains to this day an unfulfilled one.[6]</p>
+            <p>You do not need to be an Ottomanist, of course, to confront such a problem with
+               unsearchable digitized archives; the same could be said of other digital collections
+               in many other world languages: medieval manuscripts, letter collections, miscellanea
+               archives. It is important to note that both digitization and OCR are historical
+               processes with differing degrees of technical development and variable success rates
+               across world languages. In the case of mass digitization of periodicals in the
+               nineteenth century US context, we have been encouraged to "[take] dirty OCR
+               seriously" (Cordell, 2014). This is not only because early digitization and OCR
+               methods did not produce high quality text and it is unlikely that either process will
+               be carried out again, but also because no matter what study methods of imperfect
+               corpora are devised in the future, understanding the layered histories of
+               digitization and text creation remains a key element of digital historical
+               inquiry.</p>
+            <p>For languages written in Arabic script from right to left, OCR is a complex process
+               in which research has made progress, but is yet to become fully efficient (Romanov et
+               al, 2017).[7] As OCR is an algorithmic process in computer vision that transforms
+               images of letters and words — by many iterations of guessing, ranking, and even human
+               intervention and correction — into digital text, the more intervention that is
+               required the more labor-intensive the process of text creation becomes. Additionally,
+               the more the features of the language that one works with differ from the Latin-based
+               scripts on which OCR was first developed, the more development and research into new
+               systems are required. At the time of writing this article, however, the situation of
+               historical OCR has already started to change radically. This development is mainly
+               thanks to the increased accessibility of user-centered neural systems for
+               transcribing handwritten archives, and by extension for printed cursive scripts, such
+               as Arabic or Ottoman Turkish, in which it can be difficult for a computer to
+               determine where one letter ends and another begins. Some of the current generation
+               neural systems’ text recognition abilities go beyond simple character recognition,
+               which has been the main challenge OCR faces with handwritten texts and cursive
+               scripts such as Arabic — due to the fact that some letters are connected to each
+               other — to allow for larger chunks of the text, such as words or whole lines, to be
+               recognized as units. In this paper, we adopt one such system for automating the
+               transcription of printed OT texts, the platform known as <ref
+                  target="https://readcoop.eu/transkribus/">Transkribus</ref>
+               <hi rend="italic">,</hi> and we argue that not only are new approaches to OCR
+               beneficial in opening up historical archives, but also that with those approaches
+               comes an evolving role for human effort and new, concomitant challenges for working
+               with such machine-created text.</p>
+
+            <p>Our choice to apply handwritten text recognition (HTR) technologies to non-Latin
+               script digitized historical periodicals is an intentional one, with the purpose of
+               creating a workable access point to Ottoman historical materials. The long term goal
+               of our research is to generate general HTR models for text creation from this
+               periodicals collection that will facilitate its use in computational research. In
+               this article we discuss some of the initial challenges we have faced, as well as some
+               of the promising results that we have achieved.</p>
+            <p>As interest turns to a multilingual DH, the accessibility of archives and modes of
+               participatory text creation, we find the Ottoman Turkish example to be a
+               thought-provoking case study since it links problems which the GLAM sector has
+               traditionally confronted with other problems not typically found in Western language
+               archives: text directionality and script, in particular.</p>
+         </div>
+
+         <div>
+            <head>Part 1 - Background &amp; Historical Context</head>
+
+
+            <div>
+               <head>Historical Context</head>
+
+               <p>How we encode Ottoman Turkish (OT), the Arabic-script language of administration
+                  and high culture in the Ottoman Empire between the fourteenth and early twentieth
+                  centuries, presents a significant challenge for OCR, not only from a computer
+                  vision perspective, but also importantly from a linguistic one.[8] While Turkish
+                  syntax and vocabulary formed the main framework of the language, OT borrowed
+                  extensively from Arabic and Farsi in terms of both loan words and grammatical
+                  structures. With the political upheaval that ensued the demise of the Ottoman
+                  state and the creation of the Turkish Republic in the wake of WWI, OT was outlawed
+                  for public use in 1928 and supplanted by a “Turkified”[9] version of the language
+                  written from left to right (LTR) in Latin script (Lewis, 2002).</p>
+               <p>It would be incorrect to say, however, that the Ottoman archive was sealed in
+                  1928. Physical access to it was possible, although limited (Aktaş, 1992), but
+                  within a generation or so, the Arabic-script literacy required to use the archives
+                  declined. The first generation of historians who had been educated in Republican
+                  schools no longer had the linguistic skills of native speakers of OT to carry out
+                  research in the archives. Coupled with the ideological choice of the political
+                  leadership to shun the Islamic imperial heritage of the newly created nation-state
+                  of Turkey, the so-called Turkish language reform created deep gaps in the
+                  scholarly infrastructure of the early Republican period, with most serious
+                  academic discussions on Ottoman history and language shifting to scholarly circles
+                  outside of Turkey.[10]</p>
+
+               <p>Alphabet change had deeper cultural implications that went well beyond its
+                  ramifications for the scholarly establishment. Today, any Turkish citizen who
+                  wants to access their pre-1928 cultural heritage needs either to receive
+                  specialized education in Ottoman Turkish or to read the transcribed and edited
+                  versions of the select OT texts available in modern Turkish. Reading OT documents
+                  and books transcribed into Latin script has become the norm. There is, therefore,
+                  a real demand for transcription, a demand that, to this day, has been only
+                  partially satisfied by human transcription.[11] Furthermore, the language reform
+                  has not only created a barrier between one nation and its historical, cultural
+                  documentation but also, as OT was the former administrative language of the
+                  successor states of the Ottoman Empire, both language and script persist as
+                  barriers in accessing this larger imperial heritage by the broader scholarly
+                  community.</p>
+            </div>
+
+            <div>
+               <head>Archives and Access</head>
+
+               <p>For many languages of the world that have not traditionally been represented in
+                  the textual digital humanities, in particular historical languages, the obstacles
+                  of being "at the table" are very real.[12] Research materials and infrastructure
+                  for these languages are absent or in outdated formats, digitization is either
+                  partial or piecemeal, and accessing those digital resources can be a daunting
+                  task.[13] In the larger case of Ottoman Turkish, there is a lack not only of
+                  sufficient machine-readable corpora but also of natural language processing (NLP)
+                  tools designed to work with the multi-layered, multi-epoch complexities of this
+                  historical language.[14] When the archive is so abundant, yet still so
+                  inaccessible, the eagerness to open up research fields to exploration with digital
+                  methods grows every year.[15]</p>
+               <p>We believe that pursuing digital methods in some non-Latin script research fields,
+                  such as Ottoman studies, is not so much a question of resistance to, or distrust
+                  of, the methods as it is of the need for workable starting points, given the
+                  historical and linguistic complexity of these languages.[16] Furthermore, the
+                  desire for high-quality text creation at scale can stand at odds with the capacity
+                  and affordances of the platforms at our disposal to do so. Deferring the question
+                  of what kind of corpus might be representative of late Ottoman society for now,
+                  and building on the decades-long efforts to create open digital collections for
+                  reuse and high order analysis, what has come to be known as a “collections as
+                  data” approach (Padilla et al., 2019), we turn to automatic transcription of
+                  printed Ottoman periodicals with the <hi rend="italic">Transkribus</hi> platform
+                  using deep learning methods.Whereas traditional Ottomanist communities have relied
+                  on workarounds for research that depend on informal labor for gaining access to
+                  archival materials, our case study argues that technical workarounds within
+                  developing humanities research infrastructure can, and do, spark innovation in the
+                  interest of linguistic inclusion.</p>
+            </div>
+
+            <div>
+               <head>New Modes of Text Creation</head>
+               <p>At the intersection of archives and the textual digital humanities is the central
+                  question of access. Initiatives such as the EEBO-Text Creation Partnership have
+                  opened exciting windows for a wide range of scholarly projects grounded in access
+                  to historical print sources [Shawn 2007]. Its presence can be felt all over the
+                  scholarship in pre-modern English, and yet its mode of creation — outsourced
+                  double typing of texts in Asian countries — casts an uncomfortable, but often
+                  overlooked, shadow over the material conditions of its creation. Scholarly
+                  communities working on languages printed in the Arabic script (Arabic, Persian,
+                  Urdu, etc.) have been slower to arrive at robust textual digital humanities for
+                  multiple reasons, not the least of which has been the difficulties of converting
+                  the cursive-like printing of these languages into a machine-readable format
+                  (Ghorbaninejad et al., forthcoming). We anticipate that examples in
+                  crowd-transcription, such as Transcribe Bentham (UCL), or more recent initiatives
+                  spearheaded within the GLAM sector (Library of Congress, Europeana, the Newberry
+                  Library, the Getty Museum, Zooinverse), and the democratized platforms for
+                  engaging a larger public in doing so, will slowly make their way to cultural
+                  heritage institutions in societies using RTL (right to left) scripts. What can be
+                  done in situations, however, such as OT, when the script of the archive is no
+                  longer native for the majority of the public? Our challenge has been not only that
+                  of automatic transcription but also rendering the output of this process
+                  sufficiently legible for the LTR (left to right) Turkish reader today.</p>
+               <p>Whereas some formal modeling has been done with OT (take for example, the markup
+                  of multilingual versions of the Ottoman Constitution in TEI XML including OT and
+                  Arabic versions (Grallert, 2019), our intervention focuses at a more rudimentary
+                  stage of new text creation; it is ground research that aims to produce someone of
+                  the first, if not the first, searchable text corpus of OT. While this situation
+                  might be surprising to digital humanists working in European, or even large
+                  non-Western languages, for whom the existence of some kind of corpus has been a
+                  given for many decades, the lack of basic keyword searchability is the reality of
+                  text-based research in Ottoman studies.</p>
+               <p>One key technological development that opened a promising pathway for the creation
+                  of full-text searchable corpora for both printed and handwritten documents in
+                  Arabic script is the recent advances in pattern recognition with HTR. Unlike many
+                  OCR systems, which operate at the level of individual characters, HTR works at
+                  line level and, as a result, yields higher accuracy rates in recognizing cursive
+                  scripts such as Arabic.[17] Taking advantage of this particular characteristic of
+                  the HTR technology, we have carried out our automated transcription experiments
+                  for printed OT periodicals with HTR. The larger question of the full Ottoman
+                  archive, most of which is manuscript, however, still sits in the background of
+                  this article. Turn of the century printed materials in Ottoman Turkish (or in
+                  Arabic or Urdu, for matter), do exist on a continuum with handwritten materials,
+                  due to the fact that they are printed in a “cursive”-like manner. It is too
+                  simplistic, therefore, to oppose print and manuscript cultures in OT, especially
+                  because Ottoman master printers did, in fact,strive to reproduce the calligraphic
+                  traditions of the manuscript culture in the printed page (Özkal, 2018, p. 71).</p>
+            </div>
+            <div>
+               <head>Why Periodicals</head>
+
+               <p>After decades of digitization efforts in libraries and archives worldwide, the
+                  number of periodicals that are available to today’s researchers has increased
+                  dramatically. For the historian, the serial periodical offers special insight into
+                  cultural debates as they unfold throughout time. Nineteenth-century periodicals
+                  are the place of remarkable emergence of public discourse in many regions of the
+                  world, including the multi-ethnic and multi-religious Ottoman Empire.[18] They
+                  also provide a valuable opportunity to reconsider this cultural sphere in a period
+                  marked by rapidly evolving linguistic usage in the face of political change
+                  (Mussell, 2012). Significant advances have been made globally in the accessibility
+                  of cultural collections through digitization and the implementation of full-text
+                  searchability and vibrant debates have opened up in digital history on how to use
+                  this digitized archive to the fullest extent.</p>
+               <p>There are a number of features of historical periodicals that make them complex
+                  for digital analysis in any language: OCR quality, the commercial nature of
+                  digitization collections, complex page layouts, the presence of images within the
+                  text, and particularities of their digital remediation (Ryan, 2016; Nicholson,
+                  2013; Clifford et al., 2019). Yet again, the challenge of dealing with
+                  Arabic-script periodicals is an even greater one. Whereas many periodicals have
+                  been scanned and brought together in digital archives in these languages, allowing
+                  researchers to access them at a distance, the texts of such periodicals are still
+                  messy and not full text searchable, limiting users to slow reading and requiring
+                  computer-assisted modes of analysis to adapt to the text quality.[19]
+                  Unsurprisingly, the few studies that have used various Ottoman periodicals
+                  collections as their main primary source have so far been qualitative and of
+                  limited scope (Baykal, 2019; Çakır, 1994). The sheer volume of the available
+                  material, as well as the outdated formats and piecemeal nature of their
+                  digitization, renders distant reading of these sources unfeasible. These
+                  collections are not yet data.</p>
+            </div>
+         </div>
+         <div>
+            <head>Part 2 - Transcription and Its Discontents</head>
+
+
+            <div>
+               <head>Audience &amp; A Pragmatic Approach</head>
+
+               <p>Mastering OT today is a demanding task. People who undertake learning the
+                  language/script nowadays do so in order to read historical manuscripts and
+                  documents. Among those who are proficient in OT, it is not common practice to take
+                  notes in Arabic script, but rather in what is the contemporary script habitus of
+                  Turkish historians as well as that of the majority of non-Turkish Ottomanists: the
+                  LTR Latin alphabet (Ghorbaninejad et al., forthcoming); researchers in the field
+                  simply tend to annotate their documents in Latin script. Owing to script
+                  differences and language change, annotation style can vary from person to person,
+                  with some researchers even transcribing their documents fully into modern Turkish.
+                  Furthermore, in Turkey, editions of OT works are rarely published in Arabic
+                  script, or if they are, they are accompanied by a facing-page transcription. As
+                  such, the OT script in contemporary Turkey could be considered a "dead" script.
+                  Being able to automate the transcription of OT to Latin writing system of modern
+                  Turkish, therefore, is also a question of creating a knowledge infrastructure that
+                  corresponds to a practical issue of contemporary script literacy.</p>
+               <p>The usage of terms for discussing the passages between languages and scripts, from
+                  OT to MT, have varied significantly. Our Appendix (Key Concepts) details how we
+                  use the terms <hi rend="italic">transliteration</hi>, <hi rend="italic"
+                     >transcription</hi> and <hi rend="italic">romanization</hi>. These three terms
+                  all imply some kind of passage between writing systems and they require careful
+                  consideration if we are to adopt a critical approach to text creation of OT
+                  printed material. We have come to realize that our approach to automated
+                  transcription with deep learning methods needs to be a pragmatic one that balances
+                  a number of concerns, such as paying enough attention to the requirements of the
+                  HTR engine so that the model is effective while also being consistent enough so
+                  that the digital reuse of the resultant data is the highest quality possible, at
+                  the same time keeping in mind the needs of the human reader. We are aware that,
+                  due to the particularities of OT, which we discuss in the following section about
+                  the encoding of grammatical information, it will probably never be possible to
+                  build an automated transcription system that flawlessly bridges the gap between
+                  the original OT documents and their transcriptions. Our goal in applying neural
+                  models of automated transcription to OT printed materials is, instead, the
+                  creation of a "decent" text, a workable, "good-enough" approach to transcription,
+                  a goal echoed by other historians working in digitally under-resourced languages
+                  (Rabus, 2020).</p>
+               <p>No doubt this will be disappointing to our philologically inclined colleagues, but
+                  it is the scale and the modes of downstream analysis that encourage us to adopt
+                  this position. We do not see the text creation process as a failure from the
+                  outset. Instead, working with automatic transcription has encouraged us to think
+                  about the transcription process itself as an initial access point to the
+                  historical materials. Our goal is to produce a result that is sufficiently
+                  accurate and usable by our target reader (the historian scholar engaged in
+                  professional reading), and we recognize that the end result will never look fully
+                  like human-transcribed texts (Siemens et al, 2009). From this starting point, it
+                  follows that what is necessary to use HTR methods to bring new kinds of access to
+                  a larger number of OT texts is a critical conversation about what is commonly
+                  called transcription.</p>
+               <p>We are particularly drawn to the idea of crowd transcription among Turkish
+                  speakers that could transform the existing informal economy of OT transcribers
+                  into a participatory community of shareable, open knowledge production. This will
+                  not be possible, however, without a larger scholarly debate about transcription
+                  and transliteration that departs from contemporary practices of inconsistent
+                  romanization in favor of one that is more harmonized with the ways that
+                  algorithmic systems work. Pilot studies such as ours with automated transcription
+                  technologies are in a position to launch this debate. The question resembles one
+                  that is asked regularly in human-computer interaction research: how do we design
+                  interfaces and input mechanisms for human knowledge so that we can optimize the
+                  results of computational processes? The answers to such questions can only emerge,
+                  we believe, through the development of a user community that tests, evaluates, and
+                  validates such transcription norms in different textual domains.</p>
+            </div>
+
+            <div>
+               <head>Challenges of Transcribing OT and Its Implications for HTR Processing</head>
+
+               <p>Ottoman Turkish, in its classical form, is a patchwork of Turkish, Arabic, and
+                  Farsi vocabulary and grammar. The complexity of the language is compounded by the
+                  challenges of the romanization of Arabic script in which OT was written (Halpern,
+                  2007). Elezar Birnbaum summarizes the complex character of OT orthography as such
+                  :</p>
+               <p>“... the Ottoman Turkish writing system is only an <hi rend="italic"
+                     >indication</hi> of pronunciation rather than a representation of it. It
+                  incorporates two quite different methods of indicating sounds, which are
+                  ill-joined into one system… On the one hand, Arabic and Persian spelling
+                  conventions are preserved almost intact for all Ottoman words derived from those
+                  languages, while completely different conventions, rarely explicitly formulated
+                  and still more rarely consistently applied, even in a single piece of writing,
+                  hold the field for words of Turkish and other origins, and for Turkish affixes to
+                  Arabic and Persian loan words.” (Birnbaum, 1967, p.123)</p>
+               <p>In contrast to the complicated nature of OT orthography, where several sounds in
+                  the language are omitted in writing and the correct pronunciation of a word is
+                  contingent upon the reader’s literacy and linguistic background, Modern Turkish
+                  (MT) spelling is unequivocal and highly phonetic. This crucial difference between
+                  the two writing systems renders a one-to-one, diplomatic transliteration scheme
+                  from OT to MT unattainable.[20] This situation also partially accounts for the
+                  fact that to this day there is no scholarly consensus on how to, if at all,
+                  transcribe OT to MT.[21] However, if we remember the anecdote with which we began
+                  this article about the informal labor market of transcribers, despite the lack of
+                  a transcription scheme based on consensus[22], OT text transcribed to MT is often
+                  preferred over original material as a matter of practicality.</p>
+               <p>To further break down the factors that hamper character-accurate, diplomatic
+                  transcription from OT script to MT:</p>
+               <list type="ordered">
+                  <item>There are only three vowel signs in Arabic ( ا, و , ى ) , which are often
+                     not represented but only implied in writing. MT, on the other hand, has eight
+                     vowels and the written word is always fully vocalized. Moreover, letters ( ا, و
+                     , ى ) are polyphonic, i.e., they correspond to more than one sound in MT
+                     script. For example, Arabic letter (و ) may correspond to any of the following
+                     characters in MT : ( v, o , ö, u , ü ).</item>
+               </list>
+               <list type="ordered">
+                  <item>Several of the OT consonants are polyphonic as well. Depending on the
+                     textual context, they may be substituted by several different letters in the MT
+                     alphabet. (Fig 1)</item>
+               </list>
+               <table>
+                  <row role="data">
+                     <cell>Ottoman</cell>
+                     <cell>ModernTurkish</cell>
+                  </row>
+                  <row role="data">
+                     <cell>Turkish</cell>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell>ا</cell>
+                     <cell>a, e</cell>
+                  </row>
+                  <row role="data">
+                     <cell>ض</cell>
+                     <cell>d, z</cell>
+                  </row>
+               </table>
+               <list type="unordered">
+                  <item>k, g, ğ, n</item>
+               </list>
+               <list type="unordered">
+                  <item>v, o, u, ő,</item>
+               </list>
+               <p>ە</p>
+               <p>ى</p>
+               <p>h, e, a</p>
+               <p>y, a, ı, i</p>
+
+               <p>Fig 1. Character correspondence chart of polyphonic OT letters</p>
+
+               <p>Finally, the phonological developments of Turkish language over the centuries and
+                  the wide variation in its pronunciation across the vast geography of the Ottoman
+                  Empire as well as across its socio-economic and ethnic groups at any given point
+                  in time, created a gap between its written and spoken forms. This means that many
+                  OT words may be pronounced in and transcribed to modern Turkish in several
+                  different forms, all of which might be considered accurate. Any endeavor to
+                  produce a “correct” transcription of OT in MT script is, in reality, an attempt to
+                  recreate what we imagine was the pronunciation of the Istanbul elite at the time,
+                  which, of course, is lost to us in its spoken form (Anhegger,1988).</p>
+               <p>One of the key steps in HTR is the creation of ground truth transcriptions
+                  corresponding to segmented parts of the digitized image. Therefore, the above
+                  three points have important practical implications for how we carry out
+                  transcriptions. As an Ottoman Turkish text is transcribed into Latin script,
+                  linguistic information is added to its romanized version by way of vocalizing it
+                  and rendering it in one of its several alternative pronunciations, which might not
+                  necessarily correspond to the written form. The presence of polyphonic letters
+                  necessitates another layer of choices to be made by the transcriber. It is not
+                  unreasonable to regard the reading and transcribing of OT as an art rather than a
+                  science, a quality that does match the exigencies of the current generation of
+                  computational tools, including HTR. The unavoidable addition of linguistic
+                  information to the transcribed material is especially problematic when training a
+                  neural-network based transcription system such as <hi rend="italic"
+                     >Transkribus</hi>, where one-to-one correspondence between the original text
+                  and its transcription is essential. It also results in the introduction of a
+                  significant degree of bias to the language data that is provided by the
+                  transcriber for the neural network. We will discuss these issues in more detail in
+                  Part 3.</p>
+            </div>
+
+            <div>
+               <head>Previous Work on the Automated Transcription of OT</head>
+
+               <p>There are currently two other projects that focus on the automated transcription
+                  of Ottoman Turkish (Korkut, 2019; Ergişi et al., 2017). Both are similar in
+                  methodology and scope, employing morphological analysis and lexicon-based
+                  approaches to romanize OT script. Korkut and Ergiş et al.'s studies take advantage
+                  of the fact that Turkish is an agglutinative language, and that the stems of
+                  Turkish words do not inflect when combined with affixes. Once an OT word is
+                  stripped of its affixes through morphological parsing, the stem can be looked up
+                  in a dictionary for possible matches in modern Turkish.[23] At the next step,
+                  these two romanization models reconstruct the stripped affixes in modern Turkish
+                  according to its spelling and pronunciation rules and offer potential
+                  transcriptions for the original OT word in Latin script. Both projects work with
+                  nineteenth and early twentieth century OT vocabulary, presumably because
+                  dictionaries with relatively extensive content are more readily available for this
+                  period than for previous centuries.</p>
+               <p>An important distinction of these romanization schemes from our approach using <hi
+                     rend="italic">Transkribus</hi> is their rule-based approach to automated
+                  transcription. Their systems depend on conventional linguistic knowledge
+                  (dictionaries and grammatical rules) whereas the HTR offers a statistical, brute
+                  force technique that utilizes large data sets for pattern recognition without any
+                  explicit reliance on linguistic information. While rule-based approaches might
+                  conceivably produce a higher precision output, Korkut and Ergişi et al.’s methods
+                  still have important shortcomings. In the absence of a rigorous OCR system for OT,
+                  it is not feasible to transcribe longer texts in their interfaces. They can also
+                  only romanize those words that are already in their databases. The scalability of
+                  these platforms depends on the creation of comprehensive OT to MT
+                  word-databases/dictionaries, which need to be significantly more substantial in
+                  content than anything that is currently available[24], and the development of
+                  effective OCR systems for the Arabic script to convert OT texts to
+                  machine-readable format. Even if these two conditions are met, however, the
+                  automated transcription of large corpora in these platforms might still be
+                  prohibitively slow due to the time needed for dictionary searches to match the OT
+                  stems to their MT counterparts.[25]</p>
+            </div>
+
+            <div>
+               <head>HTR for Automated Transcription</head>
+
+               <p>In principle, an HTR engine can be taught to recognize any writing style from any
+                  language. To start, the system needs to be provided with training data to identify
+                  the specific patterns in a given body of text. In order to produce a reliable
+                  transcription model for the rest of the corpus, it is imperative to create an
+                  accurate “ground truth”, a literal and exact transcription of a small body of
+                  sample text, that is representative of the corpus in question.</p>
+               <p>While the absence of linguistic rules[26] in HTR training does create certain
+                  shortcomings in the quality of the transcription, we prefer the approach for its
+                  practicality, time-efficiency, and scalability. HTR has proven to be most
+                  effective with large corpora and after the initial investment of time for creating
+                  the ground truth, it is possible to automatically transcribe hundreds of pages
+                  within a matter of hours. The system is also flexible and accepts changes in
+                  parameters. That is, with a large and diverse enough training set[27], it is
+                  possible to generate general HTR models that will work for corpora produced with
+                  different handwriting styles or typefaces.[28] However, it is also important to
+                  highlight here that what the creation of “general models” entail is not yet well
+                  defined within the Transkribus environment. What combination of materials or which
+                  order or re-training would produce best results appears to depend on the size and
+                  the nature of the corpora and requires, at the moment, a trial and error
+                  approach.</p>
+               <p>One advantage of using HTR for OT is its relatively higher accuracy rate at
+                  segmenting and recognizing cursive and connected writing styles. Unlike most OCR
+                  based systems, which operate at letter level (for both segmentation and
+                  recognition) and are, therefore, not very efficient for connected scripts such as
+                  Arabic, HTR works at line level and recognizes characters in the context of words
+                  and lines rather than as individual units.</p>
+               <p>This renders it an excellent tool for languages written with the Arabic
+                  alphabet.</p>
+            </div>
+         </div>
+
+         <div>
+            <head>Part 3 - Our Experiment</head>
+
+            <div>
+               <head>The Procedure</head>
+               <p>The <hi rend="italic">Transkribus</hi> platform produces automated transcriptions
+                  of text collections by using customized HTR models trained on partial
+                  transcriptions of the corpus. As we have argued at the beginning of Part 2, tools
+                  are often not a perfect fit for the historical source material we possess and the
+                  results we obtain teach us a significant amount about our objects of study. In
+                  this study, after significant trial and error, we ultimately reverse engineered
+                  our research workflow to address critical questions of both the object of study
+                  (the periodicals and their language) and the method itself.</p>
+               <p>We created two sets of training data and corresponding HTR models for two
+                  periodicals[29] from the HTU online collection, the above-mentioned digitized
+                  collection of OT periodicals. The first one of these publications is the <hi
+                     rend="italic">Ahali</hi> newspaper, printed in Bulgaria between 1906 and 1907.
+                  For this publication, we adhered to a “loose transcription”[30] scheme that only
+                  indicates long OT vowels and does not use any other diacritical marks. The second
+                  periodical for which we generated a training set is <hi rend="italic">Küçük
+                     Mecmua</hi>, published by the leading ideologue of Turkism at the time, Ziya
+                  Gökalp, between 1922 and 1923 in Diyarbakir, Turkey. This publication has a
+                  significantly “Turkified” vocabulary and a relatively standardized orthography
+                  compared to other OT publications. We applied the <hi rend="italic">Islam
+                     Ansiklopedisi</hi> (IA) transcription scheme[31] for <hi rend="italic">Küçük
+                     Mecmua</hi>, which uses diacritical marks to differentiate between polyphonic
+                  characters in the OT and MT alphabets. Our assumption was that the regularized
+                  orthography and the detailed transcription system might help to reduce ambiguity
+                  in the transcription text for this publication, providing us with a "cleaner"
+                  starting point for the HTR. </p>
+               <p>The HTR neural network employed “learns” to recognize a script by matching the
+                  characters, strings or groups of words in the image files with their counterparts
+                  in the transcription. Adhering to a diplomatic transcription scheme, therefore, is
+                  recommended for creating reliable HTR models. This basic principle complicates the
+                  workflow for OT in <hi rend="italic">Transkribus</hi> significantly for two
+                  reasons; first, as we mentioned above, the lack of one-to-one mapping between OT
+                  and MT scripts, and second, the opposite directionality of Ottoman Turkish
+                  documents and their Latin script transcriptions. </p>
+               <p>To address the first issue and minimize the inconsistencies in the training data,
+                  in our transcriptions we prioritized character accuracy over both the correct
+                  pronunciation of the OT words and some of the grammatical rules of modern
+                  Turkish.[32] We also opted for maintaining spelling mistakes and typos in the
+                  transcription text exactly as they appeared in the original pages, rather than
+                  correcting them. In other words, although these decisions seem counterintuitive to
+                  the experienced transcriber, working with an HTR system for a RTL historical
+                  language required us to unlearn some of the conventions of our "practical"
+                  research habits for the purposes of transcription for creating training data. By
+                  avoiding usual scholarly practices of transcription and giving the algorithm what
+                  it needs to do its task, we hoped to optimize its performance.</p>
+               <p>The first step of the HTR workflow involved transferring the images of the
+                  documents into the platform, followed by the automated segmentation and layout
+                  analysis for the recognition of text regions and baselines in these documents.</p>
+               <p>The opposing directionalities of OT and MT come into play at the next step of the
+                  workflow, in which images of the documents are linked to corresponding
+                  transcriptions. While the <hi rend="italic">Transkribus</hi> platform does support
+                  RTL languages, it does not allow connecting RTL images to LTR transcription text.
+                  To bypass this problem, we devised a workaround and reversed the direction of our
+                  transcription text in modern Turkish from LTR to RTL.[33] (Fig 2) To this end, we
+                  wrote a short script in Python and ran it for the plain text files of our
+                  transcriptions.[34]</p>
+               <figure/>
+               <p>Fig 2. A snapshot from <hi rend="italic">Transkribus</hi> interface demonstrating
+                  the transcription process. Note the left-justified, yet reversed, Latin-alphabet
+                  transcription (center bottom) of the OT text (top right). The OT text displayed in
+                  the canvas tool is from <hi rend="italic">Küçük Mecmua.</hi>
+               </p>
+
+               <p>After the careful preparation of the two sets of ground truth, sixty pages each,
+                  we generated our first HTR models for <hi rend="italic">Ahali</hi> and <hi
+                     rend="italic">Küçük Mecmua</hi>, yielding 9.84% and 9.69% Character Error Rates
+                  (CER) respectively. In the second phase of the process, we retrained the models by
+                  manually correcting errors in the automated transcription and expanding each set
+                  of ground truth by an additional twenty pages. We also used our initial HTR models
+                  as “base models” in the second round of training. The manual correction of the
+                  automated transcription output, the expansion of the training set by twenty pages,
+                  and the use of base models to boost the accuracy rate of the later models have
+                  dropped the CER for <hi rend="italic">Ahali</hi> newspaper to 5.15 % and for <hi
+                     rend="italic">Küçük Mecmua</hi> to 7.86%. (Table1) As it is clear from these
+                  numbers, the IA transcription scheme did not provide an advantage over the less
+                  detailed transcription system in terms of CER. This might, however, be due to the
+                  relatively modest size of the training data and a larger sample set might offer a
+                  better comparison amongst the various transcription models.</p>
+               <p>Finally, for text analysis purposes or human reading, the automatically
+                  transcribed texts are exported from the platform and their directionality is
+                  reversed to LTR.</p>
+               <table>
+                  <row role="data">
+                     <cell/>
+                     <cell>First HTR Training Experiment</cell>
+                     <cell>Second HTR Training Experiment</cell>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                     <cell>Number</cell>
+                     <cell>Number</cell>
+                     <cell>CER</cell>
+                     <cell>Number</cell>
+                     <cell>Number</cell>
+                     <cell>CER</cell>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                     <cell>of lines</cell>
+                     <cell>of words</cell>
+                     <cell/>
+                     <cell>of lines</cell>
+                     <cell>of words</cell>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell>
+                        <hi rend="italic">Ahali</hi>
+                     </cell>
+                     <cell/>
+                     <cell>3268</cell>
+                     <cell>20572</cell>
+                     <cell>9.84%</cell>
+                     <cell>4931</cell>
+                     <cell>31390</cell>
+                     <cell>5.15%</cell>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell>
+                        <hi rend="italic">Küçük</hi>
+                     </cell>
+                     <cell/>
+                     <cell>1928</cell>
+                     <cell>12323</cell>
+                     <cell>9.69%</cell>
+                     <cell>2580</cell>
+                     <cell>16326</cell>
+                     <cell>7.86%</cell>
+                  </row>
+                  <row role="data">
+                     <cell>
+                        <hi rend="italic">Mecmua</hi>
+                     </cell>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                  </row>
+               </table>
+               <p>Table 1. The ground truths and the CERs for the first two HTR experiments with <hi
+                     rend="italic">Ahali</hi> and <hi rend="italic">Küçük Mecmua.</hi>
+               </p>
+            </div>
+
+            <div>
+               <head>Cross-Domain Applicability</head>
+
+               <p>The <hi rend="italic">Transkribus</hi> platform allows the repurposing of HTR
+                  models to re-train the neural network for recognizing different corpora as well as
+                  community sharing of those models. In future work, we hope to take advantage of
+                  this function to develop general HTR model(s) and evaluate to what extent they
+                  might work for the entirety of the HTU digital repository. To this end, we will
+                  focus on creating additional training sets from the holdings of this digital
+                  collection.</p>
+
+               <p>For the HTR technology we have at our disposal, the HTU collection of late Ottoman
+                  periodicals is an ideal corpus. By the late 1870s the typeface for printing had
+                  been standardized and a set of printing conventions for OT periodicals
+                  established.[35] Furthermore, the OT press from this period tended to cover
+                  similar topics and promote comparable agendas; as a result, they contain similar
+                  vocabulary, terminology, and named entities. All of these factors, along with the
+                  possibility of using a "language model" function[36], contribute to the reduction
+                  of error rate in text recognition. It is this uniformity of this printed corpus
+                  that, we hope, will allow the HTR model to generalize across the entire HTU corpus
+                  with acceptable accuracy. It should be said though that for scholars in the field
+                  who intend to expand HTR to manuscript archives, finding a comparable corpus
+                  uniformity will no doubt be a challenge.</p>
+               <p>To test how the HTR model would function across different textual domains, we ran
+                  the <hi rend="italic">Ahali</hi> HTR model for three other periodicals from the
+                  HTU collection. Attention was paid to include in the sample pool publications from
+                  different time periods with distinct content and agendas. The CER for random pages
+                  from these periodicals are as follows (Table 2) : </p>
+               <table>
+                  <row role="data">
+                     <cell>
+                        <hi rend="bold">Name of</hi>
+                     </cell>
+                     <cell>
+                        <hi rend="bold">Subject</hi>
+                     </cell>
+                     <cell>
+                        <hi rend="bold">Date of</hi>
+                     </cell>
+                     <cell>
+                        <hi rend="bold">CER</hi>
+                     </cell>
+                  </row>
+                  <row role="data">
+                     <cell>
+                        <hi rend="bold">publication</hi>
+                     </cell>
+                     <cell/>
+                     <cell>
+                        <hi rend="bold">publication</hi>
+                     </cell>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell>
+                        <hi rend="italic">Tasvir-i Efkar</hi>
+                     </cell>
+                     <cell>politics</cell>
+                     <cell>1863</cell>
+                     <cell>8.54%</cell>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell>
+                        <hi rend="italic">Mekteb</hi>
+                     </cell>
+                     <cell>education and</cell>
+                     <cell>1891</cell>
+                     <cell>10.26%</cell>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell>literature</cell>
+                     <cell/>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                  </row>
+                  <row role="data">
+                     <cell>
+                        <hi rend="italic">Kadınlar Dünyası</hi>
+                     </cell>
+                     <cell>feminism</cell>
+                     <cell>1914</cell>
+                     <cell>6.22%</cell>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                     <cell/>
+                  </row>
+               </table>
+               <p>Table 2. The newspapers used in the cross-domain applicability experiment</p>
+               <p>It is important to note here that the CERs listed above were attained without any
+                  training data from these publications or any correction and retraining of the
+                  model. This is an encouraging indication suggesting that with the expansion of our
+                  ground truth, it is, in fact, achievable to create viable general HTR model(s) for
+                  the entire online collection of the HTU library.</p>
+            </div>
+
+            <div>
+               <head>Discussion of the Results</head>
+
+               <p>The primary challenge HTR faces when working with OT seems to be not character
+                  recognition, but rather identifying OT words in their proper Modern Turkish (MT)
+                  forms. As discussed earlier, the absence of one-to-one correspondence between OT
+                  and MT alphabets leads to multiple possible transcription outputs. Even when the
+                  HTR correctly identifies the characters in an OT word, accurate reading still
+                  depends on precise vocalization as well as context-appropriate pronunciation of
+                  the polyphonic letters. These, in turn, necessitate prior linguistic information,
+                  which is not taken into account during HTR training. In other words, no deep
+                  learning tool would be able to complete the desired task of a flawless MT
+                  transcription.</p>
+               <p>The recently implemented Language Models (LM)[37] function in <hi rend="italic"
+                     >Transkribus</hi> appears to partially compensate for the absence of rule-based
+                  text recognition in the platform. When supported with LM, HTR renders Ottoman
+                  Turkish words in their context-accurate form as they are defined in the training
+                  data. This, in turn, reduces Character and Word Error Rates.[38] For example, the
+                  OT word (هلمع), which appears in our training set for the <hi rend="italic">Kucuk
+                     Mecmua</hi> periodical, has two possible readings, both of which are
+                  character-accurate (imle) and (amele) whereas only the latter is a meaningful word
+                  unit in OT, the equivalent of the English word “worker”. In our experiment, text
+                  recognition without Language Model transcribed the word as (imle). When we ran the
+                  HTR with the LM, however, the word was correctly recognized as (amele), the
+                  version that was defined in the training data. In addition, the LM appears to be
+                  able to identify character sequences that are not in the training data and even
+                  “assign a high probability to an inflected form without ever seeing it.” (Strauss,
+                  2018,p. 6) This contributes to the accurate transcription of words that are not in
+                  the training set. While this is far from being the perfect solution for working
+                  around the ambiguities of OT, and a significant departure from rule-based NLP
+                  systems, it is still a step towards HTR-created, human-readable text. </p>
+               <p>Moreover, the neural network appears to be able to easily detect oft-repeated
+                  words and word pairs (such as Farsi possessive constructions, which are
+                  particularly challenging to identify in OT texts), presumably as a result of
+                  line-level operations of HTR. Consequently, it is reasonable to expect that the
+                  system will produce higher accuracy rates for document collections with formulaic
+                  language or corpora dealing with similar subjects with similar vocabulary. It is
+                  tempting to imagine a future of not only "language-blind" HTR, but also one that
+                  is language agnostic, or even multilingual adaptive, that can learn the particular
+                  linguistic strata or multilingual usage in a given corpus. It is still important
+                  to underline, however, that a more comprehensive solution to the problem of
+                  multiple possible outputs in OT transcription might be the integration of
+                  dictionaries/word indices into the system.[39] In the absence of such an option,
+                  the best alternative would seem to be providing the HTR and LM with a larger
+                  sample of language data to account for a greater degree of orthographical
+                  variance.</p>
+               <p>Stemming from our experience with generating HTR models for different
+                  publications, we infer that the best approach to extensive collections, such as
+                  HTU, is to create date/period specific HTR models for subsets of those corpora.
+                  The late nineteenth century was a time of accelerated linguistic development and
+                  experimentation for Ottoman Turkish, both in its spoken and written forms.
+                  Therefore, temporal (and/or genre) proximity of publications in sub-groups is
+                  likely to contribute to the creation of more accurate HTR models. This would,
+                  presumably, also be the most practical approach to the automated transcription of
+                  the Ottoman manuscript archive, which is considerably more sizable than the print
+                  documents and publications in this language.</p>
+               <p>Finally, our experiment with HTR for OT print material affirmed the widely
+                  accepted conceptualization of transcription as a biased process and that machine
+                  facilitated transcription is no exception to this. Both HTR and LM rely on the
+                  language data provided by the transcriber; they, in turn, reproduce the
+                  transcriber’s linguistic bias in the output. As aptly described by
+                  Alpert-Abrams:</p>
+               <p>“The machine-recognition of printed characters is a historically charged event, in
+                  which the system and its data conspire to embed cultural biases in the output, or
+                  to affix them as supplementary information hidden behind the screen.”
+                  (Alpert-Abrams, 2016)</p>
+               <p>In the case of the automated transcription of OT, the imposition of a uniform
+                  transcription scheme on the language obscures regional, temporal, and ethnic
+                  varieties in its pronunciations and creates an artificially homogeneous outlook
+                  for OT which does not reflect the historical reality of the language. For our
+                  project with OT periodicals, however, this point is less of a concern because
+                  these publications tended to, indeed, adhere to the standards of “high Ottoman”,
+                  that is, to an OT spoken and written by the educated elites of the Empire. Still,
+                  the language information we, as the users of the automated transcription platform,
+                  impose on the neural network does not only affect the quality and readability of
+                  the output but also has important downstream implications from keyword searches
+                  and Named Entity tagging to other NLP applications to OT corpora. Corpora creation
+                  has for a long time been viewed as a complex political process, and with deep
+                  learning, computationally intensive models, this is no less the case.</p>
+            </div>
+         </div>
+
+         <div>
+            <head>Conclusion</head>
+
+            <p>In our paper we have discussed ongoing research into text creation via automatic
+               transcription in order to bring OT into dialogue with analytical modes of the textual
+               digital humanities. The limited development and application of OCR methods compatible
+               with Arabic script languages has no doubt been one of the rate determining steps, not
+               only in the development of textual corpora, but also in the attendant language
+               technologies that support the use of such corpora. To wish — in 2020 — for basic
+               keyword search capacity within digitized media of the nineteenth and early twentieth
+               century might seem to some as a rather old fashioned request, and yet for
+               Ottomanists, it is an actual one. Limited access to digitized versions of the
+               archive, a lack of language- and script-specific OCR in addition to a lack of
+               scholarly infrastructure in the OT situation have meant that scholars have been slow
+               to adopt digital methods.</p>
+            <p>The landscape of Arabic script languages is changing rapidly, especially with neural
+               automatic transcription systems, as they can accommodate cursive-like scripts and
+               typefaces. In order for these systems to perform well, however, they will require
+               training on many more domains and spatio-temporal variants of the language and
+               handwriting styles. In the case of printed materials, training on different typefaces
+               and printing conventions will also be necessary.</p>
+            <p>A move to new transcription methods for OT will not mean the total automatization of
+               the transcription process, removing it from scholarly labor; instead it will require
+               a reorganization of those efforts from informal to somewhat organized one. We do not
+               expect that people will stop transcribing small amounts by hand for specific
+               purposes, but we do suspect that it will change the way that large text creation
+               projects work, as well as how archives create finding aids as digitized material
+               becomes available.</p>
+            <p>In the specific case of printed periodicals in OT, in order to achieve the goal of
+               enabling keyword searching and more complex forms of modeling and analysis of OT
+               textual content via HTR produced text, a multi-pronged approach will be required.
+               First, a team-based approach to transcription for the purposes of the creation of
+               ground truth will be required (or even some crowdsourced, community-based approaches
+               that have yet to be defined). Such a community effort might be achieved by sharing
+               the model generated for the HTU print collection publicly, although how the endeavor
+               would scale remains to be seen. Second, even though the platform-as-service model of
+               the READ COOP may provide scholars with a variety of public models, the computing
+               resources that allow these to run might exclude scholars and archives without the
+               resources to buy in. It may be that only open models provide a more sustainable
+               solution. Third, research is needed not only to recognize the Arabic script that is
+               used in the specific genre discussed in this article — periodicals — but also, as in
+               many other language situations, for structure recognition and image extraction that
+               would allow for formal modeling of the resultant periodicals as research objects.</p>
+            <p>We are not experts in the histories of all writing systems, but we believe our
+               results may be applied to other language situations that have changed, or have used
+               multiple, scripts over time: Aljamiado, Azeri, Bosnian, Crimean, Judeo-Spanish, Malay
+               and Wolof, just to name a few. Our research with automatic transcription of
+               periodicals printed in the Ottoman Empire during the mid nineteenth to early
+               twentieth century has important implications for multi-script archives of
+               nation-states located in the borderlands of empires and religions. After all,
+               language reforms forged new modernized versions of languages such as Hebrew and
+               Arabic while maintaining their original scripts, but in other places writing systems
+               were changed altogether. As we described in depth above, in Turkey the Arabic script
+               of OT was abandoned in favor of a modified Latin alphabet. The political
+               disintegration of states at other moments of the twentieth century, in particular the
+               former Yugoslavia and Soviet Union, led to fragmentation of similar languages into
+               script-divergent varieties that both straddle current political borders and co-exist
+               with older variance found in archives. If script change comes about in moments of
+               radical political change enacting ruptures in archives, it also seems to map onto a
+               slow globalizing of the Latin script — and not without significant political debate —
+               in different countries around the world around the turn of the twenty-first century.
+               Turkmenistan adopted a Latin alphabet in the late 1990s as well as Kazakhstan as
+               recently as 2017. This geopolitical context raises the question of what will become
+               of digitized archives in such locales — printed and handwritten — and adds totally
+               new contours to the notion of the "great unread" in nations already cut off from the
+               scripts of their past, as well as those that may be facing a phasing out of old
+               alphabets. Future developments in digitization and text creation from borderland
+               archives — if they are to happen — need to take into account not only the automatic
+               transcription of written language, but also the various writing systems in which
+               those languages will be expressed.</p>
+         </div>
+         <div type="appendix">
+            <head>Ket Concepts: Transcription, Transliteration, Romanization</head>
+            <p>There are a number of terms that are intrinsically related, and some of which we use
+               interchangeably in this paper, that are central to our automated recognition of OT
+               project.</p>
+            <p>Transliteration is the substitution of the characters of a script by those of another
+               alphabet. In an ideal transliteration, each character of the source script will be
+               represented with only one and always the same symbol in the target writing system,
+               creating a one-to-one mapping, or graphemic correspondence, between scripts.</p>
+            <p>Transcription, on the other hand, is the representation of the sounds of an alphabet
+               with the characters of another script. A transcription attempts to offer an accurate
+               phonetic rendering of the source language even when this violates the graphemic
+               correspondence between scripts. This means that, depending on the textual context, a
+               polyphonic character- a letter that represents more than one sounds- may be
+               substituted by several different letters in the target alphabet. In some cases, the
+               reverse might be true. In the instance of OT transcription to modern Turkish,
+               transcription also involves representing sounds, vowels to be more specific, which
+               are only implied but are not written in the original text. Precisely because of this,
+               the transliteration of OT inevitably becomes transcription.</p>
+            <p><hi rend="bold">A </hi>popular,<hi rend="bold"> or “loose”, </hi>transcription, is an
+               approximation of the conventional orthography and popular pronunciation of a word in
+               a different script. It will produce a transcription that is easy to follow by
+               contemporary audiences while inevitably forgoing important linguistic information in
+               the original text.</p>
+            <p>Finally, romanization is the substitution of the characters of a non-Roman script by
+               those of the Roman alphabet [ Halpern, 2007].</p>
+         </div>
+
+         <list type="ordered">
+            <item>In a 1960 article, Stanford Show, a leading scholar of Ottoman history, described
+               the challenges of working in Ottoman archives as follows: “Months of searching into
+               the catalogs is necessary to locate all available materials concerning each subject,
+               and much longer time is required to gather these materials and mold them into an
+               intelligible unit of study” (Shaw 1960, p.12). For a more recent evaluation of the
+               state-of-the-field, which reveals that there has not been any significant improvement
+               in the accessibility of the archive since the 1960s, see (Gratien et al.,
+               2014).</item>
+         </list>
+         <list type="ordered">
+            <item>Such was the experience of one of the authors of this article, a native speaker of
+               Turkish, while conducting her doctoral research on the emergence of a modern public
+               education network for women in the Ottoman Empire. The examination of the undigitized
+               and uncataloged documents of the Ottoman Ministry of Public Education and the
+               relevant Ottoman Turkish periodicals took over a year. She enlisted the help of a
+               transcriber to annotate and transcribe the documents she collected. The hired
+               transcriber also conducted research in the Hakkı Tarık Us Periodicals Collection,
+               which, at the time, had not yet been fully digitized.</item>
+         </list>
+         <list type="ordered">
+            <item>The two most notable projects in the vein are the digitizations of the <ref
+                  target="http://www.tufs.ac.jp/common/fs/asw/tur/htu/">Hakkı Tarık Us</ref>
+               <ref target="http://www.tufs.ac.jp/common/fs/asw/tur/htu/">(HTU) print periodicals
+                  repository </ref>and the manuscript collections of the Presidential</item>
+         </list>
+         <p>
+            <hi rend="italic">21</hi>
+         </p>
+         <p>Ottoman State Archives. Even though it has been a decade since the completion of the
+            digitization phase of the project, at present the web interface for the HTU is still in
+            Beta version. Catalogue information about the contents of the collection is meager and
+            search options are non-existent. For a detailed report on the contents and accessibility
+            of the HTU digital repository, see (Baykal, 2011).Work on the digitization of the
+            central Ottoman archive continues to this day. So far, some 40 million documents from
+            the collections of the Ottoman and Republican archives are estimated to have been
+            digitized and made available <ref
+               target="https://www.devletarsivleri.gov.tr/Sayfalar/Haberler/Haber/2142"
+            >online</ref>.</p>
+         <list type="ordered">
+            <item>Salmi draws upon the argument made by (Prescott, 2018) which explains that many
+               digitization projects were actually concerned with the remediation of microforms
+               rather than searchable text creation.</item>
+         </list>
+         <list type="ordered">
+            <item>We know that it was during roughly the same period of the digitization of the HTU
+               that the Arabic-language plain text corpus known as <hi rend="italic">Al-Maktaba
+                  al-Shāmila</hi> came into being, probably via manual keying of the texts
+               (Verkinderen, 2020).</item>
+         </list>
+         <list type="ordered">
+            <item>It is important to note that one of the most famous European crowd-transcription
+               projects, <ref target="https://www.ucl.ac.uk/bentham-project/transcribe-bentham"
+                  >Transcribe Bentham</ref>, was not set up until 2012.</item>
+         </list>
+         <list type="ordered">
+            <item>The authors of this article worked with an OCR system (<hi rend="italic"
+                  >Transkribus</hi>) that was developed in the context of an EU-funded research
+               initiative for transcribing historical archives which in recent years has evolved
+               into a scholarly cooperative (READ COOP). Other methods for neural-based automatic
+               transcription have been under development for some time, including Kraken and
+               E-Scripta, which require a significant investment in digital research infrastructure
+               that was not feasible for the authors in the institution to which they belong.</item>
+         </list>
+         <p>[8]As the small Ottoman principality from western Anatolia evolved into a multi-lingual,
+            multi-ethnic empire that came to rule over most of the Middle East and South Eastern
+            Europe the syntax and the writing system of OT grew in their complexity while its
+            vocabulary expanded exponentially. For an evaluation of the development of Ottoman
+            language in its written form, see (Darling, 2012).</p>
+         <list type="ordered">
+            <item>By "Turkified" we mean that many of the Arabic and Persian words in the language
+               were removed in favor of words of Turkish origin. For an in depth analysis of Turkish
+               language reform, see (Lewis, 2002).</item>
+         </list>
+         <p>
+            <hi rend="italic">22</hi>
+         </p>
+         <list type="ordered">
+            <item>As a case in point, two of the most prominent Turkish Ottomanists of the early
+               Republican era, Kemal Karpat and Halil Inacik, received their higher education and/or
+               worked in Western universities. A sizable portion of both of these scholars’
+               publications are in English, i.e. their intended audience was Anglophone and not
+               necessarily Turkish. For a further example of a key academic discussion taking place
+               outside of Turkey, see Birnbaum’s 1967 article on the transliteration of OT, where he
+               discusses in detail the indifferent attitude in Turkey toward developing a coherent
+               transcription scheme for OT (Birnbaum, 1967).</item>
+         </list>
+         <p>[11]To this end, a team of professional transcribers is employed by the Presidential
+            State Archives in Istanbul to transcribe, edit, and publish selections of documents from
+            their vast holdings. These are made available <ref
+               target="https://www.devletarsivleri.gov.tr/Sayfalar/Yayinlar/Yayinlar.aspx">online
+            </ref>for free for public use. Turkish publishing houses also commission experts in the
+            field to transcribe and annotate important cultural texts in Ottoman Turkish or to
+            produce adaptations of these in modern Turkish for popular consumption.</p>
+         <list type="ordered">
+            <item>The conversation is not a new one, but recent years have seen growth in scholarly
+               discussion about them. Researchers have recently stressed not only the urgency of
+               access to digital tools but also the inequities of digital material and knowledge
+               infrastructures across languages as a question of access. Notable efforts include a
+               full-day workshop at the 2019 ADHO conference entitled "<ref
+                  target="https://dev.clariah.nl/files/dh2019/boa/1083.html">Towards Multilingualism
+                  In</ref>
+               <ref target="https://dev.clariah.nl/files/dh2019/boa/1083.html">Digital Humanities:
+                  Achievements, Failures And Good Practices In DH Projects With</ref>
+               <ref target="https://dev.clariah.nl/files/dh2019/boa/1083.html">Non-latin
+                  Scripts</ref>" (organized by Martin Lee and Cosima Wagner); the <ref
+                  target="https://multilingualdh.org/en/">Multilingual DH</ref>
+               <ref target="https://multilingualdh.org/en/">Group </ref>and the efforts of Quinn
+               Dombrowski; the <ref target="https://dhsi.org/dhsi-2020/#rtl">RTL (Right to Left)
+                  workshop at the</ref>
+               <ref target="https://dhsi.org/dhsi-2020/#rtl">Digital Humanities Summer Institute
+               </ref>organized by Kasra Ghorbaninejad and David Wrisley; and one-and-a-half day
+               workshop " <ref
+                  target="https://languageacts.org/digital-mediations/event/disrupting-digital-monolingualism/"
+                  >Disrupting Digital Monolingualism</ref>" organized by the Language Acts and
+               Worldmaking Project.</item>
+         </list>
+         <list type="ordered">
+            <item>To this question of infrastructure, one really needs to add contemporary forms of
+               inaccessibility that researchers — local and global — experience in times of reduced
+               funding and mobility.</item>
+         </list>
+         <list type="ordered">
+            <item>While there is a small community of Turkish developers working on NLP tools for
+               modern Turkish in open source environments, these are still far from being fully
+               workable platforms. Neither are they sufficiently comprehensive to accommodate the
+               complicated orthography of Ottoman Turkish. To our knowledge, the most advanced NLP
+               tool for Turkish so far developed is <ref
+                  target="https://github.com/ahmetaa/zemberek-nlp">Zenberek</ref>. Also see, (Sezer
+               et al.) and (Sak et al., 2008].</item>
+         </list>
+         <p>
+            <hi rend="italic">23</hi>
+         </p>
+         <list type="ordered">
+            <item>There have been several initiatives in recent years to introduce digital tools and
+               methods to the field of Ottoman studies. The most notable is <ref
+                  target="https://openottoman.org/">OpenOttoman</ref>, an online platform to foster
+               collaborative DH scholarship among Ottomanists. For an overview of the objectives of
+               the platform, see (Singer, 2016). The <ref
+                  target="http://www.thebakiproject.org/main/">Baki Project </ref>and the <ref
+                  target="http://courses.washington.edu/otap/">Ottoman</ref>
+               <ref target="http://courses.washington.edu/otap/">Text Archive Project </ref>are the
+               two other noteworthy projects for creating textual DH platforms for Ottoman studies.
+            </item>
+         </list>
+         <list type="ordered">
+            <item>An excellent argument for devising computational tools for such one such language,
+               nineteenth century Hebrew, is (Soffer et al., 2020). For a pilot study on the
+               automated text recognition of nineteenth century printed books in Bengali, see
+               (Derrick, 2019). Although not in a non-Western language, Ventresque et al.’s work on
+               transcribing Foucault’s reading notes with Handwritten Text Recognition technology is
+               another important case study that seeks a workable starting point for linguistically
+               complex archival material (Ventresque et al., 2019).</item>
+         </list>
+         <list type="ordered">
+            <item>For an OCR system that is based on the same “line-level'' recognition principle as
+               HTR, see (Romanov, 2017).</item>
+         </list>
+         <list type="ordered">
+            <item>See, for example, (Baykal, 2019), (Karakaya-Stump, 2003), (Gülaçar, 2018).</item>
+         </list>
+         <list type="ordered">
+            <item>This is no less true of OT periodicals collection at HTU and Arabic periodicals in
+               large collections such as <ref target="http://dlib.nyu.edu/aco/">Arabic Collections
+                  Online (ACO) </ref>and the <ref target="https://www.qdl.qa/en">Qatar Digital
+                  Library</ref>
+               <ref target="https://www.qdl.qa/en">(QDL)</ref>.</item>
+         </list>
+         <list type="ordered">
+            <item>Birnbaum discusses this issue in detail in his paper (Birnbaum, 1967).</item>
+         </list>
+         <list type="ordered">
+            <item>In the context of debates surrounding a canonical seventeenth century OT text,
+               H.E. Boeschton declared that “a fully consistent transcription is impossible” and “a
+               transcription is a medium ill-suited for the presentation of linguistic results''.
+               (Boeschoten, 1988, p.25-26) The position we take in this study, which is arguably the
+               commonly accepted practice today, is formulated by Robert Anhegger as a response to
+               Boeschton: “The guiding principle should be to produce a transcription which is as
+               easy as possible to follow”. (Anhegger, 1988, p.14)</item>
+         </list>
+         <list type="ordered">
+            <item>Currently, there are four transcriptions schemes widely used in scholarly
+               publications: Deutsche Morgenländische Gesellschaft (DMG) system, Encyclopaedia of
+               Islam (EI, 2nd edition) system, International Journal of MIddle Eastern Studies
+               (IJMES) system, and and Islam Ansiklopedisi (IA) system. For a comparative chart of
+               these transcription systems, see (Bugday, 2014). Turkish scholars tend to prefer the
+               IA system. Modern Turkish versions of OT texts that are produced for the
+               general</item>
+         </list>
+         <p>
+            <hi rend="italic">24</hi>
+         </p>
+         <p>population, on the other hand, often do not adhere to a strict system but rather follow
+            a “loose” transcription. As a case in point, the <hi rend="bold">Turkish Historical
+               Society</hi>- a government agency for the study and promotion of Turkish history -
+            endorses a “loose” rather than “scientific” transcription of post-1830s printed works.
+            For archival material from the same period, however, they recommend “scientific
+            transcription”, a term they use interchangeably with “transliteration”. Türk Tarih
+            Kurumu. “Eser Yayın Süreç: Çeviriyazı Metinlerde Uyulacak Esaslar.” <ref
+               target="https://www.ttk.gov.tr/eser-surec/eser-yayin-surec/"
+               >https://www.ttk.gov.tr/eser-surec/eser-yayin-surec/</ref>.</p>
+         <list type="ordered">
+            <item>The Arabic loanwords in OT complicates this scheme significantly as Arabic stems
+               do inflect. Therefore, a comprehensive dictionary for such a system needs to include
+               all inflected forms of the Arabic loanwords in OT.</item>
+         </list>
+         <list type="ordered">
+            <item>Korkut’s system currently has only about 43.000 words while <hi rend="italic"
+                  >Dervaze</hi> boasts</item>
+         </list>
+         <p>72.400 OT words in its database</p>
+         <list type="ordered">
+            <item>Korkut points out a few long term solutions to this problem in his article.
+               (Korkut, 2019, p. 5)</item>
+         </list>
+         <list type="ordered">
+            <item>Transkribus does allow integrating custom prepared dictionaries into HTR training,
+               but at present the computational cost is too high to justify the miniscule
+               improvement in the accuracy rate of the automated transcription. Based on a
+               correspondence with the Transkribus team, however, we understand that there has been
+               a recent improvement in the recognition-with-dictionary workflow which speeds up the
+               process. In expectation of further developments in this vein, we have started
+               compiling a comprehensive digital Ottoman Turkish dictionary based on Ferit
+               Devellioğlu’s seminal work. (Devellioğlu, 1998) Once the dictionary is ready, it will
+               be publicly shared on the Transkribus platform.</item>
+         </list>
+         <list type="ordered">
+            <item>By “diverse”, we mean a training set that includes samples from various subdomains
+               of the corpus in question. These subdomains will ideally present variations in
+               typeface, page layout, and content, thus, in vocabulary and named entities.</item>
+         </list>
+         <list type="ordered">
+            <item>As a case in point, the number of general HTR models made available to the public
+               in the Transkribus interface have increased significantly over the last year,
+               expanding not only the language, but the domain and genre applicability of the
+               method. For example, The National Archives of the Netherlands has published a
+               composite model for Dutch-language documents of the seventeenth, eighteenth and
+               nineteenth centuries called Ijsberg, trained on dozens of handwriting styles in
+               commercial letters and notarial deeds, that has achieved a CRE rate of 5.15%
+               (Transkribus, 2019).</item>
+         </list>
+         <p>
+            <hi rend="italic">25</hi>
+         </p>
+         <list type="ordered">
+            <item>We take these two publications to be typical OT periodicals in terms of page
+               layout, typeface, and content. Transcriptions for the training data were repurposed
+               partially from the research material of Suphan Kirmizialtin’s dissertation study and
+               partially from the website <ref target="https://www.osmanlicagazeteler.org/"
+                  >Osmanlıca Mahalli Gazeteler</ref>. Existing transcription texts were modified to
+               normalize spellings, correct transcription errors, and standardize the transcription
+               schemes.</item>
+         </list>
+         <list type="ordered">
+            <item>See Appendix-Key Concepts.</item>
+         </list>
+         <list type="ordered">
+            <item>See note #22.</item>
+         </list>
+         <list type="ordered">
+            <item>This most frequently occured in cases that involve the conventionalized affixes of
+               OT which violate the vowel harmony of MT. In such cases, while character-accurate
+               transcription results in archaic-sounding pronunciation of those words (such as ىدلا
+               : ‘oldı’- ‘happened’ ; ىجنوجو١ : ‘üçünci’’- ‘third’) they are still easily
+               recognizable by modern readers; therefore, in those occasions, we opted to go with
+               diplomatic transcription. However, in other instances, where literal transcription,
+               i.e. transliteration, produces a pronunciation that renders the word unrecognizable
+               to the speakers of the Turkish language (for example, هجاوخ : ‘havace’ ; نىجركوك :
+               ‘kükercin’) we preferred the conventional pronunciation over character accuracy
+               (هجاوخ : ‘hoca’ ; نىجركوك : ‘güvercin’). This decision did, inevitably, introduce a
+               certain degree of inconsistency to our HTR models.</item>
+         </list>
+         <list type="ordered">
+            <item>Here, we had to take into account the bi-directionality of OT. In OT, as in
+               Arabic, alphabetical characters are written RTL while numerical characters are
+               written LTR.</item>
+         </list>
+         <list type="ordered">
+            <item>As necessity can be the mother of invention, our "hack" to the system and our
+               initial results with OT prompted the <hi rend="italic">Transkribus</hi> team to
+               develop and integrate a new functionality into the interface that automates reversing
+               of the direction of the transcription text.</item>
+         </list>
+         <list type="ordered">
+            <item>By this time, <hi rend="italic">naskh</hi> style typeface, cut by the revered
+               punch cutter and master printer Ohannes Muhendisyan, had emerged as the standard
+               continuous text typeface for OT publications. (Yazıcıgil, 2015)</item>
+         </list>
+         <list type="ordered">
+            <item>For Language Models, see <hi rend="italic">Discussion of the Results</hi>
+               section.</item>
+         </list>
+         <list type="ordered">
+            <item>“Language Models (LM) estimate the probability of a specific word <hi
+                  rend="italic">w</hi> given the history of words <hi rend="italic">w</hi>1, <hi
+                  rend="italic">w</hi>2, … using external language resources. Assuming that these
+               probabilities model the language of the current document well, we output the</item>
+         </list>
+         <p>
+            <hi rend="italic">26</hi>
+         </p>
+         <p>transcription which maximizes a combination of the HTR probability and the LM
+            probability.” (Strauss et al., 2018)</p>
+         <list type="ordered">
+            <item>For example, in our experiment with <hi rend="italic">Küçük Mecmua</hi>, the CER
+               was reduced from 5.23% to 3.63% when the automated transcription was implemented with
+               the Language Model option.</item>
+         </list>
+         <list type="ordered">
+            <item>See note #26.</item>
+         </list>
+      </body>
+      <back>
+         <listBibl>
+            <bibl>Ahali (HTU no. 0341/1) <ref
+                  target="http://www.tufs.ac.jp/common/fs/asw/tur/htu/list1.html#a"
+                  >http://www.tufs.ac.jp/common/fs/asw/tur/htu/list1.html#a</ref>
+            </bibl>
+            <bibl>Aktaş, N., Halaçoğlu, Y. (1992). <hi rend="italic">Başbakanlık OsmanIı
+               Arşivi</hi>. TDV İslâm Ansiklopedisi.Retrieved from <ref
+                  target="https://islamansiklopedisi.org.tr/basbakanlik-osmanli-arsivi"
+                  >https://islamansiklopedisi.org.tr/basbakanlik-osmanli-arsivi</ref>
+            </bibl>
+            <bibl>Alpert-Abrams, H.( 2016). Machine Reading the Primeros Libros. Digital
+               Humanities</bibl>
+            <bibl>Quarterly, 10(4). <ref
+                  target="http://www.digitalhumanities.org/dhq/vol/10/4/000268/000268.html"
+                  >http://www.digitalhumanities.org/dhq/vol/10/4/000268/000268.html</ref>
+            </bibl>
+            <bibl>Andres, W., Inan, M., Kebeli, S., Waters, S. (2008). <hi rend="italic">Rethinking
+                  the Transcription of Ottoman Texts: The Case for Reversible Transcription</hi>.
+                  <ref
+                  target="http://otap.bilkent.edu.tr/reverse/reverse/o_Reverse_trans_article728.html"
+                  >Retrieved from</ref>
+            </bibl>
+            <bibl>
+               <ref
+                  target="http://otap.bilkent.edu.tr/reverse/reverse/o_Reverse_trans_article728.html"
+                  >http://otap.bilkent.edu.tr/reverse/reverse/o_Reverse_trans_article728.html</ref>
+            </bibl>
+            <bibl>Anhegger, R.( 1988). On Transcribing Ottoman Texts. <hi rend="italic">Manuscripts
+                  of the Middle East 3</hi>,</bibl>
+            <bibl>12-15.</bibl>
+            <bibl>
+               <ref
+                  target="http://www.islamicmanuscripts.info/reference/articles/Anhegger-1988-Transcribing-MME3.PDF"
+                  >http://www.islamicmanuscripts.info/reference/articles/Anhegger-1988-Transcribing-MME</ref>
+            </bibl>
+            <bibl>
+               <ref
+                  target="http://www.islamicmanuscripts.info/reference/articles/Anhegger-1988-Transcribing-MME3.PDF"
+                  >3.PDF</ref>
+            </bibl>
+            <bibl>
+               <hi rend="italic">Baki Project</hi> (<ref
+                  target="http://www.thebakiproject.org/main/"
+                  >http://www.thebakiproject.org/main/</ref>)</bibl>
+            <bibl>Baykal, E. (2011). Periodicals of the Hakkı Tarık Us Collection. <hi rend="italic"
+                  >Turkish Historical Review</hi> 2, 205–212.</bibl>
+            <bibl>Baykal, E. (2019). <hi rend="italic">The Ottoman Press</hi> (1908-1923). Leiden,
+               Boston: Brill.</bibl>
+            <bibl>Birnbaum, E. (1967). The Transliteration of Ottoman Turkish for Library and
+               General Purposes. <hi rend="italic">Journal of the American Oriental Society</hi> 87,
+               122–156.</bibl>
+            <bibl>Boeschoten, H.E., 1988. Why Transcribe Ottoman Turkish Texts? <hi rend="italic"
+                  >Manuscripts of the Middle East 3</hi>, 23–26.</bibl>
+            <bibl>
+               <hi rend="italic">27</hi>
+            </bibl>
+            <bibl>
+               <ref
+                  target="http://www.islamicmanuscripts.info/reference/articles/Boeschoten-1988-Why_transcr-MME3.PDF"
+                  >http://www.islamicmanuscripts.info/reference/articles/Boeschoten-1988-Why_transcr-M</ref>
+               <ref
+                  target="http://www.islamicmanuscripts.info/reference/articles/Boeschoten-1988-Why_transcr-MME3.PDF"
+                  >ME3.PDF</ref>
+            </bibl>
+            <bibl>Bugday, K. (2014). <hi rend="italic">An Introduction to Literary Ottoman</hi>.
+               London, New York: Routledge.</bibl>
+            <bibl>Clifford, E., Rusinek, S., Segal, Z., Rißler-Pipka, N., Ketchley, S., Roeder, T.,
+               Bunout, E., Düring, M.( 2019). Complexities in the Use, Analysis, and Representation
+               of Historical Digital Periodicals, <hi rend="italic">Proceedings of the ADHO2019
+                  Digital Humanities Conference</hi>. Utrecht. <ref
+                  target="https://dev.clariah.nl/files/dh2019/boa/0447.html"
+                  >https://dev.clariah.nl/files/dh2019/boa/0447.html</ref>
+            </bibl>
+            <bibl>Cordell, R. (2016). What Has the Digital Meant to American Periodicals
+               Scholarship?.</bibl>
+            <bibl>
+               <hi rend="italic">American Periodicals: A Journal of History &amp; Criticism</hi> 26
+               (1), 2-7.</bibl>
+            <bibl>Cordell, R. (2017). “Q i -jtb the Raven”:Taking the Dirty OCR Seriously. <hi
+                  rend="italic">Book History</hi>, 20, 188-225.</bibl>
+            <bibl>Çakır, S. (1994). <hi rend="italic">Osmanli Kadin Hareketi</hi>. İstanbul: Metis
+               Yayınları.</bibl>
+            <bibl>Darling, L.T.( 2012). Ottoman Turkish: Written Language and Scribal Practice, 13th
+               to 20th Centuries. In W.Hanaway&amp;B.Spooner(Eds.), <hi rend="italic">Literacy in
+                  the Persianate World: Writing and the Social Order,</hi> 171–195. Philadelphia:
+               University of Pennsylvania Press.</bibl>
+            <bibl>Derrick, T. (2019, August 30). Using Transkribus For Automated Text Recognition of
+               Historical Bengali Books[ Digital scholarship blog. British Library]. Retrieved
+               from</bibl>
+            <bibl>
+               <ref
+                  target="https://blogs.bl.uk/digital-scholarship/2019/08/using-transkribus-for-automated-text-recognition-of-historical-bengali-books.html"
+                  >https://blogs.bl.uk/digital-scholarship/2019/08/using-transkribus-for-automated-text-reco</ref>
+               <ref
+                  target="https://blogs.bl.uk/digital-scholarship/2019/08/using-transkribus-for-automated-text-recognition-of-historical-bengali-books.html"
+                  >gnition-of-historical-bengali-books.html</ref>
+            </bibl>
+            <bibl>Devellioğlu, F. (1998). <hi rend="italic">Osmanlıca-Türkçe Ansiklopedik
+               Lugat</hi>. Ankara: Aydın Kitabevi Yayınları.</bibl>
+            <bibl>Ergişi, A., Şahin, E.( 2017). Osmanlıca Belgelerin Elektronik Çeviri Uygulamaları
+               İçin Bir İmla Kılavuzu Örneği: Dervaze. <hi rend="italic">International Journal of
+                  Languages Education</hi> 1, 78–84.</bibl>
+            <bibl>Ghorbaninejad, M., Gibson, N.,&amp; Wrisley, D.J.. <hi rend="italic">RTL Debates
+                  in Digital Humanities</hi> 2022 (forthcoming).</bibl>
+            <bibl>Grallert, Till.(2019) <hi rend="italic">Kanun-i-Esasi</hi>. Retrieved from</bibl>
+            <bibl>
+               <ref target="https://github.com/tillgrallert/kanun-i-esasi"
+                  >https://github.com/tillgrallert/kanun-i-esasi</ref>
+            </bibl>
+            <bibl>Gratien, C., Polczyński, M., Shafir, N.(2014). Digital Frontiers of Ottoman
+               Studies.</bibl>
+            <bibl>
+               <hi rend="italic">Journal of the Ottoman and Turkish Studies Association</hi> 1,
+               37–51. <ref target="https://doi.org/10.2979/jottturstuass.1.1-2.37">Retrieved
+                  from</ref>
+            </bibl>
+            <bibl>
+               <ref target="https://doi.org/10.2979/jottturstuass.1.1-2.37"
+                  >https://doi.org/10.2979/jottturstuass.1.1-2.37</ref>
+            </bibl>
+            <bibl>
+               <hi rend="italic">28</hi>
+            </bibl>
+            <bibl>Gülaçar, A.G. (2018). II. Meşrutiyet Dönemi İktidar Oluşumu Sürecinde Basının
+               Rolü.</bibl>
+            <bibl>
+               <hi rend="italic">VAKANÜVİS- Uluslararası Tarih Araştırmaları Dergisi</hi> 3,
+               105–128.</bibl>
+            <bibl>Hakkı Tarık Us Collection (HTU) <ref
+                  target="http://www.tufs.ac.jp/common/fs/asw/tur/htu/"
+                  >http://www.tufs.ac.jp/common/fs/asw/tur/htu/</ref>
+            </bibl>
+            <bibl>Halpern, J.( 2007). The Challenges and Pitfalls of Arabic Romanization and
+               Arabization.</bibl>
+            <bibl>[Semantic Scholar] Retrieved from</bibl>
+            <bibl>
+               <ref
+                  target="https://www.semanticscholar.org/paper/The-Challenges-and-Pitfalls-of-Arabic-Romanization-Halpern/8744e1a7aa3637387331fcc56973f6e7b409695c"
+                  >https://www.semanticscholar.org/paper/The-Challenges-and-Pitfalls-of-Arabic-Romaniza</ref>
+            </bibl>
+            <bibl>
+               <ref
+                  target="https://www.semanticscholar.org/paper/The-Challenges-and-Pitfalls-of-Arabic-Romanization-Halpern/8744e1a7aa3637387331fcc56973f6e7b409695c"
+                  >tion-Halpern/8744e1a7aa3637387331fcc56973f6e7b409695c</ref>
+            </bibl>
+            <bibl>
+               <hi rend="italic">Kadınlar Dünyası</hi> (HTU no. 1262)</bibl>
+            <bibl>
+               <ref target="http://www.tufs.ac.jp/common/fs/asw/tur/htu/list1.html#k"
+                  >http://www.tufs.ac.jp/common/fs/asw/tur/htu/list1.html#k</ref>
+            </bibl>
+            <bibl>Karakaya-Stump, A. (2003). Debating Progress in a “Serious Newspaper for Muslim
+               Women”: The Periodical “Kadin” of the Post-Revolutionary Salonica, 1908-1909. <hi
+                  rend="italic">British Journal of Middle Eastern Studies</hi> 30, 155–181.</bibl>
+            <bibl>Korkut, J.(2019). Morphology and Lexicon-Based Machine Translation of Ottoman
+               Turkish to Modern Turkish. Retrieved from <ref
+                  target="https://www.cs.princeton.edu/~ckorkut/papers/ottoman.pdf"
+                  >https://www.cs.princeton.edu/~ckorkut/papers/ottoman.pdf</ref>
+            </bibl>
+            <bibl>Küçük Mecmua (HTU no. 0171) <ref
+                  target="http://www.tufs.ac.jp/common/fs/asw/tur/htu/list1.html#k"
+                  >http://www.tufs.ac.jp/common/fs/asw/tur/htu/list1.html#k</ref>
+            </bibl>
+            <bibl>Lewis, G. (2002). <hi rend="italic">The Turkish Language Reform: A Catastrophic
+                  Success</hi>. New York:</bibl>
+            <bibl>Oxford University Press.</bibl>
+            <bibl>
+               <hi rend="italic">Mekteb</hi> (HTU no. 0138) <ref
+                  target="http://www.tufs.ac.jp/common/fs/asw/tur/htu/list2.html#m"
+                  >http://www.tufs.ac.jp/common/fs/asw/tur/htu/list2.html#m</ref>
+            </bibl>
+            <bibl>Mussell, J. (2012). <hi rend="italic">The Nineteenth Century Press in the Digital
+                  Age</hi>. London: Palgrave Macmillan.</bibl>
+            <bibl>Nicholson, B. (2013). The Digital Turn: Exploring the Methodological Possibilities
+               of Digital Newspaper Archives. <hi rend="italic">Media History</hi> 19(1),
+               59-73.</bibl>
+            <bibl>Osmanlıca Mahalli Gazeteler <ref
+                  target="https://www.osmanlicagazeteler.org/index.php"
+                  >https://www.osmanlicagazeteler.org/index.php</ref>
+            </bibl>
+            <bibl>Ottoman Text Archive Project <ref target="http://otap.bilkent.edu.tr/"
+                  >http://otap.bilkent.edu.tr/</ref>
+            </bibl>
+            <bibl>Özkal, Ö.,(2018). Ottoman Foundations of Turkish Typography: A Field Theory
+               Approach. <hi rend="italic">Design Issues</hi> 34, 59–75.</bibl>
+            <bibl>
+               <hi rend="italic">29</hi>
+            </bibl>
+            <bibl>Padilla, T. et al. (2019, May 22). Final Report - Always Already
+               Computational:</bibl>
+            <bibl>Collections as Data. [Zonedo]. Retrieved from <ref
+                  target="https://zenodo.org/record/3152935/"
+                  >https://zenodo.org/record/3152935/</ref>
+            </bibl>
+            <bibl>Prescott, A. (2018). Searching for Dr Johnson: The Digitisation of the
+               Burney</bibl>
+            <bibl>Newspaper Collection. Travelling Chronicles: News and Newspapers from the
+               Early</bibl>
+            <bibl>Modern Period to the Eighteenth Century. Leiden: Brill.</bibl>
+            <bibl>Rabus, A., 2020. <hi rend="italic">Training of Large Models</hi>. Presented at the
+               Transkribus User Conference, University of Innsbruck.</bibl>
+            <bibl>Romanov, M., Miller, M.T., Savant, S.B., Kiessling, B.(2017). <hi rend="italic"
+                  >Important New Developments in Arabographic Optical Character Recognition
+                  (OCR)</hi>. arXiv:1703.09550 [cs]. Retrieved from <ref
+                  target="http://arxiv.org/abs/1703.09550">http://arxiv.org/abs/1703.09550</ref>
+            </bibl>
+            <bibl>Sak, H., Güngör, T., Saraçlar, M. (2008). Turkish Language Resources:
+               Morphological Parser, Morphological Disambiguator and Web Corpus. <hi rend="italic"
+                  >Advances in Natural Language Processing</hi> 5221, 417–427.</bibl>
+            <bibl>Sezer, T. TS Corpus - The Turkish Corpora and NLP Project . [TS Corpus].</bibl>
+            <bibl>
+               <ref target="https://tscorpus.com/">https://tscorpus.com/</ref>
+            </bibl>
+            <bibl>Shaw, S.J. [1960]. Archival Sources for Ottoman History: The Archives of
+               Turkey.</bibl>
+            <bibl>
+               <hi rend="italic">Journal of the American Oriental Society</hi> 80, 1–12.</bibl>
+            <bibl>Martin, S. [2007]. Digital Scholarship and Cyberinfrastructure in the
+               Humanities:</bibl>
+            <bibl>Lessons from the Text Creation Partnership. <hi rend="italic">Journal of
+                  Electronic Publishing</hi> 10.</bibl>
+            <bibl>Salmi, H. [2021]. What is Digital History? Cambridge, UK: Polity Press.</bibl>
+            <bibl>Siemens, R., Leitch, C., Blake, A., Armstrong, K., Willinsky, J. [2009]. It May
+               Change My Understanding of the Field”: Understanding Reading Tools for Scholars and
+               Professional Readers. DHQ 3.4.</bibl>
+            <bibl>Singer, A. [2016]. Introducing the Ottoman Gazetteer and OpenOttoman. <hi
+                  rend="italic">Journal of the Ottoman and Turkish Studies Association</hi> 3,
+               407–412.</bibl>
+            <bibl>Soffer, O., Segal, Z., Greidinger, N., Rusinek, S., Silber-Varod. [2020].
+               Computational Analysis of Historical Hebrew Newspapers: Proof of Concept. <hi
+                  rend="italic">Zutot</hi> 17, 97–110.</bibl>
+            <bibl>Strauss, T., Weidemann, M., Labahn, R. [2018]. <hi rend="italic">D7.12 Language
+                  Models; Improving Transcriptions by External Language Resources.</hi> Retrieved
+               from</bibl>
+            <bibl>
+               <ref target="https://readcoop.eu/wp-content/uploads/2018/12/D7.12_LMs.pdf"
+                  >https://readcoop.eu/wp-content/uploads/2018/12/D7.12_LMs.pdf</ref>
+            </bibl>
+            <bibl>
+               <hi rend="italic">30</hi>
+            </bibl>
+            <bibl>
+               <hi rend="italic">Tasvir-i Efkar</hi> (HTU no. 2267) <ref
+                  target="http://www.tufs.ac.jp/common/fs/asw/tur/htu/list2.html#t"
+                  >http://www.tufs.ac.jp/common/fs/asw/tur/htu/list2.html#t</ref>
+            </bibl>
+            <bibl>T.C. Cumhurbaşkanlığı Devlet Arşivleri Başkanlığı Yayınlar. Retrieved</bibl>
+            <bibl>from<ref
+                  target="https://www.devletarsivleri.gov.tr/Sayfalar/Yayinlar/Yayinlar.aspx"
+                  >https://www.devletarsivleri.gov.tr/Sayfalar/Yayinlar/Yayinlar.aspx</ref>
+            </bibl>
+            <bibl>T.C. Cumhurbaşkanlığı Devlet Arşivleri Başkanlığı<hi rend="bold">.</hi> (2019,
+               September 2). 60 Milyon Tarihi Belge Dijital Ortama Aktarıldı. Retrieved from</bibl>
+            <bibl>
+               <ref target="https://www.devletarsivleri.gov.tr/Sayfalar/Haberler/Haber/2142"
+                  >https://www.devletarsivleri.gov.tr/Sayfalar/Haberler/Haber/2142</ref>
+            </bibl>
+            <bibl>Transkribus, 2019. <hi rend="italic">Public Models in Transkribus</hi>. Retrieved
+               from <ref
+                  target="https://transkribus.eu/wiki/images/archive/d/d6/20200317101228%21Public_Models_in_Transkribus.pdf"
+                  >https://transkribus.eu/wiki/images/archive/d/d6/20200317101228%21Public_Models_in_</ref>
+               <ref
+                  target="https://transkribus.eu/wiki/images/archive/d/d6/20200317101228%21Public_Models_in_Transkribus.pdf"
+                  >Transkribus.pdf</ref>
+            </bibl>
+            <bibl>Türk Tarih Kurumu, n.d<hi rend="bold">.</hi>
+               <hi rend="italic">Eser Yayın Süreç: Çeviriyazı Metinlerde Uyulacak Esaslar.</hi>
+               Retrieved from</bibl>
+            <bibl>
+               <ref target="https://www.ttk.gov.tr/eser-surec/eser-yayin-surec/"
+                  >https://www.ttk.gov.tr/eser-surec/eser-yayin-surec</ref>
+            </bibl>
+            <bibl>Ventresque, V., Sforzini, A., Massot, M.-L. (2019). Transcribing Foucault’s
+               handwriting with Transkribus. <hi rend="italic">Journal of Data Mining &amp; Digital
+                  Humanities</hi>. Retrieved from <ref target="https://jdmdh.episciences.org/5218"
+                  >https://jdmdh.episciences.org/5218</ref>
+            </bibl>
+            <bibl>Verkinderen, P. (2020). Al-Maktaba al-Shāmila: A Short History. Kitab Project
+               [blog] Retrieved from <ref
+                  target="http://kitab-project.org/2020/12/03/al-maktaba-al-shamila-a-short-history/"
+                  >http://kitab-project.org/2020/12/03/al-maktaba-al-shamila-a-short-history/</ref>
+            </bibl>
+            <bibl>Yazıcıgil, O. (2015). <hi rend="italic">TYPO Talks: Continuous text typefaces
+                  versus display typefaces in the Ottoman Empire</hi>. Retrieved from</bibl>
+            <bibl>
+               <ref
+                  target="https://www.typotalks.com/videos/continuous-text-typefaces-versus-display-typefaces-in-the-ottoman-empire/"
+                  >https://www.typotalks.com/videos/continuous-text-typefaces-versus-display-typefaces-in</ref>
+               <ref
+                  target="https://www.typotalks.com/videos/continuous-text-typefaces-versus-display-typefaces-in-the-ottoman-empire/"
+                  >-the-ottoman-empire/</ref>
+            </bibl>
+            <bibl>Zenberek <ref target="https://github.com/ahmetaa/zemberek-nlp"
+                  >https://github.com/ahmetaa/zemberek-nlp</ref>
+            </bibl>
+         </listBibl>
+      </back>
+   </text>
+</TEI>

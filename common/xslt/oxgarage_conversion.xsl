@@ -176,11 +176,12 @@
             <xsl:apply-templates select="attribute::rend | child::node()"/>
         </xsl:copy>
     </xsl:template>
-    <xsl:template match="hi[@rend eq 'bold']">
+    <!-- Created below code for keeping bolded text, but removed for now because all headings are been sent out of OxGarage as <hi rend="bold"> -->
+    <!--<xsl:template match="hi[@rend eq 'bold']">
         <xsl:copy>
             <xsl:apply-templates select="attribute::rend | child::node()"/>
         </xsl:copy>
-    </xsl:template>
+    </xsl:template>-->
     <xsl:template match="hi">
         <xsl:apply-templates/>
     </xsl:template>
