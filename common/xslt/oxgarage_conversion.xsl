@@ -48,7 +48,8 @@
                         <dhq:bio><p></p></dhq:bio>
                     </dhq:authorInfo>
                 </titleStmt>
-                <publicationStmt><publisher>Alliance of Digital Humanities Organizations</publisher>
+                <publicationStmt>
+                    <publisher>Alliance of Digital Humanities Organizations</publisher>
                     <publisher>Association for Computers and the Humanities</publisher>
                     <xsl:comment>This information will be completed at publication</xsl:comment>
                     <idno type="DHQarticle-id"><xsl:comment>including leading zeroes: e.g. 000110</xsl:comment></idno>
