@@ -255,7 +255,8 @@ of this software, even if advised of the possibility of such damage.
                         <dhq:bio><p>Whitney Anne Trettien is a PhD candidate in English at Duke University, with a master's degree from MIT in Comparative Media Studies. Her projects and publications, both creative and critical, can be found at her website: <ref target="http://whitneyannetrettien.com">http://whitneyannetrettien.com</ref>.</p></dhq:bio>
                     </dhq:authorInfo>
                 </titleStmt>
-                <publicationStmt><publisher>Alliance of Digital Humanities Organizations</publisher><publisher>Association of Computers and the Humanities</publisher>
+                <publicationStmt><publisher>Alliance of Digital Humanities Organizations</publisher>
+<publisher>Association for Computers and the Humanities</publisher>
                     <xsl:comment>This information will be completed at publication</xsl:comment>
                     <idno type="DHQarticle-id">000150</idno>
                     <idno type="volume">007</idno>
