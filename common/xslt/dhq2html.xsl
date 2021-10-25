@@ -1629,9 +1629,13 @@
         <h2 style="font-size:90%;">Revision Note</h2>
         <p>
         <xsl:apply-templates/>
+            <xsl:if test="@next">
+                The <a href="{concat('/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',@next,'.html')}">revised version</a> is available.
+            </xsl:if>
             <xsl:if test="@previous">
           The <a href="{concat('/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',@previous,'.html')}">previous version of the article</a> will remain available.
             </xsl:if>
+            
         </p>
       </div>
     </xsl:template>
