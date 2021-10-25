@@ -1630,7 +1630,7 @@
         <p>
         <xsl:apply-templates/>
             <xsl:if test="@next">
-                The <a href="{concat('/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',@next,'.html')}">revised version</a> is available.
+                The <a href="{concat('/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',substring-before($id,'_'),'/',@next,'.html')}">revised version</a> is available.
             </xsl:if>
             <xsl:if test="@previous">
           The <a href="{concat('/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',@previous,'.html')}">previous version of the article</a> will remain available.
