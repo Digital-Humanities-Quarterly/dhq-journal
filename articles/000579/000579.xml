@@ -1,0 +1,1223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
+<?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+   xmlns:mml="http://www.w3.org/1998/Math/MathML">
+   <teiHeader>
+      <fileDesc>
+         <titleStmt>
+            <!--Author should supply the title and personal information-->
+            <title type="article" xml:lang="en"><!--article title in English-->Detecting,
+               Classifying and Contextualizing Edits in Textual Variants: Three Versions of Andy
+               Weir’s <title rend="italic">The Martian</title></title>
+            <!--Add a <title> with appropriate @xml:lang for articles in languages other than English-->
+            <dhq:authorInfo>
+               <!--Include a separate <dhq:authorInfo> element for each author-->
+               <dhq:author_name>Erik <dhq:family>Ketzan</dhq:family>
+               </dhq:author_name>
+               <dhq:affiliation>Trinity College Dublin</dhq:affiliation>
+               <email>ketzane@tcd.ie</email>
+               <dhq:bio>
+                  <p>N/A</p>
+               </dhq:bio>
+            </dhq:authorInfo>
+            <dhq:authorInfo>
+               <!--Include a separate <dhq:authorInfo> element for each author-->
+               <dhq:author_name>Christof <dhq:family>Schöch</dhq:family>
+               </dhq:author_name>
+               <dhq:affiliation>Trier University</dhq:affiliation>
+               <email>schoech@uni-trier.de</email>
+               <dhq:bio>
+                  <p>N/A</p>
+               </dhq:bio>
+            </dhq:authorInfo>
+         </titleStmt>
+         <publicationStmt>
+            <publisher>Alliance of Digital Humanities Organizations</publisher>
+            <publisher>Association for Computers and the Humanities</publisher>
+            <!--This information will be completed at publication-->
+            <idno type="DHQarticle-id"><!--including leading zeroes: e.g. 000110-->000579</idno>
+            <idno type="volume"
+               ><!--volume number, with leading zeroes as needed to make 3 digits: e.g. 006--></idno>
+            <idno type="issue"><!--issue number, without leading zeroes: e.g. 2--></idno>
+            <date/>
+            <dhq:articleType>article</dhq:articleType>
+            <availability>
+               <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>
+            </availability>
+         </publicationStmt>
+         <sourceDesc>
+            <p>This is the source</p>
+         </sourceDesc>
+      </fileDesc>
+      <encodingDesc>
+         <classDecl>
+            <taxonomy xml:id="dhq_keywords">
+               <bibl>DHQ classification scheme; full list available at <ref
+                     target="http://www.digitalhumanities.org/dhq/taxonomy.xml"
+                     >http://www.digitalhumanities.org/dhq/taxonomy.xml</ref>
+               </bibl>
+            </taxonomy>
+            <taxonomy xml:id="authorial_keywords">
+               <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+            </taxonomy>
+         </classDecl>
+      </encodingDesc>
+      <profileDesc>
+         <langUsage>
+            <language ident="en" extent="original"/>
+            <!--add <language> with appropriate @ident for any additional languages-->
+         </langUsage>
+         <textClass>
+            <keywords scheme="#dhq_keywords">
+               <!--Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors-->
+               <list type="simple">
+                  <item/>
+               </list>
+            </keywords>
+            <keywords scheme="#authorial_keywords">
+               <!--Authors may include one or more keywords of their choice-->
+               <list type="simple">
+                  <item/>
+               </list>
+            </keywords>
+         </textClass>
+      </profileDesc>
+      <revisionDesc>
+         <!--Each change should include @who and @when as well as a brief note on what was done.-->
+         <change/>
+      </revisionDesc>
+   </teiHeader>
+   <text xml:lang="en" type="original">
+      <front>
+         <dhq:abstract><!--Include a brief abstract of the article--> <p>This paper introduces Coleto, an automatic collation tool for the comparison of variant
+            texts in English, German, or French, which separates edits from variant texts so that
+            textual changes can be classified and contextualized. Coleto’s proposed methodology for
+            the classification of edits in variants includes: major/minor expansion, major/minor
+            condensation, changes to numbers and whitespace, and common orthographic features. From
+            this classification schema, Coleto generates: an aligned table of edits in the variants,
+            visualizations of the frequency of classified edits, and a visualization of edit density
+            across the progression of the texts. As a sample use case, we present mixed-method
+            analyses of Andy Weir’s science fiction bestseller, <title rend="italic">The Martian</title>,
+            aided by Coleto’s functions and generated outputs. Code available at: <ref
+               target="https://github.com/dh-trier/coleto">https://github.com/dh-trier/coleto</ref>
+         </p> </dhq:abstract>
+         <dhq:teaser>
+            <!--Include a brief teaser, no more than a phrase or a single sentence-->
+            <p>This paper introduces Coleto, an automatic collation tool for the comparison of variant
+               texts in English, German, or French, which separates edits from variant texts so that
+               textual changes can be classified and contextualized.</p>
+         </dhq:teaser>
+      </front>
+      <body>
+         
+        <div>
+            <head>1. Introduction</head>
+            <p>This paper began with the desire to combine close and distant reading to compare
+               three versions (or <soCalled>variants</soCalled>) of Andy Weir’s science fiction novel, <title
+                  rend="italic">The Martian </title>(2011, 2014, 2016). We wished to formally describe
+               the changes to the texts made by two professional edits, then interpret how these
+               thousands of textual changes, some big but mostly small, alter readings of the texts.
+               While a number of automatic collation and variant comparison tools exist, none of
+               them easily provide information on the textual changes that we were most interested
+               in when analyzing <title rend="italic">The Martian</title>, including: (1) a visualization
+               of edits across the course of the entire texts; (2) all of the edits aligned and
+               isolated from their original textual contexts; and (3) automatic classification of
+               these thousands of edits. As no available tool performs all of these functions, we
+               created one, and now present Coleto, a Python suite which inputs two variant text
+               files (in English, German, or French) and creates a number of outputs: a
+               visualization of edits across the progression of the texts, which indicates sections
+               of the texts that contain greater or fewer edits; a .tsv table containing all of the
+               textual changes presented side-by-side and categorized by type of edit; and
+               visualizations of frequencies of edit types.<note> Coleto is available on GitHub:
+                     <ref target="https://github.com/dh-trier/coleto"
+                     >https://github.com/dh-trier/coleto</ref>, <ref
+                     target="https://doi.org/10.5281/zenodo.4569328"
+                     >https://doi.org/10.5281/zenodo.4569328</ref>. </note>
+            </p>
+            <p> Interested users, even those with minimal coding experience, may use Coleto to
+               quickly gain a variety of information about their variant texts. Comparing variant
+               texts has a long scholarly history, yet to perform genetic/textual criticism requires
+               a great amount of manual work: scholars place the variants side by side and read them
+               through closely, pen or highlighter in hand. Coleto can reduce the massive effort of
+               manual comparison and provide faster and easier access to all of the edits in variant
+               texts, classified and presented in easy-to-use formats. With Coleto, philologists and
+               scholars of genetic/textual criticism may gain speed, new information and new
+               precision, at worst, and new insights, at best. </p>
+            <p> Coleto’s primary methodological improvement to collation is our suggested
+               classification of edits in variants. Collation tools have previously provided
+               information on insertion, deletion, and (sometimes) transposition, but the study of
+               some variant texts may be improved by additional rule-based classification: expansion
+               major/minor, condensation major/minor, as well as common orthographic features
+               including punctuation (e.g. commas), hyphenation (e.g. large-ish → largish),
+               whitespace (e.g. in to → into), capitalization (e.g. earth → Earth), and italics
+               (e.g. again → <title rend="italic">again</title>). We also defined another type of edit,
+               <q>numbers</q>, for edits common in <title rend="italic">The Martian</title>, e.g. 4 → four, or
+               abbreviations involving numbers, e.g. 80 km → 80 kilometers.</p>
+         </div>
+         <div>
+            <head>2. Use case: <title rend="italic">The Martian</title>
+            </head>
+            <p>
+               <title rend="italic">The Martian</title> by Andy Weir is a best-selling science fiction
+               novel about an astronaut named Mark Watney who is stranded alone on Mars. Using
+               science and ingenuity, Watney secures food, water, oxygen, and shelter, establishes
+               communication with NASA back on Earth, and finally reaches a spaceship that enables
+               his rescue. The text of <title rend="italic">The Martian</title> exists in three complete
+               variants. Weir originally self-published <title rend="italic">The Martian</title> on his
+               personal website in 2011 (hereafter, <title rend="italic">Martian1</title> or <title
+                  rend="italic">M1</title>), then began selling it on Amazon.com in 2012, for 99 cents,
+               where it sold 35,000 copies in three months <ptr target="#alter2017"/>. A major New York publisher,
+               Crown, no doubt impressed by this self-publishing success, bought the rights from
+               Weir, edited the text, and re-released it in 2014 (hereafter, <title rend="italic"
+                  >Martian2</title> or <title rend="italic">M2</title>). Describing this edit from <title
+                  rend="italic">Martian1</title> to <title rend="italic">Martian2</title> in interviews, Weir
+               has said, <quote rend="inline">The editing process was pretty smooth. It was not a lot of changes at all</quote>
+               <ptr target="#savage2015"/>, as well as, conversely, <quote rend="inline">...there were a lot of edits and changes...
+               No significant plot changes, nothing like that, but a lot of the wording. It’s much
+               more polished</quote> <ptr target="#debic2014"/>. A third variant was published by Crown in 2016, <title
+                  rend="italic">The Martian: Classroom Edition</title>, which removes the text’s
+               extensive profanity to market the novel to educational audiences (hereafter, <title
+                  rend="italic">Martian3 </title>or <title rend="italic">M3</title>). Explaining this
+               decision, Weir stated, <quote rend="inline">I got a lot of emails from science teachers who said, ‘Man
+               I’d love to use your book as a teaching aid, but there’s so much profanity in it that
+               we can’t really do that’</quote> <ptr target="#alter2017"/>. </p>
+            <p> Our experiments first seek to formally describe the textual changes in the
+               professional edits to <title rend="italic">The Martian</title>, especially as Weir’s
+               inconsistent public statements on the first edit make it unclear how extensive this
+               editing process was. Figure 1 summarizes the textual variation between <title
+                  rend="italic">Martian1</title>, <title rend="italic">Martian2</title>, and Martian3, as
+               performed by the statistics feature of Wdiff <ptr target="#vongargern2014"/>.<note> Wdiff, <ref
+                     target="https://www.gnu.org/software/wdiff/"
+                     >https://www.gnu.org/software/wdiff/</ref>
+               </note>  
+            </p>
+            
+            <figure>
+               <head>Edits from <title rend="italic">Martian1</title> to <title rend="italic">Martian2
+               </title>and <title rend="italic">Martian2</title> to <title rend="italic">Martian3</title> as
+                  grouped by the statistics feature of Wdiff.<note> Wdiff defines <term>changed</term> as <quote rend="inline">A
+                     changed word is one that has been replaced or is part of a replacement.</quote> Deletion
+                     and Insertion thus refer to words which are added or removed with words taking
+                     their place in the text. <ref
+                        target="https://www.gnu.org/software/wdiff/manual/wdiff.html"
+                        >https://www.gnu.org/software/wdiff/manual/wdiff.html</ref>
+                  </note></head>
+               <graphic url="resources/images/image1.jpg"/>
+               <figDesc>Image of two flow charts describing the first and second edit</figDesc>
+            </figure>
+            
+            
+            <p>Quantitatively, Wdiff’s collation statistics lends weight to Weir’s statement that
+               there were <quote rend="inline">not a lot of changes at all</quote> in the first edit to <title rend="italic">The
+                  Martian</title>, as 92.4% of his self-published version is shared with the Crown
+               Publishers edition. But 7.6% is not an insubstantial textual change, as changing even
+               a few words in a literary text can potentially alter its interpretation. The basic
+               collation provided by Wdiff thus leaves many questions about both edits to <title
+                  rend="italic">The Martian</title> unanswered. Are there passages or sections of <title
+                  rend="italic">The Martian</title> that received especially high amounts of edits? How
+               many edits comprise the 6,319 words transformed to 9,205 words in the first edit, or
+               the words changed in the second edit? Are the edits mostly minor corrections to e.g.
+               punctuation, or more substantial changes such as added paragraphs? Are the edits long
+               or short? How many of these edits can be automatically classified, and classified
+               how? Did <title rend="italic">Martian3</title>, the <title rend="quotes">Classroom Edition</title> (intended to remove
+               profanity for student readers) alter any text <title rend="italic">besides</title> the
+               profanity? And moving on to interpretation, how do the hundreds of minor textual
+               changes, such as capitalization and the rendering of numbers and scientific
+               abbreviations, alter readings of the texts? To begin to answer these, we apply Coleto
+               to the texts.</p>
+         </div>
+         <div>
+            <head>3. Related Work</head>
+            <p>A number of tools exist to assist in comparison of textual variants. Wdiff compares
+               text files on a word-per-word basis and provides statistics of insertions, deletions,
+               and changes <ptr target="#vongagern2014"/>. Archival and philological websites allow parallel
+               visual inspection of variants with annotations such as linguistic information or
+               highlighting <ptr target="#vandalenoskam2015"/>. The Versioning Machine is a long-running
+               open-source tool that displays variant texts and manuscript images side-by-side, with
+               a number of changes highlighted <ptr target="#schreibman2003"/>. Juxta and its web-based
+               interface Juxta Commons provided user-friendly collation and visualization of changes
+               in plain text files <ptr target="#wheeles2013"/>. Juxta Commons as a web service was
+               shut down in September 2020, although its source code remains online.<note>
+                  <ref target="https://github.com/performant-software/juxta-service"
+                     >https://github.com/performant-software/juxta-service</ref>
+               </note> CollateX is advanced software for textual collation providing users with
+               alignment tables as well as a visualization of variant changes as a word-level graph
+               <ptr target="#dekker2011"/>. TRAViz provides sophisticated collation and aims to
+               improve on CollateX’s visualization methodology <ptr target="#janicke2015"/> <ptr target="#janicke2017"/>.
+               Elisa Nury has introduced the PyCoviz tool to visualize collation
+               based on CollateX (2019). Other tools not specifically focused on variant comparison
+               could also be useful for variant comparison tasks, for instance TRACER, a suite for
+               detection of text re-use <ptr target="#buchler2014"/>.</p>
+            <p> Different users and their research tasks will be drawn to one or more of these
+               collation tools over the other. While existing collation suites generally approach
+               collation visualization through side-by-side comparison of text chunks or
+               sentence-level comparison, Coleto takes a different approach: to identify and
+               separate all of the edits in variant texts, classified by rule-based methods and
+               presented in output documents and visualizations. This assists our close and distant
+               reading of <title rend="italic">The Martian</title>, as we wished to interpret the
+               cumulative effect of hundreds of minor textual changes. As digital humanities
+               collation tools can and do build upon one another, Coleto’s open-source code and
+               methodology for classifying edits can be incorporated into any other collation suite. </p>
+            <p>In addition to work in digital genetic criticism (e.g. <ptr target="#vanhulle2008"/> <ptr target="#ferrer2011"/>),
+               previous studies which apply digital methods to the interpretation of variants of
+               relatively recent fiction include Yufang Ho’s comparison of the 1966 and revised 1977
+               versions of John Fowles’s novel <title rend="italic">The Magus</title> (2011). Martin Paul
+               Eve examined differences in the U.S. and U.K. editions of David Mitchell’s <title
+                  rend="italic">Cloud Atlas</title>, including collation and comparison of a single
+               character’s narrative, arguing that <quote rend="inline">textual variance [is] an element of <title
+                  rend="italic">Cloud Atlas</title> that can and should be <title rend="italic">read</title></quote>
+               <ptr target="#eve2016" loc="27"/> <ptr target="#eve2019"/>(, an assertion that we follow. In addition, Thomas Crombez
+               and Edith Cassiers have analyzed Luc Perceval’s adaptation of Dostoyevsky’s <title
+                  rend="italic">The Brothers Karamazov</title> into a theater play, based on extensive
+               materials from the director’s Dropbox account and using Neil Fraser’s
+               <title rend="quotes">diff_match_patch</title> library to great effect <ptr target="#crombez2017"/>.</p>
+         </div>
+         <div>
+            <head>4. Advancing the classification of edits in variant texts</head>
+            <p>Existing schemas to classify edits in variant texts have so far been limited. The
+               established methodology for classifying edits in scholarly editing is based on a
+               distinction between <term>accidentals</term> and <term>substantives</term>, as defined by the widely-used
+               Greg-Bowers tradition, which is also included, for instance, in the MLA Committee on
+               Scholarly Editions’ <title rend="italic">Guidelines for Editors of Scholarly
+                  Editions</title> <ptr target="#mla2011"/>.<note> Greg-Bowers was
+                  originally designed for the disciplinary goal of interpreting authorial intention,
+                  and although authorial intention as the dominant paradigm of textual criticism and
+                  scholarly editing was disrupted in the 1980s, notably with Jerome J. McGann’s A
+                  Critique of Modern Textual Criticism (1983), and scholars have continued to evolve
+                  the goals of textual criticism and scholarly editing, the fundamental
+                  methodological categories of the Greg-Bowers tradition have persisted. Scholars
+                  are not unanimous in supporting Greg-Bowers, for instance G. Thomas Tanselle, who
+                  found the terms <term>accidentals</term> and <term>substantives</term> to be <quote rend="inline">misleading and often
+                     untenable in their implication of a firm distinction in all cases</quote> <ptr target="#greetham1992" loc="335-36"/>.
+                  </note> Importantly for digital texts, there is no
+               widely-applicable or widely-followed typology of edits in digital scholarly editing
+               and collation, with different materials calling for different typologies <ptr target="#teil2016"/>.
+               We therefore suggest the following categories of edits in variant texts, as
+               integrated in Coleto (Table 1).</p>
+            <table>
+               <head>Coleto’s classification schema for types of edits in variants of text.</head>
+               <row role="label">
+                  <cell role="label">Script-Identifiable Edits</cell>
+                  <cell role="label">Semantically Open Edits</cell>
+               </row>
+               <row>
+                  <cell>
+                     Numbers, e.g. <title rend="italic">4</title> → <title rend="italic">four</title>, or
+                        abbreviations involving numbers, e.g. <title rend="italic">80 km → 80
+                           kilometers</title>
+                     
+                     Hyphenation, e.g. <title rend="italic">large-ish</title> → <title rend="italic"
+                           >largish</title>
+                     
+                     Punctuation, e.g. commas
+                     Whitespace, e.g. <title rend="italic">in to</title> → <title rend="italic">into</title>
+                     
+                     Capitalization, e.g. <title rend="italic">earth</title> → <title rend="italic"
+                           >Earth</title>
+                     
+                    Italics, e.g. <title rend="italic">again</title> → again
+                  </cell>
+                  <cell>
+                     Insertion
+                     Deletion
+                     Expansion (Minor)
+                     Expansion (Major)
+                     Condensation (Minor)
+                     Condensation (Major)
+                  </cell>
+               </row>
+            </table> 
+           
+            <p>Script-identifiable edits are those that can be confidently classified into types
+               based on formal linguistic features alone; these include changes related to
+               capitalization, whitespace, hyphenation, spelling of numbers, and changes to
+               scientific abbreviations. For the rest of the edits that cannot be easily defined in
+               a rule-based way, we classify them based on the nature and extent of the edit, under
+               the proposed term, <term>Semantically Open Edits</term>: the well-established categories in
+               existing collation tools of deletion and insertion, but supplemented by expansion and
+               condensation categories. For the latter two, a distinction between small and large
+               edits is beneficial, but the choice is (perhaps inevitably) an arbitrary one. For the
+               following experiments, we defined <term>major</term> edits as having a Levenshtein distance
+               greater than 5,<note> Levenshtein distance is a metric for quantifying the difference
+                  between two strings: this counts each character-level addition, deletion or
+                  transformation required to turn one string into another string. Each individual
+                  edit may concern several directly adjacent words, which is why many edits involve
+                  Levenshtein distances higher than 5. In the edit from <title rend="italic">M1
+                     </title>to<title rend="italic"> M2</title>, 2634 (or 49.7%) of the edits are minor and
+                  2664 (or 50.3%) are major, according to our definition. The median Levenshtein
+                  difference we observed was 4. For a discussion of this and other methods of
+                  approximate string matching, see <ptr target="#navarro2001"/>.</note> but users of Coleto may
+               select their own preferred Levenshtein value in the configuration file.</p>
+            <p>The Gothenburg model of textual collation is described as Tokenization →
+               Normalization → Alignment → Analysis/Feedback → Visualization (Birnbaum and Spadini
+                  2020).<note> The Interedition Development Group, “The Gothenburg Model”, <ref
+                     target="https://collatex.net/doc/#gothenburg-model"
+                     >https://collatex.net/doc/#gothenburg-model</ref>
+               </note> Coleto’s primary contribution to general collation methodology is to the
+               Analysis step of the Gothenburg model (Figure 2).</p> 
+            
+            <figure>
+               <head>Coleto’s features within the Gothenburg model of collation.</head>
+               <graphic url="resources/images/image2.jpg"/>
+               <figDesc>Image of two flow charts describing Coleto's edits</figDesc>
+            </figure>
+            
+            
+         </div>
+         <div>
+            <head>5. Applying Coleto to <title rend="italic">The Martian</title>
+            </head>
+            <p>As its target audience is humanities researchers, Coleto is designed for ease of use,
+               so users need only download the code from GitHub, place two variant texts in.txt
+               format in the Data folder, choose configurations in the config.yaml file, and run the
+               run_coleto Python script. Coleto then performs the following tasks: (1) Preprocessing
+               of texts: splits texts into one sentence per line to prepare for alignment; (2) Align
+               texts using Wdiff; (3) Perform analysis: rule-based detection and classification of
+               edits; (4) Generate overview table; and (5) Generate statistics and
+               visualizations.</p>
+            <p>Coleto also generates a number of outputs, the first being a data table in the .tsv
+               format of all the edits in the variants, aligned in one convenient place (Table
+               2).</p>
+            <table>
+               <head>Sample of table generated by Coleto comparing edits from <title rend="italic"
+                  >Martian1</title> to <title rend="italic">Martian2</title>.</head>
+               <row role="label">
+                  <cell role="label">itemid</cell>
+                  <cell role="label">version1</cell>
+                  <cell role="label">version2</cell>
+                  <cell role="label">category</cell>
+                  <cell role="label">main-type</cell>
+                  <cell role="label">lev-dist</cell>
+                  <cell role="label">lev-dist-class</cell>
+                  <cell role="label">lendiff-chars</cell>
+               </row>
+               <row >
+                  <cell role="label">9298-1</cell>
+                  <cell>495</cell>
+                  <cell>494</cell>
+                  <cell>script-identifiable</cell>
+                  <cell>numbers</cell>
+                  <cell>1</cell>
+                  <cell>minor</cell>
+                  <cell>0</cell>
+               </row>
+               <row>
+                  <cell role="label">9299-1</cell>
+                  <cell>5</cell>
+                  <cell>five</cell>
+                  <cell>script-identifiable</cell>
+                  <cell>numbers</cell>
+                  <cell>4</cell>
+                  <cell>minor</cell>
+                  <cell>3</cell>
+               </row>
+               <row>
+                  <cell role="label">9299-2</cell>
+                  <cell>Tau Event</cell>
+                  <cell>dust storm</cell>
+                  <cell>other</cell>
+                  <cell>tbc</cell>
+                  <cell>9</cell>
+                  <cell>major</cell>
+                  <cell>1</cell>
+               </row>
+               <row>
+                  <cell role="label">9307-1</cell>
+                  <cell>Adicalia</cell>
+                  <cell/>
+                  <cell>other</cell>
+                  <cell>deletion</cell>
+                  <cell>8</cell>
+                  <cell>major</cell>
+                  <cell>-8</cell>
+               </row>
+               <row>
+                  <cell role="label">9308-1</cell>
+                  <cell>3000m</cell>
+                  <cell>3000 meters</cell>
+                  <cell>script-identifiable</cell>
+                  <cell>numbers</cell>
+                  <cell>6</cell>
+                  <cell>major</cell>
+                  <cell>6</cell>
+               </row>
+               <row>
+                  <cell role="label">9308-2</cell>
+                  <cell>500m</cell>
+                  <cell>500 meters</cell>
+                  <cell>script-identifiable</cell>
+                  <cell>numbers</cell>
+                  <cell>6</cell>
+                  <cell>major</cell>
+                  <cell>6</cell>
+               </row>
+            </table>
+            
+            <p>Coleto also creates three visualizations. A bar chart visualizes frequencies of
+               <term>Semantically Open Edits,</term> or edits as classified by the statistics feature of Wdiff
+               (insertion and deletion) alongside our suggested Levenshtein-based edit schema for
+               Wdiff’s <term>changes,</term> which we subdivide into Expansion Major/Minor and Condensation
+               Major/Minor (Figure 3).</p> 
+            
+            <figure>
+               <head>Coleto’s visualization of edits between <title rend="italic">Martian1</title> and
+                  <title rend="italic">Martian2</title>, with Insertion and Deletion as classified by the
+                  statistics feature of Wdiff, alongside our Levenshtein-based edit schema for
+                  Expansion and Condensation.</head>
+               <graphic url="resources/images/image3.jpg"/>
+               <figDesc>Image of a bar chart</figDesc>
+            </figure>
+            
+         
+            <p>This first visualization provides researchers with a bird’s-eye view of changes
+               between two variant texts. And if a researcher wishes to examine, for instance, all
+               of the Expansion Major edits, these are tagged in the .tsv table generated by Coleto.
+               The next visualization is of our suggested, more narrowly defined,
+               script-identifiable edits. We have so far implemented: numbers, punctuation,
+               capitalization, hyphenation, whitespace, and italics (Figure 4).</p>
+            
+            
+            <figure>
+               <head>Coleto’s visualization of script-identifiable edits between <title
+                  rend="italic">Martian1</title> and<title rend="italic"> Martian2</title>.</head>
+               <graphic url="resources/images/image4.jpg"/>
+               <figDesc>Image of a bar chart</figDesc>
+            </figure>
+            
+            
+            <p>
+               Figure 4 displays that 2,226 script-identifiable minor textual edits were made
+               in the editing process from <title rend="italic">M1 </title>to <title rend="italic">M2</title>,
+               which provide evidence for a commentator to reconcile author Andy Weir’s conflicting
+               statements on the first edit: <quote rend="inline">It was not a lot of changes at all,</quote> and <quote rend="inline">...there
+               were a lot of edits and changes... No significant plot changes, nothing like that,
+               but a lot of the wording.</quote> While changes to hyphenation, capitalization, etc. may be
+               of interest to some research tasks, they are undoubtedly of little interest to
+               others, and the assignment of edits into finer classifications assists researchers in
+               isolating the specific edits they wish to examine.</p>
+            <p>The third visualization generated by Coleto renders all of the edits across the
+               progression of the texts (Figure 5). Script-identifiable and “other edits” are
+               visualized as different series, with the value of each series calculated by the sum
+               of the absolute Levenshtein distances for each sentence of the text, with
+               Savitzky-Golay smoothing applied.<note> Savitzky-Golay filtering is a smoothing
+                  algorithm relying on a least-squares based, best-fit method, originally developed
+                  to filter out noise-induced variation in data while producing minimal distortions
+                  of the actual signal <ptr target="#savitzky1964"/>. </note>
+            </p> 
+            
+            
+            <figure>
+               <head>Visualization by Coleto of edits between <title rend="italic">Martian1</title>
+                  and <title rend="italic">Martian2</title> across the progression of the texts
+                  (Script-identifiable Edits in red, Semantically Open Edits in blue).</head>
+               <graphic url="resources/images/image5.jpg"/>
+               <figDesc>Image of a bar chart</figDesc>
+            </figure>
+            
+            
+            
+            <p>This visualization assists the researcher in obtaining a sense of how edits are
+               distributed across a text, with notable spikes highlighting passages or sections
+               which feature especially high amounts of edits, which may warrant closer
+               inspection.</p>
+         </div>
+         <div>
+            <head>6. Investigating <title rend="italic">The Martian</title> with Coleto</head>
+            <p>The data and visualizations generated by Coleto may assist in a variety of formal,
+               hermeneutic, and mixed-method studies. In this section, we return to our original
+               goal of investigating textual issues in variants of <title rend="italic">The
+                  Martian</title>, which can also illustrate Coleto’s benefits for researchers.</p>
+            <div>
+               <head>6.1 Quantifying and interpreting reductions in profanity</head>
+               <p>Profanity is a key stylistic feature of<title rend="italic"> The Martian</title>, as
+                  exemplified by the novel’s opening lines in <title rend="italic">M1</title> and <title
+                     rend="italic">M2</title>: <quote rend="inline">I’m pretty much fucked. That’s my considered opinion.
+                  Fucked.</quote> Profanity may be the most important stylistic feature in the textual
+                  history of <title rend="italic">The Martian</title>, as the <title rend="italic">raison
+                     d'être</title> for an entire variant, <title rend="italic">M3</title>, the <title rend="quotes">Classroom
+                  Edition,</title> was to remove the novel’s copious profanity for educational audiences.
+                  Profanity is also a touchstone for issues of censorship and commercialization in
+                  discourse around the film adaptation of <title rend="italic">The Martian</title>. While
+                  the film only explicitly includes two verbal instances of <emph
+                     >fuck</emph>, the offending word is also written on screen and alluded to a
+                  number of other times, as Jacob Brogan writes: <quote rend="inline">[<emph>fuck</emph> is]
+                  often suggested in the way that sex might be in a different sort of all-ages
+                  movie.</quote> <ptr target="#brogen2015"/>. Brogan reads <title rend="italic">The Martian</title> film’s
+                  limited use of <emph>fuck</emph> as a metafictional device, the film
+                  <quote rend="inline">pointedly nodding to its own limitations [... and] making reference to one of the
+                  most bizarre guidelines of the MPAA’s PG-13 rating, the principle that a film can
+                  include only one, and in some very rare cases two, (non-sexual) uses of the word.</quote>
+                  Brogan also suggests Watney’s frequent use of <emph>fuck</emph> as
+                  emblematic of the character’s psychology: <quote rend="inline">Indeed, Watney’s access to the one
+                  thing he’s not supposed to say — and his willingness to keep saying it — indexes
+                  his indomitability.</quote> As another impression, <title rend="italic">The Martian</title>
+                  foregrounds the use of conversational American English to render almost all of its
+                  narrative, a tone underscored by its frequent profanity. An improved formal
+                  understanding of profanity in <title rend="italic">The Martian</title> texts could thus
+                  support a variety of research questions.</p>
+               <p> While locating profanity in texts is a simple matter of query, Coleto’s generated
+                  tables bring additional speed and convenience to comparing the profanity in <title
+                     rend="italic">M2</title> and <title rend="italic">M3</title> (Table 3), while the
+                  generated visualizations provide additional context (Figure 6).</p> 
+               
+               
+               <figure>
+                  <head>Visualization by Coleto of edits between <title rend="italic">Martian2</title>
+                     and <title rend="italic">Martian3</title> across the progression of the texts
+                     (Script-identifiable Edits in red, Semantically Open Edits in blue).</head>
+                  <graphic url="resources/images/image5.jpg"/>
+                  <figDesc>Image of a bar chart</figDesc>
+               </figure>
+               
+               
+               
+               
+               <p>Note that the y-axis is much smaller here than in Figure 5, as the edit from <title
+                     rend="italic">Martian2 </title>to <title rend="italic">Martian3</title> (removing and
+                  replacing profanity) was much smaller than the edit from <title rend="italic"
+                     >Martian1</title> to <title rend="italic">Martian2</title>. The large spike around
+                  sentence 3600 in Figure 6 demonstrates how Coleto highlights areas of large edits
+                  which scholars may wish to investigate further. In this case, however, the
+                  explanation is mundane: small textual variation surrounding a particularly long
+                  string of code that NASA sends to Watney on Mars.</p>
+               <table> 
+                  <head>Table 3. Selection of table generated by Coleto comparing edits from <title
+                     rend="italic">Martian2</title> to <title rend="italic">Martian3</title>.</head>
+                  <row role="label">
+                     <cell role="label">itemid</cell>
+                     <cell role="label">version1</cell>
+                     <cell role="label">version2</cell>
+                     <cell role="label">category</cell>
+                     <cell role="label">main-type</cell>
+                     <cell role="label">lev-dist</cell>
+                     <cell role="label">lev-dist-class</cell>
+                     <cell role="label">lendiff-chars</cell>
+                  </row>
+                  <row>
+                     <cell role="label">1-1</cell>
+                     <cell>fucked.</cell>
+                     <cell>screwed.</cell>
+                     <cell>other</cell>
+                     <cell>tbc</cell>
+                     <cell>5</cell>
+                     <cell>minor</cell>
+                     <cell>1</cell>
+                  </row>
+                  <row>
+                     <cell role="label">3-1</cell>
+                     <cell>Fucked.</cell>
+                     <cell/>
+                     <cell>other</cell>
+                     <cell>deletion</cell>
+                     <cell>7</cell>
+                     <cell>major</cell>
+                     <cell>-7</cell>
+                  </row>
+                  <row>
+                     <cell role="label">4-1</cell>
+                     <cell/>
+                     <cell>Screwed.</cell>
+                     <cell>other</cell>
+                     <cell>insertion</cell>
+                     <cell>8</cell>
+                     <cell>major</cell>
+                     <cell>8</cell>
+                  </row>
+                  <row>
+                     <cell role="label">5-1</cell>
+                     <cell>two months</cell>
+                     <cell>month</cell>
+                     <cell>other</cell>
+                     <cell>condensation</cell>
+                     <cell>5</cell>
+                     <cell>minor</cell>
+                     <cell>-5</cell>
+                  </row>
+                  <row>
+                     <cell role="label">48-1</cell>
+                     <cell>lets</cell>
+                     <cell>let</cell>
+                     <cell>other</cell>
+                     <cell>tbc</cell>
+                     <cell>1</cell>
+                     <cell>minor</cell>
+                     <cell>-1</cell>
+                  </row>
+                  <row>
+                     <cell role="label">56-1</cell>
+                     <cell>shit</cell>
+                     <cell>crap</cell>
+                     <cell>other</cell>
+                     <cell>tbc</cell>
+                     <cell>4</cell>
+                     <cell>minor</cell>
+                     <cell>0</cell>
+                  </row>
+                  <row>
+                     <cell role="label">95-1</cell>
+                     <cell>fucking</cell>
+                     <cell/>
+                     <cell>other</cell>
+                     <cell>deletion</cell>
+                     <cell>7</cell>
+                     <cell>major</cell>
+                     <cell>-7</cell>
+                  </row>
+                  <row>
+                     <cell role="label">185-1</cell>
+                     <cell>fucked.</cell>
+                     <cell>screwed.</cell>
+                     <cell>other</cell>
+                     <cell>tbc</cell>
+                     <cell>5</cell>
+                     <cell>minor</cell>
+                     <cell>1</cell>
+                  </row>
+                  <row>
+                     <cell role="label">241-1</cell>
+                     <cell>piss.</cell>
+                     <cell>pee.</cell>
+                     <cell>other</cell>
+                     <cell>tbc</cell>
+                     <cell>3</cell>
+                     <cell>minor</cell>
+                     <cell>-1</cell>
+                  </row>
+                  <row>
+                     <cell role="label">280-1</cell>
+                     <cell>damned</cell>
+                     <cell>stupid</cell>
+                     <cell>other</cell>
+                     <cell>tbc</cell>
+                     <cell>5</cell>
+                     <cell>minor</cell>
+                     <cell>0</cell>
+                  </row>
+                  <row>
+                     <cell role="label">309-1</cell>
+                     <cell>botanist, damn it.</cell>
+                     <cell>botanist!</cell>
+                     <cell>other</cell>
+                     <cell>condensation</cell>
+                     <cell>10</cell>
+                     <cell>major</cell>
+                     <cell>-9</cell>
+                  </row>
+               </table>
+               
+               <p>Manually reviewing the separated edits in Coleto’s generated .tsv table reveals
+                  that over 290 of the edits to <title rend="italic">Martian3</title> remove or soften
+                  profanity, depending on how <q>profanity</q> is defined,<note> The definition of
+                     <q>profanity</q> varies by authority. In Tony McEnery’s computational linguistic
+                     investigation of profanity, <title rend="italic">Swearing in English</title>, McEnery
+                     queries a list of <soCalled>bad language words</soCalled> or BLWs <quote rend="inline">partly guided by claims within
+                     the literature, partly by my own intuition.</quote> McEnery, <title rend="italic"
+                        >Swearing in English</title>, 30.</note> in ways presumably acceptable to
+                  school boards: <emph>fuck</emph> → <emph>crap</emph>, <emph>ass </emph>→ <emph>butt</emph>, <emph
+                     >piss</emph> → <emph>pee</emph>, <emph>shit</emph> → <emph>crap</emph>, etc. As some examples beyond corporeal profanity,
+                  <q>Jesus Christ</q> is changed to a secular <q>Wow,</q> <q>Thank God</q>
+                  is removed, and a line involving the epithet <emph>gay</emph> is also
+                  altered:</p>
+               <quote rend="block"><p>[08:31] JPL: Good, keep us posted on any mechanical or electronic problems. By the
+                  way, the name of the probe we're sending is Iris. Named after the Greek goddess
+                  who traveled the heavens with the speed of wind. She's also the goddess of
+                  rainbows.
+               </p>
+               <p>[08:47] WATNEY: Gay probe coming to save me. Got it. (<title rend="italic">M1
+                  </title>and <title rend="italic">M2</title>)</p></quote>
+               <p>In <title rend="italic">Martian3</title>, <soCalled>Gay probe</soCalled> is altered to <soCalled>Pride parade
+                  probe.</soCalled> These changes to <title rend="italic">Martian3</title> were previously noted by
+                  Susan Ohanian (2016), who criticized the spirit of the edit and noted
+                  inconsistencies, such as another instance of <title rend="italic">Jesus Christ
+                  </title>that remains in the text.</p>
+               
+               <p>None of the bowdlerization in <title rend="italic">Martian3</title> is surprising, as
+                  the express purpose of the text was to remove or reduce profanity and other
+                  potentially offensive content. But we wished to also know whether <title
+                     rend="italic">Martian3</title> altered any text <title rend="italic">besides</title>
+                  potentially offensive content — perhaps Weir or his editors used the occasion of a
+                  new edition to make some final corrections? — and the table generated by Coleto
+                  can quickly answer this question, as well. By manual inspection and sifting of the
+                  dataframe, it emerges that <title rend="italic">Martian3</title> also makes factual
+                  corrections to scientific details, as well as occasional replacement of continuous
+                  verbs and other minor stylistic features (Table 4).</p>
+               <table> 
+                  <head>Selection of edits from <title rend="italic">Martian2</title> to <title
+                     rend="italic">Martian3</title>, including manually added comments.</head>
+                  <row role="label">
+                     <cell role="label">M2</cell>
+                     <cell role="label">M3</cell>
+                     <cell role="label">Comment</cell>
+                     <cell role="label">Comment2</cell>
+                     <cell role="label">Levenshtein</cell>
+                     <cell role="label">Automatic Classification</cell>
+                  </row>
+                  <row>
+                     <cell>eighteen</cell>
+                     <cell>twenty-two</cell>
+                     <cell>science?</cell>
+                     <cell/>
+                     <cell>9</cell>
+                     <cell/>
+                  </row>
+                  <row>
+                     <cell>most</cell>
+                     <cell>part</cell>
+                     <cell>science?</cell>
+                     <cell/>
+                     <cell>3</cell>
+                     <cell/>
+                  </row>
+                  <row>
+                     <cell>sixty seconds</cell>
+                     <cell>five minutes</cell>
+                     <cell>science?</cell>
+                     <cell/>
+                     <cell>10</cell>
+                     <cell/>
+                  </row>
+                  <row>
+                     <cell>thirty-two-minute</cell>
+                     <cell>twenty-two-minute</cell>
+                     <cell>science?</cell>
+                     <cell/>
+                     <cell>3</cell>
+                     <cell/>
+                  </row>
+                  <row>
+                     <cell>two months</cell>
+                     <cell>month</cell>
+                     <cell>science?</cell>
+                     <cell/>
+                     <cell>5</cell>
+                     <cell>condensation</cell>
+                  </row>
+                  <row>
+                     <cell>grumbled, crossing</cell>
+                     <cell>grumbled and crossed</cell>
+                     <cell/>
+                     <cell>passive</cell>
+                     <cell>7</cell>
+                     <cell/>
+                  </row>
+                  <row>
+                     <cell>said, rubbing</cell>
+                     <cell>rubbed</cell>
+                     <cell/>
+                     <cell>passive</cell>
+                     <cell>9</cell>
+                     <cell>condensation</cell>
+                  </row>
+               </table>
+            
+               <p> By separating and classifying edits, Coleto can also serve as an exploratory
+                  research tool by assisting in the spotting of non-obvious trends. For instance,
+                  manually inspecting the data table of changes from the earlier <title rend="italic"
+                     >Martian1</title> to <title rend="italic">Martian2</title>, we stumbled upon the
+                  discovery that profanity was cut in this first edit, as well. This was a surprise,
+                  given the large frequency and foregroundedness of profanity in <title rend="italic"
+                     >Martian2</title>. It emerges that in the first edit of <title rend="italic">The
+                     Martian</title>, from self-published novel to major publishing house release, <title
+                     rend="italic">fuck</title> and <title rend="italic">shit</title> (and their word forms)
+                  were substantially reduced, by about 33% and 15%, respectively. Numerous other
+                  words and phrases were also softened with <q>lesser</q> profanity, more varied
+                  profanity, or non-profanity (e.g. <q>the shit hits the fan</q> → <q>all hell breaks
+                  loose</q>) in the first edit. </p>
+               <p>
+                  <title rend="italic">The Martian</title> thus has the dubious distinction of having been
+                  bowdlerized three times: in <title rend="italic">M2</title>, which reduced profanity
+                  significantly, the thorough scrubbing of profanity in <title rend="italic">M3</title>,
+                  the <title rend="quote">Classroom Edition,</title> and finally in the film adaptation, which abided by a
+                  (reported) film board’s code of two <emph>fuck</emph>s allowed, but
+                  winked at the audience through additional implied profanity. This textual history
+                  should inform readings of profanity in any variant or adaptation of <title
+                     rend="italic">The Martian</title>, and perhaps any discussion of the protagonist
+                  Mark Watney’s nonconformist characterization.</p>
+            </div>
+            <div>
+               <head>6.2 Interpreting changes to numbers and abbreviations</head>
+               <p>When comparing variants manually, or even with existing collation tools, it can be
+                  difficult to gain a sense of the frequency and distribution of edits, especially
+                  very minor stylistic edits. For instance, in the first edit of <title rend="italic"
+                     >The Martian</title>, it is readily apparent that numerous minor
+                  stylistic/orthographic changes have been made to the way scientific abbreviations
+                  and numbers are written, such as <q>L</q> → <q>liter</q> and <q>8</q> → <q>eight,</q> but existing
+                  variant analysis tools provide no simple way to quantify these and gain a sense of
+                  this type of edit’s distribution.</p>
+               <p>From the script-identifiable edits of <title rend="italic">The Martian</title>, Coleto
+                  classifies 868 edits to the rendering of numbers and scientific values in the
+                  first edit, from <title rend="italic">M1</title> to <title rend="italic">M2</title>. While
+                  individual instances of such numerical changes may seem interpretively
+                  insignificant, hundreds of them scattered across the text have a <title rend="italic"
+                     >cumulative</title> effect upon readings of the text. In protagonist Mark Watney’s
+                  narration in <title rend="italic">Martian1</title>, the use of cardinal numbers and
+                  short scientific abbreviations support the fiction that Watney is a scientist
+                  working in dangerous conditions, too focused on surviving the life-threatening
+                  conditions on Mars to bother writing <q>kilometers</q> or <q>forty-one</q> out in full.
+                  Plausibility is a central concern of science fiction <ptr target="#stockwell2014"/>, and when
+                  such abbreviations and numerals are expanded in <title rend="italic">Martian2</title>,
+                  this may increase readability, but weakens the stylistic realism of Watney’s
+                  voice.</p>
+               <p>In <title rend="italic">Martian1</title>, however, Weir did not only write <q>L</q> for
+                  <q>liter</q> or <q>8</q> for <q>eight</q> in the voice of astronaut Mark Watney, but also in the
+                  third-person narration of the NASA scientists back on Earth, which has a jarring
+                  effect on readability (Table 5):</p> 
+               <table>
+                  <head>Selection of passages containing edits classified as <q>numbers</q> by
+                     Coleto.</head>
+                  <row role="label">
+                     <cell role="label"/>
+                     <cell role="label">Martian1</cell>
+                     <cell role="label">Martian2</cell>
+                  </row>
+                  <row>
+                     <cell>Watney’s first-person narration in personal journal style</cell>
+                     <cell>That extra 18kwh of storage will be tough. I'll have to take 2 of the
+                        Hab's 9kwh fuel cells and load them on to the rover or trailer. <ptr target="#martian1" loc="212"/></cell>
+                     <cell>That extra 18 kilowatt-hours of storage will be tough. I'll have to take
+                        two of the Hab's 9-kilowatt-hour fuel cells and load them onto the rover or
+                        trailer. <ptr target="#martian2" loc="237"/></cell>
+                  </row>
+                  <row>
+                     <cell>Character dialogue in the context of third-person narration (NASA
+                        scientists)</cell>
+                     <cell>
+                        <quote rend="inline">What's the biggest gap in coverage we have on Watney right now?</quote>
+                        <quote rend="inline">Um,</quote> Mindy said. <quote rend="inline">Once every 41 hours, we'll have a 17 minute gap. The
+                           orbits work out that way.</quote> <ptr target="#martian1" loc="76"/>
+                     </cell>
+                     <cell>
+                        <quote rend="inline">What's the biggest gap in coverage we have on Watney right now?</quote>
+                        <quote rend="inline">Um,</quote> Mindy said. <quote rend="inline">Once every forty-one hours, we'll have a
+                           seventeen-minute gap. The orbits work out that way. </quote> <ptr target="#martian2" loc="85"/>
+                     </cell>
+                  </row>
+               </table>
+             
+            </div>
+            <div>
+               <head>6.3 Formal identification of fixed scientific details</head>
+               <p>In addition to plausibility, scientific rigor is another central concern of
+                  science fiction <ptr target="#stockwell2014" loc="78"/>, especially the subgenre of <q>hard science
+                  fiction,</q> and Weir pays careful attention to the accuracy of scientific and
+                  mathematical explanations throughout <title rend="italic">The Martian</title>. Weir went
+                  as far as to code a computer program that plotted the trajectory of the fictional
+                     <title rend="italic">Hermes</title> spacecraft to ensure scientific accuracy in <title
+                     rend="italic">The Martian</title>. Weir’s dedication to scientific accuracy was so
+                  great that a NASA scientist later reviewed Weir’s trajectory calculations, and
+                  concluded that Weir had gotten them right <ptr target="#burke2015"/>. </p>
+               <p>In the process of writing and publishing <title rend="italic">Martian1</title> online,
+                  readers occasionally pointed out corrections to mathematics and science presented
+                  in the novel, which Weir then incorporated <ptr target="#dickerson2015"/> <title rend="italic"
+                     >.</title> While locating these scientific corrections in the variants of <title
+                     rend="italic">The Martian</title> would certainly be possible manually, it would
+                  be a time-consuming task of scanning the text for single-character changes to
+                  numerical digits. The side-by-side data table generated by Coleto, however,
+                  greatly speeds up this manual search (Table 6).</p>
+               <table> 
+                  <head>Examples of scientific corrections in the edit from <title rend="italic"
+                     >Martian1</title> to <title rend="italic">Martian2</title>, as identified by Coleto’s
+                     <title rend="italic">numbers</title> edit classification.</head>
+                  <row role="label">
+                     <cell role="label">Martian1</cell>
+                     <cell role="label">Martian2</cell>
+                  </row>
+                  <row>
+                     <cell>The answer is a cool 1000</cell>
+                     <cell>The answer is about 1100</cell>
+                  </row>
+                  <row>
+                     <cell>The atmosphere is 98% CO2</cell>
+                     <cell>The atmosphere is 95 percent CO2</cell>
+                  </row>
+                  <row>
+                     <cell>It's a closed system.</cell>
+                     <cell>
+                        <p>It's a closed system.</p>
+                        <p>Okay, technically I'm lying. The plants aren't entirely water-neutral.
+                           They strip the hydrogen from some of it (releasing the oxygen) and use it
+                           to make the complex hydrocarbons that are the plant itself.</p>
+                     </cell>
+                  </row>
+               </table>
+ 
+            </div>
+            <div>
+               <head>6.4 Interpreting the altered epilogue</head>
+               <p>The most substantial spike in Coleto’s visualization of edits between <title
+                     rend="italic">M1</title> and <title rend="italic">M2</title> in Figure 5, above, occurs
+                  at the very end of the novel: the removal of the 263-word epilogue at the end of
+                     <title rend="italic">Martian1</title> and a 255-word addition at the end of <title
+                     rend="italic">Martian2</title>, which substantially alters the novel’s closure. In
+                  both <title rend="italic">M1</title> and <title rend="italic">M2</title>, Watney, finally
+                  safely aboard the rescue spacecraft, is happy to be alive and states, <quote rend="inline">This is the
+                  happiest day of my life.</quote> In <title rend="italic">Martian1</title>, however, a brief
+                  epilogue follows this. Some time after his rescue in space, Watney, now safely
+                  back on Earth, is employed by NASA to train the crew of an upcoming space mission.
+                  Watney sits upon a bench, killing time, when a young boy recognizes him as the
+                  famous astronaut. Watney tolerates the boy’s attention, until the boy poses a
+                  question: </p>
+               <quote rend="block"><p><q>So Mr. Watney,</q> the boy said, <q>If you could go to Mars again, like, if there was
+                  another mission and they wanted you to go, would you go?</q></p>
+               <p>Watney scowled at him. <q>You out of your fucking mind?</q></p>
+               <p><q>Ok time to go,</q> the mom said, quickly herding the boy away. They receded in to
+                  [sic] the crowded sidewalk.</p>
+               <p>Watney snorted in their direction. Then he closed his eyes and felt the sun on his
+                  face. It was a nice, boring afternoon. </p></quote> <ptr target="#martian1" loc="331-32"/>
+               
+               <p>This is a typical epilogue in fiction, as defined by the Russian Formalist Boris
+                  Eikhenbaum: it sets the perspective by a shift in time and provides some sort of
+                  after-history of the major characters (Torgovnick, 1981, p.11). This epilogue of
+                     <title rend="italic">M1</title> may be read to evince the lack of internal growth by
+                  Watney, who remains emotionally disengaged and contemptuous of playing the role of
+                  hero. Watney’s harrowing adventures on Mars have not altered his nonconformist
+                  characterization, a nonconformity encapsulated throughout the text by — and on the
+                  final page of the novel, reiterated by — the most foregrounded stylistic feature
+                  in the novel: profanity. The epilogue of <title rend="italic">M1</title> also shuts the
+                  door on potential sequels, which could be read as authorial and textual
+                  nonconformity with commercial expectations for science fiction novels.</p>
+               <p>
+                  <title rend="italic">Martian2</title>, however, cuts this pessimistic epilogue and
+                  inserts a substantial amount of optimistic text just before the novel’s end. In
+                     <title rend="italic">M2</title>’s new ending, Watney expresses gracious appreciation
+                  for all the parties involved in his rescue — his crewmates, NASA, the Chinese
+                  space program, the billions of people who hoped for his survival — and affirms a
+                  widespread faith in human nature: </p>
+               <p>The cost for my survival must have been hundreds of millions of dollars. All to
+                  save one dorky botanist. Why bother?</p>
+               <p>Well, okay. I know the answer to that. Part of it might be what I represent:
+                  progress, science, and the interplanetary future we’ve dreamed of for centuries.
+                  But really, they did it because every human being has a basic instinct to help
+                  each other out. It might not seem that way sometimes, but it’s true. (<title
+                     rend="italic">M2</title>, 368-69)</p>
+               <p>This greatly alters the tone of the novel’s ending, revises Watney’s growth and
+                  characterization, and now leaves open the possibility of sequels. The correlation
+                  between reduced profanity in <title rend="italic">M2</title> and Watney’s character is
+                  notable: as the text itself becomes more conformist, so does its protagonist.</p>
+            </div>
+         </div>
+         <div>
+            <head>7. Conclusion and future work</head>
+            <p>A traditional scholar who sat down to compare the first two variants of <title
+                  rend="italic">The Martian</title> would possibly, but possibly not, have noticed the
+               reduced profanity, although the changed epilogue is impossible to miss. If such a
+               scholar were sufficiently rigorous and willing to invest the necessary time, they
+               would undoubtedly locate the corrected science and note the changes to abbreviations,
+               numerals, and other minor stylistic aspects, as well. Coleto, like any collation
+               tool, does not seek to replace such diligent genetic criticism, but to supplement it
+               with speedier information and new precision, as well as provide a method that scales
+               to longer texts which may challenge the time and patience of scholars performing
+               manual comparison of variant texts.</p>
+            <p>Coleto could naturally be adapted per research topic, and may hopefully be useful for
+               critical interest in, <title rend="italic">inter alia</title>, variants of fiction, the
+               role of the editor, and text re-use. Some tantalizing use cases for comparing
+               variants of fiction come from the rapidly emerging global phenomenon of digital
+               self-published best-sellers,<note> Examples of this phenomenon include <title
+                     rend="italic">Fifty Shades of Grey</title> (originally published as fan-fiction
+                  and later at author E.L. James’ website) and <title rend="italic">Wu Kong</title> (a
+                  Chinese Internet novel turned big-budget action film). Some 40 self-published
+                  authors on Amazon had sold over a million copies of their e-books by 2016 (Alter
+                  2016), while Hollywood is reportedly “snapping up” self-published authors in 2017
+                  (Kean 2017). </note> in which, like <title rend="italic">The Martian</title>, texts
+               often exist in a self-published variant as well as a later professionally-edited
+               variant.</p>
+            <p>A significant weakness of Coleto is its inability to detect transpositions, as it
+               relies on Wdiff for collation. For instance, Wdiff does not detect if a sentence is
+               removed, but then replaced a few pages later in the novel — Coleto would classify
+               this as an unrelated deletion and insertion. While Coleto could be integrated with
+               transposition-detecting software in the future, for now, a pragmatic research
+               suggestion would be to use Coleto in tandem with CollateX (Dekker &amp; Middell,
+               2011), as described e.g. in Schöch (2016). Comparing <title rend="italic">Martian1</title>
+               and <title rend="italic">Martian2</title> in CollateX results in 98 transpositions
+               detected. Of these, 10 involve punctuation and should be considered artefacts of the
+               method. Another 33 represent transpositions of a single word, showing stylistic
+               preferences on the word-order level. Yet another 21 concern multi-word expressions
+               which change the overall construction of a sentence or paragraph more substantially.
+               Finally, 34 concern segments of more than 5 words, typically in the range of a short
+               phrase to several sentences. In all cases, the scope of movement is rather small,
+               with transpositions remaining very localized phenomena. This inspection of
+               transpositions in this test case shows that, quantitatively and above all
+               qualitatively, transpositions were not a major part of the first edit to <title
+                  rend="italic">The Martian</title>, but naturally this step might play a greater role
+               in variants of other texts.</p>
+            <p>For further work on Coleto, we plan to pursue the quantitative investigation into the
+               semantics of edits by using word embedding models, thereby quantifying the amount of
+               actual semantic distance between two tokens in an edit, rather than the surface-level
+               Levenshtein distance. Some notable challenges we expect are defining edits concerning
+               spelling mistakes (where misspelled words may not be in a model’s vocabulary) and
+               edits involving different numbers of words (where it is not obvious which words
+               establish semantic distance).</p>
+         </div>
+         <div>
+            <head>Acknowledgements</head>
+            <p>Thanks to Martin Paul Eve, the audience of our talk at Digital Humanities 2017 in
+               Montreal, and the anonymous reviewers of this journal for excellent feedback on
+               various versions of this project. </p>
+         </div>
+         <div>
+            <head>References</head>
+            <p>Alter, A. (2016). “Meredith Wild, a Self-Publisher Making an Imprint.”<title
+                  rend="italic"> The New York Times</title>, January 30, 2016, <ref
+                  target="https://www.nytimes.com/2016/01/31/business/media/meredith-wild-a-self-publisher-making-an-imprint.html"
+                  >https://www.nytimes.com/2016/01/31/business/media/meredith-wild-a-self-publisher-making-an-imprint.html</ref>. </p>
+            <p>Alter, A. (2017). “Andy Weir’s Best Seller ‘The Martian’ Gets a Classroom-Friendly
+               Makeover.” <title rend="italic">The New York Times</title>, February 24, 2017, <ref
+                  target="https://www.nytimes.com/2017/02/24/business/andy-weirs-best-seller-the-martian-gets-a-classroom-friendly-makeover.html"
+                  >https://www.nytimes.com/2017/02/24/business/andy-weirs-best-seller-the-martian-gets-a-classroom-friendly-makeover.html</ref>. </p>
+            <p>Andrews, T.L. and Macé, C. (2012). “Trees of Texts – Models and methods for an
+               updated theory of medieval text stemmatology.” <title rend="italic">Digital Humanities
+                  2012 Conference Abstracts</title>. Hamburg: Hamburg University Press, 2012, at 120. </p>
+            <p>Andrews, T.L. and van Zundert, J. (2013). “An Interactive Interface for Text Variant
+               Graph Models.” <title rend="italic">Digital Humanities 2013 Conference Abstracts</title>,
+               Lincoln: University of Nebraska, at 90.</p>
+            <p>Archer, J. and Jockers, M. (2016). <title rend="italic">The Bestseller Code</title>.
+               London: Allen Lane.</p>
+            <p>Birnbaum and Spadini. (2020). “Reassessing the locus of normalization in
+               machine-assisted collation”. <title rend="italic">Digital Scholarship in the
+                  Humanities</title> 14:3. <ref
+                  target="http://www.digitalhumanities.org/dhq/vol/14/3/000489/000489.html#interedition"
+                  >http://www.digitalhumanities.org/dhq/vol/14/3/000489/000489.html#interedition</ref>
+            </p>
+            <p>Booker, K. M. (2015). <title rend="italic">Historical Dictionary of Science Fiction in
+                  Literature</title>. London: Rowman &amp; Littlefield.</p>
+            <p>Brogan, J. (2015). “Ridley Scott’s <title rend="italic">The Martian</title> Has Far Less
+               Profanity Than the Book — but Its F-Bombs Are Perfect.” <title rend="italic">Slate</title>,
+               October 6, 2015. <ref
+                  target="https://slate.com/culture/2015/10/profanity-in-ridley-scotts-the-martian-the-film-drops-so-many-fewer-f-bombs-than-andy-weir-s-book.html"
+                  >https://slate.com/culture/2015/10/profanity-in-ridley-scotts-the-martian-the-film-drops-so-many-fewer-f-bombs-than-andy-weir-s-book.html</ref>
+            </p>
+            <p>Büchler, M., Burns, P. R., Müller, M., Franzini, E., Franzini, G. (2014) “Towards a
+               Historical Text Re-use Detection.” In: Biemann, C. and Mehler, A. (eds.) <title
+                  rend="italic">Text Mining, Theory and Applications of Natural Language
+                  Processing</title>. Springer International Publishing Switzerland.</p>
+            <p>Burke, L. (2015). “An Examination of “The Martian” Trajectory.” <title rend="italic"
+                  >NASA</title>, 1-13.</p>
+            <p>Clute, J. and Nicholls, P. (1995). <title rend="italic">The Encyclopedia of Science
+                  Fiction</title>. New York: St. Martin’s Press. </p>
+            <p>Crombez, Th., Cassiers, E. (2017). “Postdramatic methods of adaptation in the age of
+               digital collaborative writing”. <title rend="italic">Digital Scholarship in the
+                  Humanities</title> 32.1, 17-35. </p>
+            <p>Dekker, R. and Middell, G. (2011). “Computer-Supported Collation with CollateX:
+               Managing Textual Variance in an Environment with Varying Requirements.” <title
+                  rend="italic">Supporting Digital Humanities 2011</title>. University of Copenhagen,
+               Denmark. 17-18 November 2011.</p>
+            <p>Dickerson, K. (2015). “Some of the trickiest science in 'The Martian' came from the
+               book's biggest fans.” <title rend="italic">Business Insider</title>, October 8, 2015. <ref
+                  target="https://www.businessinsider.com/andy-weir-the-martian-science-crowdsourcing-2015-10?r=US&amp;IR=T"
+                  >https://www.businessinsider.com/andy-weir-the-martian-science-crowdsourcing-2015-10?r=US&amp;IR=T</ref>
+            </p>
+            <p>Eve, M. P. <title rend="italic">Close Reading With Computers</title>. Stanford: Stanford
+               University Press.</p>
+            <p>Eve, M. P. (2016). “‘You have to keep track of your changes’: The Version Variants
+               and Publishing History of David Mitchell’s <title rend="italic">Cloud Atlas</title>.” <title
+                  rend="italic">Open Library of Humanities </title>2:2, <ref
+                  target="https://olh.openlibhums.org/article/10.16995/olh.82/"
+                  >https://olh.openlibhums.org/article/10.16995/olh.82/</ref>
+            </p>
+            <p>Ferrer, D. (2011). <title rend="italic">Logiques du brouillon: Modèles pour une critique
+                  génétique</title>. Paris: Seuil.</p>
+            <p>Greetham, D.C. (1992). <title rend="italic">Textual Scholarship: An Introduction</title>.
+               New York: Garland.</p>
+            <p>Ho, Y. (2011). <title rend="italic">Corpus Stylistics in Principles and Practice: A
+                  Stylistic Exploration of John Fowles’ The Magus</title>. New York: Continuum.</p>
+            <p>James, E. (1994). <title rend="italic">Science Fiction in the 20th Century</title>. Oxford:
+               Oxford University Press.</p>
+            <p>Jänicke S., Geßner A., Franzini G., Terras M., Mahony S., Scheuermann G. (2015).
+               “TRAViz: A Visualization for Variant Graphs.” In Digital Scholarship in the
+               Humanities , 30(suppl 1): i83–99.</p>
+            <p>Jockers, M. (2016). “Introduction to the Syuzhet Package.” <ref
+                  target="https://cran.r-project.org/web/packages/syuzhet/vignettes/syuzhet-vignette.html"
+                  >https://cran.r-project.org/web/packages/syuzhet/vignettes/syuzhet-vignette.html</ref>
+            </p>
+            <p>Kean, D. (2017). “‘Show me the money!’: the self-published authors being snapped up
+               by Hollywood,” <title rend="italic">The Guardian</title>, May 15, 2017, <ref
+                  target="https://www.theguardian.com/books/2017/may/15/self-published-authors-hollywood-andy-weir-the-martian-el-james"
+                  >https://www.theguardian.com/books/2017/may/15/self-published-authors-hollywood-andy-weir-the-martian-el-james</ref>
+            </p>
+            <p>McEnery, T. (2006). <title rend="italic">Swearing in English: Bad language, purity, and
+                  power from 1586 to the presen</title>t. London: Routledge.</p>
+            <p>Modern Language Association (2011). “Reports from the MLA Committee on Scholarly
+               Editions, Guidelines for Editors of Scholarly Editions.” <ref
+                  target="https://www.mla.org/Resources/Research/Surveys-Reports-and-Other-Documents/Publishing-and-Scholarship/Reports-from-the-MLA-Committee-on-Scholarly-Editions/Guidelines-for-Editors-of-Scholarly-Editions"
+                  >https://www.mla.org/Resources/Research/Surveys-Reports-and-Other-Documents/Publishing-and-Scholarship/Reports-from-the-MLA-Committee-on-Scholarly-Editions/Guidelines-for-Editors-of-Scholarly-Editions</ref>
+            </p>
+            <p>Mohammad, S. M. and Turney, P. D. (2013). “Crowdsourcing a Word-Emotion Association
+               Lexicon.” <title rend="italic">Computational Intelligence</title>, 29(3): 436–65.</p>
+            <p>Navarro, G. (2001). “A guided tour to approximate string matching.” <title rend="italic"
+                  >ACM Computing Surveys</title>. 33(1): 31–88.<ref target="https://en.wikipedia.org/wiki/Digital_object_identifier" xml:space="preserve"> </ref>
+               <ref target="https://en.wikipedia.org/wiki/Digital_object_identifier">doi</ref>:<ref
+                  target="https://dx.doi.org/10.1145%2F375360.375365"
+               >10.1145/375360.375365</ref>.</p>
+            <p>Nury, E. (2019). “Visualizing Collation Results.” <title rend="italic">Varia</title> 14.
+                  <ref target="https://journals.openedition.org/variants/950"
+                  >https://journals.openedition.org/variants/950</ref>
+            </p>
+            <p>Ohanian, S. (2016). “Classroom Edition: Dumb-Ass Fiddling with a Smart-Ass Book”. <title
+                  rend="italic">Schools Matter</title>. <ref
+                  target="http://www.schoolsmatter.info/2016/07/classroom-edition-dumb-ass-fiddling.html"
+                  >http://www.schoolsmatter.info/2016/07/classroom-edition-dumb-ass-fiddling.html</ref>
+            </p>
+            <p>Fameli, J. (2015). “Adam Savage Interviews 'The Martian' Author Andy Weir - The
+               Talking Room.” [Online Video]. 11 June 2015. <ref
+                  target="https://www.youtube.com/watch?v=5SemyzKgaUU"
+                  >https://www.youtube.com/watch?v=5SemyzKgaUU</ref>
+            </p>
+            <p>Savitzky, A. and Golay, M.J.E. (1964). “Smoothing and Differentiation of Data by
+               Simplified Least Squares Procedures”. <title rend="italic">Analytical Chemistry</title>
+               38(8): 1727-1639. DOI: 10.1021/ac60214a047 </p>
+            <p>Schöch, C. (2016). “Detecting Transpositions when Comparing Text Versions using
+               CollateX.” <title rend="italic">The Dragonfly’s Gaze</title>. <ref
+                  target="http://dragonfly.hypotheses.org/954"
+                  >http://dragonfly.hypotheses.org/954</ref>
+            </p>
+            <p>Schreibman et al. (2003). The Versioning Machine. <ref target="http://v-machine.org"
+                  >http://v-machine.org</ref> (accessed January 5, 2021). </p>
+            <p>Simpson, P. (2017). “Interview: Andy Weir.” <title rend="italic">Sci-Fi Bulletin</title>.
+                  <ref target="https://scifibulletin.com/books/science-fiction/interview-andy-weir/"
+                  >https://scifibulletin.com/books/science-fiction/interview-andy-weir/</ref>
+               (accessed December 1, 2017)</p>
+            <p>Swafford, A. (2015). “Problems with the Syuzhet Package”. Anglophile in Academia:
+               Annie Swafford's Blog. <ref
+                  target="https://annieswafford.wordpress.com/2015/03/02/syuzhet/"
+                  >https://annieswafford.wordpress.com/2015/03/02/syuzhet/</ref>
+            </p>
+            <p>TEI-L (2016). Types of Edits. TEI-List. <ref
+                  target="http://tei-l.970651.n3.nabble.com/Types-of-edits-tp4028495.html"
+                  >http://tei-l.970651.n3.nabble.com/Types-of-edits-tp4028495.html</ref>
+            </p>
+            <p>Torgovnick, M. (1981). <title rend="italic">Closure in the Novel</title>. Princeton:
+               Princeton University Press.</p>
+            <p>Twenge, J.M., Van Landingham, H., and Campbell, W.K. (2017). “The Seven Words You Can
+               Never Say on Television: Increases in the Use of Swear Words in American Books,
+               1950-2008.” <title rend="italic">SAGE Open</title>, July-September 2017, pp. 1-8. </p>
+            <p>van Dalen-Oskam. (2015). “In Praise of the Variant Analysis Tool: A Computational
+               Approach to Medieval Literature.” In <title rend="italic">Texts, Transmissions,
+                  Receptions: Modern Approaches to Narratives</title>. Edited by André Lardinois,
+               Sophie Levie, Hans Hoeken and Christoph Lüthy. Leiden: Brill, pp. 35-54.</p>
+            <p>van Hulle, D. (2008). <title rend="italic">Manuscript Genetics, Joyce’s Know-How,
+                  Beckett’s Nohow</title>. Gainesville: University Press of Florida.</p>
+            <p>von Gagern. (2014). GNU Wdiff. <ref target="https://www.gnu.org/software/wdiff/"
+                  >https://www.gnu.org/software/wdiff/</ref>
+            </p>
+            <p>Weir, A. (2011). <title rend="italic">The Martian</title>. Self-published. </p>
+            <p>Weir, A. (2014). <title rend="italic">The Martian</title>. New York: Crown Publishing
+               Group. </p>
+            <p>Weir, A. (2016). <title rend="italic">The Martian: Classroom Edition.</title> New York:
+               Crown Publishing Group.</p>
+            <p>Wheeles D., Jensen K. (2013). “Juxta Commons.” In <title rend="italic">Proceedings of
+                  the Digital Humanities 2013</title>. University of Nebraska-Lincoln, 17 July 2013.
+                  <ref target="http://dh2013.unl.edu/abstracts/ab-142.html"
+                  >http://dh2013.unl.edu/abstracts/ab-142.html</ref>
+            </p>
+         </div>
+      </body>
+      <back>
+         <listBibl>
+            <bibl/>
+         </listBibl>
+      </back>
+   </text>
+</TEI>
