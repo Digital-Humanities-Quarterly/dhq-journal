@@ -1853,58 +1853,89 @@
                      
                      <div class="counter"><a href="#p96">96</a></div>
                      <div class="ptext" id="p96">The joint probability of the model is given
-                        by</div>
+                        by
+                        
+                        $$\begin{align*}
+                        	p(\mathbf{w}, c, z, \gamma, \beta, \theta~|~\alpha,\eta, \xi) =&amp;amp; p(c~|~z) \cdot
+                        p(\mathbf{w}~|~z,\beta) \cdot p(\gamma~|~\xi) \cdot p(\beta~|~\eta)\cdot p(z~|~\theta)\cdot
+                        p(\theta~|~\alpha)\\
+                        	=&amp;amp; \prod^{M,N}\text{cat}(c~|~c,\gamma) \times \prod^{M,N}\text{cat}(\textbf{w}~|~z,\beta)\times\prod^{M,N}\text{cat}(z~|~\theta)\\
+                        	&amp;amp;\times\prod^{M}\text{dir}(\theta~|~\alpha)\times\prod^{K}\text{dir}(\gamma~|~\xi)\times\prod^{K}\text{dir}(\beta~|~\eta)\\
+                        \end{align*}$$
+                        </div>  
                      
                      <div class="counter"><a href="#p97">97</a></div>
-                     <div class="ptext" id="p97">
-                        $$ $$
-                        </div>
+                     <div class="ptext" id="p97">We introduce a counter variable c which can be indexed in four dimensions, the current
+                        topic (<em class="emph">k</em>), the current document
+                        (<em class="emph">m</em>), the current alteration mode (<em class="emph">a</em>) and the current token (<em class="emph">w</em>).
+                        
+                        $$
+                        c_{k,m,a,\mathbf{w}} = \sum_{n=1}^N \mathbf{I}(
+                        z_{m,n}=k
+                        \quad\&amp;amp;\quad w_{m,n} = \mathbf{w} 
+                        \quad\&amp;amp;\quad     c_{m,n} = a )
+                        $$
+                        </div>  
+                     
                      
                      <div class="counter"><a href="#p98">98</a></div>
-                     <div class="ptext" id="p98">We introduce a counter variable c which can be indexed in four dimensions, the current
-                        topic (<em class="emph">k</em>), the current document
-                        (<em class="emph">m</em>), the current alteration mode (<em class="emph">a</em>) and the current token (<em class="emph">w</em>).</div>
-                     
-                     $$ $$
-                     
-                     
+                     <div class="ptext" id="p98">In this setting, the desired computation is the probability of
+                        a topic assignment at a specific position given a current configuration of
+                        all other topic assignments. This probability can be formalized by
+                        $$\begin{align*}
+                        	p(z_{m,n}~|~z_{-_{(m,n)}},\mathbf{w},c,\alpha,\eta,\xi)&amp;amp;\propto~p(z_{m,n},z_{-_{(m,n)}},\mathbf{w},c~|~\alpha,\eta,\xi)
+                        \end{align*}$$
+                        
+                        </div>
                      
                      <div class="counter"><a href="#p99">99</a></div>
-                     <div class="ptext" id="p99">In this setting, the desired computation is the probability of
-                        a topic assignment at a specific position given a current configuration of
-                        all other topic assignments. This probability can be formalized by</div>
-                     $$ $$
-                     
+                     <div class="ptext" id="p99">Adopting Equation 16 from the Carpenter paper, this probability can be written by
+                        marginalizing θ,β,γ and  from the joint probability. 
+                        
+                        $$\begin{align*}
+                        	p(z_{m,n},z_{-_{(m,n)}},\mathbf{w},c~|~\alpha,\eta,\xi) = &amp;amp; \int\int\int~p(\mathbf{w},c,z,\gamma,\beta,
+                        	\theta~|~\alpha,\eta,\xi)d\theta~d\beta~d\gamma\\
+                        	= &amp;amp; \underbrace{\int~p(\theta~|~\alpha)\cdot~p(z~|~\theta)d\theta}_A\\
+                        	&amp;amp; \times \underbrace{\int~p(\mathbf{w}~|~z,\beta)\cdot~p(\beta~|~\eta)d\beta}_B\\
+                        	&amp;amp; \times \int~p(c~|~z,\gamma)\cdot~p(\gamma~|~\xi)d\gamma\\
+                        	= &amp;amp; \prod_{k=1}^K\int~p(\gamma_k~|~\xi)\prod_{m=1,n=1}^{M,N_m}p(c~|~\gamma_{\text{argmax}(z_{m,n})})d\gamma_k
+                        \times A \times B
+                        \end{align*}$$</div>
                      
                      
                      <div class="counter"><a href="#p100">100</a></div>
-                     <div class="ptext" id="p100">Adopting Equation 16 from the Carpenter paper, this probability can be written by
-                        marginalizing θ,β,γ and  from the joint probability. </div>
-                     
-                     $$ $$
-                     
-                     
-                     <div class="counter"><a href="#p101">101</a></div>
-                     <div class="ptext" id="p101">A and B are substituted here because their derivation is
+                     <div class="ptext" id="p100">A and B are substituted here because their derivation is
                         identical to the one in Carpenter et al. Analogue to Equation 27 of
                         Carpenter et al., after inserting the definitions of the Dirichlet
-                        distribution the result is proportional to three factors.</div>
-                     
-                     $$ $$
-                     
-                     
-                     
-                     <div class="counter"><a href="#p102">102</a></div>
-                     <div class="ptext" id="p102">Where .-  denotes the counter disregarding the current position <em class="emph">m, n</em>.</div>
-                  </div>
+                        distribution the result is proportional to three factors.
+                        
+                        $$\begin{align*}
+                        	\propto (\mathbf{c}^-_{z_{m,n},*,*,*}+\alpha_{z_{m,n}})\left(
+                        		\frac{
+                        			\mathbf{c}^-_{z_{m,n},*,*,\mathbf{w}_{m,n}}+\eta_{w_{m,n}}
+                        		}{
+                        			\mathbf{c}^-_{z_{m,n},*,*,*}+\sum_v^V\eta_{v}
+                        		}
+                        	\right)\left(
+                        		\frac{
+                        			\mathbf{c}^-_{z_{m,n},*,c_{m,n},*}+\xi_{w_{m,n}}
+                        		}{
+                        			\mathbf{c}^-_{z_{m,n},*,*,*}+\sum_i^2\xi_{i}
+                        		}
+                        	\right)
+                        \end{align*}$$
+                        
+                        
+                        where .-  denotes the counter disregarding the current position <em class="emph">m, n</em>.</div>
+                     </div>
                   
                   
                   
                   <div class="div div1">
                      <h2 class="head">Results on Synthetic Data</h2>
                      
-                     <div class="counter"><a href="#p103">103</a></div>
-                     <div class="ptext" id="p103">A big advantage of generative models is that they can be used
+                     <div class="counter"><a href="#p101">101</a></div>
+                     <div class="ptext" id="p101">A big advantage of generative models is that they can be used
                         to generate new data. The generated documents themselves may not be too
                         interesting in the case of topic models, but they can be used to evaluate
                         the functionality of the model. To do this, first, the variables of the
@@ -1913,8 +1944,8 @@
                         variable configurations are reconstructed. The performance of the inference
                         can be measured by the accuracy of the reconstruction.</div>
                      
-                     <div class="counter"><a href="#p104">104</a></div>
-                     <div class="ptext" id="p104">In Figure
+                     <div class="counter"><a href="#p102">102</a></div>
+                     <div class="ptext" id="p102">In Figure
                         13, the results of such an evaluation over 324 different experiment
                         runs is shown, within the sparsity of the hyper-parameters as well as the
                         number of tokens were varied. Each cell shows the mean reconstruction of c
@@ -1930,8 +1961,8 @@
                         accurately, wheras for fewer documents, there is the chance of getting a few
                         (sparse) topics right.</div>
                      
-                     <div class="counter"><a href="#p105">105</a></div>
-                     <div class="ptext" id="p105">
+                     <div class="counter"><a href="#p103">103</a></div>
+                     <div class="ptext" id="p103">
                         
                         <div class="figure">
                            
