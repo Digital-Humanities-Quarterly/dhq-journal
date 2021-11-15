@@ -27,6 +27,17 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2021-11-15" who="jhf">
+        <list>
+          <item>added controlled value list for <att>status</att> on <gi>availability</gi> to support custom Creative Commons licenses</item>
+        </list>
+      </change>
+      <change when="2021-08-23" who="jhf">
+        <list>
+          <item>added controlled value list to <att>mimeType</att> on <gi>media</gi></item>
+          <item>removed units from values of <att>height</att> and <att>width</att> on <gi>media</gi></item>
+        </list>
+      </change>
       <change when="2021-04-26" who="jhf">
         <list>
           <item>added <att>lang</att> to <gi>eg</gi> with controlled code language values</item>
@@ -313,6 +324,7 @@ email (should only have an email address)
           <desc>Passthrough code gets passed through to the HTML output where it can be executed. The assumption is that this code will be HTML, or something that can be embedded within an HTML document.</desc>
           <classes mode="change">
             <memberOf key="model.inter" mode="add"/>
+            <memberOf key="model.graphicLike" mode="add"/>
           </classes>
           <content>
             <sequence>
@@ -578,6 +590,11 @@ email (should only have an email address)
                 <dataRef key="teidata.pointer"/>
               </datatype>
             </attDef>
+            <attDef ident="next" mode="add">
+              <datatype>
+                <dataRef key="teidata.pointer"/>
+              </datatype>
+            </attDef>
             <attDef ident="when">
               <datatype>
                 <rng:ref name="data.temporal.w3c"/>
@@ -601,16 +618,39 @@ email (should only have an email address)
         <!-- ================================================================================== -->
         <!-- elements with changed content models -->
 
-        <!-- modify <media> to include @poster and to use closed list for @type-->
-       <!-- <elementSpec ident="media" mode="change">
+        <!-- modify <media> to include @poster and to use closed list for @type; modify @height and @width to eliminate specification of units. DHQ will always use pixels-->
+        <elementSpec ident="media" mode="change">
           <attList>
-            <attDef mode="replace" ident="type" usage="req">
+            <attDef ident="mimeType" mode="replace">
               <valList type="closed">
-                <valItem ident="audio"><desc>an audio file</desc></valItem>
-                <valItem ident="video"><desc>a video file</desc></valItem>
+                <valItem ident="audio/wav">
+                  <desc>Waveform audio format (.wav)</desc>
+                </valItem>
+                <valItem ident="audio/mpeg">
+                  <desc>MP3 audio files (.mp3)</desc>
+                </valItem>
+                <valItem ident="image/svg+xml">
+                  <desc>SVG file (.svg)</desc>
+                </valItem>
+                <valItem ident="video/quicktime">
+                  <desc>Quicktime videos (.mov)</desc>
+                </valItem>
+                <valItem ident="video/mp4">
+                  <desc>MP4 audio/video (.mp4)</desc>
+                </valItem>
+                <valItem ident="audio/x-ms-wma">
+                  <desc>WMA files (.wma)</desc>
+                </valItem>
               </valList>
             </attDef>
-             
+            <attDef ident="height" mode="replace" usage="opt">
+              <datatype><dataRef name="integer"/></datatype>
+              <valDesc>The height of the media item, in pixels</valDesc>
+            </attDef>
+            <attDef ident="width" mode="replace" usage="opt">
+              <datatype><dataRef name="integer"/></datatype>
+              <valDesc>The width of the media item, in pixels</valDesc>
+            </attDef>
             <attDef mode="add" ident="poster" usage="opt">
               <desc>A pointer to an image that serves as a "poster": a static image that displays when the media is not playing.</desc>
               <datatype>
@@ -619,7 +659,7 @@ email (should only have an email address)
             </attDef>
              
           </attList>
-        </elementSpec> -->
+        </elementSpec> 
 
 
 
@@ -871,10 +911,21 @@ email (should only have an email address)
 
         <!-- modify <availability> to include CC license information -->
         <elementSpec ident="availability" mode="change" module="header">
+          
           <content>
             <elementRef key="License"/>
           </content>
+          <attList>
+            <attDef ident="status" mode="replace">
+              <valList type="closed">
+                <valItem ident="CC-BY-ND"/>
+                <valItem ident="CC-BY"/>
+                <valItem ident="CC0"/>
+              </valList>
+            </attDef>
+          </attList>          
         </elementSpec>
+        
         <elementSpec ident="License" mode="add" ns="http://web.resource.org/cc/">
           <attList>
             <attDef ident="about" ns="http://www.w3.org/1999/02/22-rdf-syntax-ns#">

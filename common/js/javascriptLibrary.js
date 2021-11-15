@@ -145,7 +145,7 @@ function showLang() {
             note_count++;
         }
     }
-    if (note_count < 1) {
+    if (note_count < 1 && document.getElementById('notes')) {
         document.getElementById('notes').remove();
     }
     for (k=0; k < elems.length; k++) {

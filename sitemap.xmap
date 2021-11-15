@@ -221,6 +221,44 @@
            
             </map:match>
             
+             <map:match pattern="vol/1/2/000009/000009_01.html">
+           <!--<map:read src="articles/000128/000128_01.xml" mime-type="text/xml"/>-->
+           
+               <!-- <map:generate src="articles/{3}/{4}.xml"/> +here+ -->
+           
+               <map:generate src="articles/000009/000009_01.xml"/>
+                <map:transform type="xslt2" src="common/xslt/template_article.xsl">
+                    <map:parameter name="fpath" value="vol/1/2/000009/000009_01.html"/>
+                    <map:parameter name="context" value="{global:context}"/>
+                    <map:parameter name="vol" value="1"/>
+                    <map:parameter name="issue" value="2"/>
+                    <map:parameter name="id" value="000009_01"/>
+                    <map:parameter name="use-request-parameters" value="true"/>
+                </map:transform>
+                <map:serialize type="xhtml"/>
+           
+            </map:match>
+            
+            <!-- attempt at general pipeline for all revised articles -->
+             <!--<map:match type="regexp" pattern="vol/0*(\d+)/0*(\d+)/(\d+)/(\d+_\d\d)\.html">-->
+            <map:match pattern="vol/0*(\d+)/0*(\d+)/(\d+/)(\d+_\d\d)\.html">
+           <!--<map:read src="articles/000128/000128_01.xml" mime-type="text/xml"/>-->
+           
+               <!-- <map:generate src="articles/{3}/{4}.xml"/> +here+ -->
+           
+               <map:generate src="articles/{3}{4}.xml"/>
+                <map:transform type="xslt2" src="common/xslt/template_article.xsl">
+                    <map:parameter name="context" value="{global:context}"/>
+                    <map:parameter name="fpath" value="vol/{1}/{2}/{3}{4}.html"/>
+                    <map:parameter name="vol" value="{1}"/>
+                    <map:parameter name="issue" value="{2}"/>
+                    <map:parameter name="id" value="{4}"/>
+                    <map:parameter name="use-request-parameters" value="true"/>
+                </map:transform>
+                <map:serialize type="xhtml"/>
+           
+            </map:match>
+            
             
             <map:act type="http"/>
             
@@ -644,6 +682,11 @@
                 </map:transform>
                 <map:serialize type="xhtml"/>
             </map:match>
+            
+             <!-- pattern to access index of specific pdf article from a published issue. -->
+            <map:match type="regexp" pattern="vol/0*(\d+)/0*(\d+)/(\d+/)(\d+)\.pdf">
+	            <map:read src="articles/{4}/{4}.pdf"/>
+            </map:match>
           
             
        <!--atom feed link - update this with every new issue alongwith homepage link -->
@@ -706,6 +749,9 @@
             <!-- redirects for older style URL requests [CRB] -->
             <map:match type="regexp" pattern="vol/0*(\d+)/0*(\d+)/(\d+)\.xml">
                 <map:redirect-to uri="{3}/{3}.xml"/>
+            </map:match>
+            <map:match type="regexp" pattern="vol/0*(\d+)/0*(\d+)/(\d+)\.pdf">
+                <map:redirect-to uri="{3}/{3}.pdf"/>
             </map:match>
             <!-- added for display of encoded xml files -->
             <map:match type="regexp" pattern="vol/0*(\d+)/0*(\d+)/(\d+/)(\d+)\.xml">

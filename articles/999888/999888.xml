@@ -18,14 +18,15 @@
                      <dhq:bio><p>asdf</p></dhq:bio>
                     </dhq:authorInfo>
             </titleStmt>
-            <publicationStmt><publisher>Alliance of Digital Humanities Organizations</publisher><publisher>Association of Computers and the Humanities</publisher>
+            <publicationStmt><publisher>Alliance of Digital Humanities Organizations</publisher>
+<publisher>Association for Computers and the Humanities</publisher>
                
                 <idno type="DHQarticle-id">999888</idno>
                 <idno type="volume">3</idno>
                 <idno type="issue">4</idno>
                 <date when="2009-06-21">21 June 2009</date>
                 <dhq:articleType>frontmatter</dhq:articleType>
-                <availability><cc:License rdf:about="https://creativecommons.org/licenses/by-nd/2.5/"/></availability>
+                <availability status="CC-BY-ND"><cc:License rdf:about="https://creativecommons.org/licenses/by-nd/2.5/"/></availability>
               <dhq:revisionNote previous="000164_01.xml" when="2013-02-01">change made to <ref target="#rev_01">this location</ref></dhq:revisionNote>
             </publicationStmt>
             
@@ -185,8 +186,266 @@ they are
           <formula notation="tex" rend="block">\matrix{0 &amp;amp; 1\cr&amp;lt;0&amp;amp;>1}</formula>
           </p>
 
-
         </div>
+        <div><head>Collapsed Gibbs Sampler of the AlterLDA Model [Samples of TeX encoding from 000576.xml, testing how to embed the code in our encoding]</head>
+               <p>[The first example embeds the entire block of code within <gi>formula</gi>,  escaping the ampersands.]</p>
+                        <p>The joint probability of the model is given
+                        by</p>
+               <p>
+                  <formula notation="tex" rend="block">$$\begin{align*}
+	p(\mathbf{w}, c, z, \gamma, \beta, \theta~|~\alpha,\eta, \xi) =&amp;amp; p(c~|~z) \cdot p(\mathbf{w}~|~z,\beta) \cdot p(\gamma~|~\xi) \cdot p(\beta~|~\eta)\cdot p(z~|~\theta)\cdot p(\theta~|~\alpha)\\
+	=&amp;amp; \prod^{M,N}\text{cat}(c~|~c,\gamma) \times \prod^{M,N}\text{cat}(\textbf{w}~|~z,\beta)\times\prod^{M,N}\text{cat}(z~|~\theta)\\
+	&amp;amp;\times\prod^{M}\text{dir}(\theta~|~\alpha)\times\prod^{K}\text{dir}(\gamma~|~\xi)\times\prod^{K}\text{dir}(\beta~|~\eta)\\
+\end{align*}$$</formula>
+               </p>
+            <p>We introduce a counter variable c which can be indexed in four dimensions, the current topic (<emph>k</emph>), the current document
+               (<emph>m</emph>), the current alteration mode (<emph>a</emph>) and the current token (<emph>w</emph>).</p>
+               
+            <formula notation="tex" rend="block">$$
+c_{k,m,a,\mathbf{w}} = \sum_{n=1}^N \mathbf{I}(
+    z_{m,n}=k
+    \quad\&amp;amp;\quad w_{m,n} = \mathbf{w} 
+    \quad\&amp;amp;\quad     c_{m,n} = a )
+$$</formula>
+               
+               
+               <p>In this setting, the desired computation is the probability of
+                        a topic assignment at a specific position given a current configuration of
+                        all other topic assignments. This probability can be formalized by</p>
+            <formula notation="tex" rend="block">$$\begin{align*}
+	p(z_{m,n}~|~z_{-_{(m,n)}},\mathbf{w},c,\alpha,\eta,\xi)&amp;amp;\propto~p(z_{m,n},z_{-_{(m,n)}},\mathbf{w},c~|~\alpha,\eta,\xi)
+\end{align*}$$</formula>
+            
+            
+            <p>Adopting Equation 16 from the Carpenter paper, this probability can be written by marginalizing θ,β,γ and  from the joint probability. </p>
+
+            <formula notation="tex" rend="block">$$\begin{align*}
+	p(z_{m,n},z_{-_{(m,n)}},\mathbf{w},c~|~\alpha,\eta,\xi) = &amp;amp; \int\int\int~p(\mathbf{w},c,z,\gamma,\beta,
+	\theta~|~\alpha,\eta,\xi)d\theta~d\beta~d\gamma\\
+	= &amp;amp; \underbrace{\int~p(\theta~|~\alpha)\cdot~p(z~|~\theta)d\theta}_A\\
+	&amp;amp; \times \underbrace{\int~p(\mathbf{w}~|~z,\beta)\cdot~p(\beta~|~\eta)d\beta}_B\\
+	&amp;amp; \times \int~p(c~|~z,\gamma)\cdot~p(\gamma~|~\xi)d\gamma\\
+	= &amp;amp; \prod_{k=1}^K\int~p(\gamma_k~|~\xi)\prod_{m=1,n=1}^{M,N_m}p(c~|~\gamma_{\text{argmax}(z_{m,n})})d\gamma_k \times A \times B
+\end{align*}$$</formula>
+            
+               <p>A and B are substituted here because their derivation is
+                        identical to the one in Carpenter et al. Analogue to Equation 27 of
+                        Carpenter et al., after inserting the definitions of the Dirichlet
+                        distribution the result is proportional to three factors.</p>
+
+            <formula notation="tex" rend="block">$$\begin{align*}
+	\propto (\mathbf{c}^-_{z_{m,n},*,*,*}+\alpha_{z_{m,n}})\left(
+		\frac{
+			\mathbf{c}^-_{z_{m,n},*,*,\mathbf{w}_{m,n}}+\eta_{w_{m,n}}
+		}{
+			\mathbf{c}^-_{z_{m,n},*,*,*}+\sum_v^V\eta_{v}
+		}
+	\right)\left(
+		\frac{
+			\mathbf{c}^-_{z_{m,n},*,c_{m,n},*}+\xi_{w_{m,n}}
+		}{
+			\mathbf{c}^-_{z_{m,n},*,*,*}+\sum_i^2\xi_{i}
+		}
+	\right)
+\end{align*}$$</formula>
+
+
+            <p>Where .-  denotes the counter disregarding the current position <emph>m, n</emph>.</p></div>
+            
+<div><head>2. Collapsed Gibbs Sampler of the AlterLDA Model [Samples of TeX encoding from 000576.xml, testing how to embed the code in our encoding]</head>
+               <p>[The second example embeds the entire block of code within <gi>formula</gi>,  escaping the ampersands.]</p>
+                        <p>The joint probability of the model is given
+                        by</p>
+               <p>
+                  <formula notation="tex" rend="block">$$\begin{align*}
+	p(\mathbf{w}, c, z, \gamma, \beta, \theta~|~\alpha,\eta, \xi) =&amp; p(c~|~z) \cdot p(\mathbf{w}~|~z,\beta) \cdot p(\gamma~|~\xi) \cdot p(\beta~|~\eta)\cdot p(z~|~\theta)\cdot p(\theta~|~\alpha)\\
+	=&amp; \prod^{M,N}\text{cat}(c~|~c,\gamma) \times \prod^{M,N}\text{cat}(\textbf{w}~|~z,\beta)\times\prod^{M,N}\text{cat}(z~|~\theta)\\
+	&amp;\times\prod^{M}\text{dir}(\theta~|~\alpha)\times\prod^{K}\text{dir}(\gamma~|~\xi)\times\prod^{K}\text{dir}(\beta~|~\eta)\\
+\end{align*}$$</formula>
+               </p>
+            <p>We introduce a counter variable c which can be indexed in four dimensions, the current topic (<emph>k</emph>), the current document
+               (<emph>m</emph>), the current alteration mode (<emph>a</emph>) and the current token (<emph>w</emph>).</p>
+               
+            <formula notation="tex" rend="block">$$\[
+c_{k,m,a,\mathbf{w}} = \sum_{n=1}^N \mathbf{I}(
+    z_{m,n}=k
+    \quad\&amp;\quad w_{m,n} = \mathbf{w} 
+    \quad\&amp;\quad     c_{m,n} = a )
+\]$$</formula>
+               
+               
+               <p>In this setting, the desired computation is the probability of
+                        a topic assignment at a specific position given a current configuration of
+                        all other topic assignments. This probability can be formalized by</p>
+            <formula notation="tex" rend="block">$$\begin{align*}
+	p(z_{m,n}~|~z_{-_{(m,n)}},\mathbf{w},c,\alpha,\eta,\xi)&amp;\propto~p(z_{m,n},z_{-_{(m,n)}},\mathbf{w},c~|~\alpha,\eta,\xi)
+\end{align*}$$</formula>
+            
+            
+            <p>Adopting Equation 16 from the Carpenter paper, this probability can be written by marginalizing θ,β,γ and  from the joint probability. </p>
+
+            <formula notation="tex" rend="block">$$\begin{align*}
+	p(z_{m,n},z_{-_{(m,n)}},\mathbf{w},c~|~\alpha,\eta,\xi) = &amp; \int\int\int~p(\mathbf{w},c,z,\gamma,\beta,
+	\theta~|~\alpha,\eta,\xi)d\theta~d\beta~d\gamma\\
+	= &amp; \underbrace{\int~p(\theta~|~\alpha)\cdot~p(z~|~\theta)d\theta}_A\\
+	&amp; \times \underbrace{\int~p(\mathbf{w}~|~z,\beta)\cdot~p(\beta~|~\eta)d\beta}_B\\
+	&amp; \times \int~p(c~|~z,\gamma)\cdot~p(\gamma~|~\xi)d\gamma\\
+	= &amp; \prod_{k=1}^K\int~p(\gamma_k~|~\xi)\prod_{m=1,n=1}^{M,N_m}p(c~|~\gamma_{\text{argmax}(z_{m,n})})d\gamma_k \times A \times B
+\end{align*}$$</formula>
+            
+               <p>A and B are substituted here because their derivation is
+                        identical to the one in Carpenter et al. Analogue to Equation 27 of
+                        Carpenter et al., after inserting the definitions of the Dirichlet
+                        distribution the result is proportional to three factors.</p>
+
+            <formula notation="tex" rend="block">$$\begin{align*}
+	\propto (\mathbf{c}^-_{z_{m,n},*,*,*}+\alpha_{z_{m,n}})\left(
+		\frac{
+			\mathbf{c}^-_{z_{m,n},*,*,\mathbf{w}_{m,n}}+\eta_{w_{m,n}}
+		}{
+			\mathbf{c}^-_{z_{m,n},*,*,*}+\sum_v^V\eta_{v}
+		}
+	\right)\left(
+		\frac{
+			\mathbf{c}^-_{z_{m,n},*,c_{m,n},*}+\xi_{w_{m,n}}
+		}{
+			\mathbf{c}^-_{z_{m,n},*,*,*}+\sum_i^2\xi_{i}
+		}
+	\right)
+\end{align*}$$</formula>
+
+
+            <p>Where .-  denotes the counter disregarding the current position <emph>m, n</emph>.</p></div>
+            
+<div><head>3. Collapsed Gibbs Sampler of the AlterLDA Model [Samples of TeX encoding from 000576.xml, testing how to embed the code in our encoding]</head>
+               <p>[The third example embeds the entire block of code within <gi>formula</gi>,  escaping ampersands and removing the outer layer of code]</p>
+                        <p>The joint probability of the model is given
+                        by</p>
+               <p>
+                  <formula notation="tex" rend="block">$$
+	p(\mathbf{w}, c, z, \gamma, \beta, \theta~|~\alpha,\eta, \xi) =&amp; p(c~|~z) \cdot p(\mathbf{w}~|~z,\beta) \cdot p(\gamma~|~\xi) \cdot p(\beta~|~\eta)\cdot p(z~|~\theta)\cdot p(\theta~|~\alpha)\\
+	=&amp; \prod^{M,N}\text{cat}(c~|~c,\gamma) \times \prod^{M,N}\text{cat}(\textbf{w}~|~z,\beta)\times\prod^{M,N}\text{cat}(z~|~\theta)\\
+	&amp;\times\prod^{M}\text{dir}(\theta~|~\alpha)\times\prod^{K}\text{dir}(\gamma~|~\xi)\times\prod^{K}\text{dir}(\beta~|~\eta)\\
+$$</formula>
+               </p>
+            <p>We introduce a counter variable c which can be indexed in four dimensions, the current topic (<emph>k</emph>), the current document
+               (<emph>m</emph>), the current alteration mode (<emph>a</emph>) and the current token (<emph>w</emph>).</p>
+               
+            <formula notation="tex" rend="block">$$\[
+c_{k,m,a,\mathbf{w}} = \sum_{n=1}^N \mathbf{I}(
+    z_{m,n}=k
+    \quad\&amp;\quad w_{m,n} = \mathbf{w} 
+    \quad\&amp;\quad     c_{m,n} = a )
+\]$$</formula>
+               
+               
+               <p>In this setting, the desired computation is the probability of
+                        a topic assignment at a specific position given a current configuration of
+                        all other topic assignments. This probability can be formalized by</p>
+            <formula notation="tex" rend="block">$$
+	p(z_{m,n}~|~z_{-_{(m,n)}},\mathbf{w},c,\alpha,\eta,\xi)&amp;\propto~p(z_{m,n},z_{-_{(m,n)}},\mathbf{w},c~|~\alpha,\eta,\xi)
+$$</formula>
+            
+            
+            <p>Adopting Equation 16 from the Carpenter paper, this probability can be written by marginalizing θ,β,γ and  from the joint probability. </p>
+
+            <formula notation="tex" rend="block">$$
+	p(z_{m,n},z_{-_{(m,n)}},\mathbf{w},c~|~\alpha,\eta,\xi) = &amp; \int\int\int~p(\mathbf{w},c,z,\gamma,\beta,
+	\theta~|~\alpha,\eta,\xi)d\theta~d\beta~d\gamma\\
+	= &amp; \underbrace{\int~p(\theta~|~\alpha)\cdot~p(z~|~\theta)d\theta}_A\\
+	&amp; \times \underbrace{\int~p(\mathbf{w}~|~z,\beta)\cdot~p(\beta~|~\eta)d\beta}_B\\
+	&amp; \times \int~p(c~|~z,\gamma)\cdot~p(\gamma~|~\xi)d\gamma\\
+	= &amp; \prod_{k=1}^K\int~p(\gamma_k~|~\xi)\prod_{m=1,n=1}^{M,N_m}p(c~|~\gamma_{\text{argmax}(z_{m,n})})d\gamma_k \times A \times B
+$$</formula>
+            
+               <p>A and B are substituted here because their derivation is
+                        identical to the one in Carpenter et al. Analogue to Equation 27 of
+                        Carpenter et al., after inserting the definitions of the Dirichlet
+                        distribution the result is proportional to three factors.</p>
+
+            <formula notation="tex" rend="block">$$
+	\propto (\mathbf{c}^-_{z_{m,n},*,*,*}+\alpha_{z_{m,n}})\left(
+		\frac{
+			\mathbf{c}^-_{z_{m,n},*,*,\mathbf{w}_{m,n}}+\eta_{w_{m,n}}
+		}{
+			\mathbf{c}^-_{z_{m,n},*,*,*}+\sum_v^V\eta_{v}
+		}
+	\right)\left(
+		\frac{
+			\mathbf{c}^-_{z_{m,n},*,c_{m,n},*}+\xi_{w_{m,n}}
+		}{
+			\mathbf{c}^-_{z_{m,n},*,*,*}+\sum_i^2\xi_{i}
+		}
+	\right)
+$$</formula>
+
+
+            <p>Where .-  denotes the counter disregarding the current position <emph>m, n</emph>.</p></div>
+            
+ <div><head>3. Collapsed Gibbs Sampler of the AlterLDA Model [Samples of TeX encoding from 000576.xml, testing how to embed the code in our encoding]</head>
+               <p>[The third example embeds the entire block of code within <gi>formula</gi>,  escaping ampersands and removing the outer layer of code]</p>
+                        <p>The joint probability of the model is given
+                        by</p>
+               <p>
+                  <formula notation="tex" rend="block">$$
+	p(\mathbf{w}, c, z, \gamma, \beta, \theta~|~\alpha,\eta, \xi) =&amp; p(c~|~z) \cdot p(\mathbf{w}~|~z,\beta) \cdot p(\gamma~|~\xi) \cdot p(\beta~|~\eta)\cdot p(z~|~\theta)\cdot p(\theta~|~\alpha)\\
+	=&amp; \prod^{M,N}\text{cat}(c~|~c,\gamma) \times \prod^{M,N}\text{cat}(\textbf{w}~|~z,\beta)\times\prod^{M,N}\text{cat}(z~|~\theta)\\
+	&amp;\times\prod^{M}\text{dir}(\theta~|~\alpha)\times\prod^{K}\text{dir}(\gamma~|~\xi)\times\prod^{K}\text{dir}(\beta~|~\eta)\\
+$$</formula>
+               </p>
+            <p>We introduce a counter variable c which can be indexed in four dimensions, the current topic (<emph>k</emph>), the current document
+               (<emph>m</emph>), the current alteration mode (<emph>a</emph>) and the current token (<emph>w</emph>).</p>
+               
+            <formula notation="tex" rend="block">$$\[
+c_{k,m,a,\mathbf{w}} = \sum_{n=1}^N \mathbf{I}(
+    z_{m,n}=k
+    \quad\&amp;\quad w_{m,n} = \mathbf{w} 
+    \quad\&amp;\quad     c_{m,n} = a )
+\]$$</formula>
+               
+               
+               <p>In this setting, the desired computation is the probability of
+                        a topic assignment at a specific position given a current configuration of
+                        all other topic assignments. This probability can be formalized by</p>
+            <formula notation="tex" rend="block">$$
+	p(z_{m,n}~|~z_{-_{(m,n)}},\mathbf{w},c,\alpha,\eta,\xi)&amp;\propto~p(z_{m,n},z_{-_{(m,n)}},\mathbf{w},c~|~\alpha,\eta,\xi)
+$$</formula>
+            
+            
+            <p>Adopting Equation 16 from the Carpenter paper, this probability can be written by marginalizing θ,β,γ and  from the joint probability. </p>
+
+            <formula notation="tex" rend="block">
+	p(z_{m,n},z_{-_{(m,n)}},\mathbf{w},c~|~\alpha,\eta,\xi) = &amp; \int\int\int~p(\mathbf{w},c,z,\gamma,\beta,
+	\theta~|~\alpha,\eta,\xi)d\theta~d\beta~d\gamma\\
+	= &amp; \underbrace{\int~p(\theta~|~\alpha)\cdot~p(z~|~\theta)d\theta}_A\\
+	&amp; \times \underbrace{\int~p(\mathbf{w}~|~z,\beta)\cdot~p(\beta~|~\eta)d\beta}_B\\
+	&amp; \times \int~p(c~|~z,\gamma)\cdot~p(\gamma~|~\xi)d\gamma\\
+	= &amp; \prod_{k=1}^K\int~p(\gamma_k~|~\xi)\prod_{m=1,n=1}^{M,N_m}p(c~|~\gamma_{\text{argmax}(z_{m,n})})d\gamma_k \times A \times B
+</formula>
+            
+               <p>A and B are substituted here because their derivation is
+                        identical to the one in Carpenter et al. Analogue to Equation 27 of
+                        Carpenter et al., after inserting the definitions of the Dirichlet
+                        distribution the result is proportional to three factors.</p>
+
+            <formula notation="tex" rend="block">
+	\propto (\mathbf{c}^-_{z_{m,n},*,*,*}+\alpha_{z_{m,n}})\left(
+		\frac{
+			\mathbf{c}^-_{z_{m,n},*,*,\mathbf{w}_{m,n}}+\eta_{w_{m,n}}
+		}{
+			\mathbf{c}^-_{z_{m,n},*,*,*}+\sum_v^V\eta_{v}
+		}
+	\right)\left(
+		\frac{
+			\mathbf{c}^-_{z_{m,n},*,c_{m,n},*}+\xi_{w_{m,n}}
+		}{
+			\mathbf{c}^-_{z_{m,n},*,*,*}+\sum_i^2\xi_{i}
+		}
+	\right)
+</formula>
+
+
+            <p>Where .-  denotes the counter disregarding the current position <emph>m, n</emph>.</p></div>                       
            
         </body>
         <back>

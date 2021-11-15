@@ -12,7 +12,7 @@ namespace teix = "http://www.tei-c.org/ns/Examples"
 namespace xi = "http://www.w3.org/2001/XInclude"
 namespace xlink = "http://www.w3.org/1999/xlink"
 
-# Schema generated from ODD source 2021-07-16T15:58:48Z. .
+# Schema generated from ODD source 2021-11-15T16:16:42Z. .
 # TEI Edition: Version 4.1.0. Last updated on
 #	19th August 2020, revision b414ba550
 # TEI Edition Location: https://www.tei-c.org/Vault/P5/Version 4.1.0/
@@ -1255,24 +1255,6 @@ dhq_att.internetMedia.attribute.mimeType =
       xsd:token { pattern = "[^\p{C}\p{Z}]+" }+
     }
   }?
-dhq_att.media.attribute.width =
-  
-  ## Where the media are displayed, indicates the display width
-  attribute width {
-    xsd:token {
-      pattern =
-        "[\-+]?\d+(\.\d+)?(%|cm|mm|in|pt|pc|px|em|ex|gd|rem|vw|vh|vm)"
-    }
-  }?
-dhq_att.media.attribute.height =
-  
-  ## Where the media are displayed, indicates the display height
-  attribute height {
-    xsd:token {
-      pattern =
-        "[\-+]?\d+(\.\d+)?(%|cm|mm|in|pt|pc|px|em|ex|gd|rem|vw|vh|vm)"
-    }
-  }?
 dhq_att.media.attribute.scale =
   
   ## Where the media are displayed, indicates a scale factor to be applied when generating the desired display size
@@ -1442,7 +1424,8 @@ dhq_model.egLike_sequence = dhq_eg
 dhq_model.egLike_sequenceOptional = dhq_eg?
 dhq_model.egLike_sequenceOptionalRepeatable = dhq_eg*
 dhq_model.egLike_sequenceRepeatable = dhq_eg+
-dhq_model.graphicLike = dhq_media | dhq_graphic | dhq_formula
+dhq_model.graphicLike =
+  dhq_media | dhq_graphic | dhq_formula | dhq_passThroughCode
 dhq_model.offsetLike = notAllowed
 dhq_model.offsetLike_alternation = notAllowed
 dhq_model.offsetLike_sequence = empty
@@ -2127,17 +2110,39 @@ dhq_media =
   element tei:media {
     dhq_model.descLike*,
     dhq_att.global.attributes,
-    dhq_att.media.attribute.width,
-    dhq_att.media.attribute.height,
     dhq_att.media.attribute.scale,
     dhq_att.resourced.attributes,
     
-    ## (MIME media type) specifies the applicable multimedia internet mail extension (MIME) media type
+    ##
+    attribute width { xsd:integer }?,
+    
+    ##
+    attribute height { xsd:integer }?,
+    
+    ##
     attribute mimeType {
-      list {
-        xsd:token { pattern = "[^\p{C}\p{Z}]+" }+
-      }
-    },
+      
+      ## Waveform audio format (.wav)
+      "audio/wav"
+      | 
+        ## MP3 audio files (.mp3)
+        "audio/mpeg"
+      | 
+        ## SVG file (.svg)
+        "image/svg+xml"
+      | 
+        ## Quicktime videos (.mov)
+        "video/quicktime"
+      | 
+        ## MP4 audio/video (.mp4)
+        "video/mp4"
+      | 
+        ## WMA files (.wma)
+        "audio/x-ms-wma"
+    }?,
+    
+    ## A pointer to an image that serves as a "poster": a static image that displays when the media is not playing.
+    attribute poster { xsd:anyURI }?,
     empty
   }
 dhq_graphic =
@@ -2559,17 +2564,17 @@ dhq_availability =
     dhq_License,
     dhq_att.global.attributes,
     
-    ## supplies a code identifying the current availability of the text.
+    ##
     attribute status {
       
-      ## the text is freely available.
-      "free"
+      ##
+      "CC-BY-ND"
       | 
-        ## the status of the text is unknown.
-        "unknown"
+        ##
+        "CC-BY"
       | 
-        ## the text is not freely available.
-        "restricted"
+        ##
+        "CC0"
     }?,
     empty
   }
@@ -3779,6 +3784,9 @@ dhq_revisionNote =
     
     ##
     attribute previous { xsd:anyURI }?,
+    
+    ##
+    attribute next { xsd:anyURI }?,
     
     ##
     attribute when { text }?,

@@ -48,8 +48,8 @@
                         <dhq:bio><p></p></dhq:bio>
                     </dhq:authorInfo>
                 </titleStmt>
-                <publicationStmt><publisher>Alliance of Digital Humanities Organizations</publisher><publisher>Association of Computers and the Humanities</publisher>
-                    
+                <publicationStmt>
+                    <publisher>Alliance of Digital Humanities Organizations</publisher>
                     <publisher>Association for Computers and the Humanities</publisher>
                     <xsl:comment>This information will be completed at publication</xsl:comment>
                     <idno type="DHQarticle-id"><xsl:comment>including leading zeroes: e.g. 000110</xsl:comment></idno>
@@ -145,6 +145,7 @@
         </xsl:element>
     </xsl:template>
     
+    <!-- add transformation for first row to have role="label" -->
     <xsl:template match="row">
         <xsl:element name="row">
             <xsl:attribute name="role">data</xsl:attribute>
@@ -162,6 +163,11 @@
             <xsl:apply-templates select="attribute::rend | child::node()"/>
         </xsl:element>
     </xsl:template>
+    <xsl:template match="seg[@rend eq 'bold']">
+        <xsl:element name="hi">
+            <xsl:apply-templates select="attribute::rend | child::node()"/>
+        </xsl:element>
+    </xsl:template>
     <xsl:template match="seg">
         <xsl:apply-templates/>
     </xsl:template>
@@ -171,6 +177,12 @@
             <xsl:apply-templates select="attribute::rend | child::node()"/>
         </xsl:copy>
     </xsl:template>
+    <!-- Created below code for keeping bolded text, but removed for now because all headings are been sent out of OxGarage as <hi rend="bold"> -->
+    <!--<xsl:template match="hi[@rend eq 'bold']">
+        <xsl:copy>
+            <xsl:apply-templates select="attribute::rend | child::node()"/>
+        </xsl:copy>
+    </xsl:template>-->
     <xsl:template match="hi">
         <xsl:apply-templates/>
     </xsl:template>
@@ -183,10 +195,11 @@
         <xsl:value-of select="$begin_dash"/>
     </xsl:template>
     
+    <!-- add quotation mark transformation? -->
     
     <!-- Transformations Re MathML -->
     <xsl:template match="mml:mi/@xml:space"/>
-    
+    <!-- fix mathml display issue? -->
     
     
 
