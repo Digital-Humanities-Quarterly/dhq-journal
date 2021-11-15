@@ -263,7 +263,7 @@ of this software, even if advised of the possibility of such damage.
                     <idno type="issue">1</idno>
                     <date when="2013-07-03">3 July 2013</date>
                     <dhq:articleType>article</dhq:articleType>
-                    <availability><cc:License rdf:about="http://creativecommons.org/licenses/by-nc-nd/2.5/"/></availability>
+                    <availability status="CC-BY-ND"><cc:License rdf:about="http://creativecommons.org/licenses/by-nc-nd/2.5/"/></availability>
                 </publicationStmt>
                 
                 <sourceDesc>
