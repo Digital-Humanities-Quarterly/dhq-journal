@@ -57,7 +57,14 @@
                     <idno type="issue"><xsl:comment>issue number, without leading zeroes: e.g. 2</xsl:comment></idno>
                     <date></date>
                     <dhq:articleType>article</dhq:articleType>
-                    <availability><cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/></availability>
+                    <availability status="CC-BY-ND">
+                    <xsl:comment>If using a different license from the default, choose one of the following:
+                  CC-BY-ND (DHQ default): <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>     
+                  CC-BY:  <cc:License rdf:about="https://creativecommons.org/licenses/by/2.5/"/>
+                  CC0: <cc:License rdf:about="https://creativecommons.org/publicdomain/zero/1.0/"/>
+</xsl:comment>
+                        <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>
+                    </availability>
                 </publicationStmt>
                 
                 <sourceDesc>
