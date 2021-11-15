@@ -145,6 +145,7 @@
             <xsl:call-template name="notes"/>
             <xsl:call-template name="bibliography"/>
             <xsl:call-template name="toolbar"/>
+            <xsl:call-template name="license"/>
         </div>
       <!--
         </xsl:otherwise>
@@ -224,6 +225,28 @@
             <a href="#" onclick="javascript:window.print();"
                 title="Click for print friendly version">Print Article</a>
         </div> 
+    </xsl:template>
+    
+    <xsl:template name="license">
+        <xsl:param name="status" select="/TEI/teiHeader/publicationStmt/availability/@status"/>
+        <div>
+        <xsl:choose>
+            <xsl:when test="@status = 'CC-BY-ND'">
+                <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
+            </xsl:when>
+            <xsl:when test="@status = 'CC-BY'">
+                <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+            </xsl:when>
+            <xsl:when test="@status = 'CC0'">
+                <a rel="license" href="http://creativecommons.org/publicdomain/mark/1.0/">
+                    <img src="http://i.creativecommons.org/p/mark/1.0/88x31.png"
+                        style="border-style: none;" alt="Public Domain Mark" /></a>.
+            </xsl:when>
+            <xsl:otherwise>
+                <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
+            </xsl:otherwise>
+        </xsl:choose>
+        </div>
     </xsl:template>
     
     <xsl:template name="toolbar_top">
