@@ -45,6 +45,7 @@
                         <xsl:comment>Include a separate &lt;dhq:authorInfo&gt; element for each author</xsl:comment>
                         <xsl:comment>The value of xml:id should be first_last without diacritics, all lower case.</xsl:comment>
                         <dhq:author_name>first name(s) <dhq:family>family name</dhq:family></dhq:author_name>
+                    <idno type="ORCID"><xsl:comment>if the author has an ORCID ID, include the full URI, e.g. https://orcid.org/0000-0000-0000-0000</xsl:comment></idno>
                         <dhq:affiliation></dhq:affiliation>
                         <email></email>
                         <dhq:bio><p></p></dhq:bio>
