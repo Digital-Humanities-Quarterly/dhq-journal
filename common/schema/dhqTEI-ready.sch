@@ -248,6 +248,14 @@
     </rule>
   </pattern>
 
+<pattern>
+  <title>checking format of ORCID IDs</title>
+  <rule context="dhq:authorInfo/idno">
+    <report test="not(matches(.,'https://orcid.org/[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9X]'))"></report>
+  </rule>
+
+</pattern>
+
   <pattern>
     <title>flagging doubtful text content</title>
     <!-- matches any element containing non-whitespace text content
