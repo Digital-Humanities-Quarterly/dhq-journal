@@ -362,7 +362,7 @@
                         </xsl:attribute>
                     </xsl:otherwise>
                 </xsl:choose>
-                <xsl:apply-templates select="dhq:author_name"/>
+            <xsl:apply-templates select="dhq:author_name"/> 
             </a>
             <xsl:if test="normalize-space(child::dhq:affiliation)">
                 <xsl:apply-templates select="tei:email" mode="author"/>

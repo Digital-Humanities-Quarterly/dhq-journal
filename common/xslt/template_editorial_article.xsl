@@ -81,6 +81,10 @@
                 <xsl:text>, </xsl:text>
             </xsl:if>
             <xsl:apply-templates select="dhq:affiliation"/>
+	    <xsl:if test="tei:idno[@type='ORCID']">
+                <xsl:text> </xsl:text><a href="{normalize-space(tei:idno)}">
+                    <img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16" /><xsl:value-of select="concat('&#x00a0;',normalize-space(tei:idno))"/></a>
+            </xsl:if>
         </div>
     </xsl:template>
     
