@@ -250,8 +250,8 @@
 
 <pattern>
   <title>checking format of ORCID IDs</title>
-  <rule context="dhq:authorInfo/idno">
-    <report test="not(matches(.,'https://orcid.org/[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9X]'))"></report>
+  <rule context="dhq:authorInfo/tei:idno">
+    <assert role="error" test="matches(.,'https://orcid.org/[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9X]')">ORCID ID is malformed. The format should be "https://orcid.org/NNNN-NNNN-NNNN-NNNN" or "https://orcid.org/NNNN-NNNN-NNNN-NNNX" (where N is any digit 0-9, and X is the letter X).</assert>
   </rule>
 
 </pattern>
