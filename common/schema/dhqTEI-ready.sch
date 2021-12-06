@@ -247,6 +247,17 @@
       text contains markup characters</report>
     </rule>
   </pattern>
+  
+  <pattern>
+    <title>flagging curly quotation marks in code contexts</title>
+    <rule context="tei:code | tei:eg | tei:formula">    
+      <report role="warning" test="exists(text()[matches(.,'“|”|‘|’')])">
+        text contains curly quotation marks
+      </report>
+    </rule>
+  </pattern>
+
+
 
 <pattern>
   <title>checking format of ORCID IDs</title>
