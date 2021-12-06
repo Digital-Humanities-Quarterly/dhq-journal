@@ -238,7 +238,7 @@
     </xsl:template>
 
     <xsl:template name="license">
-        <xsl:param name="status" select="/TEI/teiHeader/publicationStmt/availability/@status"/>
+        <xsl:param name="status" select="/tei:TEI/tei:teiHeader/tei:publicationStmt/tei:availability/@status"/>
         <div class="license">
             <xsl:choose>
                 <xsl:when test="$status = 'CC-BY-ND'">
@@ -255,7 +255,7 @@
                 <xsl:otherwise>
                     <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
                 </xsl:otherwise>
-            </xsl:choose>
+            </xsl:choose>            
         </div>
     </xsl:template>
 
