@@ -371,7 +371,7 @@
             <xsl:apply-templates select="dhq:affiliation"/>
             <xsl:if test="tei:idno[@type='ORCID']">
                 <xsl:call-template name="orcid">
-                    <xsl:with-param name="orcid" select="normalize-space(tei:idno)"/>
+                    <xsl:with-param name="orcid" select="normalize-space(tei:idno[@type = 'ORCID'])"/>
                 </xsl:call-template>
             </xsl:if>
         </div>
