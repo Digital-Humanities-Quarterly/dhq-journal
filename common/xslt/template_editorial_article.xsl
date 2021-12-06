@@ -81,11 +81,19 @@
                 <xsl:text>, </xsl:text>
             </xsl:if>
             <xsl:apply-templates select="dhq:affiliation"/>
-	    <xsl:if test="tei:idno[@type='ORCID']">
-                <xsl:text> </xsl:text><a href="{normalize-space(tei:idno)}">
-                    <img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16" /><xsl:value-of select="concat('&#x00a0;',normalize-space(tei:idno))"/></a>
+            <xsl:if test="tei:idno[@type='ORCID']">
+                <xsl:call-template name="orcid">
+                    <xsl:with-param name="orcid" select="normalize-space(tei:idno[@type = 'ORCID'])"/>
+                </xsl:call-template>
             </xsl:if>
         </div>
+    </xsl:template>
+    
+    <xsl:template name="orcid">
+        <xsl:param name="orcid"/>
+        <xsl:value-of select="' '"/>
+        <a href="{$orcid}">
+            <img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16" /><xsl:value-of select="concat('&#x00a0;',$orcid)"/></a>
     </xsl:template>
     
     <xsl:template name="pubInfo">
