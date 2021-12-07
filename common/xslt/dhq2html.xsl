@@ -238,7 +238,7 @@
     </xsl:template>
 
     <xsl:template name="license">
-        <xsl:param name="status" select="/tei:TEI/tei:teiHeader/tei:publicationStmt/tei:availability/@status"/>
+        <xsl:param name="status" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/@status"/>
         <div class="license">
             <xsl:choose>
                 <xsl:when test="$status = 'CC-BY-ND'">
