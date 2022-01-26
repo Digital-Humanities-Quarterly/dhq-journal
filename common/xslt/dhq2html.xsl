@@ -248,9 +248,12 @@
                     <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
                 </xsl:when>
                 <xsl:when test="$status = 'CC0'">
-                    <a rel="license" href="http://creativecommons.org/publicdomain/mark/1.0/">
-                        <img src="http://i.creativecommons.org/p/mark/1.0/88x31.png"
-                            style="border-style: none;" alt="Public Domain Mark" /></a>.
+                    <a rel="license"
+                        href="http://creativecommons.org/publicdomain/zero/1.0/">
+                        <img src="http://i.creativecommons.org/p/zero/1.0/88x31.png" style="border-style: none;" alt="CC0" />
+                    </a>
+                    <br />
+                    To the extent possible under law, the author(s) have waived all copyright and related or neighboring rights to this work.
                 </xsl:when>
                 <xsl:otherwise>
                     <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
