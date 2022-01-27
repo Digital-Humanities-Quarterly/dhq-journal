@@ -1,0 +1,1421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://www.digitalhumanities.org/dhq/common/schema/DHQauthor-TEI.rng" type="xml"?>
+<?oxygen SCHSchema="http://www.digitalhumanities.org/dhq/common/schema/dhqTEI-ready.sch"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:cc="http://web.resource.org/cc/"
+    xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title type="article" xml:lang="en">Linked data from TEI (LIFT): A Teaching Tool for
+                    TEI to Linked Data Transformation</title>
+                <dhq:authorInfo>
+                    <dhq:author_name>Francesca
+                        <dhq:family>Giovannetti</dhq:family></dhq:author_name>
+                    <idno type="ORCID">https://orcid.org/0000-0001-6007-9118</idno>
+                    <dhq:affiliation>University of Bologna</dhq:affiliation>
+                    <email>francesc.giovannett6@unibo.it</email>
+                    <dhq:bio>
+                        <p/>
+                    </dhq:bio>
+                </dhq:authorInfo>
+                <dhq:authorInfo>
+                    <dhq:author_name>Francesca <dhq:family>Tomasi</dhq:family></dhq:author_name>
+                    <idno type="ORCID">https://orcid.org/0000-0002-6631-8607</idno>
+                    <dhq:affiliation>University of Bologna</dhq:affiliation>
+                    <email>francesca.tomasi@unibo.it</email>
+                    <dhq:bio>
+                        <p/>
+                    </dhq:bio>
+                </dhq:authorInfo>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>Alliance of Digital Humanities Organizations</publisher>
+                <publisher>Association for Computers and the Humanities</publisher>
+                <!-- This information will be completed at publication -->
+                <idno type="DHQarticle-id">
+                    <!-- including leading zeroes: e.g. 000110 -->000605 </idno>
+                <idno type="volume">
+                    <!-- volume number, with leading zeroes: e.g. 006 -->
+                </idno>
+                <idno type="issue">
+                    <!-- issue number, without leading zeroes: e.g. 2 -->
+                </idno>
+                <date/>
+                <dhq:articleType>article</dhq:articleType>
+                <availability status="CC-BY-ND">
+                    <cc:License rdf:about="https://creativecommons.org/licenses/by-nd/2.5/"/>
+                </availability>
+            </publicationStmt>
+            <sourceDesc>
+                <p>Produced by pandoc.</p>
+            </sourceDesc>
+        </fileDesc>
+        <encodingDesc>
+            <classDecl>
+                <taxonomy xml:id="dhq_keywords">
+                    <bibl>DHQ classification scheme; full list available at <ref
+                            target="http://www.digitalhumanities.org/dhq/taxonomy.xml"
+                            >http://www.digitalhumanities.org/dhq/taxonomy.xml</ref></bibl>
+                </taxonomy>
+                <taxonomy xml:id="authorial_keywords">
+                    <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+                </taxonomy>
+            </classDecl>
+        </encodingDesc>
+        <profileDesc>
+            <langUsage>
+                <language ident="en"/>
+            </langUsage>
+            <textClass>
+                <keywords scheme="#dhq_keywords">
+                    <!-- Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors -->
+                    <list type="simple">
+                        <item/>
+                    </list>
+                </keywords>
+                <keywords scheme="#authorial_keywords">
+                    <!-- Authors may include one or more keywords of their choice -->
+                    <list type="simple">
+                        <item>digital scholarly editions</item>
+                        <item>linked open data</item>
+                        <item>TEI</item>
+                    </list>
+                </keywords>
+            </textClass>
+        </profileDesc>
+        <revisionDesc>
+            <!-- Each change should include @who and @when as well as a brief note on what was done. -->
+            <change/>
+        </revisionDesc>
+    </teiHeader>
+    <text type="original" xml:lang="en">
+        <front>
+            <dhq:abstract>
+                <p>The purpose of this paper is to introduce <title rend="italic">Linked data from
+                        TEI</title> (LIFT), an open source tool written as a set of Python scripts
+                    for generating linked data from TEI-encoded texts. LIFT’s goal is to walk users
+                    through the transformation process from TEI to linked data step by step, as well
+                    as to promote a better understanding of the theoretical and methodological
+                    aspects that underpin the transformation. LIFT was created in the context of the
+                    University of Bologna’s Master Degree in Digital Humanities and Digital
+                    Knowledge as a teaching tool for students encountering linked open data for the
+                    first time as a method of organizing and publishing cultural knowledge and,
+                    specifically, digital scholarly editions on the web in a perspective of data
+                    integration.</p>
+            </dhq:abstract>
+            <dhq:teaser>
+                <p>Linked data from TEI (LIFT) is an open source tool for generating linked data
+                    from TEI-encoded texts.</p>
+            </dhq:teaser>
+        </front>
+        <body>
+            <div>
+                <head>Introduction <note>
+                        This paper is the result of a collaborative work. In particular,
+                            Francesca Tomasi is responsible for sections 1, 5 and 6, while Francesca
+                            Giovannetti is responsible for sections 2, 3 and 4.</note>
+                </head>
+                <p>Many and diverse scientific communities, including digital textual scholars, have
+                    shown increasing interest in semantic web technologies and linked open data
+                    (LOD) as a means of knowledge representation since the early 2000s, when Tim
+                    Berners-Lee coined the concept of a web of interconnected data rather than
+                    simply documents (see <ptr target="#spadini2021"/> ). Nonetheless, there is a
+                    lack of user-friendly tools for working with digital scholarly editions and
+                    LOD.</p>
+                <p>
+                    <title rend="italic">Linked data from TEI</title>(LIFT) is a Digital Humanities tool
+                    for generating linked open data (LOD) from TEI-encoded texts. LIFT, which is
+                    accessible at <ref target="https://projects.dharc.unibo.it/lift"
+                        >https://projects.dharc.unibo.it/lift</ref> , provides a set of TEI-to-LOD
+                    transformation scripts written in Python. The scripts, addressing the
+                    transformation of different types of entities to LOD, are thoroughly documented
+                    to facilitate their understanding and reuse. The purpose of this paper is to
+                    introduce LIFT as a teaching tool for supporting the adoption of linked open
+                    data in digital scholarly editing. Our plan is to use LIFT as part of a
+                    laboratory activity for the University of Bologna’s Master Degree in Digital
+                    Humanities and Digital Knowledge, which will combine the knowledge and skills
+                    acquired by the students from different modules: text encoding with the TEI,
+                    ontology development, Python programming, and linked open data for cultural
+                    heritage. <note>
+                         The modules are Digital Text in the Humanities: Theories, Methodologies
+                            and Applications; Knowledge representation and extraction; Computational
+                            thinking and programming, and Knowledge organization and cultural
+                            heritage (see the full descriptions at <ref
+                                target="https://corsi.unibo.it/2cycle/DigitalHumanitiesKnowledge"
+                                >https://corsi.unibo.it/2cycle/DigitalHumanitiesKnowledge</ref>
+                            ).
+                    </note>
+                </p>
+                <p>This paper first provides a brief background on linked open data and their use in
+                    digital text representation (see <ref target="#2_background">Section 2</ref> ).
+                    It then goes on to consider related work in the field of TEI to LOD
+                    transformation (see <ref target="#3_related-work">Section 3</ref> ) as well as
+                    to introduce LIFT from both a technical and methodological perspective (see <ref
+                        target="#4_linked-data-from-tei-lift">Section 4</ref> ). Finally, it
+                    discusses the potential application of LIFT in digital humanities learning
+                    contexts (see <ref target="#5_lift-in-the-classroom">Section 5</ref> and <ref
+                        target="#6_conclusion-and-next-steps">Section 6</ref> ).</p>
+            </div>
+            <div type="level1" xml:id="2_background">
+                <head>Background</head>
+                <p>The concept of linked open data refers to a method of publishing structured data
+                    – as well as organizing knowledge – on the web in such a way that they can be
+                    semantically interlinked to form open clouds of integrated information. As is
+                    already well known, LOD are based on the Resource Description Framework (RDF), a
+                    graph data model used for making statements about resources. Each RDF statement
+                    contains a subject, a predicate, and an object, represented by unique URIs. The
+                    subject is the resource being described, the object is either a characteristic
+                    of the subject (such as its type) or a resource related to the subject, and the
+                    predicate expresses the relationship between the subject and the object (see
+                        <ref target="#listing1">Listing 1 below</ref> ). The meaning of RDF data is
+                    defined by machine-readable ontologies, formal descriptions of specific concepts
+                    within a domain and the relationships holding between them.</p>
+                <eg xml:id="listing1">&lt;http://dbpedia.org/resource/Alexander_the_Great&gt; #
+                    Alexander the Great &lt;http://dbpedia.org/ontology/parent&gt; # has parent
+                    &lt;http://dbpedia.org/resource/Philip_II_of_Macedon&gt; # Philip II of Macedon </eg>
+                <dhq:caption>
+                    <head>Listing 1</head>
+                    <p>An RDF representation of the statement ‘Alexander the Great has parent Philip
+                        II of Macedon’ (extracted from DBpedia).</p>
+                </dhq:caption>
+                <p>RDF statements can be used to represent information in digital scholarly editions
+                    as linked open data. <note>
+                       For a definition of digital scholarly edition, see <ptr
+                                target="#shale2016"/> .
+                    </note>To cite just a few examples, the <ref
+                        target="https://finerollshenry3.org.uk/">Henry III Fine Rolls edition</ref>
+                    experiments with linked data to express complex relationships between people in
+                    historical documents (see <ptr target="#ciula2008"/> . The <ref
+                        target="https://ancientwisdoms.ac.uk/">Sharing Ancient Wisdoms project</ref>
+                    , on the other hand, uses linked data to reconstruct text interaction (see <ptr
+                        target="#jordanous2012"/> ), while the <ref
+                        target="https://projects.dharc.unibo.it/bufalini-notebook">Paolo Bufalini’s
+                        Notebook edition</ref> uses linked data to represent the interconnections
+                    between the various types of fragments – quotations, translations, and
+                    annotations – that make up the text (see <ptr target="#daquino2019"/> ). Similar
+                    information extracted from texts, in addition to administrative, structural, and
+                    descriptive metadata, can make a significant contribution to the development of
+                    a cultural heritage linked open data cloud: texts do indeed occupy a prominent
+                    space in cultural heritage representation. However, in order to reuse and
+                    integrate texts into LOD systems, information must first be expressed in RDF
+                    according to widely used ontologies in the digital humanities and cultural
+                    heritage domains.</p>
+                <p>The Text Encoding Initiative (TEI), an XML vocabulary for encoding texts in the
+                    humanities, is the de facto standard for digital scholarly editing. <note>
+                        On the role of the TEI standard in digital scholarly editing, see <ptr
+                                target="#mla2016"/> , <ptr target="#price2008"/> , and <ptr
+                                target="#sahle2014"/> .
+                    </note>The standard defines terms for representing a wide range of textual
+                    entities, including personal names, place names, dates, concepts, and events.
+                    Unlike RDF, the TEI has traditionally taken a document-centric approach to
+                    representing such entities, with texts processed as ordered hierarchies of
+                    content objects nesting neatly one inside the other (see <ptr
+                        target="#derose1990"/> and <ptr target="#renear1993"/> ). However,
+                    transitioning from a document-centric paradigm to a data-centric paradigm, such
+                    as LOD, is not an easy task: converting TEI editions into graphs of RDF
+                    statements necessitates a conceptual shift in which texts are no longer viewed
+                    as documents but as collections of interconnected entities (see <ptr
+                        target="#tomasi2012"/> ).</p>
+                <p>The movement beyond TEI towards linked open data began in 2004, when a TEI
+                    Special Interest Group on Ontologies was formed with the goal of investigating
+                    the feasibility of encoding information about persons, dates, events, places and
+                    objects outside the text, in parallel with the steps taken by the Museum
+                    community, which was working on the development of CIDOC CRM, an ontological
+                    vocabulary for the description of museum collections (see <ptr
+                        target="#tei_ontologies_sig2019"/> ). The new P5 release of the TEI in 2007
+                    introduced new elements for distinguishing real-world entities from their
+                    in-text occurrences ( <ptr target="#wittern2009"/> ). This change, along with
+                    the addition of new attributes that could be used to link an entity to external
+                    authority records (see <ref target="#listing2">Listing 2 below</ref> ), made it
+                    easier to express relationships between entities in TEI and extract them as RDF
+                    statements.</p>
+                <eg xml:id="listing2">&lt;person
+                    sameAs=&quot;http://viaf.org/viaf/101353608&quot;&gt;Alexander the
+                    Great&lt;/person&gt; </eg>
+                <dhq:caption>
+                    <head>Listing 2</head>
+                    <p>The attribute @sameAs encode an equivalence between the person ‘Alexander the
+                        Great’ in the TEI document and the personal entity identified by the VIAF
+                        URI <ref target="http://viaf.org/viaf/101353608"
+                            >http://viaf.org/viaf/101353608</ref> .</p>
+                </dhq:caption>
+                <p>Despite these meaningful developments, there are very few user-friendly tools for
+                    working with TEI editions and LOD ( <ptr loc="121" target="#pierazzo2016"/> ).
+                    The fact that the TEI guidelines are not intended to be strictly followed
+                    complicates matters: annotators can encode the same textual features in
+                    different ways, depending on the project. Because no two texts or editions are
+                    identical, this flexibility is required; however, the unavoidable drawback is a
+                    certain loss of interoperability (see <ptr loc="2" target="#andrews2013"/> ).
+                    Enhancing TEI-encoded texts with linked open data represents a possible way of
+                    overcoming this limitation.</p>
+                <p>Being willing to introduce DHDK students to the extraction of linked open data
+                    from TEI-encoded texts, we ran into a lack of user-friendly tools capable of
+                    raising awareness about both the methodology and the technology that underpin
+                    such operation. LIFT was created to fill this gap.</p>
+            </div>
+            <div type="level1" xml:id="3_related-work">
+                <head>Related work</head>
+                <p>As digital humanities practitioners know, XSLT (Extensible Stylesheet Language
+                    Transformations) is a language for transforming XML documents into other XML
+                    documents. Because the TEI is an XML vocabulary, digital textual scholars have
+                    naturally adopted XSLT as their primary transformation language from TEI to
+                    other formats including RDF/XML, which is one of the possible serializations of
+                    LOD graphs. The TEI Consortium develops and maintains the <ref target="https://tei-c.org/tools/stylesheets/">TEI Stylesheets</ref>, a
+                    collection of ready-for-use XSL Transformations scripts that includes a
+                    TEI-to-RDF transformation. 
+                </p>
+                <p>Despite providing a relatively simple method of extracting RDF statements from
+                    TEI documents, the Stylesheets have several shortcomings, particularly when used
+                    as a teaching tool. The Stylesheets were not, in fact, designed with a didactic
+                    aim in mind and do not offer TEI-to-RDF transformation guidelines: users need to
+                    possess good XSLT skills to prepare the TEI document, gain insight into the
+                    rationale of the transformation, and adapt it to their specific needs.</p>
+                <p>Also, <ref target="https://rdflib.readthedocs.io">RDF</ref> can be serialized in a variety of ways, with Turtle being by far the
+                    most widely used due to its legibility. Since the TEI-to-RDF Stylesheet was
+                    created, more powerful methods of linked data production have been released.
+                    RDFLib, a Python package for working with RDF, is one of these. The key difference between using XSLT and RDFLib to create RDF triples is
+                    that the former requires developers to hardcode RDF triples into the
+                    transformation stylesheet (i.e., the developer must choose ahead of time a
+                    specific serialization and adhere to its syntax), resulting in a significant
+                    loss of flexibility and an increase in human errors. RDFLib, on the other hand,
+                    automatically serializes RDF triples, allowing you to add properties to an
+                    entity at any point along the way without worrying about syntax and structure
+                    (see <ref target="#listing3">Listing 3</ref> , which shows a comparison between
+                    XSLT and RDFLib as two different methods of generating RDF statements).</p>
+                <p>Finally, while the TEI-to-RDF Stylesheet reuse some concepts from the <ref target="http://www.cidoc-crm.org/">CIDOC</ref>
+                    Conceptual Reference Model (see <ptr target="#crofts2011"/> ) and the <ref target="http://purl.org/dc/terms/">Dublin Core</ref> (see <ptr target="#weibel2000"/> ), it does not make use of the expressive potential of ontologies such as
+                    <ref target="http://iflastandards.info/ns/fr/frbr/frbroo/">FRBRoo</ref> (see <ptr
+                        target="#bekiari2015"/> ) and <ref target="http://purl.org/spar/pro/">PRO</ref> (see <ptr target="#peroni2012"/>
+                    ), which have recently gained attention and application in both text and
+                    cultural heritage representation (see <ptr target="#daquino2019"/> ).</p>
+                <p>Another tool we considered is <ref target="http://xtriples.spatialhumanities.de/">XTriples</ref> (see <ptr
+                    target="#gruntgens2016"/> ). XTriples is a webservice-based infrastructure for extracting RDF
+                    statements from collections of XML documents ( <ptr target="#gruntgens2016"/> ).
+                    Unlike the Stylesheets, XTriples can produce multiple serializations of the
+                    resulting RDF graph and comes with a documentation. The transformation is
+                    customizable via an XPath-based configuration file. LOD beginners, however, may
+                    find this operation difficult and the tool not immediately usable or
+                    replicable.</p>
+                <p>There are also tools, such as Recogito, that enable the extraction of specific
+                    features from TEI-encoded texts. <ref target="https://recogito.pelagios.org/">Recogito</ref>, developed by the Pelagios Network,
+                    allows users to add annotations to specific passages of text, which they can
+                    then download as RDF statements (see <ptr target="#simon2017"
+                    /> ). The transformation is not configurable nor explained as this is not the
+                    focus of the tool.</p>
+                <eg xml:id="listing3">TEI to RDF/XML with XSLT &lt;rdf:Description
+                    rdf:about=&quot;{$person_uri}&quot;&gt; &lt;rdf:type
+                    rdf:resource=&quot;http://schema.org/Person&quot;/&gt; &lt;owl:sameAs
+                    rdf:resource=&quot;{$same_as_uri}&quot;/&gt; &lt;rdfs:label&gt;
+                    &lt;xsl:attribute name=&quot;xml:lang&quot;&gt; &lt;xsl:value-of
+                    select=&quot;{$label_lang}&quot;/&gt; &lt;/xsl:attribute&gt; &lt;xsl:value-of
+                    select=&quot;{$label}&quot;/&gt; &lt;/rdfs:label&gt; &lt;/rdf:Description&gt;
+                    TEI to RDF/XML with RDFLib g.add((person_uri, RDF.type, schema.Person))
+                    g.add((person_uri, OWL.sameAs, same_as_uri)) g.add((person_uri, RDFS.label,
+                    Literal(label, lang=label_lang))) g.serialize(format=&quot;xml&quot;) </eg>
+                <dhq:caption>
+                    <head>Listing 3</head>
+                    <p>XSLT versus RDFLib TEI-to-LOD transformation; the second method offers a more
+                        flexible and less error-prone way of creating RDF statements.</p>
+                </dhq:caption>
+            </div>
+            <div type="level1" xml:id="4_linked-data-from-tei-lift">
+                <head>
+                    <title rend="italic">Linked data from TEI</title>(LIFT) <note>
+                         A Github repository containing all of LIFT’s components can be found at
+                                <ref target="https://github.com/fgiovannetti/lift"
+                                >https://github.com/fgiovannetti/lift</ref> . The web application
+                            can be found at <ref target="https://projects.dharc.unibo.it/lift/"
+                                >https://projects.dharc.unibo.it/lift/</ref> .
+                    </note>
+                </head>
+                <p>Based on the shortcomings discussed above, we decided to develop a TEI-to-LOD
+                    transformation tool for our students that would simplify the transformation
+                    process while also openly and transparently documenting the workflow, with the
+                    goal of making such workflow modifiable and adaptable to new contexts.</p>
+                <p>
+                    <title rend="italic">Linked data from TEI</title>(LIFT) is a Python-based, open-source
+                    application for creating graphs of RDF statements from TEI documents. LIFT
+                    targets digital humanities students as well as textual scholars experimenting
+                    for the first times with linked open data in digital scholarly editing.</p>
+                <p>The main component of LIFT is a collection of TEI-to-LOD transformation scripts.
+                    The scripts, written in Python, take as input a TEI document and generate an RDF
+                    graph. Each script addresses the transformation of specific TEI entities
+                    including persons, personal relations, places, and events. A transformation
+                    script for the TEI critical apparatus is also available (see <ref
+                        target="#4-2_the-transformation-scripts">Section 4.2</ref> ).</p>
+                <p>The application is extensively documented in order to facilitate the reuse and
+                    adaptation of the transformation workflow. The documentation walks users through
+                    the process of preparing their TEI document for transformation, describes the
+                    expected RDF graph, and provides step-by-step explanations of the transformation
+                    scripts in the form of an interactive Jupyter notebook (see <ref
+                        target="#4-3_the-documentation">Section 4.3</ref> ).</p>
+                <p>Users can access LIFT through a browser or download the collection of scripts for
+                    local use. A basic understanding of the TEI and RDF is recommended (the ideal
+                    target audience are digital humanities students who are already familiar with
+                    digital scholarly editions, the TEI, RDF and ontologies, and basic Python
+                    programming).</p>
+                <p>LIFT’s web interface has a straightforward design. When using a browser to access
+                    LIFT, users are directed to the homepage, which contains instructions for
+                    getting started with the transformation (see <ref target="#figure01">Figure
+                        1</ref> ): by clicking on the 'Quick start' tab, an upload bar for the input
+                    TEI document becomes available (see <ref target="#figure02">Figure 2</ref> ).
+                    After uploading the TEI document into LIFT, users are directed to another page
+                    where they can select a transformation option (see <ref target="#figure03"
+                        >Figure 3</ref> ). If the transformation is successful, multiple
+                    serializations of the resulting RDF graph become available for download (see
+                        <ref target="#figure04">Figure 4</ref> ).</p>
+                <div type="level2" xml:id="4-1_methodology">
+                    <head>Methodology</head>
+                    <p>The creation of linked open data from TEI documents is more than a technical
+                        operation. While digital scholarly editions based solely on the TEI standard
+                        are document-centric, LOD-based resources are data-centric: the
+                        transformation of the information conveyed by the TEI markup into RDF
+                        statements forming a graph necessitates careful methodological reflection as
+                        the edition is disassembled to form a dataset of interconnected entities,
+                        each represented by a URI or a literal.</p>
+                    <p>In addition to reorganizing tree-structured information into a graph data
+                        structure, the transition from TEI to linked data necessitates assigning a
+                        formal semantics to the entities by reusing existing ontologies whenever
+                        possible. As of today, there is no TEI-specific ontology, so all elements
+                        and attributes must be mapped to classes and properties from arbitrary
+                        ontologies (see <ptr target="#eide2014"/> and <ptr target="#ciotti2016"/>
+                        ).</p>
+                    <p>There are two major challenges to performing such mapping. First, the chosen
+                        ontologies assign a formal semantics to the data, influencing how
+                        information is accessed and reused in the future. Users should be aware of
+                        the implications of using ready-to-use conversion tools like LIFT: the
+                        information conveyed by the original encoding may change when moving from
+                        one vocabulary, e.g. the TEI, to another, e.g. FRBRoo, CIDOC CRM, PROV-O,
+                        etc.</p>
+                    <p>Second, a knowledge graph is composed of entities (i.e. concepts), and links
+                        between entities (i.e. relationships between concepts). The distinction
+                        between what will become a concept and what will become a relationship is
+                        not inconsequential. In TEI, there are at least two ways to represent a
+                        relationship. The first approach is to make use of an attribute. The line
+                            <code>&lt;rdg wit=&quot;#A&quot;&gt;liber&lt;/rdg&gt;</code> , for
+                        example, indicates that the reading 'liber' is witnessed by manuscript 'A',
+                        where 'is witnessed by' is the relationship between the reading and the
+                        manuscript. A second method is to nest elements within each another. The
+                        encoding <code>&lt;app&gt;&lt;rdg
+                            wit=&quot;#A&quot;&gt;liber&lt;/rdg&gt;&lt;rdg
+                            wit=&quot;#B&quot;&gt;libellus&lt;/rdg&gt;&lt;/app&gt;</code> , for
+                        example, indicates that 'libellus' is a variant of 'liber'. Although
+                        interpreting the meaning of the relationships in the preceding examples is
+                        simple and without ambiguity, this is not always the case.</p>
+                    <p>When developing LIFT, we decided to set some predefined requirements for the
+                        encoding of the input TEI document so to ensure a meaningful, error-free
+                        restructuring and formalization of the information (see <ref
+                            target="#4-2_the-transformation-scripts">Section 4.2</ref> ). The
+                        encoding prerequisites can be adjusted locally by modifying the scripts. As
+                        of semantics, we decided to reuse <ref target="https://d-nb.info/standards/elementset/agrelon">a set of ontologies</ref> that are widely
+                        adopted in the fields of cultural heritage and text representation: the
+                        CIDOC Conceptual Reference Model (CIDOC CRM) to represent people, places and
+                        events; the Agent Relationship Ontology (AgRelOn) (see <ptr
+                            target="#litz2012"/> ) to describe personal relationships; the Functional Requirements for
+                        Bibliographic Records object-oriented (FRBRoo) for texts; the Dublin Core
+                        Metadata Terms (DCMI Metadata Terms) to describe bibliographic resources;
+                        PROV-O to link the account of an event to its source; the Publishing Roles
+                        Ontology (PRO), which enables the reification of roles in such a way that
+                        each role is bounded to a specific context (e.g. the role of 'bride' in the
+                        context of a particular ceremony); the <ref target="http://www.essepuntato.it/2012/04/tvc/">Time-indexed Value in Context</ref> (TVC) (see, again, <ptr
+                            target="#peroni2012"/> ) to represent time; the property owl:sameAs from the Web Ontology
+                        Language (OWL) to interconnect the entities to semantically equivalent
+                        resources outside the edition; the property rdfs:label and rdf:value from
+                        the Resource Description Framework Schema (RDF Schema), which are used to
+                        include human-readable labels and TEI snippets in the graph, respectively.
+                        Finally, the <ref target="https://w3id.org/cao">Critical Apparatus Ontology</ref> (CAO) is leveraged to represent
+                        critical apparatus entries (see
+                        <ptr target="#giovannetti2021"/> ). 
+                    </p>
+                    <p>A combination of multiple ontologies is required to express the various
+                        concepts and relationships underpinning editions, as well as to demonstrate
+                        to students how multiple ontologies can be used in the same knowledge
+                        graph.</p>
+                </div>
+                <div type="level2" xml:id="4-2_the-transformation-scripts">
+                    <head>The transformation scripts</head>
+                    <p>LIFT’s collection of transformation scripts include:</p>
+                    <list type="ordered">
+                        <item>Persons only</item>
+                        <item>Persons and events</item>
+                        <item>Persons and relations</item>
+                        <item>Places only</item>
+                        <item>Persons, events, relations, and places</item>
+                        <item>Critical apparatus</item>
+                    </list>
+                    <p>We decided to write multiple scripts because we wanted the transformation to
+                        be modular and the resulting RDF graph’s complexity to be incremental.
+                        Script 5 combines the previous four into a single transformation option.</p>
+                    <p>For the scripts to work, the input TEI document must follow specific
+                        guidelines. The TEI, as previously stated, allows for multiple ways to
+                        encode the same textual features. For example, in order to markup a personal
+                        name, one can use the tag <code>&lt;persName&gt;</code> , the tag
+                            <code>&lt;name&gt;</code> , or even the tag <code>&lt;rs&gt;</code> (see
+                            <ref
+                            target="https://www.tei-c.org/release/doc/tei-p5-doc/en/html/ND.html"
+                            >https://www.tei-c.org/release/doc/tei-p5-doc/en/html/ND.html</ref> )
+                        This is an important feature in terms of flexibility, but it makes creating
+                        a universal TEI-to-RDF transformation script difficult. As a result, LIFT’s
+                        documentation includes a set of encoding guidelines intended to ensure a
+                        smooth TEI-to-LOD transformation ( <ref target="#listing4">Listing 4
+                            below</ref> juxtaposes the input TEI encoding and the resulting RDF
+                        statements). In particular, the input TEI document must conform to the
+                        following indications: <note>
+                             Further requirements apply when transforming a critical apparatus
+                                (see, again, <ptr target="#giovannetti2021"/> ).
+                        </note>1. Any TEI element being transformed must be assigned a unique
+                        identifier within an @xml:id attribute; 2. The TEI document must contain a
+                        TEI header, even if minimal; the <code>&lt;person&gt;</code> element must be
+                        used to describe people in the TEI header, and the
+                            <code>&lt;persName&gt;</code> element must be used to markup in-text
+                        occurrences of such people; 3. In a similar way, the
+                            <code>&lt;place&gt;</code> element must be used to describe places in
+                        the TEI header, and the <code>&lt;placeName&gt;</code> element must be used
+                        to markup in-text occurrences of such places; 4. People and places described
+                        in the TEI header should be assigned a <code>@sameAs</code> attribute
+                        containing links to external authority records (e.g. VIAF); 5. Any
+                        relationship between people should be described in the TEI header within
+                            <code>&lt;listRelation&gt;</code> ; 6. Similarly, events should be
+                        described using the <code>&lt;event&gt;</code> element within
+                            <code>&lt;person&gt;</code> or <code>&lt;place&gt;</code> . An example
+                        input file is also provided when accessing LIFT from the browser. If
+                        modifying the TEI encoding to meet the requirements of LIFT is not possible,
+                        the documentation in general, and the interactive Jupyter notebook in
+                        particular, will help users gain the understanding needed to adapt the
+                        transformation to a different input.</p>
+                    <eg xml:id="listing4">Input (TEI) &lt;person xml:id=&quot;socr&quot;
+                        sameAs=&quot;http://viaf.org/viaf/88039167&quot;&gt; &lt;persName
+                        xml:lang=&quot;en&quot;&gt;Socrates&lt;/persName&gt; &lt;/person&gt; [...]
+                        &lt;p xml:id=&quot;para01&quot;&gt;An example of paragraph mentioning
+                        &lt;persName ref=&quot;#socr&quot;&gt;Socrates&lt;/persName&gt;.&lt;/p&gt;
+                        Output (RDF) @prefix crm:&lt;http://www.cidoc-crm.org/cidoc-crm/&gt; .
+                        @prefix dcterms: &lt;http://purl.org/dc/terms/&gt; . @prefix frbroo:
+                        &lt;http://iflastandards.info/ns/fr/frbr/frbroo/&gt; . @prefix owl:
+                        &lt;http://www.w3.org/2002/07/owl#&gt; . @prefix rdf:
+                        &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; . @prefix rdfs:
+                        &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+                        &lt;https://example.org/person/socr&gt; a crm:E21_Person ; rdfs:label
+                        &quot;Socrates&quot;@en ; dcterms:isReferencedBy
+                        &lt;https://example.org/text/para01&gt; ; owl:sameAs
+                        &lt;http://viaf.org/viaf/88039167&gt; .
+                        &lt;https://example.org/text/para01&gt; a frbroo:F23_Expression_Fragment ;
+                        frbroo:R15i_is_fragment_of &lt;https://example.org/example_v1&gt; ;
+                        rdf:value &quot;&quot;&quot;An example of paragraph mentioning
+                        Socrates.&quot;&quot;&quot;^^rdf:Literal . rdf:value &quot;&quot;&quot;&lt;p
+                        xml:id=&quot;para01&quot;&gt;An example of paragraph mentioning &lt;persName
+                        ref=&quot;#socr&quot;&gt;Socrates&lt;/persName&gt;.&lt;/p&gt;&quot;&quot;&quot;^^rdf:XMLLiteral
+                        . </eg>
+                    <dhq:caption>
+                        <head>Listing 4</head>
+                        <p>The input TEI encoding and the corresponding RDF output.</p>
+                    </dhq:caption>
+                    <p>LIFT, as stated earlier in the introduction, uses Python as its
+                        transformation language. Python, which is increasingly being taught in
+                        digital humanities courses around the world, offers more efficient and
+                        error-free ways of working with RDF and linked open data than XSLT (see <ref
+                            target="#3_related-work">Section 3 above</ref> ).</p>
+                    <p>RDFLib is a Python library that specializes in RDF triple creation and
+                        management (see the documentation at <ref
+                            target="https://rdflib.readthedocs.io"
+                            >https://rdflib.readthedocs.io</ref> ). Using RDFLib to create RDF
+                        triples is very simple, and the amount of human effort required is minimal.
+                        URIs can be saved as variables, and RDF statements can be written on
+                        separate lines. RDFLib then generates a single graph with no repetitions.
+                        Multiple serializations are possible, including XML, Turtle, N-Triples, and
+                        JSON-LD.</p>
+                    <p>LIFT uses another Python library, lxml, in conjunction with RDFLib to parse
+                        TEI documents (see the documentation at <ref target="https://lxml.de"
+                            >https://lxml.de</ref> ). When using XSLT to process XML files, one must
+                        be familiar with the structure of the document to be processed. However,
+                        using lxml and Python, it is possible to work with less well-known
+                        inputs.</p>
+                    <p>
+                        <ref target="#listing4">Listing 4 above</ref>shows a portion of a TEI
+                        document and the corresponding RDF graph in LIFT. <ref target="#listing5"
+                            >Listing 5 below</ref> provides some components of the transformation
+                        script used for generating such output. LIFT searches the TEI document for
+                        all occurrences of <code>&lt;person&gt;</code> . The value of the
+                            <code>@xml:id</code> attribute associated with the person is then
+                        obtained and used to generate the URI representing that person. LIFT looks
+                        also for any in-text reference to the person. To do so, it searches the TEI
+                        document for all occurrences of <code>&lt;persName&gt;</code> featuring a
+                        @ref attribute linking to the person. Each person is assigned to the CIDOC
+                        CRM class E21 Person. If a <code>@sameAs</code> attribute is provided in the
+                        TEI document for the <code>&lt;person&gt;</code> element, LIFT leverages its
+                        value or values to create interconnections to external authority records
+                        (using the OWL property owl:sameAs). All data used for building the RDF
+                        graph are extracted from the TEI document. The content of the
+                            <code>&lt;persName&gt;</code> element provided within
+                            <code>&lt;person&gt;</code> is used to generate a human-readable label
+                        for the entity. The language is specified by the <code>@xml:lang</code>
+                        attribute.</p>
+                    <p>As the reader can see from this example, LIFT uses a predefined set of
+                        ontologies to describe the text (see <ref target="#4-1_methodology">Section
+                            4.1</ref> ). In order to modify this behaviour, users must modify the
+                        scripts. To facilitate this effort, as already anticipated, LIFT provides a
+                        Jupyter notebook that guides users through the scripts step-by-step and
+                        interactively (see <ref target="#4-3_the-documentation">Section 4.3</ref>
+                        ).</p>
+                    <eg xml:id="listing5">for person in root.findall('.//tei:person', tei):
+                        person_id = person.get('{http://www.w3.org/XML/1998/namespace}id')
+                        person_uri = URIRef(base_uri + '/person/' + person_id) person_ref = '#' +
+                        person_id g.add( (person_uri, RDF.type, crm.E21_Person)) same_as =
+                        person.get('sameAs').split() if same_as is not None: same_as =
+                        same_as.split() i = 0 while i &lt; len(same_as): same_as_uri =
+                        URIRef(same_as[i]) g.add( (person_uri, OWL.sameAs, same_as_uri)) i += 1
+                        persname = person.find('./tei:persName', tei) if persname is not None: label
+                        = persname.text label_lang =
+                        persname.get('{http://www.w3.org/XML/1998/namespace}lang') if label_lang is
+                        not None: g.add( (person_uri, RDFS.label, Literal(label, lang=label_lang)))
+                        else: g.add( (person_uri, RDFS.label, Literal(label))) </eg>
+                    <dhq:caption>
+                        <head>Listing 5</head>
+                        <p>An excerpt of one of LIFT’s transformation script creating RDF triples
+                            about persons.</p>
+                    </dhq:caption>
+                </div>
+                <div type="level2" xml:id="4-3_the-documentation">
+                    <head>The documentation</head>
+                    <p>In developing LIFT as a tool for supporting the adoption of linked open data
+                        in digital scholarly editing, we followed the principle that no tool should
+                        be used as a black box. Students/users of LIFT must be provided with the
+                        knowledge required to understand the methodology and the technology
+                        informing the conversion. LIFT is accompanied by an extensive documentation
+                        available at <ref target="http://linked-data-from-tei.rtfd.io/"
+                            >http://linked-data-from-tei.rtfd.io/</ref> presenting the full
+                        Python-based workflow for TEI-to-LOD transformation. LIFT’s documentation is
+                        divided into four main sections:</p>
+                    <list type="ordered">
+                        <item>
+                            <p>
+                                <title rend="italic">Prepare your TEI document</title>, which explains the
+                                encoding requirements for the input TEI document;</p>
+                        </item>
+                        <item>
+                            <p>
+                                <title rend="italic">The RDF graph</title>, illustrating the structure and
+                                semantics of the generated knowledge graph by comparing the TEI
+                                input with the corresponding RDF output (this section also discusses
+                                why and how users might choose different ontologies for their
+                                projects or modify the scripts to work with different input
+                                data);</p>
+                        </item>
+                        <item>
+                            <p>
+                                <title rend="italic">How the scripts work</title>, where users can access
+                                an interactive Jupyter notebook containing LIFT’s scripts with
+                                instructions and line-by-line explanations that are meant to help
+                                users develop the skills required to write their own transformation
+                                scripts; <note>
+                                    An online, read-only version of the notebook is available at
+                                            <ref
+                                            target="https://nbviewer.jupyter.org/github/fgiovannetti/lift/blob/master/jupyter_nb/TEItoRDF.ipynb"
+                                            >https://nbviewer.jupyter.org/github/fgiovannetti/lift/blob/master/jupyter_nb/TEItoRDF.ipynb</ref>
+                                        .
+                                </note>
+                            </p>
+                        </item>
+                        <item>
+                            <p>
+                                <title rend="italic">Further readings and resources</title>, which lists
+                                relevant publications and provides examples of TEI digital scholarly
+                                editions which have been enriched by means of linked open data.</p>
+                        </item>
+                    </list>
+                    <p>In addition to the documentation, each semantic statement of the resulting
+                        RDF graph is accompanied by the original TEI construct that generated it
+                        facilitating the comparison between the TEI input and the RDF output: this
+                        provides users with indirect support as they can view the input TEI encoding
+                        and the output RDF graph side by side and go back to adjust the input TEI
+                        document to resolve any transformation issues that may arise (see <ref
+                            target="#listing4">Listing 4 above</ref> ).</p>
+                </div>
+            </div>
+            <div type="level1" xml:id="5_lift-in-the-classroom">
+                <head>LIFT in the classroom</head>
+                <p>Digital humanities, as a discipline, lie at the crossroads of theory and
+                    practice. The learning-by-example paradigm, which entails presenting existing
+                    models that can be adapted to address new problems, is particularly effective in
+                    similar interdisciplinary contexts (see <ptr target="#tomasi2020"/> ). LIFT was
+                    created in response to a perceived lack of teaching tools for TEI to LOD
+                    transformation based on such paradigm.</p>
+                <p>LIFT will be used in a text representation laboratory activity for the University
+                    of Bologna’s Master Degree in Digital Humanities and Digital Knowledge. As
+                    anticipated at the beginning of this paper, the activity aims to combine the
+                    knowledge and skills acquired by the students from various modules and,
+                    particularly, text encoding with the TEI, ontology development, Python
+                    programming, and linked open data for cultural heritage.</p>
+                <p>The plan for the activity involves gathering the students in 3-member groups.
+                    Each group will choose an existing digital scholarly edition and work on the
+                    underlying TEI document to ensure that the encoding requirements of LIFT are
+                    met. <note>
+                         Patrick Sahle’s and Greta Franzini’s catalogues of digital scholarly
+                            editions ( <ref target="https://v3.digitale-edition.de/"
+                                >https://v3.digitale-edition.de/</ref> ; <ref
+                                target="https://dig-ed-cat.acdh.oeaw.ac.at/"
+                                >https://dig-ed-cat.acdh.oeaw.ac.at/</ref> ) will be provided as a
+                            starting point, along with RIDE ( <ref target="https://ride.i-d-e.de/"
+                                >https://ride.i-d-e.de/</ref> ).
+                    </note>The groups will then use LIFT, either via browser or locally, to produce
+                    an RDF graph. Finally, each group will present their findings to the class,
+                    highlighting challenges and solutions in transforming each type of entity.
+                    Following activities will shift the emphasis away from the input TEI document as
+                    students will focus on modifying the transformation scripts to adapt them to the
+                    existing digital scholarly editions rather than the other way around.</p>
+                <p>By experimenting with the shift from tree-structured to graph-structured data,
+                    and from the TEI vocabulary to RDF using multiple ontologies, students will gain
+                    a better understanding of the implications of annotating a text in one way
+                    versus another within the context of a real-world task that requires them to
+                    combine different skills and competencies that are typically taught
+                    separately.</p>
+                <p>Furthermore, because the activity is structured as group work on a specific
+                    problem to be solved, students will be able to strengthen their ability to
+                    collaborate as a team, which is one of the pillars of digital humanities
+                    scholarship and, by extension, should be one of digital humanities pedagogy (see
+                        <ptr target="#frost2020"/> ).</p>
+                <p>The laboratory activity will also allow us to evaluate the clarity and
+                    effectiveness of LIFT as a teaching tool both directly through an
+                    end-of-activity questionnaire and indirectly through the students’
+                    presentations.</p>
+
+            </div>
+            <div type="level1" xml:id="6_conclusion-and-next-steps">
+                <head>Conclusion and next steps</head>
+                <p>This paper introduced LIFT, an open-source tool written as a set of Python
+                    scripts for generating linked data from TEI-encoded texts. The use of linked
+                    open data for text representation facilitates interoperability with other
+                    cultural resources on the web and opens up editions to new areas of cultural
+                    heritage research. LIFT’s goal is to walk users through the transformation
+                    process from TEI to linked data step by step, as well as to promote a better
+                    understanding of the theoretical and methodological aspects that underpin the
+                    transformation.</p>
+                <p>Some of the key characteristics of the evolving web of data include open-source
+                    tools, well-documented applications, and shared ontologies. User-friendly
+                    resources that reduce the complexity of transforming digital scholarly editions
+                    from a document-centric to a data-centric model are also critical in the
+                    development and expansion of a linked open data cloud of cultural heritage.</p>
+                <p>We envisage LIFT both as a teaching tool and a ready-for-use resource for
+                    TEI-to-LOD transformation, hoping it will serve as an example of a digital
+                    humanities teaching tool that raises awareness about the methodological and
+                    theoretical implications of the structural and semantic shift that occurs when
+                    transitioning from a TEI-based text representation to LOD.</p>
+                <p>With LIFT, we also aim to encourage further research into the development of
+                    open-source, user-friendly tools aiding the mutual integration of digital
+                    scholarly editions and the cultural heritage linked open data cloud. Such tools
+                    have the potential to make digital humanities, and especially knowledge
+                    representation, a more inclusive field of study and research. In order to test
+                    this idea, we will use LIFT in the context of the University of Bologna’s Master
+                    Degree in Digital Humanities and Digital Knowledge, as a teaching tool for
+                    students encountering linked open data for the first time as a method of
+                    publishing digital scholarly editions on the web in a data integration
+                    perspective. We expect that LIFT will help students understand the process not
+                    only practically but also, and primarily, in terms of methodology and
+                    theory.</p>
+                <p>LIFT is under active development. Features that will be provided in the near
+                    future include a transformation script for bibliographic references encoded
+                    using specialized elements from the <ref target="https://tei-c.org/release/doc/tei-p5-doc/en/html/CO.html#COBI">TEI</ref> model.bibLike class. Furthermore, the documentation will be expanded with new sections on
+                    ontologies for text representation as well as useful resources, particularly
+                    examples of digital scholarly editions enhanced through the use of linked open
+                    data.</p>
+            </div>
+            <figure>
+                <graphic url="images/figure01.png"/>
+                <figDesc>A screenshot of the homepage</figDesc>
+                <head>Homepage</head>
+            </figure>
+            <figure>
+                <graphic url="images/figure02.png"/>
+                <figDesc>A screenshot of the Quick start page</figDesc>
+                <head>Quick start</head>
+            </figure>
+            <figure>
+                <graphic url="images/figure03.png"/>
+                <figDesc>A screenshot of the page listing the transformation options</figDesc>
+                <head>Choosing a transformation</head>
+            </figure>
+            <figure>
+                <graphic url="images/figure04.png"/>
+                <figDesc>A screenshot of the download button producing different serializations of
+                    the knowledge graph</figDesc>
+                <head>Downloading the resulting knowledge graph according to different
+                    serializations</head>
+            </figure>
+        </body>
+        <back>
+            <listBibl xmlns="http://www.tei-c.org/ns/1.0">
+                <bibl corresp="http://zotero.org/users/2075931/items/GSFKJVW7"
+                    label="Licastro, Rogers and Savonick 2020" type="bookSection" xml:id="frost2020">
+                    <title level="a">Collaboration</title>
+                    <editor>
+                        Amanda
+                        <surname>Licastro</surname>
+                    </editor>
+                    <editor>
+                        <forename>Katina</forename>
+                        <surname>Rogers</surname>
+                    </editor>
+                    <editor>
+                        <forename>Danica</forename>
+                        <surname>Savonick</surname>
+                    </editor>
+                    <title level="m">Digital Pedagogy in the Humanities: Concepts, Models, and
+                        Experiments</title>
+                    <idno type="ISBN">978-3-7543-4369-2</idno>
+                    <editor>
+                        <forename>Rebecca</forename>
+                        <surname>Frost Davis</surname>
+                    </editor>
+                    <editor>
+                        <forename>Matthew K.</forename>
+                        <surname>Gold</surname>
+                    </editor>
+                    <editor>
+                        <forename>Katherine D.</forename>
+                        <surname>Harris</surname>
+                    </editor>
+                    <editor>
+                        <forename>Jentery</forename>
+                        <surname>Sayers</surname>
+                    </editor>
+                    <publisher>Modern Language Association</publisher>
+                    <date>2020</date>
+                    <note type="accessed">2021-12-21T12:27:27Z</note>
+                    <note type="url"
+                        >https://digitalpedagogy.hcommons.org/keyword/Collaboration</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/XBECBBB8"
+                    label="TEI Ontologies SIG 2019" type="webpage" xml:id="tei_ontologies_sig2019">
+                    <title level="a">TEI: Ontologies SIG</title>
+                    <respStmt>
+                        <resp>contributor</resp>
+                        <persName>
+                            <name>TEI Ontologies SIG</name>
+                        </persName>
+                    </respStmt>
+                    <title level="m">Text Encoding Initiative</title>
+                    <date>2019</date>
+                    <note type="url">https://tei-c.org/activities/sig/ontologies</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/J7K8ZJHT"
+                    label="Crofts et al. 2011" type="journalArticle" xml:id="crofts2011">
+                    <title level="a">CIDOC CRM: CIDOC Conceptual Reference Model</title>
+                    <title type="short">CIDOC CRM</title>
+                    <editor>
+                        <forename>Nick</forename>
+                        <surname>Crofts</surname>
+                    </editor>
+                    <editor>
+                        <forename>Martin</forename>
+                        <surname>Doerr</surname>
+                    </editor>
+                    <editor>
+                        <forename>Tony</forename>
+                        <surname>Gill</surname>
+                    </editor>
+                    <editor>
+                        <forename>Stephen</forename>
+                        <surname>Stead</surname>
+                    </editor>
+                    <editor>
+                        <forename>Matthew</forename>
+                        <surname>Stiff</surname>
+                    </editor>
+                    <date>2011</date>
+                    <note type="url">http://www.cidoc-crm.org/cidoc-crm/</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/SZZW6NEL" label="Sahle 2014"
+                    type="blogPost" xml:id="sahle2014">
+                    <title level="m">Criteria for Reviewing Scholarly Digital Editions</title>
+                    <author>
+                        <forename>Patrick</forename>
+                        <surname>Sahle</surname>
+                    </author>
+                    <respStmt>
+                        <resp>contributor</resp>
+                        <persName>
+                            <forename>Georg</forename>
+                            <surname>Vogeler</surname>
+                        </persName>
+                    </respStmt>
+                    <date>2014</date>
+                    <note type="accessed">2019-09-28T12:27:27Z</note>
+                    <note type="url"
+                        >https://www.i-d-e.de/publikationen/weitereschriften/criteria-version-1-1/</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/N8CLLVZY" label="Price 2008"
+                    type="bookSection" xml:id="price2008">
+                    <title level="a">Electronic scholarly editions</title>
+                    <author>
+                        <forename>Kenneth M.</forename>
+                        <surname>Price</surname>
+                    </author>
+                    <title level="m">A companion to digital literary studies</title>
+                    <editor>
+                        <forename>Susan</forename>
+                        <surname>Schreibman</surname>
+                    </editor>
+                    <editor>
+                        <forename>Ray</forename>
+                        <surname>Siemens</surname>
+                    </editor>
+                    <date>2008</date>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/QJ6N3RUF"
+                    label="Gruntgens and Schrade 2016" type="journalArticle" xml:id="gruntgens2016">
+                    <title level="a">Data repositories in the Humanities and the Semantic Web:
+                        modelling, linking, visualising</title>
+                    <author>
+                        <forename>Max</forename>
+                        <surname>Gruntgens</surname>
+                    </author>
+                    <author>
+                        <forename>Torsten</forename>
+                        <surname>Schrade</surname>
+                    </author>
+                    <biblScope unit="page">12</biblScope>
+                    <date>2016</date>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/ZDJP8PYZ"
+                    label="MLA Commettee on Scholarly Editions 2016" type="webpage" xml:id="mla2016">
+                    <title level="a">MLA Statement on the Scholarly Edition in the Digital
+                        Age</title>
+                    <author>
+                        <name>MLA Commettee on Scholarly Editions</name>
+                    </author>
+                    <title level="m">Modern Language Association</title>
+                    <date>2016</date>
+                    <note type="accessed">2019-09-29T15:52:03Z</note>
+                    <note type="url"
+                        >https://www.mla.org/Resources/Research/Surveys-Reports-and-Other-Documents/Publishing-and-Scholarship/Reports-from-the-MLA-Committee-on-Scholarly-Editions/MLA-Statement-on-the-Scholarly-Edition-in-the-Digital-Age</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/6UN62N3F" label="Andrews 2013"
+                    type="journalArticle" xml:id="andrews2013">
+                    <title level="a">The Third Way: Philology and Critical Edition in the Digital
+                        Age</title>
+                    <idno type="DOI">10.7892/BORIS.43071</idno>
+                    <title type="short">The Third Way</title>
+                    <author>
+                        <forename>Tara L.</forename>
+                        <surname>Andrews</surname>
+                    </author>
+                    <date>2013</date>
+                    <note type="accessed">2021-12-02T19:40:57Z</note>
+                    <note type="url">http://boris.unibe.ch/43071/</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/UL3SHNRN"
+                    label="Ciotti and Tomasi 2016" type="journalArticle" xml:id="ciotti2016">
+                    <title level="a">Formal Ontologies, Linked Data, and TEI Semantics</title>
+                    <idno type="DOI">10.4000/jtei.1480</idno>
+                    <author>
+                        <forename>Fabio</forename>
+                        <surname>Ciotti</surname>
+                    </author>
+                    <author>
+                        <forename>Francesca</forename>
+                        <surname>Tomasi</surname>
+                    </author>
+                    <title level="j">Journal of the Text Encoding Initiative</title>
+                    <idno type="ISSN">2162-5603</idno>
+                    <biblScope unit="issue">Issue 9</biblScope>
+                    <date>2016</date>
+                    <note type="accessed">2021-12-02T19:41:23Z</note>
+                    <note type="url">http://journals.openedition.org/jtei/1480</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/5MAXPKCH"
+                    label="Ciula, Spence and Vieira 2008" type="journalArticle" xml:id="ciula2008">
+                    <title level="a">Expressing complex associations in medieval historical
+                        documents: the Henry III Fine Rolls Project</title>
+                    <idno type="DOI">10.1093/llc/fqn018</idno>
+                    <title type="short">Expressing complex associations in medieval historical
+                        documents</title>
+                    <author>
+                        <forename>Arianna</forename>
+                        <surname>Ciula</surname>
+                    </author>
+                    <author>
+                        <forename>Paul</forename>
+                        <surname>Spence</surname>
+                    </author>
+                    <author>
+                        <forename>José Miguel</forename>
+                        <surname>Vieira</surname>
+                    </author>
+                    <title level="j">Literary and Linguistic Computing</title>
+                    <idno type="ISSN">0268-1145, 1477-4615</idno>
+                    <biblScope unit="volume">23</biblScope>
+                    <biblScope unit="issue">3</biblScope>
+                    <biblScope unit="page">311-325</biblScope>
+                    <date>2008</date>
+                    <note type="accessed">2021-12-02T19:41:38Z</note>
+                    <note type="url"
+                        >https://academic.oup.com/dsh/article-lookup/doi/10.1093/llc/fqn018</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/VX9DYENP"
+                    label="Daquino, Giovannetti and Tomasi 2019" type="journalArticle"
+                    xml:id="daquino2019">
+                    <title level="a">Linked Data per le edizioni scientifiche digitali. Il workflow
+                        di pubblicazione dell’edizione semantica del quaderno di appunti di Paolo
+                        Bufalini</title>
+                    <idno type="DOI">10.6092/ISSN.2532-8816/9091</idno>
+                    <author>
+                        <forename>Marilena</forename>
+                        <surname>Daquino</surname>
+                    </author>
+                    <author>
+                        <forename>Francesca</forename>
+                        <surname>Giovannetti</surname>
+                    </author>
+                    <author>
+                        <forename>Francesca</forename>
+                        <surname>Tomasi</surname>
+                    </author>
+                    <title level="j">Umanistica Digitale</title>
+                    <biblScope unit="page">No 7 (2019)</biblScope>
+                    <date>2019</date>
+                    <note type="accessed">2021-12-02T19:42:13Z</note>
+                    <note type="url">https://umanisticadigitale.unibo.it/article/view/9091</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/H3J5ZUPG"
+                    label="Daquino et al. 2014" type="journalArticle" xml:id="daquino2014">
+                    <title level="a">Political Roles Ontology (PRoles): Enhancing Archival Authority
+                        Records through Semantic Web Technologies</title>
+                    <idno type="DOI">10.1016/j.procs.2014.10.012</idno>
+                    <title type="short">Political Roles Ontology (PRoles)</title>
+                    <author>
+                        <forename>Marilena</forename>
+                        <surname>Daquino</surname>
+                    </author>
+                    <author>
+                        <forename>Silvio</forename>
+                        <surname>Peroni</surname>
+                    </author>
+                    <author>
+                        <forename>Francesca</forename>
+                        <surname>Tomasi</surname>
+                    </author>
+                    <author>
+                        <forename>Fabio</forename>
+                        <surname>Vitali</surname>
+                    </author>
+                    <title level="j">Procedia Computer Science</title>
+                    <idno type="ISSN">18770509</idno>
+                    <biblScope unit="volume">38</biblScope>
+                    <biblScope unit="page">60-67</biblScope>
+                    <date>2014</date>
+                    <note type="accessed">2021-12-02T19:45:07Z</note>
+                    <note type="url"
+                        >https://linkinghub.elsevier.com/retrieve/pii/S1877050914013726</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/BL456XVI"
+                    label="DeRose et al. 1990" type="journalArticle" xml:id="derose1990">
+                    <title level="a">What is text, really?</title>
+                    <idno type="DOI">10.1007/BF02941632</idno>
+                    <author>
+                        <forename>Steven J.</forename>
+                        <surname>DeRose</surname>
+                    </author>
+                    <author>
+                        <forename>David G.</forename>
+                        <surname>Durand</surname>
+                    </author>
+                    <author>
+                        <forename>Elli</forename>
+                        <surname>Mylonas</surname>
+                    </author>
+                    <author>
+                        <forename>Allen H.</forename>
+                        <surname>Renear</surname>
+                    </author>
+                    <title level="j">Journal of Computing in Higher Education</title>
+                    <idno type="ISSN">1042-1726</idno>
+                    <biblScope unit="volume">1</biblScope>
+                    <biblScope unit="issue">2</biblScope>
+                    <biblScope unit="page">3-26</biblScope>
+                    <date>1990</date>
+                    <note type="accessed">2021-12-02T19:45:41Z</note>
+                    <note type="url">http://link.springer.com/10.1007/BF02941632</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/WYDZXJYU" label="Eide 2014"
+                    type="journalArticle" xml:id="eide2014">
+                    <title level="a">Ontologies, Data Modeling, and TEI</title>
+                    <idno type="DOI">10.4000/jtei.1191</idno>
+                    <author>
+                        <forename>Øyvind</forename>
+                        <surname>Eide</surname>
+                    </author>
+                    <title level="j">Journal of the Text Encoding Initiative</title>
+                    <idno type="ISSN">2162-5603</idno>
+                    <biblScope unit="issue">Issue 8</biblScope>
+                    <date>2014</date>
+                    <note type="accessed">2021-12-02T19:45:53Z</note>
+                    <note type="url">http://journals.openedition.org/jtei/1191</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/XTCB5BAK"
+                    label="Jordanous et al. 2012" type="conferencePaper" xml:id="jordanous2012">
+                    <title level="a">Exploring manuscripts: sharing ancient wisdoms across the
+                        semantic web</title>
+                    <idno type="DOI">10.1145/2254129.2254184</idno>
+                    <title type="short">Exploring manuscripts</title>
+                    <author>
+                        <forename>Anna</forename>
+                        <surname>Jordanous</surname>
+                    </author>
+                    <author>
+                        <forename>K. Faith</forename>
+                        <surname>Lawrence</surname>
+                    </author>
+                    <author>
+                        <forename>Mark</forename>
+                        <surname>Hedges</surname>
+                    </author>
+                    <author>
+                        <forename>Charlotte</forename>
+                        <surname>Tupman</surname>
+                    </author>
+                    <title level="m">Proceedings of the 2nd International Conference on Web
+                        Intelligence, Mining and Semantics - WIMS '12</title>
+                    <title type="conferenceName">the 2nd International Conference</title>
+                    <idno type="ISBN">978-1-4503-0915-8</idno>
+                    <pubPlace>Craiova, Romania</pubPlace>
+                    <biblScope unit="page">1</biblScope>
+                    <publisher>ACM Press</publisher>
+                    <date>2012</date>
+                    <note type="accessed">2021-12-02T19:49:23Z</note>
+                    <note type="url">http://dl.acm.org/citation.cfm?doid=2254129.2254184</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/2ABWXPH5"
+                    label="Litz et al. 2012" type="bookSection" xml:id="litz2012">
+                    <title level="a">AgRelOn – An Agent Relationship Ontology</title>
+                    <author>
+                        <forename>Berenike</forename>
+                        <surname>Litz</surname>
+                    </author>
+                    <author>
+                        <forename>Aenne</forename>
+                        <surname>Löhden</surname>
+                    </author>
+                    <author>
+                        <forename>Jan</forename>
+                        <surname>Hannemann</surname>
+                    </author>
+                    <author>
+                        <forename>Lars</forename>
+                        <surname>Svensson</surname>
+                    </author>
+                    <title level="m">Metadata and Semantics Research</title>
+                    <idno type="ISBN">978-3-642-35232-4 978-3-642-35233-1</idno>
+                    <editor>
+                        <forename>Juan Manuel</forename>
+                        <surname>Dodero</surname>
+                    </editor>
+                    <editor>
+                        <forename>Manuel</forename>
+                        <surname>Palomo-Duarte</surname>
+                    </editor>
+                    <editor>
+                        <forename>Pythagoras</forename>
+                        <surname>Karampiperis</surname>
+                    </editor>
+                    <pubPlace>Berlin, Heidelberg</pubPlace>
+                    <biblScope unit="volume">343</biblScope>
+                    <biblScope unit="page">202-213</biblScope>
+                    <publisher>Springer Berlin Heidelberg</publisher>
+                    <date>2012</date>
+                    <note type="accessed">2021-12-02T19:49:53Z</note>
+                    <note type="url">http://link.springer.com/10.1007/978-3-642-35233-1_21</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/RMJTD8WF"
+                    label="Peroni, Shotton and Vitali 2012" type="conferencePaper"
+                    xml:id="peroni2012">
+                    <title level="a">Scholarly publishing and linked data: describing roles,
+                        statuses, temporal and contextual extents</title>
+                    <idno type="DOI">10.1145/2362499.2362502</idno>
+                    <title type="short">Scholarly publishing and linked data</title>
+                    <author>
+                        <forename>Silvio</forename>
+                        <surname>Peroni</surname>
+                    </author>
+                    <author>
+                        <forename>David</forename>
+                        <surname>Shotton</surname>
+                    </author>
+                    <author>
+                        <forename>Fabio</forename>
+                        <surname>Vitali</surname>
+                    </author>
+                    <title level="m">Proceedings of the 8th International Conference on Semantic
+                        Systems - I-SEMANTICS '12</title>
+                    <title type="conferenceName">the 8th International Conference</title>
+                    <idno type="ISBN">978-1-4503-1112-0</idno>
+                    <pubPlace>Graz, Austria</pubPlace>
+                    <biblScope unit="page">9</biblScope>
+                    <publisher>ACM Press</publisher>
+                    <date>2012</date>
+                    <note type="accessed">2021-12-02T19:50:52Z</note>
+                    <note type="url">http://dl.acm.org/citation.cfm?doid=2362499.2362502</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/WUS62H6M" label="Pierazzo 2016"
+                    type="book" xml:id="pierazzo2016">
+                    <title level="m">Digital Scholarly Editing</title>
+                    <idno type="ISBN">978-1-317-15067-1</idno>
+                    <author>
+                        <forename>Elena</forename>
+                        <surname>Pierazzo</surname>
+                    </author>
+                    <edition>0</edition>
+                    <publisher>Routledge</publisher>
+                    <date>2016</date>
+                    <note type="accessed">2021-12-02T19:51:03Z</note>
+                    <note type="url">https://www.taylorfrancis.com/books/9781317150671</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/3HBDNDR3" label="Sahle 2016"
+                    type="bookSection" xml:id="sahle2016">
+                    <title level="a">2. What is a Scholarly Digital Edition?</title>
+                    <author>
+                        <forename>Patrick</forename>
+                        <surname>Sahle</surname>
+                    </author>
+                    <title level="m">Digital Scholarly Editing: Theories and Practices</title>
+                    <idno type="ISBN">978-1-78374-238-7 978-1-78374-239-4 978-1-78374-240-0
+                        978-1-78374-241-7 978-1-78374-242-4</idno>
+                    <editor>
+                        <forename>Matthew James</forename>
+                        <surname>Driscoll</surname>
+                    </editor>
+                    <editor>
+                        <forename>Elena</forename>
+                        <surname>Pierazzo</surname>
+                    </editor>
+                    <biblScope unit="page">19-40</biblScope>
+                    <publisher>Open Book Publishers</publisher>
+                    <date>2016</date>
+                    <note type="accessed">2021-12-02T19:55:26Z</note>
+                    <note type="url">http://www.openbookpublishers.com/product/483</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/T8CKA9JN"
+                    label="Giovannetti 2021" type="bookSection" xml:id="giovannetti2021">
+                    <title level="a">The Critical Apparatus Ontology (CAO): Modelling the TEI
+                        Critical Apparatus as a Knowledge Grap</title>
+                    <author>
+                        <forename>Francesca</forename>
+                        <surname>Giovannetti</surname>
+                    </author>
+                    <title level="m">Graph data-models and semantic web technologies in scholarly
+                        digital editing</title>
+                    <idno type="ISBN">978-3-7543-4369-2</idno>
+                    <editor>
+                        <forename>Elena</forename>
+                        <surname>Spadini</surname>
+                    </editor>
+                    <editor>
+                        <forename>Francesca</forename>
+                        <surname>Tomasi</surname>
+                    </editor>
+                    <editor>
+                        <forename>Georg</forename>
+                        <surname>Vogeler</surname>
+                    </editor>
+                    <pubPlace>Norderstedt</pubPlace>
+                    <biblScope unit="page">125-139</biblScope>
+                    <publisher>BoD – Books on Demand</publisher>
+                    <date>2021</date>
+                    <series>
+                        <title level="s">Schriften des Instituts für Dokumentologie und
+                            Editorik</title>
+                        <biblScope unit="volume">Band 15</biblScope>
+                    </series>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/3PJNJWGZ"
+                    label="Weibel and Koch 2000" type="journalArticle" xml:id="weibel2000">
+                    <title level="a">The Dublin Core Metadata Initiative: Mission, Current
+                        Activities, and Future Directions</title>
+                    <idno type="DOI">10.1045/december2000-weibel</idno>
+                    <title type="short">The Dublin Core Metadata Initiative</title>
+                    <author>
+                        <forename>Stuart L.</forename>
+                        <surname>Weibel</surname>
+                    </author>
+                    <author>
+                        <forename>Traugott</forename>
+                        <surname>Koch</surname>
+                    </author>
+                    <title level="j">D-Lib Magazine</title>
+                    <idno type="ISSN">1082-9873</idno>
+                    <biblScope unit="volume">6</biblScope>
+                    <biblScope unit="issue">12</biblScope>
+                    <date>2000</date>
+                    <note type="accessed">2021-12-02T19:59:20Z</note>
+                    <note type="url">http://www.dlib.org/dlib/december00/weibel/12weibel.html</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/C9FJH8SY"
+                    label="Wittern, Ciula and Tuohy 2009" type="journalArticle" xml:id="wittern2009">
+                    <title level="a">The making of TEI P5</title>
+                    <idno type="DOI">10.1093/llc/fqp017</idno>
+                    <author>
+                        <forename>Christian</forename>
+                        <surname>Wittern</surname>
+                    </author>
+                    <author>
+                        <forename>Arianna</forename>
+                        <surname>Ciula</surname>
+                    </author>
+                    <author>
+                        <forename>Conal</forename>
+                        <surname>Tuohy</surname>
+                    </author>
+                    <title level="j">Literary and Linguistic Computing</title>
+                    <idno type="ISSN">0268-1145, 1477-4615</idno>
+                    <biblScope unit="volume">24</biblScope>
+                    <biblScope unit="issue">3</biblScope>
+                    <biblScope unit="page">281-296</biblScope>
+                    <date>2009</date>
+                    <note type="accessed">2021-12-02T19:59:29Z</note>
+                    <note type="url"
+                        >https://academic.oup.com/dsh/article-lookup/doi/10.1093/llc/fqp017</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/K8DM7K3G"
+                    label="Bekiari et al. 2015" type="report" xml:id="bekiari2015">
+                    <title level="m">Definition of FRBRoo: A conceptual model for bibliographic
+                        information in object-oriented formalism</title>
+                    <title type="short">Definition of FRBRoo</title>
+                    <author>
+                        <forename>Chryssoula</forename>
+                        <surname>Bekiari</surname>
+                    </author>
+                    <author>
+                        <forename>Martin</forename>
+                        <surname>Doerr</surname>
+                    </author>
+                    <author>
+                        <forename>Patrick</forename>
+                        <surname>Le Boeuf</surname>
+                    </author>
+                    <author>
+                        <forename>Pat</forename>
+                        <surname>Riva</surname>
+                    </author>
+                    <date>2015</date>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/N7265R87"
+                    label="TEI Consortium 2019" type="report" xml:id="tei_consortium2019">
+                    <title level="m">P5: Guidelines for Electronic Text Encoding and
+                        Interchange</title>
+                    <title type="short">TEI P5 Guidelines</title>
+                    <author>
+                        <name>TEI Consortium</name>
+                    </author>
+                    <date>2019</date>
+                    <note type="url">https://tei-c.org/guidelines/</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/GPDYAI99"
+                    label="Spadini, Tomasi and Vogeler 2021" type="book" xml:id="spadini2021">
+                    <title level="m">Graph data-models and semantic web technologies in scholarly
+                        digital editing</title>
+                    <idno type="ISBN">978-3-7543-4369-2</idno>
+                    <editor>
+                        <forename>Elena</forename>
+                        <surname>Spadini</surname>
+                    </editor>
+                    <editor>
+                        <forename>Francesca</forename>
+                        <surname>Tomasi</surname>
+                    </editor>
+                    <editor>
+                        <forename>Georg</forename>
+                        <surname>Vogeler</surname>
+                    </editor>
+                    <pubPlace>Norderstedt</pubPlace>
+                    <publisher>BoD – Books on Demand</publisher>
+                    <date>2021</date>
+                    <series>
+                        <title level="s">Schriften des Instituts für Dokumentologie und
+                            Editorik</title>
+                        <biblScope unit="volume">Band 15</biblScope>
+                    </series>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/CIV45Z5C"
+                    label="Simon et al. 2017" type="journalArticle" xml:id="simon2017">
+                    <title level="a">Linked Data Annotation Without the Pointy Brackets: Introducing
+                        Recogito 2</title>
+                    <idno type="DOI">10.1080/15420353.2017.1307303</idno>
+                    <title type="short">Linked Data Annotation Without the Pointy Brackets</title>
+                    <author>
+                        <forename>Rainer</forename>
+                        <surname>Simon</surname>
+                    </author>
+                    <author>
+                        <forename>Elton</forename>
+                        <surname>Barker</surname>
+                    </author>
+                    <author>
+                        <forename>Leif</forename>
+                        <surname>Isaksen</surname>
+                    </author>
+                    <author>
+                        <forename>Pau</forename>
+                        <surname>De Soto CaÑamares</surname>
+                    </author>
+                    <title level="j">Journal of Map &amp; Geography Libraries</title>
+                    <idno type="ISSN">1542-0353, 1542-0361</idno>
+                    <biblScope unit="volume">13</biblScope>
+                    <biblScope unit="issue">1</biblScope>
+                    <biblScope unit="page">111-132</biblScope>
+                    <date>2017</date>
+                    <note type="accessed">2021-12-02T20:14:52Z</note>
+                    <note type="url"
+                        >https://www.tandfonline.com/doi/full/10.1080/15420353.2017.1307303</note>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/H2GBYDRP" label="Tomasi 2012"
+                    type="journalArticle" xml:id="tomasi2012">
+                    <title level="a">L’edizione digitale e la rappresentazione della conoscenza. Un
+                        esempio: Vespasiano da Bisticci e le sue lettere</title>
+                    <author>
+                        <forename>Francesca</forename>
+                        <surname>Tomasi</surname>
+                    </author>
+                    <title level="j">Ecdotica</title>
+                    <biblScope unit="volume">9</biblScope>
+                    <biblScope unit="issue">1</biblScope>
+                    <biblScope unit="page">264-286</biblScope>
+                    <date>2012</date>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/B4KMFBGC" label="Tomasi 2020"
+                    type="journalArticle" xml:id="tomasi2020">
+                    <title level="a">Digital humanities e organizzazione della conoscenza: una
+                        pratica di insegnamento nel LODLAM</title>
+                    <idno type="DOI">https://doi.org/10.2426/aibstudi-12068</idno>
+                    <author>
+                        <forename>Francesca</forename>
+                        <surname>Tomasi</surname>
+                    </author>
+                    <title level="j">Aibstudi</title>
+                    <biblScope unit="volume">60</biblScope>
+                    <biblScope unit="issue">2</biblScope>
+                    <biblScope unit="page">1-15</biblScope>
+                    <date>2020</date>
+                </bibl>
+                <bibl corresp="http://zotero.org/users/2075931/items/AMM4NMWB"
+                    label="Renear, Mylonas and Durand 1993" type="journalArticle"
+                    xml:id="renear1993">
+                    <title level="a">Refining our Notion of What Text Really Is: The Problem of
+                        Overlapping Hierarchies</title>
+                    <author>
+                        <forename>Allen H.</forename>
+                        <surname>Renear</surname>
+                    </author>
+                    <author>
+                        <forename>Elli</forename>
+                        <surname>Mylonas</surname>
+                    </author>
+                    <author>
+                        <forename>David G.</forename>
+                        <surname>Durand</surname>
+                    </author>
+                    <title level="j">Computer Science</title>
+                    <date>1993</date>
+                </bibl>
+            </listBibl>
+        </back>
+    </text>
+</TEI>
