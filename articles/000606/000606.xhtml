@@ -1,0 +1,2732 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <title>[PREVIEW] DHQ: Digital Humanities Quarterly: </title>
+      <link href="../../common/css/dhq.css" type="text/css" rel="stylesheet" />
+      <link href="../../common/css/dhq_screen.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../common/css/dhq_print.css" media="print" type="text/css" rel="stylesheet" />
+      <style type="text/css">
+        #mainContent {
+          float: none;
+          padding-top: 2em;
+          padding-left: 4em;
+          padding-right: 4em;
+          margin-left: 225px;
+           
+        }</style>
+   </head>
+   <body>
+      <div id="mainContent">
+         <div class="DHQarticle">
+            <div id="pubInfo">Preview<br />Volume  Number </div>
+            <div class="toolbar"><a href="#">Preview</a>  |  <span style="color: grey">XML</span> |  <a href="#" onclick="javascript:window.print();" title="Click for print friendly version">Print Article</a></div>
+            
+            <div class="DHQheader">
+               
+               
+               
+               
+               <h1 class="articleTitle lang en">Universal
+                  Dependencies and Author Attribution of Short Texts with Syntax Alone</h1>
+               
+               
+               <div class="author"><span style="color: grey">Robert Gorman
+                     </span></div>
+               
+               
+               
+               
+               
+               
+               
+               <span class="Z3988" title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rfr_id=info%3Asid%2Fzotero.org%3A2&amp;rft.genre=article&amp;rft.atitle=Universal%20Dependencies%20and%20Author%20Attribution%20of%20Short%20Texts%20with%20Syntax%20Alone&amp;rft.jtitle=Digital%20Humanities%20Quarterly&amp;rft.stitle=DHQ&amp;rft.issn=1938-4122&amp;rft.date=&amp;rft.volume=&amp;rft.issue=&amp;rft.aulast=Gorman&amp;rft.aufirst=Robert&amp;rft.au=Robert%20Gorman"> </span></div>
+            
+            <div id="DHQtext">
+               
+               
+               <div id="abstract">
+                  <h2>Abstract</h2>
+                  
+                  
+                  <p>Improving methods of stylometrics and classification so that they give good results
+                     with small texts is the focus of much research in the digital humanities and in the
+                     NLP community more generally. Recent work [<a class="ref" href="#gorman2020">Gorman 2020</a>] has suggested
+                     that an approach using combinations of shallow and deep morpho-syntactic information
+                     can be quite successful. But because the data in that study were taken from hand
+                     annotated dependency treebanks, the wider applicability of such an approach remains
+                     in question. The present paper seeks to answer this question by using
+                     machine-generated morphological and syntactic annotations as the basis for a
+                     closed-set classification experiment. Texts were parsed according to the Universal
+                     Dependency schema using the “udpipe” package for R. Experiments were carried out
+                     on data from several languages covering a range of morphological complexity. To limit
+                     confounders, consideration of vocabulary was excluded. Results were quite promising,
+                     and, not surprisingly, a more complex morphology correlates with better accuracy
+                     (e.g., 100-token texts in Polish: 88% correct; 100-token texts in English: 74%).The
+                     method presented here has particular advantages for stylometrics as practiced in
+                     literary analysis and other fields in the humanities. The Universal Dependency
+                     annotation categories are generally similar to those used in traditional grammars.
+                     Thus, the variables which serve to distinguish the style of a given author are
+                     relatively easier to interpret and understand than, for example, are character
+                     n-grams or function words. This fact, combined with the availability of easy-to-use
+                     dependency parsers, opens up the study of a syntax-centered stylometrics to persons
+                     with a wide range of expertise. Even students at the early stages of their studies
+                     can identify and investigate the morpho-syntactic “signature” of a particular
+                     author. Therefore, the characterization of texts based on computational annotation
+                     of
+                     this type deserves a place in classification studies because of its combination of
+                     good results and good interpretability.</p>
+                  </div>
+               
+               
+               
+               
+               
+               <div class="div div0">
+                  
+                  <h1 class="head">1. Introduction</h1>
+                  
+                  <div class="counter"><a href="#p1">1</a></div>
+                  <div class="ptext" id="p1">Developing better methods of classifying short texts is becoming increasingly
+                     important in the field of computational stylometrics. Synoptic work (Eder 2015)
+                     suggests that many common approaches to at least one kind of text classification —
+                     Authorship Attribution — are unreliable when the text to be classified is less
+                     than a few thousand words. Maciej Eder’s study examines several
+                     classifiers (Burrows’ Delta, Support Vector Machine, and k-Nearest Neighbor) and
+                     finds that all suffer from a similar drop in effectiveness as the size of the
+                     target texts decreases. The same result is seen when considering the most usual
+                     independent variables (a.k.a. “features”) used as input to the various
+                     classifiers. These features include Most Frequent Words, character n-grams, and
+                     POS (part of speech) n-grams. Based on Eder’s results, one must conclude that
+                     success in classification of short texts needs improved algorithms and/or more
+                     informative input variables.</div>
+                  
+                  <div class="counter"><a href="#p2">2</a></div>
+                  <div class="ptext" id="p2">This study focuses on the second requirement and explores the value of
+                     morphological tagging and syntactic parsing to create a richly discriminative set
+                     of variables. Generally speaking, morphological and syntactic data are underused
+                     in Authorship Attribution as compared to lexical and character-based features.
+                     While a wide-ranging survey [<a class="ref" href="#stamatatos2009">Stamatatos 2009</a>] was able to refer to a number of
+                     studies that used syntactic re-write rules or more complex morpho-syntactic
+                     features, an examination of references in a subsequent overview [<a class="ref" href="#swain2017">Swain et al. 2017</a>]
+                     indicates POS tags are almost the only such features in frequent use. However, a
+                     more recent experiment in Authorship Attribution relying entirely on
+                     morpho-syntactic variables [<a class="ref" href="#gorman2020">Gorman 2020</a>] suggests that such features can
+                     significantly enrich the information available for text classification. </div>
+                  
+                  <div class="counter"><a href="#p3">3</a></div>
+                  <div class="ptext" id="p3">The general applicability of R. Gorman’s study is questionable for at least two
+                     reasons. First, it involves a morphologically complex language — ancient Greek. It
+                     is uncertain how its methods may be suited to a simpler morphological target such
+                     as English. Second, the study’s approach is based on a dependency syntax corpus in
+                     which morphology and dependency relations have been hand annotated by a single
+                     language expert. The corpus is unusually large to be annotated in this way, and
+                     the resulting accuracy and consistency is a luxury available in few languages. </div>
+                  
+                  <div class="counter"><a href="#p4">4</a></div>
+                  <div class="ptext" id="p4">The present investigation will further explore the viability of a morpho-syntactic
+                     approach to text classification. It will test the effectiveness of such variables
+                     in several languages representing a wide spectrum of morphological complexity
+                     (English, German, Spanish, Finnish, and Polish). In addition, the requisite
+                     morphological and dependency annotation will be generated automatically, using a
+                     freely available program. As a proof of concept, classification will be carried
+                     out with only the resultant morpho-syntactic information. This restriction will
+                     simplify interpretation of results by reducing possible confounding elements
+                     within the proposed feature set. In addition, an important consideration in
+                     authorship classification is to eliminate as far as possible the effects of topic
+                     and genre and to avoid relying on any features that could be easily imitated or
+                     manipulated. Syntactic features are thought to meet this requirement better than
+                     lexical ones. Since identifying syntactic information requires extra processing
+                     with possibly noisy results, most investigations fall back on “function words” as
+                     a proxy for truly syntactic features. By directly using computationally generated
+                     syntactic analyses instead, this study will explore the benefits of such
+                     pre-processing in comparison to the costs of the noise it inevitably
+                     introduces.</div>
+                  
+                  <div class="counter"><a href="#p5">5</a></div>
+                  <div class="ptext" id="p5">The remainder of this article has the following structure. Part 2 discusses the
+                     formation of the various language corpora. It then details the creation of the
+                     input variables. These variables are somewhat complicated, in that they are based
+                     on combinations of morpho-syntactic elements and, at the same time, seek to
+                     preserve as much flexibility as possible in the incorporation of these elements.
+                     Part 3 explains the several steps of the classification experiment itself. Part 4
+                     presents the results of the classification process and explores their
+                     implications. It lays particular emphasis on the interpretability of the input
+                     variables used in this study. Arguably, descriptions of authorial style based on
+                     traditional morpho-syntactic categories will prove more persuasive to those
+                     outside the ranks of scholars of computational stylometrics. </div>
+                  </div>
+               
+               <div class="div div0">
+                  
+                  <h1 class="head">2. Corpora and Feature Extraction</h1>
+                  
+                  <div class="counter"><a href="#p6">6</a></div>
+                  <div class="ptext" id="p6">This study involves corpora of texts in several languages: English, Finnish,
+                     German, Spanish, and Polish. An attempt was made to gather publicly available
+                     texts in a wider range of languages, but it was hindered by several factors. The
+                     design of the proposed experiment requires 20 single-author texts in a given
+                     language. All texts should be more than 20,000 tokens in length, and all texts in
+                     a language should be of the same type. Where possible, texts were to be drawn from
+                     a well-defined temporal range. These demands were most easily met by selecting
+                     works of fiction, in particular novels. The works were drawn from Project 
+                     Gutenberg and the Computational Stylistics Group.<a class="noteRef" href="#d4e208">[1]</a>
+                     </div>
+                  
+                  <div class="counter"><a href="#p7">7</a></div>
+                  <div class="ptext" id="p7">It may be surprising that a study interested in classification of short texts
+                     would use novels rather than, for example, tweets or news articles. However, the
+                     focus here is on the informational value of morpho-syntactic variables in various
+                     languages and not on any particular kind of text, and in this case the reasons for
+                     choosing novels are fairly compelling. As noted, the literature suggests that
+                     classification of more than a few texts becomes ineffective when the targets are
+                     shorter than a few thousand words. Thus, our investigation starts with texts c.
+                     2000 words. Since data are traditionally split into a training set comprising
+                     approximately 90% of the material, with the remainder in the test set, texts of
+                     20,000 words are in order. While it might be possible to manufacture texts of this
+                     length by concatenating tweets or the like, it would not be easy to find, for a
+                     range of languages, large sets of short texts that meet a second requirement: that
+                     single authorship of each 20,000-word text group can be assumed. Third, the use of
+                     novels minimizes, at least as compared to concatenated collections, possible
+                     confounding effects of genre and topic. </div>
+                  
+                  <div class="counter"><a href="#p8">8</a></div>
+                  <div class="ptext" id="p8">The core of this investigation is variable extraction and preparation. The first
+                     step is to generate morpho-syntactic annotations for each text. The processing is
+                     done with the “udpipe” package for the R Software Environment [<a class="ref" href="#wijffels2019">Wijffels 2019</a>]. The
+                     package includes functions to produce a universal dependency grammar analysis for
+                     texts in a wide variety of languages. Dependency grammar is an increasingly widely
+                     accepted approach to describing the structure of sentences. It offers an advantage
+                     to the present study in that, unlike phrase structure grammars, it deals well with
+                     non-projective grammatical sentence components — essentially, words closely
+                     related grammatically that are separated from each other by less closely related
+                     words. Non-projectivity occurs frequently in many languages, especially those
+                     which, unlike English, have a relatively complex system of morphology. The
+                     <a href="https://universaldependencies.org/" onclick="window.open('https://universaldependencies.org/'); return false" class="ref">Universal Dependencies</a> framework [<a class="ref" href="#nivre2015">Nivre 2015</a>] has been developed by an
+                     international cooperative of scholars to further cross-linguistic language 
+                     study. One of its most
+                     important contributions is to establish a common set of tags for morphological
+                     features and syntactic relationships. This standard is a great step forward in
+                     natural language processing across languages, since, <em class="term">inter alia,
+                        </em>the parsers (i.e., programs to analyze syntax) sponsored by the Universal
+                     Dependencies (UD) project produce mutually compatible output: a single algorithm
+                     can pre-process texts from a range of languages.</div>
+                  
+                  <div class="counter"><a href="#p9">9</a></div>
+                  <div class="ptext" id="p9">Raw text (.txt files) provided to the udpipe program gives an output in which each
+                     token is lemmatized, tagged for morphology, and parsed for universal dependency
+                     relationship. Formatted as a matrix, its most salient results look like this:</div>
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">token_id</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">token</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">lemma</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">upos</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Er</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">er</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">PRON</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">2</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">lachte</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">lachen</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">VERB</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">3</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">vor</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">vor</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">ADP</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">4</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Vergnügen</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Vergnügen</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">NOUN</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">,</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">,</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">PUNCT</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">6</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">sich</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">er|es|sie</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">PRON</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">7</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">über</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">über</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">ADP</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">8</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">den</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">der</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">DET</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">9</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Katechismus</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Katechismus</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">NOUN</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">10</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">mokieren</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">mokieren</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">VERB</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">11</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">zu</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">zu</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">PART</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">12</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">können</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">können</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">AUX</td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 1. </div>udpipe Annotation.</div>
+                  </div>
+                  
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">token_id</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">feats</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">head_token_id</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">dep_rel</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">2</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">nsubj</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">2</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">0</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">root</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">3</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Case=Nom|Gender=Neut|Number=Plur</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">4</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">case</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">4</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Case=Nom|Gender=Neut|Number=Sing</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">2</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">obl</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">NA</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">10</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">punct</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">6</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">10</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">obj</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">7</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Foreign=Yes</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">9</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">case</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">8</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">9</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">det</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">9</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Case=Acc|Gender=Masc|Number=Sing</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">10</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">obl</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">10</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">VerbForm=Inf</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">4</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">xcomp</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">11</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Case=Nom|Definite=Ind|Gender=Neut|Number=Sing|PronType=Ind</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">10</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">mark</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">12</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">VerbForm=Inf</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">10</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">aux</td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 2. </div>udpipe Annotation (continued)</div>
+                  </div> 
+                  
+                  
+                  <div class="counter"><a href="#p10">10</a></div>
+                  <div class="ptext" id="p10">The text is part of a sentence from <cite class="title italic">Buddenbrooks</cite> by Thomas
+                     Mann: “<span class="foreign i">Er lachte vor Vergnügen, sich über den Katechismus mokieren zu können …</span>”
+                     (“He laughed with pleasure at being able to make fun of the catechism”). </div>
+                  
+                  <div class="counter"><a href="#p11">11</a></div>
+                  <div class="ptext" id="p11">For each token the analysis gives the form as it appears in the text and its
+                     lemma. This information is not used in our approach to classification and will be
+                     ignored here. The remaining columns shown, however, are integral. The “upos”
+                     column contains the UD part-of-speech tags for each word. The “feats” column gives
+                     the morphological analysis. Morphology information has the form “TYPE=VALUE,” with
+                     multiple features separated by a bar symbol (TYPE1=VALUE1|TYPE2=VALUE2). For
+                     example, token #2, <em class="emph">lachte</em> (“laughed”), is identified as
+                     Indicative in the category Mood (Mood=Ind), Singular in the category Number
+                     (Number=Sing), etc. There is no limit to the number of features that may be
+                     assigned to a single token.</div>
+                  
+                  <div class="counter"><a href="#p12">12</a></div>
+                  <div class="ptext" id="p12">Part of speech and morphology constitute what we may call “shallow” syntactic
+                     features. Information of this type may allow us to infer some syntactical
+                     structures, but they do not represent them directly. In contrast, the
+                     “head_token_id” and “dep_rel” columns do constitute such a direct representation.
+                     The head token is the item that is the immediate syntactic “parent” of a given
+                     token. The dependency relation specifies the type of grammatical structure
+                     obtaining between parent and target. From these columns we may generate a
+                     description of the syntactic structure of the entire sentence in a representation
+                     of its “deep” syntax. The structure revealed by these data points is perhaps most
+                     clearly illustrated with the corresponding dependency tree:</div>   
+                  
+                  
+                  <div class="figure">
+                     
+                     
+                     <div class="ptext"><a href="resources/images/image1.tmp" rel="external"><img src="resources/images/image1.tmp" style="" alt="" /></a></div>
+                     
+                     <div class="caption">
+                        <div class="label">Figure 1. </div>Dependency Tree of Example Sentence</div>
+                  </div>
+                  
+                  
+                  <div class="counter"><a href="#p13">13</a></div>
+                  <div class="ptext" id="p13">As is apparent, the syntactic “path” from the sentence root to the each “leaf”
+                     token is given by the combination of head id and dependency relationship.</div>
+                  
+                  <div class="counter"><a href="#p14">14</a></div>
+                  <div class="ptext" id="p14">Both shallow and deep syntactic information are used to create the input variables
+                     for this investigation. Before looking at those variables in detail, it is worth
+                     noticing that pre-processing with the udpipe program introduces a certain amount
+                     of noise through mistaken analyses. To focus on the “feats” output, token 4, the
+                     noun <em class="emph"><span class="foreign i">Vergnügen</span></em>, is incorrectly assigned NOMINATIVE case
+                     (should be DATIVE). In addition, the three indeclinable tokens in this text —
+                     i.e., words with a fixed and static form whose morphology is usually not further
+                     analyzed — are treated very strangely indeed: the preposition <em class="emph"><span class="foreign i">vor</span></em> and the particle <em class="emph"><span class="foreign i">zu</span></em> are assigned gender,
+                     number, and case (<em class="emph"><span class="foreign i">zu</span></em> also gets classified for definiteness
+                     and pronoun type). The frequent preposition <em class="emph"><span class="foreign i">über</span></em> is treated
+                     as a foreign word, perhaps as a dependent of the ecclesiastical (and ultimately
+                     ancient Greek) word <em class="emph"><span class="foreign i">Katechismus</span></em>. Whatever the reason, the
+                     parser has introduced 4 errors in 12 tokens. Of course, the example text was
+                     chosen because it is short yet relatively complex; it may not be at all
+                     representative of the general error rate of the udpipe program. Nonetheless, it
+                     would be reasonable to worry that the noise introduced by erroneous
+                     morpho-syntactic annotations would undercut their value for classification input
+                     variables. However, as we will see below, bad tagging and parsing seems to make
+                     little or no practical difference in the classification results. We may evidently
+                     assume that these input errors are distributed randomly across the classified
+                     texts and that they have little effect as compared to the information carried by
+                     the input variables.</div>
+                  
+                  <div class="counter"><a href="#p15">15</a></div>
+                  <div class="ptext" id="p15">To turn now to the details of the features (i.e., input variables) themselves,
+                     there are two main principles guiding their creation: first, the set should
+                     include both shallow and deep syntactic information; second, the “degrees of
+                     freedom” present in the morpho-syntactic “system” of the target language should
+                     be, to the greatest extent possible, preserved and represented in the
+                     features.<a class="noteRef" href="#d4e733">[2]</a>
+                     </div>
+                  
+                  <div class="counter"><a href="#p16">16</a></div>
+                  <div class="ptext" id="p16">The first criterion is met by including, alongside the morphological information
+                     for each word, its dependency relation and, for each word that is not a sentence
+                     root, the morphology and dependency relation for the parent word of the target
+                     word. To illustrate from the German sentence given above, the variables for the
+                     word <em class="emph"><span class="foreign i">Katechismus</span></em> would include the following:</div>
+                  
+                  <div class="ptext">
+                     <ul class="list">
+                        <li class="item">Self: POS = noun, case = accusative, gender = masculine, number = singular,
+                           dependency = oblique</li>
+                        <li class="item">Parent: POS = verb, verb form = infinitive, dependency = open clausal
+                           complement</li>
+                        <li class="item">Including values for parent as well as target word creates a representation of the
+                           hierarchical structure that most linguistic theories assume for syntax. Of course,
+                           the dimensions of morpho-syntactic information produced by the udpipe
+                           tagger-parser vary sharply by language. The following table (Table 2) indicates
+                           the number of “basic” elements for each language. </li>
+                     </ul>
+                  </div>
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">target token</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">target + parent</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">English</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">16</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">32</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Finnish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">23</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">46</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">German</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">15</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">30</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Polish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">33</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">66</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Spanish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">18</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">36</td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 3. </div>Number of “Simplex” Variables</div>
+                  </div>
+                  
+                  
+                  <div class="counter"><a href="#p17">17</a></div>
+                  <div class="ptext" id="p17">The second requirement mentioned above is meant to preserve the complexity of the
+                     morpho-syntax of the input texts. As we have noted, it is rare for an attribution
+                     attempt to take any morphological feature into account with the common exception
+                     of part of speech. In those studies that do include morphological details, the
+                     various values that make up the relevant information about a word seem to be coded
+                     in a single block. For example, Paulo Varela (2018, 2016) incorporate in their
+                     variables a vector for “flexion” (number, gender, tense, etc.), but apparently
+                     combine the features of a word into a single value: thus the entry for <span class="hi italic">é </span>(Portuguese “is”) is reported as “PR 3S IND VFIN,” i.e,
+                     present indicative 3rd-person singular verb.<a class="noteRef" href="#d4e850">[3]</a>
+                     </div>
+                  
+                  <div class="counter"><a href="#p18">18</a></div>
+                  <div class="ptext" id="p18">Combining the morphological categories of a word into a single value obscures some
+                     of the stylistic information that the word may contain. For example, if we
+                     categorize a German noun into a consolidated unit of gender, number, and case
+                     (e.g., Masc Sing Nom), the computer can assign each noun in the corpus to one of
+                     the 24 resulting categories (3 genders x 2 numbers x 4 cases) and calculate a
+                     frequency distribution over them, but it cannot access the frequencies of, say,
+                     masculine nouns or of combinations of two categories such as feminine dative,
+                     etc.<a class="noteRef" href="#d4e860">[4]</a> There is
+                     no strong reason to presume that any frequency ratio among the ternary variables
+                     is more discriminative for the texts in a corpus than, e.g., the ratio between
+                     Masc Nom and Fem Nom. We may usefully think of the morpho-syntactic elements that
+                     make up combinations as “characters” in “syntactic n-grams.”<a class="noteRef" href="#d4e865">[5]</a> Just as the addition to word-based inputs of character
+                     n-grams with different values of <em class="emph">n</em> may improve
+                     classification, in the same way using a range of combination lengths for
+                     morpho-syntactic elements may be valuable. Thus, it is best <em class="emph">in
+                        principle, </em>to include variables made of all “arities” of morpho-syntactic
+                     categories, from one to the total number of such categories (i.e., <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:mfenced separators="|">
+                           <m:mrow>
+                              <m:mfrac linethickness="0pt">
+                                 <m:mrow>
+                                    <m:mi>n</m:mi>
+                                 </m:mrow>
+                                 <m:mrow>
+                                    <m:mn>1</m:mn>
+                                 </m:mrow>
+                              </m:mfrac>
+                           </m:mrow>
+                        </m:mfenced></m:math>…<m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:mfenced separators="|">
+                           <m:mrow>
+                              <m:mfrac linethickness="0pt">
+                                 <m:mrow>
+                                    <m:mi>n</m:mi>
+                                 </m:mrow>
+                                 <m:mrow>
+                                    <m:mi>n</m:mi>
+                                 </m:mrow>
+                              </m:mfrac>
+                           </m:mrow>
+                        </m:mfenced></m:math>).<a class="noteRef" href="#d4e898">[6]</a>
+                     </div>
+                  
+                  <div class="counter"><a href="#p19">19</a></div>
+                  <div class="ptext" id="p19">Of course, such an extensive variable set is not feasible <em class="emph">in
+                        practice.</em> For example, the udpipe program for German returns 13 categories
+                     of morphological features. To these 13 must be added the part of speech and the
+                     dependency relationship, and since the characteristics of the parent word are to
+                     be combined with those of each target word, variable types will be combinations
+                     constructed from 30 categories. If all sizes of combination were included (i.e., <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:mfenced separators="|">
+                           <m:mrow>
+                              <m:mfrac linethickness="0pt">
+                                 <m:mrow>
+                                    <m:mn>30</m:mn>
+                                 </m:mrow>
+                                 <m:mrow>
+                                    <m:mn>1</m:mn>
+                                 </m:mrow>
+                              </m:mfrac>
+                           </m:mrow>
+                        </m:mfenced></m:math>…<m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:mfenced separators="|">
+                           <m:mrow>
+                              <m:mfrac linethickness="0pt">
+                                 <m:mrow>
+                                    <m:mn>30</m:mn>
+                                 </m:mrow>
+                                 <m:mrow>
+                                    <m:mn>30</m:mn>
+                                 </m:mrow>
+                              </m:mfrac>
+                           </m:mrow>
+                        </m:mfenced></m:math>), the number of types would be essentially <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:msup>
+                           <m:mrow>
+                              <m:mn>2</m:mn>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mn>30</m:mn>
+                           </m:mrow>
+                        </m:msup></m:math>—over a billion separate combinations! Nor is the combinatorial
+                     explosion the only problem. Each of the <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:msup>
+                           <m:mrow>
+                              <m:mn>2</m:mn>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mn>30</m:mn>
+                           </m:mrow>
+                        </m:msup>
+                        <m:mi></m:mi></m:math>combinations is a type, not a variable. We have seen that the ternary
+                     combination Gender-Number-Case may take one of 24 different values in German: MASC
+                     SING NOM, etc. Thus, the number of type-value pairs reaches truly astronomical
+                     values. Clearly, we must combine the generation of input features with a rigorous
+                     culling and reduction process.</div>
+                  
+                  <div class="counter"><a href="#p20">20</a></div>
+                  <div class="ptext" id="p20">The first step deals with the combinatorial dimension. Selecting grammatically
+                     sensible combinations such as Gender-Number-Case (and its unigram and bigram
+                     components) would be laborious and would require knowledge of the various
+                     languages to be classified. Thus, a naïve approach was preferred: an arbitrary
+                     maximum length was chosen. Given a set of 30 elements for combination, the length
+                     must necessarily be short. <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:munderover>
+                           <m:mo>∑</m:mo>
+                           <m:mrow>
+                              <m:mi>k</m:mi>
+                              <m:mo>=</m:mo>
+                              <m:mn>1</m:mn>
+                              <m:mi></m:mi>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mn>4</m:mn>
+                           </m:mrow>
+                        </m:munderover>
+                        <m:mrow>
+                           <m:mfenced separators="|">
+                              <m:mrow>
+                                 <m:mfrac linethickness="0pt">
+                                    <m:mrow>
+                                       <m:mn>30</m:mn>
+                                    </m:mrow>
+                                    <m:mrow>
+                                       <m:mi>k</m:mi>
+                                    </m:mrow>
+                                 </m:mfrac>
+                              </m:mrow>
+                           </m:mfenced>
+                        </m:mrow></m:math> already gives 31,930 unique combinations. When we take into account
+                     that each combination will have multiple values, trouble with data sparsity and
+                     computational limitations can be expected. Therefore, the maximum was set at three
+                     elements per combination. This limit results in 4,525 combinations. </div>
+                  
+                  <div class="counter"><a href="#p21">21</a></div>
+                  <div class="ptext" id="p21">The next step populates each combination (or variable type) with its various
+                     values, as drawn from the basic morpho-syntactic elements produced by udpipe. This
+                     process is computationally slow for combinations of more than two elements, so we
+                     have used a smaller sample corpus for each language; it is composed of 500 tokens
+                     (punctuation excluded) from each text. When populated, the various combinations of
+                     types exhibit a large number of unique values. To take German as illustrative: the
+                     30 unary types produce 161 values, the 435 binary types produce 5,579 values, and
+                     the 4,060 ternary combinations yield 56,349 values. As one would expect with
+                     linguistic data, the frequency distributions of these values are quite skewed. For
+                     example, 53,209 of the ternary values occur in 1% or fewer words and 19,116 occur
+                     only once in the sample corpus of 10,000 tokens. To avoid severe sparsity, another
+                     culling of variables is clearly in order.</div>
+                  
+                  <div class="counter"><a href="#p22">22</a></div>
+                  <div class="ptext" id="p22">Once again, since we do not know without prior investigation which combinations
+                     may be most distinctive for authors and texts, we have had recourse to a naïve
+                     approach. For each combination length, only those type-value pairs that occur in
+                     5% of the tokens in the sample corpus have been included as input variables for
+                     classification. A separate set of variables has been identified in this way for
+                     each language. The size of each sub-set of variables is given in the following
+                     table (Table 3).</div>
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">unary</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">binary</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">ternary</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">total</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">English</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">45</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">61</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">85</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">191</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Finnish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">48</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">226</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">467</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">932</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">German</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">58</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">216</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">318</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">592</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Polish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">63</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">331</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">726</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1,120</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Spanish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">46</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">150</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">189</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">385</td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 4. </div>Number of Variable Subsets with at Least 5% Frequency</div>
+                  </div>
+                  
+                  
+                  <div class="counter"><a href="#p23">23</a></div>
+                  <div class="ptext" id="p23">Because the variables may be difficult to conceptualize, the following tables give
+                     an illustration, including, for selected languages, the most frequent type-value
+                     pair as well as the least frequent pair to make the 5% minimum. Examples will be
+                     given in each category for target word characteristics (marked “t:”), parent word
+                     characteristics (marked “p:”), and combinations of target and parent (Tables 4, 5,
+                     and 6).</div>
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">type</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">value</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">frequency</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">English</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Num</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Sing</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">29.80%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: POS</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">VERB</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">44.90%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Rel</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">root</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.15%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: Rel</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">ccomp</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.56%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Polish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Num</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Sing</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">48.20%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: Num</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Sing</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">65.20%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Rel</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">cc </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.20%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: Case</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Loc</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.40%</td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 5. </div>Examples of Simplex Variables</div>
+                  </div>
+                  
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">type</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">value</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">frequency</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">English</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: POS &amp; t: Num</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">NOUN/Sing</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">13.80%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: POS &amp; p: Num</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">NOUN/Sing</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">28%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: POS &amp; t: VerbForm</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">AUX/Fin</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.50%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: Num &amp; p: Rel</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Sing/nmod</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.20%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Num &amp; p: POS</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Sing/VERB</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">16.30%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: POS &amp; p: Rel</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">VERB/root</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Polish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Num &amp; t: Gender</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Masc/Sing</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">21.20%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: POS &amp; p: Voice</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">VERB/Act</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">46.70%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: POS &amp; t: Animacy</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Verb/Hum</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: Gender &amp; p: Aspect</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Fem/Perf</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.20%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Num &amp; p: Num</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Sing/Sing</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">33.70%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Case &amp; p: VerbForm</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Acc/Fin</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5%</td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 6. </div>Examples of Binary Variables</div>
+                  </div>
+                  
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">type</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">value</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">frequency</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">English</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: POS &amp; t: Num &amp; t: PronType</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">PRON/Sing/Prs</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">8.90%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: POS &amp; p: VerbForm &amp; p: Mood</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">VERB/Fin/Ind</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">19.90%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Rel &amp; t: Definite &amp; t: PronType</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">det/Def/Art</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.50%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: Rel &amp; p: VerbForm &amp; p: Tense</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">root/Fin/Past</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">7.70%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Num &amp; p: POS &amp; p: Tense</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Sing/Verb/Past</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">9.10%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Rel &amp; p: POS &amp; p: Mood</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">nsubj/Verb/Ind</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.10%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Polish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Mood &amp; t: VerbForm &amp; t: Voice</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Ind/Fin/Act</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">14%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: POS &amp; p: VerbForm &amp; p: Mood</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">VERB/Fin/Ind</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">41.30%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: POS &amp; t: Animacy &amp; t: Voice</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">VERB/Hum/Act</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">p: Rel &amp; p: Num &amp; p: Aspect</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">conj/Sing/Perf</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Num &amp; p: POS &amp; p: VerbForm</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Sing/VERB/Fin</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">20.60%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">t: Num &amp; p: POS &amp; p: Rel</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Sing/VERB/conj</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5%</td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 7. </div>Examples of Ternary Variables</div>
+                  </div>
+                  
+                  
+                  <div class="counter"><a href="#p24">24</a></div>
+                  <div class="ptext" id="p24">It is important to emphasize that it is the <em class="emph">pairing</em> of the
+                     (possibly compound) types <em class="emph">and </em>their (possibly compound)
+                     values which constitute the input variables for this investigation. In Polish, for
+                     example, a type combining the Number of the target word, with the part of speech
+                     and dependency relation of the target word’s parent can have many possible values.
+                     But only those combinations of values that occur no less often than the 5%
+                     frequency of Singular-Verb-conjunct have been taken into account. All less
+                     frequent values for this type have been excluded from the variables and
+                     ignored.<a class="noteRef" href="#d4e1613">[7]</a>
+                     </div>
+                  
+                  <div class="counter"><a href="#p25">25</a></div>
+                  <div class="ptext" id="p25">This generation and selection of variables produce, for each text in a language
+                     corpus, a matrix in which each row represents a token of the text and each column
+                     represents a type-value pair as described above. The total number of variable
+                     columns differs for each language (see Table 2). For each row, each cell is
+                     assigned a value of one if the token has the morpho-syntactic characteristic for
+                     that column; otherwise, zero is assigned. The design of the variables means any
+                     given token can have positive values in numerous columns. The German corpus, for
+                     example, has a mean of 48.8 positive columns per token (of a total 592 variables).
+                     </div>
+                  </div>
+               
+               <div class="div div0">
+                  
+                  <h1 class="head">3. Classification</h1>
+                  
+                  <div class="counter"><a href="#p26">26</a></div>
+                  <div class="ptext" id="p26">The purpose of this study is to test whether automated Universal Dependency
+                     annotation, as supplied by the udpipe program, can be useful for authorship
+                     attribution and related problems. It seeks to understand whether such an input
+                     contains enough information to overcome the noise introduced by a level of
+                     mistakes, which can be relatively high as compared to the results of expert “hand
+                     annotation.” Since it is known that the information/noise ratio worsens for
+                     shorter input texts [<a class="ref" href="#eder2017">Eder 2017</a>], this investigation focuses on the degree to which
+                     classification performance degrades as the size of the input decreases. This
+                     process requires texts of various lengths, with all other factors held constant,
+                     insofar as this may be possible. This requirement is met by creating a series of
+                     smaller “texts” for each author by sampling the full text.</div>
+                  
+                  <div class="counter"><a href="#p27">27</a></div>
+                  <div class="ptext" id="p27">At each stage of classification, each text in each language corpus was divided
+                     into smaller texts, and these smaller units were classified according to author.
+                     [<a class="ref" href="#gorman2020">Gorman 2020</a>] has shown that — at least for expert-annotated ancient Greek prose —
+                     classification on the basis of combinations of morpho-syntactic characteristics is
+                     practically error-free for input texts larger than 500 tokens (&gt; 99%).
+                     Exploratory tests for our study confirm this high level of accuracy for text sizes
+                     of between 2000 and 600 tokens. Thus, this paper will present only the data for
+                     the smallest texts in the investigation; it begins with texts of 500 tokens, and
+                     then decreases to 400, 300, 200, 100, and finally 50 tokens.</div>
+                  
+                  <div class="counter"><a href="#p28">28</a></div>
+                  <div class="ptext" id="p28">As is traditional in textual attribution studies, each text was treated as a “bag
+                     of words” for the purpose of division into samples. Each token was — naively —
+                     treated as independent of all others; no further account was taken of the context
+                     of an individual token in sentence, paragraph, or any other unit of composition.
+                     Thus, segments may contain tokens from many parts of the original text without
+                     regard for their original order.<a class="noteRef" href="#d4e1646">[8]</a>
+                     </div>
+                  
+                  <div class="counter"><a href="#p29">29</a></div>
+                  <div class="ptext" id="p29">Once segments of the appropriate length have been generated, the next step is to
+                     aggregate the values for all variables in each segment. For example, a matrix with
+                     20,000 rows representing as many separate tokens, each with a 1 or a 0 in its
+                     variable columns, is replaced by a new matrix with 40 rows, each representing 500
+                     tokens. Each variable column now contains the sum of the relevant column for the
+                     underlying tokens. Columns values are then normalized so that sums are replaced by
+                     relative frequencies. These “segment matrices” become the input for the
+                     classifying algorithm. </div>
+                  
+                  <div class="counter"><a href="#p30">30</a></div>
+                  <div class="ptext" id="p30">To present a difficult classification problem [<a class="ref" href="#luyckx2008">Luyckx and Daelemans 2008</a>] [<a class="ref" href="#luyckx2011">Luyckx and Daelemans 2011</a>],
+                     each language corpus contains one work apiece by 20 different authors. Given the
+                     number of suitable texts available in the public domain, this number represent an
+                     attempt to balance between including more languages with fewer authors for each
+                     and including fewer languages with more authors in each.</div>
+                  
+                  <div class="counter"><a href="#p31">31</a></div>
+                  <div class="ptext" id="p31">For the classification algorithm itself, logistic regression was chosen. This
+                     method has an ability to handle a large number of observations and variables. It
+                     is also able to function well in the presence of many co-linear variables.
+                     Specifically, the <cite class="title italic">LiblineaR</cite> package for the <cite class="title italic">R Project for Statistical Computing </cite>was chosen [<a class="ref" href="#fan2008">Fan 2008</a>] [<a class="ref" href="#helleputte2017">Helleputte 2017</a>]. This package offers a range of linear methods; we selected the
+                     L-2 regularization option for logistic regression.<a class="noteRef" href="#d4e1677">[9]</a>
+                     </div>
+                  
+                  <div class="counter"><a href="#p32">32</a></div>
+                  <div class="ptext" id="p32">For each input text size in each language, 90% of the data was used for training
+                     the classifier and the remaining 10% set aside for testing. Inclusion of a segment
+                     in the training or testing set was random. However, the amount of text by
+                     individual authors in some language corpora varies a great deal, and this
+                     situation may affect results, with the classifier, for example, strongly
+                     preferring the most frequent author in the training set. Thus, the random
+                     assignment into training and test sets was guided by associating a selection
+                     probability with each segment so that each of the <em class="emph">n</em> authors
+                     in a corpus was represented by approximately <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:mfrac bevelled="true">
+                           <m:mrow>
+                              <m:mn>1</m:mn>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mi>n</m:mi>
+                           </m:mrow>
+                        </m:mfrac></m:math> of the segments in the test set. This balance prevents undue bias in
+                     the classifier. To validate the results of the classification testing, we used
+                     Monte Carlo subsampling [<a class="ref" href="#simon2007">Simon 2007</a>] applied at two levels. As a rule, the
+                     populating of the segments with randomly selected tokens was carried out ten
+                     times.<a class="noteRef" href="#d4e1698">[10]</a> For each of these
+                     partitionings to create text segments, 100 additional random divisions into a
+                     training set and a test set were made. As noted below, because the classification
+                     process becomes much slower as text size falls, fewer iterations of both kinds of
+                     subsampling were used for the smallest segments. The results of the tests at each
+                     text size were averaged. These steps minimize the effects of the internal make-up
+                     of particular segments or of their inclusion or exclusion from the
+                     training/testing groups.</div>
+                  </div>
+               
+               <div class="div div0">
+                  
+                  <h1 class="head">4. Results and Discussion</h1>
+                  
+                  <div class="counter"><a href="#p33">33</a></div>
+                  <div class="ptext" id="p33">For each language corpus, the results of classification according to the size of
+                     the input text segments are given in Table 7. Since the goal of this study is to
+                     evaluate for authorship attribution the sufficiency of machine-generated Universal
+                     Dependency data, no consideration is given to various specialized measurements of
+                     classification success. Instead, the simplest measure of accuracy is used:
+                     percentage of successful attributions. The mean accuracy over all attempts is
+                     given in the top row of each cell; the range is given below the mean. </div>
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">500</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">400</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">300</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">200</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">100</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">50</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Polish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.35<br />
+                              (95.8-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.05<br />
+                              (95.3-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              98.18<br />
+                              (94.5-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              96.28<br />
+                              (92.7-99.3)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              88.32<br />
+                              (84.3-92.0)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              74.19<br />
+                              (71.0-78.5) <br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Finnish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.52<br />
+                              (99.3-99.7)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.03<br />
+                              (98.7-99.3)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              98.15<br />
+                              (97.8-98.4)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              95.56<br />
+                              (95.1-96.0)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              86.44<br />
+                              (85.8-86.9)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              70.61<br />
+                              (70.2-71.1)<br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Spanish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              98.87<br />
+                              (98.7-99.0)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              98.25<br />
+                              (98.0-98.4)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              96.75<br />
+                              (96.4-97.0)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              93.18<br />
+                              (92.8-93.5)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              81.2<br />
+                              (80.6-81.6)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              61.7<br />
+                              (61.6-62.0)<br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">German</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              96.7<br />
+                              (93.2-99.2)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              95.4<br />
+                              (91.6-98.4)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              92.85<br />
+                              (87.9-95.5)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              87.99<br />
+                              (84.8-91.1)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              76.95<br />
+                              (71.7-83.0)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              56.07<br />
+                              (54.5-58.2)<br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">English</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              98.26<br />
+                              (96.4-99.8)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              97.25<br />
+                              (94.0-99.4)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              94.75<br />
+                              (92.5-97.5)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              89.7<br />
+                              (87.3-92.6)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              74.45<br />
+                              (71.6-77.4)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              53.8<br />
+                              (51.6-55.9)<br />
+                              </td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 8. </div>Classification Accuracy</div>
+                  </div>
+                  
+                  
+                  <div class="counter"><a href="#p34">34</a></div>
+                  <div class="ptext" id="p34">These data make clear that morpho-syntactic variables derived from UD automated
+                     parsing suffice to identify author/work in a closed set of authors with a single
+                     work for each. For all tested languages, accuracy is greater than 90% with text
+                     segments larger than 300 tokens. Each language corpus contains 20 classes for
+                     attribution; 90% accuracy is roughly 18 times random chance since the
+                     “no-information rate” for each iteration varies slightly from 5%.<a class="noteRef" href="#d4e1988">[11]</a>
+                     Such success offers promise for the feasibility of classification when vocabulary-
+                     and/or character-based variables are not appropriate. </div>
+                  
+                  <div class="counter"><a href="#p35">35</a></div>
+                  <div class="ptext" id="p35">A few more specific observations about these results are in order. In general,
+                     accuracy tracks well with the size of the variable set for each language (see
+                     Table 2). Languages with larger sets tend to have better accuracy. We may
+                     reasonably presume that this tendency is due in part to the correlation between
+                     the number of variables and the sparsity of the input matrices. Ordinarily, we
+                     expect sparsity — the number of cells of a matrix containing zeros — to increase
+                     as the number of variables becomes greater. And more sparsity in data for natural
+                     language processing usually means less accuracy. However, recall that in this
+                     study a single token may have positive values for many variables and that any
+                     variable which has positive values for fewer than 5% of tokens has been excluded.
+                     The combination of these two factors means that as the number of total variables
+                     increases, so too does the number of variables per token (Table 4). When the token
+                     matrices are aggregated to form representations of “texts” of various lengths, the
+                     variable columns are summed. The presence of positive values in a good number of
+                     columns in the original matrix makes it unsurprising when relatively few columns
+                     in the aggregated matrix sum to 0. We may illustrate this with the example of
+                     Spanish. The average token in the Spanish matrix has 34.7 columns with a positive
+                     value. Forming, e.g., a 50-token segment by the aggregation of the matrix rows
+                     means that, on average, 1,735 (34.7 × 50) positive values will be distributed
+                     among the 385 variable columns in the resulting matrix. It stands to reason that,
+                     all else being equal, we may expect relatively few aggregated columns containing
+                     zeros. In fact, with the variables used in this study, sparsity is almost
+                     non-existent for texts larger than 100 tokens; the sparsity rates for 50-token
+                     texts are themselves unexpectedly small given the number of variables (Table 8).
+                     This low sparsity may go far to explaining the good accuracy of the classification
+                     experiment.</div>
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              Variable types<br />
+                              total<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              Mean Variables<br />
+                              Per token<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              Sparsity<br />
+                              @50 tks.<br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Polish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1,120</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">102.9</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.8%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Finnish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">932</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">69.7</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">3.8%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Spanish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">385</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">34.7</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">3.4%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">German</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">592</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">48.0</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.5%</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">English</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">191</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">16.7</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">5.0%</td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 9. </div>Sparsity</div>
+                  </div>
+                  
+                  
+                  <div class="counter"><a href="#p36">36</a></div>
+                  <div class="ptext" id="p36">A second aspect of the accuracy results reported in Table 3 needs closer
+                     elaboration. As is usual for author attribution studies that take text size into
+                     consideration, results in each language show a monotonic decline in accuracy as
+                     text size decreases. However, when viewed from the perspective of relative error
+                     rates, our morpho-syntactic variables seem quite robust against decreasing text
+                     size.</div>
+                  
+                  <div class="counter"><a href="#p37">37</a></div>
+                  <div class="ptext" id="p37">When considering classification accuracy of a range of text sizes, it is important
+                     to focus on the relationship between the change in accuracy and the change in text
+                     size. A 5% decrease in accuracy when text size drops from 2000 tokens to 1900
+                     tokens is much more worrisome than the same decrease from 2000 to 1000 tokens.
+                     Table 9 gives the relevant information for this experiment. Specifically, it
+                     records the rates at which the error rate (1 – Accuracy) for each language
+                     increases as the text size is repeatedly halved: 400 to 200 tokens, 200 to 100,
+                     and 100 to 50.</div>
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">200/400</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">100/200</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">50/100</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Polish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.0372/.0095<br />
+                              = 3.92 <br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.1168/.0372<br />
+                              = 3.13 <br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.2581/0.1168<br />
+                              = 2.2 <br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Finnish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.044/0.0097<br />
+                              = 4.57 <br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.1356/0.044<br />
+                              = 3.05 <br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.2939/0.1356<br />
+                              = 2.16 <br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Spanish</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.0682/0.0175<br />
+                              = 3.89 <br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.188/0.0682<br />
+                              = 2.75 <br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.383/0.188<br />
+                              = 2.03 <br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">German</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.1201/.046<br />
+                              = 2.61 <br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.2305/0.1201<br />
+                              = 1.91 <br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.4393/0.2305<br />
+                              = 1.90 <br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">English</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.103/0.0275<br />
+                              = 3.74 <br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.2555/0.103<br />
+                              = 2.48 <br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              0.462/0.2555<br />
+                              = 1.81 <br />
+                              </td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 10. </div>Change in Error Rate by Text Size</div>
+                  </div>
+                  
+                  
+                  <div class="counter"><a href="#p38">38</a></div>
+                  <div class="ptext" id="p38">The first row in each cell gives the error rate for a given text size divided by
+                     the error rate for the text that is double the size. For example, the Polish
+                     200-token corpus had an average error rate of 3.72%, which is divided by the
+                     average error rate for the Polish 400-token corpus, 0.95%. The second line of the
+                     cell gives the corresponding result: while the text size decreases by a factor of
+                     2, the error rate increases by a factor of 3.92. An overview of this table shows
+                     that for all languages the increase factor becomes significantly smaller as the
+                     input size itself decreases. While the absolute accuracy (or error) rate is still
+                     quite properly the metric of interest for literary and, most especially, forensic
+                     attribution methods, clearly presenting proportional relationships such as that of
+                     the rate of change in text size viz-à-viz the change in success rate should help
+                     us to better judge the effectiveness of different approaches to classification of
+                     small texts.</div>
+                  
+                  <div class="counter"><a href="#p39">39</a></div>
+                  <div class="ptext" id="p39">There are, of course, anomalies in the patterns observable in Table 3. For
+                     example, since the German matrix has both more total variables and more variables
+                     per token than does the Spanish, we might reasonably expect classification of
+                     German would outperform Spanish. This is not the case. Nor can an explanation be
+                     offered here.<a class="noteRef" href="#d4e2279">[12]</a> We can only note that some of the differences between the success
+                     rates of various languages must be due not to characteristics of the
+                     morpho-syntactic variables, but to particularities of the language corpora.
+                     Although an effort was made, within the limits of the texts available in the
+                     public domain, to assemble corpora that were roughly similar among languages,
+                     important aspects of the corpora must necessarily differ. It is inevitable, for
+                     example, that one corpus contains a higher proportion of texts that are more
+                     difficult to distinguish from each other than does another corpus. It is possible
+                     that this advantage, then, is so great that it may significantly affect the
+                     classification accuracy rates. Another complicating factor is introduced by the
+                     relative effectiveness of the udpipe annotation. Again, we must assume a possibly
+                     wide range between the most and the least accurate of the annotation algorithms.
+                     Accordingly, a relatively large amount of noise in the variables of an individual
+                     language may certainly be expected to suppress classification accuracy.</div>
+                  
+                  <div class="counter"><a href="#p40">40</a></div>
+                  <div class="ptext" id="p40">However, identifying such possible confounding elements and measuring their
+                     effects are not germane to the purpose of this study. Our experiments have been
+                     designed to test the hypothesis that machine-generated morpho-syntactic annotation
+                     can be used for accurate closed-set attribution, even for fairly small texts, in a
+                     range of languages. All comparisons among languages are merely illustrative and
+                     suggestive: greater morpho-syntactic complexity seems to correlate at least
+                     approximately with accuracy. Detailed investigation of this apparent relationship
+                     must be left to experts in the respective languages and literatures.</div>
+                  
+                  <div class="counter"><a href="#p41">41</a></div>
+                  <div class="ptext" id="p41">This investigation has set out to explore the discriminative value of a certain
+                     set of input features. It has advanced the hypothesis that, absent any vocabulary
+                     data, a mixture of a text’s shallow and deep morpho-syntactic characteristics,
+                     when combined in a way that preserves as many “degrees of freedom” as possible,
+                     can produce strong results in closed-set classification. These results are
+                     significant, insomuch as most text classification methods rely primarily on
+                     vocabulary or character information, with a text’s syntax represented only by
+                     function words and POS tags. However, the quantitative study of language and texts
+                     has recently seen the rise in prominence of approaches such as deep neural
+                     networks. These are often “end to end” learning systems; input consists of “raw”
+                     text with little pre-processing and no feature extraction. Results can be
+                     amazingly accurate. In the presence of such effective alternatives, the reader of
+                     this study may reasonably feel doubts about a method which requires syntactic
+                     parsing as well as significant effort given to feature engineering. </div>
+                  
+                  <div class="counter"><a href="#p42">42</a></div>
+                  <div class="ptext" id="p42">Yet, user-specified input features have their own advantages. The continuing
+                     efforts to find better methods of text classification is primarily driven, at
+                     least in the various disciplines of the humanities, by the desire to identify and
+                     describe the essential features of individual style. Investigations seek to
+                     confirm (or refute) the hypothesis that every user of language has a stylistic
+                     “fingerprint” or “signature” that allows written or spoken “texts” from that
+                     source to be distinguished from all others. In order for studies of this sort to
+                     be plausible, however accurate the results may be, we must be able to give a clear
+                     interpretation for the variables on which the classification depends.<a class="noteRef" href="#d4e2308">[13]</a> Optimally, we must give this
+                     interpretation in terms of commonly accepted phenomena of language and
+                     communication. Generally speaking, hand-crafted input features meet this
+                     criterion. In contrast, end-to-end deep learning algorithms typically abstract
+                     their own features, and often it takes a great deal of effort to establish what
+                     phenomena the model is taking into account.<a class="noteRef" href="#d4e2313">[14]</a>
+                     </div>
+                  
+                  <div class="counter"><a href="#p43">43</a></div>
+                  <div class="ptext" id="p43">The input features examined in this study are familiar in their basic elements and
+                     transparently interpretable. Anyone interested in the dimensions of authorial
+                     style presented here can quickly learn the outline of a language’s morphology and
+                     the elementary structures of Universal Dependency grammar. As a result,
+                     classification based on UD parsing and morphology tagging puts even beginning
+                     students of style in a position to explore clear distinctions between texts and
+                     authors.</div>
+                  
+                  <div class="counter"><a href="#p44">44</a></div>
+                  <div class="ptext" id="p44">Since even a classification technique as fundamental as logistic regression
+                     complicates the matter by adding a layer of learned weights to the input features,
+                     the interpretability of these morpho-syntactic variables is well illustrated if
+                     looked at through the lens of a simple distance measure. Since its publication,
+                     Burrows’s Delta has become one of the most widely used metrics for comparing text
+                     styles. In essence, Delta measures, for each feature of interest, how far the
+                     target text differs from the mean of the corpus, normalized by the standard
+                     deviation of each variable.<a class="noteRef" href="#d4e2328">[15]</a>
+                     In spite of its simplicity, Delta can produce very good classification results
+                     [<a class="ref" href="#eder2015">Eder 2015</a>]. Conveniently, classification by this method is included in the
+                     “Stylo” package for R [<a class="ref" href="#eder2016">Eder 2016</a>]. Table 10 demonstrates the effectiveness of our
+                     morpho-syntactic variables by showing the results for the classification of 33
+                     Polish novels using “Stylo.”<a class="noteRef" href="#d4e2420">[16]</a>
+                     </div>
+                  
+                  <div class="table">
+                     <table class="table">
+                        <tr class="row label">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Text Size</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Accuracy</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Text Size</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Accuracy</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Text Size</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">Accuracy</td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">2000</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.99<br />
+                              (96.8-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1500</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.98<br />
+                              (97.87-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">900</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.30<br />
+                              (96.0-100)<br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1900</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.98<br />
+                              (97.3-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              1400<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.84<br />
+                              (98.0-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">800</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              98.82<br />
+                              (95.2-100)<br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1800</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.93<br />
+                              (97.5-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1300</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.90<br />
+                              98.1-100<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">700</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              98.17<br />
+                              (93.7-100)<br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1700</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.97<br />
+                              (95.0-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1200</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.68<br />
+                              93.0-100<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">600</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              97.1<br />
+                              (90.3-100)<br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1600</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              100<br />
+                              (100-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1100</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.3<br />
+                              (95.2-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">500</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              95.90<br />
+                              (90.1-100)<br />
+                              </td>
+                           </tr>
+                        <tr class="row">
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">1000</td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1">
+                              99.67<br />
+                              (95.4-100)<br />
+                              </td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           
+                           <td valign="top" class="cell" colspan="1" rowspan="1"></td>
+                           </tr>
+                     </table>
+                     <div class="caption">
+                        <div class="label">Table 11. </div>Classification Accuracy (Burrows’s Delta)</div>
+                  </div>
+                  
+                  
+                  <div class="counter"><a href="#p45">45</a></div>
+                  <div class="ptext" id="p45">Clearly, the variables used in this study can accurately distinguish texts without
+                     the addition of weights and calculations that may obscure interpretation. A very
+                     few brief examples should suffice to make this point. </div>
+                  
+                  <div class="counter"><a href="#p46">46</a></div>
+                  <div class="ptext" id="p46">According to the application of Burrows’s Delta to the morpho-syntactic variables
+                     presented here, the two stylistically most distinct works in our corpus of English
+                     fiction are James Fenimore Cooper’s <cite class="title italic">The Last of the Mohicans
+                        </cite>(1826) and Mark Twain’s <cite class="title italic">The Adventures of Huckleberry Finn
+                        </cite>(1885). The most distinctive feature in the set (where the two authors differ
+                     by almost four standard deviations) is Cooper’s fondness for an oblique dependent
+                     of a verb that itself is modified by its own dependent. In UD grammar, the oblique
+                     of a verb is a nominal dependent of a verb that is not an argument of the verb.
+                     Here is an example from Cooper’s first paragraph: “The hardy colonist, and the
+                     trained European who fought at his side ….” Here, <em class="emph">side </em>in
+                     “at his side” is an oblique of <em class="emph">fought </em>and is modified by
+                     its dependent possessive <em class="emph">his. </em>If the annotations created by
+                     “udpipe” are to be trusted, Cooper used such structures to an unusual degree,
+                     while Twain avoided them. Comparing Cooper to the entire English corpus, we find
+                     that the author was also inordinately fond of modifying the object of a verb with
+                     a dependency.<a class="noteRef" href="#d4e2674">[17]</a> The unusually high frequency
+                     of this construction remains even if we control for the number of objects in
+                     general, as well as when we consider the total frequency of all verbs.</div>
+                  
+                  <div class="counter"><a href="#p47">47</a></div>
+                  <div class="ptext" id="p47">To examine a morphologically more complex language, in our German corpus the work
+                     with the greatest mean distance to all the others is Arthur Achleitner’s <cite class="title italic">Im grünen Tann </cite>(1897?). One of the strongest <cite class="title italic">differentiae </cite>is the author’s marked preference for verbs in
+                     the Present Indicative Active 3rd-person Singular. Because the data set contains
+                     values for simple morphological elements as well as combination, we can quickly
+                     see that Achleitner’s verbal tendency can be explained in terms of his very sharp
+                     relative avoidance of past tense verbs, alongside a more moderate relative deficit
+                     of plural verbs; we may assume that mood, voice, and person do not play a
+                     significant role in this stylistic peculiarity. With respect to nominal forms,
+                     Achleitner shows a relatively high number of nouns with a dependent definite
+                     article; this frequency is only partly explained by the relative number of nouns
+                     in general. At the same time, the frequency of pronouns is much lower than
+                     average. Accordingly, we might formulate, perhaps for our students, a “thumbnail”
+                     outline of Achleitner’s stylistic quirks: he loves <span class="foreign i"><em class="emph">liebt</em></span>
+                     and hates <span class="foreign i"><em class="emph">liebte</em></span>; loves <span class="foreign i"><em class="emph">der, die,
+                           das</em></span> and hates <span class="foreign i"><em class="emph">er, sie, es.</em></span> It is a gross
+                     simplification to be sure, but it emphasizes the transparency of stylistic
+                     distinctions drawn on the basis of our feature set.</div>
+                  
+                  <div class="counter"><a href="#p48">48</a></div>
+                  <div class="ptext" id="p48">In conclusion, the evidence presented in this study has shown that
+                     morpho-syntactic features can form a basis for the successful classification of
+                     texts. Results are good across languages ranging from the morphologically complex
+                     (e.g., Polish) to the simple (e.g., English). And, while it is unlikely that the
+                     frequency of morpho-syntactic elements is unaffected by topic, genre, etc., we can
+                     reasonably suppose that it is less affected by such elements external to the
+                     author than are variables based primarily on aspects of vocabulary. Therefore,
+                     morpho-syntactic features seem essential to characterizing an author’s stylistic
+                     signature. </div>
+                  
+                  <div class="counter"><a href="#p49">49</a></div>
+                  <div class="ptext" id="p49">A second goal of the present work has been to demonstrate that we do not need to
+                     rely on expensive expert-annotated data to provide satisfactory syntactic
+                     information. Automated parsers such as udpipe are able to output Universal
+                     Dependency annotation that is sufficient to form the basis of effective variables
+                     representing both the “shallow” and “deep” syntax of a text. Because, with most
+                     variable sets used in the attribution literature, noise tends to overwhelm
+                     information when text size decreases sufficiently, this investigation has focused
+                     on short texts. Even with texts of 50 tokens, accuracy remains many times better
+                     than random chance (74%-53%). These results were achieved with the most naïve
+                     methods of feature selection and without any optimization of the parsing or
+                     classifying algorithms. We may thus suggest that further explorations of the value
+                     of UD parsing for classification promise to be productive. </div>
+                  
+                  <div class="counter"><a href="#p50">50</a></div>
+                  <div class="ptext" id="p50">Finally, we have argued that the morpho-syntactic features discussed here are
+                     advantageous, at least from the point of view of interpretability and pedagogical
+                     usefulness. Unlike n-grams, for example, morpho-syntactic variables represent
+                     traditional grammatical terms and categories. Unlike function words, such
+                     variables — at least when the preservation of “degrees of freedom” is emphasized
+                     in their construction — contain information based on every word in a text. As a
+                     result, stylistic traits formulated in terms of these variables are easily
+                     identified and illustrated in a way relatively more likely to be persuasive in the
+                     classroom or in the pages of a specialized literary journal.</div>
+                  
+                  <div class="counter"><a href="#p51">51</a></div>
+                  <div class="ptext" id="p51">In sum, this investigation of short text classification on the basis of
+                     machine-generated Universal Dependency annotation indicates that, at the very
+                     least, morpho-syntax should occupy a larger role in the future development of text
+                     attribution. Perhaps it should even take a central role.</div>
+                  </div>
+               
+               
+               
+               <div class="div div0">
+                  
+                  
+                  <h1 class="head">Appendix: List of Works in Corpora</h1>
+                  
+                  <div class="counter"><a href="#p52">52</a></div>
+                  <div class="ptext" id="p52">English, Finnish, German, and Spanish texts are taken from Project Gutenberg (<a href="https://www.gutenberg.org/" onclick="window.open('https://www.gutenberg.org/'); return false" class="ref">https://www.gutenberg.org/</a>) and are
+                     listed here by author and title. Polish texts are drawn from the web site of The
+                     Computational Stylistics Group (<a href="https://computationalstylistics.github.io/" onclick="window.open('https://computationalstylistics.github.io/'); return false" class="ref">https://computationalstylistics.github.io/</a>; texts at <a href="https://github.com/computationalstylistics/100_polish_novels" onclick="window.open('https://github.com/computationalstylistics/100_polish_novels'); return false" class="ref">https://github.com/computationalstylistics/100_polish_novels</a>). No
+                     bibliographic data are provided on this site. Thus, Polish texts are listed by the
+                     file name used by the repository.</div>
+                  
+                  <div class="div div1">
+                     
+                     <h2 class="head">English Corpus</h2>
+                     Alcott, <cite class="title italic">Little Women</cite>
+                     <br />
+                     Austen, <cite class="title italic">Pride and Prejudice</cite>
+                     <br />
+                     Barrie, <cite class="title italic">Peter Pan</cite>
+                     <br />
+                     Baum, <cite class="title italic">The Wonderful Wizard of Oz</cite>
+                     <br />
+                     Bronte, <cite class="title italic">Wuthering Heights</cite>
+                     <br />
+                     Cather, <cite class="title italic">My Antonia</cite>
+                     <br />
+                     Christie, <cite class="title italic">The Mysterious Affair at Styles</cite>
+                     <br />
+                     Conan Doyle, <cite class="title italic">The Hound of the Baskervilles</cite>
+                     <br />
+                     Cooper . <cite class="title italic">The Last of the Mohicans</cite>
+                     <br />
+                     Dickens, <cite class="title italic">A Christmas Carol</cite>
+                     <br />
+                     Eliot, <cite class="title italic">Middlemarch</cite>
+                     <br />
+                     Hardy, <cite class="title italic">Tess of the d'Urbervilles</cite>
+                     <br />
+                     Joyce, <cite class="title italic">A Portrait of the Artist as a Young Man</cite>
+                     <br />
+                     London, <cite class="title italic">White Fang</cite>
+                     <br />
+                     Melville, <cite class="title italic">Moby Dick</cite>
+                     <br />
+                     Montgomery, <cite class="title italic">Anne of Green Gables</cite>
+                     <br />
+                     Shelly, <cite class="title italic">Frankenstein</cite>
+                     <br />
+                     Sinclair, <cite class="title italic">The Jungle</cite>
+                     <br />
+                     Twain, <cite class="title italic">Adventures of Huckleberry Finn</cite>
+                     <br />
+                     Wharton, <cite class="title italic">Ethan Frome</cite>
+                     <br />
+                     
+                     <div class="div div2">
+                        
+                        <h3 class="head">Finnish Corpus</h3>
+                        Aho, <cite class="title italic">Hellmannin herra; Esimerkin vuoksi; Maailman
+                           murjoma</cite>
+                        <br />
+                        Airola, <cite class="title italic">Keksijän voitto</cite>
+                        <br />
+                        Alkio, <cite class="title italic">Eeva</cite>
+                        <br />
+                        Anttila, <cite class="title italic">Hallimajan nuoret</cite>
+                        <br />
+                        Canth, <cite class="title italic">Köyhää kansaa; Salakari</cite>
+                        <br />
+                        Elster, <cite class="title italic">Päivän valaisemia pilven hattaroita</cite>
+                        <br />
+                        Ervast, <cite class="title italic">Haaveilija</cite>
+                        <br />
+                        Gummerus, <cite class="title italic">Peritäänkö vihakin? </cite>
+                        <br />
+                        Haahti, <cite class="title italic">Valkeneva tie</cite>
+                        <br />
+                        Hahnsson, <cite class="title italic">Huutolaiset</cite>
+                        <br />
+                        Hannikainen, <cite class="title italic">Erakkojärveläiset</cite>
+                        <br />
+                        Heman, <cite class="title italic">Kysymysmerkkejä</cite>
+                        <br />
+                        Högman, <cite class="title italic">Merimiehen matkamuistelmia 1</cite>
+                        <br />
+                        Ivalo, <cite class="title italic">Aikansa lapsipuoli</cite>
+                        <br />
+                        Jääskeläinen, <cite class="title italic">Iloisia juttuja IV</cite>
+                        <br />
+                        Jahnsson, <cite class="title italic">Hatanpään Heikki ja hänen morsiamensa</cite>
+                        <br />
+                        Järnefelt, <cite class="title italic">Isänmaa</cite>
+                        <br />
+                        Järventaus, <cite class="title italic">Kaukainen onni</cite>
+                        <br />
+                        Järvi, <cite class="title italic">Harry</cite>
+                        <br />
+                        Kataja, <cite class="title italic">Lain varjolla</cite>
+                        <br />
+                        </div>
+                     
+                     <div class="div div2">
+                        
+                        <h3 class="head">German Corpus</h3>
+                        Achleitner, <cite class="title italic">Im grünen Tann</cite>
+                        <br />
+                        Ahlefeld, <cite class="title italic">Die Bekanntschaft auf der Reise</cite>
+                        <br />
+                        Aldersfeld-Ballestrem, <cite class="title italic">Die Falkner vom Falkenhof 1</cite>
+                        <br />
+                        Bechstein, <cite class="title italic">Der Dunkelgraf</cite>
+                        <br />
+                        Bernhard, <cite class="title italic">Die Glücklichen</cite>
+                        <br />
+                        Bonsels, <cite class="title italic">Eros und die Evangelien</cite>
+                        <br />
+                        Feuchtwanger, <cite class="title italic">Die häßliche Herzogin</cite>
+                        <br />
+                        Fontane, <cite class="title italic">Effi Briest</cite>
+                        <br />
+                        Gjellerup, <cite class="title italic">Der Pilger Kamanita</cite>
+                        <br />
+                        Goethe, <cite class="title italic">Wilhelm Meisters Lehrjahre 1</cite>
+                        <br />
+                        Grillparzer, <cite class="title italic">Das Kloster bei Sendomir</cite>
+                        <br />
+                        Hauff, <cite class="title italic">Der Mann im Mond</cite>
+                        <br />
+                        Hesse, <cite class="title italic">Unterm Rad</cite>
+                        <br />
+                        Hoffmann, <cite class="title italic">Klein Zaches, genannt Zinnober</cite>
+                        <br />
+                        Huch, <cite class="title italic">Der Fall Deruga</cite>
+                        <br />
+                        Mann, H., <cite class="title italic">Der Untertan</cite>
+                        <br />
+                        Mann, Th., <cite class="title italic">Buddenbrooks</cite>
+                        <br />
+                        Meyrink, <cite class="title italic">Der Golem</cite>
+                        <br />
+                        Spyri, <cite class="title italic">Heimatlos</cite>
+                        <br />
+                        Zweig, <cite class="title italic">Die Liebe der Erika Ewald</cite>
+                        <br />
+                        </div>
+                     
+                     <div class="div div2">
+                        
+                        <h3 class="head">Spanish Corpus</h3>
+                        Blasco Ibáñez, <cite class="title italic">La Catedral</cite>
+                        <br />
+                        Caro, <cite class="title italic">Amar es vencer</cite>
+                        <br />
+                        Carrere, <cite class="title italic">La copa de Verlaine</cite>
+                        <br />
+                        Conscience, <cite class="title italic">La niña robada</cite>
+                        <br />
+                        Delgado, <cite class="title italic">Angelina</cite>
+                        <br />
+                        Dourliac, <cite class="title italic">Liette</cite>
+                        <br />
+                        Espina, <cite class="title italic">Agua de Nieve</cite>
+                        <br />
+                        Fernández y González, <cite class="title italic">Los hermanos Plantagenet</cite>
+                        <br />
+                        Gil y Carrasco, <cite class="title italic">El señor de Bembibre</cite>
+                        <br />
+                        Halévy, <cite class="title italic">El Abate Constantin</cite>
+                        <br />
+                        Larra, <cite class="title italic">Si yo fuera rico!</cite>
+                        <br />
+                        Larreta, <cite class="title italic">La gloria de don Ramiro</cite>
+                        <br />
+                        Leumann, <cite class="title italic">Adriana Zumarán</cite> <br />
+                        Mancey, <cite class="title italic">Las Solteronas</cite>
+                        <br />
+                        Ocantos, <cite class="title italic">Quilito</cite>
+                        <br />
+                        Ortega y Frías, <cite class="title italic">La Gente Cursi</cite>
+                        <br />
+                        Palacio, <cite class="title italic">La alegría del capitán Ribot</cite>
+                        <br />
+                        Pardo Bazán, <cite class="title italic">Una Cristiana</cite>
+                        <br />
+                        Pereda, <cite class="title italic">Al primer vuelo</cite>
+                        <br />
+                        </div>
+                     
+                     <div class="div div2">
+                        
+                        <h3 class="head">Polish Corpus (20 texts used for logistic regression)</h3>
+                        balucki_burmistrz_1887.txt<br />
+                        beczkowska_gniezdzie_1899.txt<br />
+                        dabrowska_nocednie2_1932.txt<br />
+                        dmochowska_dwor_1903.txt<br />
+                        domanska_paziowie_1910.txt<br />
+                        godlewska_kwiat_1897.txt<br />
+                        iwaszkiewicz_czerwone_1934.txt<br />
+                        kaczkowski_olbrachtowi_1889.txt<br />
+                        kossak_oreza_1937.txt<br />
+                        krzemieniecka_fatum_1904.txt<br />
+                        kuncewiczowa_twarz_1928.txt<br />
+                        marrene_mezowie_1875.txt<br />
+                        mostowicz_hanki_1939.txt<br />
+                        nalkowska_romans_1923.txt<br />
+                        prus_faraon_1897.txt<br />
+                        rodziewicz_lato_1920.txt<br />
+                        sienkiewicz_quo_1896.txt<br />
+                        sygietynski_calvados_1884.txt<br />
+                        zapolska_tagiejew_1905.txt<br />
+                        zeromski_przedwiosnie_1924.txt<br />
+                        </div>
+                     
+                     <div class="div div2">
+                        
+                        <h3 class="head">Polish Corpus (33 texts used for classification by Burrows’s Delta)</h3>
+                        balucki_burmistrz_1887.txt<br />
+                        beczkowska_bedzie_1897.txt<br />
+                        berent_diogenes_1937.txt<br />
+                        dabrowska_nocednie1_1931.txt<br />
+                        deotyma_panienka_1893.txt<br />
+                        dmochowska_dwor_1903.txt<br />
+                        domanska_historia_1913.txt<br />
+                        dygasinski_as_1896.txt<br />
+                        godlewska_kato_1897.txt<br />
+                        gojawiczynska_dziewczeta_1935.txt<br />
+                        iwaszkiewicz_czerwone_1934.txt<br />
+                        kaczkowski_grob_1857.txt<br />
+                        korzeniowski_emeryt_1851.txt<br />
+                        kossak_bog_1935.txt<br />
+                        kraszewski_kordecki_1850.txt<br />
+                        krzemieniecka_fatum_1904.txt<br />
+                        kuncewiczowa_cudzoziemka_1936.txt<br />
+                        makuszynski_basie_1937.txt<br />
+                        marrene_bozek_1871.txt<br />
+                        mniszek_gehenna_1914.txt<br />
+                        mostowicz_hanki_1939.txt<br />
+                        nalkowska_granica_1935.txt<br />
+                        orzeszkowa_gloria_1910.txt<br />
+                        prus_emancypantki_1894.txt<br />
+                        reymont_chlopi_1908.txt<br />
+                        rodziewicz_lato_1920.txt<br />
+                        samozwaniec_ustach_1922.txt<br />
+                        sienkiewicz_rodzina_1894.txt<br />
+                        swietochowski_twinko_1936.txt<br />
+                        sygietynski_wysadzony_1891.txt<br />
+                        zapolska_tagiejew_1905.txt<br />
+                        zarzycka_wiatr_1934.txt<br />
+                        zeromski_syzyfowe_1897.txt<br />
+                        </div>
+                     </div>
+                  </div>
+               
+               
+               
+               
+               </div>
+            
+            <div id="notes">
+               <h2>Notes</h2>
+               <div class="endnote" id="d4e208"><span class="noteRef lang en">[1]  <a href="https://www.gutenberg.org/" onclick="window.open('https://www.gutenberg.org/'); return false" class="ref">https://www.gutenberg.org/</a>
+                     and <a href="https://computationalstylistics.github.io/resources/" onclick="window.open('https://computationalstylistics.github.io/resources/'); return false" class="ref">https://computationalstylistics.github.io/resources/</a>. The list of authors
+                     and works is given in the appendix. </span></div>
+               <div class="endnote" id="d4e733"><span class="noteRef lang en">[2]  Here the metaphor “degrees of freedom” is drawn not from the
+                     statistical technical term but rather from traditional physics. Thus, the
+                     phrase is meant to call to mind the number of independent parameters that a
+                     mechanical system can have, such as the yaw, pitch, roll, etc. of a ship or
+                     airplane. Analogously, as discussed below, a German noun has three independent
+                     morphological parameters, gender, number, and case, each with multiple possible
+                     values. <em class="emph">Ex hypothesi</em>, any combination of these
+                     parameters can carry important information about an author’s style, and
+                     therefore all “degrees of freedom” should be taken into consideration. </span></div>
+               <div class="endnote" id="d4e850"><span class="noteRef lang en">[3]  Varela et al. (2018, 2016) do
+                     not explicitly explain how the internal structure of the values in the flexion
+                     vector are handled in their approach [<a class="ref" href="#varela2018">Varela et al. 2018</a>] [<a class="ref" href="#varela2016">Varela et al. 2016</a>]. However, the number of input variables in
+                     their analysis (179 reduced to 132) is not consistent with the preservation of
+                     all degrees of freedom in their five morpho-syntactic vectors.</span></div>
+               <div class="endnote" id="d4e860"><span class="noteRef lang en">[4]  Certainly, an algorithm could be designed to recognize the internal
+                     structure of a composite variable and calculate the frequency of the
+                     components, but this procedure would be a more cumbersome route to the same
+                     result as including more granular variables from the beginning.</span></div>
+               <div class="endnote" id="d4e865"><span class="noteRef lang en">[5] [<a class="ref" href="#sidorov2012">Sidorov 2012</a>] explore what we might call “word-level” syntactic n-grams. The
+                     <em class="emph">n </em>in their conception represents the number of
+                     hierarchically contiguous words included, where hierarchy is determined by
+                     dependency and is analogous to linear order in the more familiar form of
+                     n-gram. [<a class="ref" href="#gorman2016">Gorman and Gorman 2016</a>] explore a similar procedure. In the present
+                     study, greater weight is given to intra-word characteristics alongside
+                     syntactic sequences between words. The analogy with character n-grams thus
+                     seems apt.</span></div>
+               <div class="endnote" id="d4e898"><span class="noteRef lang en">[6]  From the perspective of information theory, 
+                     [<a class="ref" href="#shannon1948">Shannon 1948</a>, 12] has pointed out that entropy is sub-additive, in that the sum of the
+                     individual entropies of several variables is greater than the joint entropy of
+                     those variables, except in the case where the variables are statistically
+                     independent. While calculating the relative contribution to information of two
+                     variables is elementary, specifying the contributions of multiple variables is
+                     an open question [<a class="ref" href="#williams2010">Willliams and Beer 2010</a>]. It may therefore be more prudent to
+                     turn linguistic features into a larger number of more basic variables than a
+                     smaller number of consolidated inputs.</span></div>
+               <div class="endnote" id="d4e1613"><span class="noteRef lang en">[7]  Note that it follows that one cannot pay attention to the values
+                     alone: the value Fem/Perf may be included in the variable set when it gives the
+                     values for the Gender and Aspect of a given word’s dependency parent, but the
+                     same morphological features may be excluded when they are the values of the
+                     target word’s <em class="emph">own </em>Gender and Aspect.</span></div>
+               <div class="endnote" id="d4e1646"><span class="noteRef lang en">[8]  Because udpipe works sentence by sentence,
+                     all annotation must be completed before creating new smaller “texts” by
+                     subsampling since this random selection of course disrupts sentence structure.
+                     Thus, for strictly practical reasons, the sampling process is applied to the
+                     matrices of token plus annotation rather than to the raw text. This procedure
+                     seems to imply no theoretical implications beyond those entailed by the
+                     application of the bag-of-words method in general. My thanks to the anonymous
+                     reader for raising this question. </span></div>
+               <div class="endnote" id="d4e1677"><span class="noteRef lang en">[9]  Exploratory testing
+                     revealed that the L-2 option was the quickest and most accurate of those
+                     available. L-2 regression (also called “Ridge Regression”) is also preferable
+                     for the way it handles collinearity. L-2 regression distributes the weight that
+                     collinear variables will have in a model across those collinear variables. The
+                     alternative method, L-1 or “Lasso Regression,” by contrast, arbitrarily singles
+                     out one of the collinear variables and assigns it the full weight of those
+                     variables. L-2 appears more conducive for the interpretation of the importance
+                     of individual variables since L-1 may lead the unwary to dismiss the force of a
+                     large number of collinear inputs.</span></div>
+               <div class="endnote" id="d4e1698"><span class="noteRef lang en">[10]  Processing becomes slow for text sizes of 100 tokens and fewer,
+                     depending on the morphological complexity of the language. The number of times
+                     the texts were partitioned was reduced accordingly.</span></div>
+               <div class="endnote" id="d4e1988"><span class="noteRef lang en">[11]  We may
+                     take “random chance” here to be equivalent of the reported “no-information
+                     rate.” The no-information rate in a classification experiment is the occurrence
+                     rate of the most frequently appearing class in the data. For example, if texts
+                     by Thomas Mann made up 50% of our material, then a model that classified all
+                     test segments as “Mann” would achieve 50% accuracy simply “by chance.” As
+                     indicated above, to minimize the no-information rate, our approach ensured that
+                     the representation of each class in the training set was roughly equal.</span></div>
+               <div class="endnote" id="d4e2279"><span class="noteRef lang en">[12]  It should be recognized that the number of variables produced
+                     by UD parsing and the selection process outlined above is not a precise measure
+                     of a language’s morphological complexity. Some relevant studies identify the
+                     complexity of Spanish as greater than that of German [<a class="ref" href="#bittner2003">Bittner et al. 2003</a>] [<a class="ref" href="#marzi2019">Marzi et al. 2019</a>].</span></div>
+               <div class="endnote" id="d4e2308"><span class="noteRef lang en">[13]  [<a class="ref" href="#gabay2021">Gabay 2021</a>, 360] argues persuasively that stylometry should go beyond analysis
+                     of quantitative observations to focus on the exploration of “stylistic features
+                     with an interpretative yield.”</span></div>
+               <div class="endnote" id="d4e2313"><span class="noteRef lang en">[14]  For example, one method of
+                     interpretation is to inactivate one at a time hidden nodes within a neural
+                     network model to see if the “ablation” affects the outcome of interest [<a class="ref" href="#lakretz2020a">Lakretz et al. 2020a</a>] [<a class="ref" href="#lakretz2020b">Lakretz et al. 2020b</a>]. </span></div>
+               <div class="endnote" id="d4e2328"><span class="noteRef lang en">[15] 
+                     <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:msub>
+                           <m:mrow>
+                              <m:mo>∆</m:mo>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mi>B</m:mi>
+                              <m:mi>u</m:mi>
+                              <m:mi>r</m:mi>
+                           </m:mrow>
+                        </m:msub></m:math>(<m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:msub>
+                           <m:mrow>
+                              <m:mi>T</m:mi>
+                              <m:mi>e</m:mi>
+                              <m:mi>x</m:mi>
+                              <m:mi>t</m:mi>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mn>1</m:mn>
+                              <m:mo>,</m:mo>
+                              <m:mi></m:mi>
+                           </m:mrow>
+                        </m:msub></m:math>
+                     <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:msub>
+                           <m:mrow>
+                              <m:mi>T</m:mi>
+                              <m:mi>e</m:mi>
+                              <m:mi>x</m:mi>
+                              <m:mi>t</m:mi>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mn>2</m:mn>
+                           </m:mrow>
+                        </m:msub></m:math>) = <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:munderover>
+                           <m:mo>∑</m:mo>
+                           <m:mrow>
+                              <m:mi>i</m:mi>
+                              <m:mo>=</m:mo>
+                              <m:mn>1</m:mn>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mi>n</m:mi>
+                           </m:mrow>
+                        </m:munderover>
+                        <m:mrow>
+                           <m:mo>|</m:mo>
+                           <m:msub>
+                              <m:mrow>
+                                 <m:mi>z</m:mi>
+                              </m:mrow>
+                              <m:mrow>
+                                 <m:mi>i</m:mi>
+                              </m:mrow>
+                           </m:msub>
+                        </m:mrow></m:math>(<m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:msub>
+                           <m:mrow>
+                              <m:mi>T</m:mi>
+                              <m:mi>e</m:mi>
+                              <m:mi>x</m:mi>
+                              <m:mi>t</m:mi>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mn>1</m:mn>
+                           </m:mrow>
+                        </m:msub></m:math>) – <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:msub>
+                           <m:mrow>
+                              <m:mi>z</m:mi>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mi>i</m:mi>
+                           </m:mrow>
+                        </m:msub></m:math>(<m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+                        <m:msub>
+                           <m:mrow>
+                              <m:mi>T</m:mi>
+                              <m:mi>e</m:mi>
+                              <m:mi>x</m:mi>
+                              <m:mi>t</m:mi>
+                           </m:mrow>
+                           <m:mrow>
+                              <m:mn>2</m:mn>
+                           </m:mrow>
+                        </m:msub></m:math>)|, where <em class="emph">z </em>is the “z-score”: (observation
+                     value – population mean) / population standard deviation. As a sum of absolute
+                     values, Burrows’s Delta is a species of Manhattan Distance [<a class="ref" href="#evert2017">Evert et al. 2017</a>].</span></div>
+               <div class="endnote" id="d4e2420"><span class="noteRef lang en">[16]  The top line of each “Accuracy” cell gives the
+                     mean of all classifications for that size; the second line gives the range. For
+                     text sizes of 2000-600 tokens, data were partitioned into text segments five
+                     time; each such partition was then classified 100 times, with each
+                     classification using a different random test and training set. Because of
+                     slowing processing speed, the 500-token texts were classified only 50 times for
+                     each partitioning of segments.</span></div>
+               <div class="endnote" id="d4e2674"><span class="noteRef lang en">[17]  In UD grammar, object does not refer only to a direct object
+                     of a transitive verb, but to the second argument of any verb. For example, in
+                     “she went to the store” <em class="emph">store </em>would be considered the
+                     object of <em class="emph">went </em>on the assumption that, with that verb,
+                     an expression of goal is usually mandatory.</span></div>
+            </div>
+            <div id="worksCited">
+               <h2>Works Cited</h2>
+               <div class="bibl"><span class="ref" id="bittner2003"><!-- close -->Bittner et al. 2003</span> Bittner, D., Dressler, W. U., and Kilani-Schoch, M. (eds). <cite class="title italic">Development of Verb
+                     Inflection in First Language Acquisition: A Cross-Linguistic Perspective.</cite> Mouton
+                  de Gruyter, Berlin (2003).</div>
+               <div class="bibl"><span class="ref" id="eder2015"><!-- close -->Eder 2015</span> Eder, M. <cite class="title quote">Does Size Matter? Authorship Attribution, Small Samples, Big Problem</cite>,
+                  <cite class="title italic">Digital Scholarship in the Humanities</cite>, 30.2 (2015): 167–82.</div>
+               <div class="bibl"><span class="ref" id="eder2016"><!-- close -->Eder 2016</span> Eder, M., Rybicki, J., and Kestemont, M. <cite class="title quote">Stylometry with R: a Package for
+                     Computational Text Analysis</cite>, <cite class="title italic">R Journal</cite>, 8.1 (2016): 107–21.</div>
+               <div class="bibl"><span class="ref" id="eder2017"><!-- close -->Eder 2017</span> Eder, M. <cite class="title quote">Short Samples in Authorship Attribution: A New Approach,</cite> <cite class="title italic">Digital
+                     Humanities 2017: Conference Abstracts</cite>. McGill University, Montreal (2017), pp.
+                  221–24. <a href="https://dh2017.adho.org/abstracts/341/341.pdf" onclick="window.open('https://dh2017.adho.org/abstracts/341/341.pdf'); return false" class="ref">https://dh2017.adho.org/abstracts/341/341.pdf</a>.</div>
+               <div class="bibl"><span class="ref" id="evert2017"><!-- close -->Evert et al. 2017</span> Evert, S. Proisl, T., Fotis, J., Reger, I., Pielström, S., Schöch, Ch., and Vitt,
+                  Th. <cite class="title quote">Understanding and Explaining Delta Measures for Authorship Attribution,
+                     Digital Scholarship in the Humanities</cite>, <cite class="title italic">Digital Scholarship in the Humanities</cite>
+                  32.suppl. 2 (2017): ii4–ii16. <a href="https://doi.org/10.1093/llc/fqx023" onclick="window.open('https://doi.org/10.1093/llc/fqx023'); return false" class="ref">https://doi.org/10.1093/llc/fqx023</a>.</div>
+               <div class="bibl"><span class="ref" id="fan2008"><!-- close -->Fan 2008</span> Fan, R.–E., Chang, K.–W., Hsieh, C.–J., Wang, X.–R., and Lin, C.–J. <cite class="title quote">Liblinear: a
+                     Library for Large Linear Classification.</cite> <cite class="title italic">Journal of Machine Learning Research</cite>, 9
+                  (2008): 1871–74.</div>
+               <div class="bibl"><span class="ref" id="gabay2021"><!-- close -->Gabay 2021</span> Gabay, S. <cite class="title quote">Beyond Idiolectometry? On Racine’s Stylometric Signature</cite>,
+                  <cite class="title italic">Computational Humanities Research Conference</cite>, November 17–19, 2021, Amsterdam, The
+                  Netherlands (2021): 359-76. <a href="http://ceur-ws.org/Vol-2989/long_paper39.pdf" onclick="window.open('http://ceur-ws.org/Vol-2989/long_paper39.pdf'); return false" class="ref">http://ceur-ws.org/Vol-2989/long_paper39.pdf</a></div>
+               <div class="bibl"><span class="ref" id="gorman2020"><!-- close -->Gorman 2020</span> Gorman, R. <cite class="title quote">Author Identification of Short Texts Using Dependency Treebanks
+                     without Vocabulary.</cite> <cite class="title italic">Digital Scholarship in the Humanities</cite>, 35.4 (2020): 812–25.
+                  <a href="https://doi.org/10.1093/llc/fqz070" onclick="window.open('https://doi.org/10.1093/llc/fqz070'); return false" class="ref">https://doi.org/10.1093/llc/fqz070</a></div>
+               <div class="bibl"><span class="ref" id="gorman2016"><!-- close -->Gorman and Gorman 2016</span> Gorman, R. and Gorman, V. <cite class="title quote">Approaching Questions of Text Reuse in Ancient Greek
+                     Using Computational Syntactic Stylometry</cite>, <cite class="title italic">Open Linguistics</cite>, 2 (2016): 500–10.</div>
+               <div class="bibl"><span class="ref" id="helleputte2017"><!-- close -->Helleputte 2017</span> Helleputte, T., Gramme, P., and Paul, J. <cite class="title italic">LiblineaR: Linear Predictive Models Based
+                     on the Liblinear C/C++ Library.</cite> R package version 2.10–8 (2017).</div>
+               <div class="bibl"><span class="ref" id="lakretz2020a"><!-- close -->Lakretz et al. 2020a</span> Lakretz, Y., Dehaene, S., and King, J-R. <cite class="title quote">What Limits Our Capacity to Process
+                     Nested Long-Range Dependencies in Sentence Comprehension?</cite> <cite class="title italic">Entropy</cite> 22.4 (2020a):
+                  446. <a href="doi.org/10.3390/e2204044" onclick="window.open('doi.org/10.3390/e2204044'); return false" class="ref">doi.org/10.3390/e2204044</a>6.</div>
+               <div class="bibl"><span class="ref" id="lakretz2020b"><!-- close -->Lakretz et al. 2020b</span> Lakretz, Y., Hupkes, D., Vergallito, A., Marelli, M., Baroni, M., and Dehaene, S.
+                  <cite class="title quote">Exploring Processing of Nested Dependencies in Neural-Network Language Models and
+                     Humans.</cite> Preprint: arXiv:2006.11098 [cs.CL] (2020b).
+                  <a href="https://www.researchgate.net/publication/342352527_Exploring_Processing_of_Nested_Dependencies_in_Neural-Network_Language_Models_and_Humans" onclick="window.open('https://www.researchgate.net/publication/342352527_Exploring_Processing_of_Nested_Dependencies_in_Neural-Network_Language_Models_and_Humans'); return false" class="ref">https://www.researchgate.net/publication/342352527_Exploring_Processing_of_Nested_Dependencies_in_Neural-Network_Language_Models_and_Humans</a> </div>
+               <div class="bibl"><span class="ref" id="luyckx2008"><!-- close -->Luyckx and Daelemans 2008</span> Luyckx, K. and Daelemans, W. <cite class="title quote">Authorship Attribution and Verification with Many
+                     Authors and Limited Data.</cite> In Donia Scott and Hans Uszkoreit (eds), <cite class="title inline">Proceedings of
+                     the 22nd International Conference on Computational Linguistics</cite>, Coling (2008), pp.
+                  513–20. <a href="https://dl.acm.org/citation.cfm?id=1599146" onclick="window.open('https://dl.acm.org/citation.cfm?id=1599146'); return false" class="ref">https://dl.acm.org/citation.cfm?id=1599146</a> .</div>
+               <div class="bibl"><span class="ref" id="luyckx2011"><!-- close -->Luyckx and Daelemans 2011</span> Luyckx, K. and Daelemans, W. <cite class="title quote">The Effect of Author Set Size and Data Size in
+                     Authorship Attribution</cite>, <cite class="title italic">Literary and Linguistic Computing</cite>, 26.1 (2011):
+                  35–55.</div>
+               <div class="bibl"><span class="ref" id="marzi2019"><!-- close -->Marzi et al. 2019</span> Marzi, C., Ferro, M., and Pirrelli, V. <cite class="title quote">A Processing-Oriented Investigation of
+                     Inflectional Complexity</cite>, <cite class="title italic">Frontiers in Communication</cite>, 4 (2019). doi:
+                  <a href="10.3389/fcomm.2019.00048" onclick="window.open('10.3389/fcomm.2019.00048'); return false" class="ref">10.3389/fcomm.2019.00048</a></div>
+               <div class="bibl"><span class="ref" id="nivre2015"><!-- close -->Nivre 2015</span> Nivre, J. <cite class="title quote">Towards a Universal Grammar for Natural Language Processing.</cite> In A.
+                  Gelbukh (ed.), <cite class="title italic">Computational Linguistics and Intelligent Text Processing.</cite> CICLing
+                  2015. Lecture Notes in Computer Science, 9041 (2015). Springer, Cham. DOI:
+                  <a href="10.1007/978-3-319-18111-0_1" onclick="window.open('10.1007/978-3-319-18111-0_1'); return false" class="ref">10.1007/978-3-319-18111-0_1</a></div>
+               <div class="bibl"><span class="ref" id="shannon1948"><!-- close -->Shannon 1948</span> Shannon, C. E. <cite class="title quote">A Mathematical Theory of Communication</cite>, <cite class="title italic">The Bell System Technical
+                     Journal</cite>, 27 (1948): 379-423, 623-56.</div>
+               <div class="bibl"><span class="ref" id="sidorov2012"><!-- close -->Sidorov 2012</span> Sidorov, G., Velasquez, F., Stamatatos, E., Gelbukh, A., and Chanona–Hernández, L.
+                  <cite class="title quote">Syntactic Dependency-Based N-Grams as Classification Features</cite>, <cite class="title italic">Lecture Notes on
+                     Computer Science</cite>, 7630 (2012): 1–11.</div>
+               <div class="bibl"><span class="ref" id="simon2007"><!-- close -->Simon 2007</span> Simon, R. <cite class="title quote">Resampling Strategies for Model Assessment and selection.</cite> In W.
+                  Dubitzky, M. Granzow, and D. Berrar. (eds.), <cite class="title italic">Fundamentals of Data Mining in
+                     Genomics and Proteomics</cite>. Springer, Boston (2007), pp. 173–86.</div>
+               <div class="bibl"><span class="ref" id="stamatatos2009"><!-- close -->Stamatatos 2009</span> Stamatatos, E. <cite class="title quote">A Survey of Modern Authorship Attribution Methods</cite>, <cite class="title italic">Journal of the
+                     American Society for Information Science and Technology</cite>, 60.3 (2009): 538-556.
+                  doi: <a href="10.1002/asi.21001" onclick="window.open('10.1002/asi.21001'); return false" class="ref">10.1002/asi.21001</a></div>
+               <div class="bibl"><span class="ref" id="swain2017"><!-- close -->Swain et al. 2017</span> Swain, S., Mishra, G., and Sindhu, C. <cite class="title quote">Recent Approaches on Authorship Attribution
+                     Techniques — An Overview</cite>, <cite class="title italic">International Conference of Electronics, Communication
+                     and Aerospace Technology</cite> (ICECA), Coimbatore (2017), pp. 557-66. doi:
+                  <a href="10.1109/ICECA.2017.8203599" onclick="window.open('10.1109/ICECA.2017.8203599'); return false" class="ref">10.1109/ICECA.2017.8203599</a>.</div>
+               <div class="bibl"><span class="ref" id="varela2016"><!-- close -->Varela et al. 2016</span> Varela, P. J., Justino, E., Britto, A., and Bortolozzi, F. “A Computational
+                  Approach for Authorship Attribution of Literary Texts Using Sintatic Features,”
+                  2016 <cite class="title italic">International Joint Conference on Neural Networks</cite> (IJCNN), Vancouver, BC
+                  (2016), pp. 4835-42. doi: <a href="10.1109/IJCNN.2016.7727835" onclick="window.open('10.1109/IJCNN.2016.7727835'); return false" class="ref">10.1109/IJCNN.2016.7727835</a>.</div>
+               <div class="bibl"><span class="ref" id="varela2018"><!-- close -->Varela et al. 2018</span> Varela, P. J., Albonico, M., Justino, E. J. R., and Bortolozzi, F. <cite class="title quote">A
+                     Computational Approach for Authorship Attribution on Multiple Languages,</cite> 2018
+                  <cite class="title italic">International Joint Conference on Neural Networks</cite> (IJCNN), Rio de Janeiro (2018),
+                  pp. 1-8, doi: <a href="10.1109/IJCNN.2018.8489704" onclick="window.open('10.1109/IJCNN.2018.8489704'); return false" class="ref">10.1109/IJCNN.2018.8489704</a>.</div>
+               <div class="bibl"><span class="ref" id="wijffels2019"><!-- close -->Wijffels 2019</span> Wijffels, J. <cite class="title quote">udpipe: Tokenization, Parts of Speech Tagging, Lemmatization and
+                     Dependency Parsing with the ‘UDPipe’ ‘NLP’ Toolkit</cite>, (2019).
+                  <a href="https://CRAN.R-project.org/package=udpip" onclick="window.open('https://CRAN.R-project.org/package=udpip'); return false" class="ref">https://CRAN.R-project.org/package=udpip</a>e</div>
+               <div class="bibl"><span class="ref" id="williams2010"><!-- close -->Willliams and Beer 2010</span> Williams, P. and Beer, R. <cite class="title quote">Nonnnegative Decomposition of Multivariate
+                     Information.</cite> Preprint: arXiv:1004.2515 [cs.IT] (2010).
+                  <a href="https://arxiv.org/pdf/1004.2515.pdf" onclick="window.open('https://arxiv.org/pdf/1004.2515.pdf'); return false" class="ref">https://arxiv.org/pdf/1004.2515.pdf</a>.</div>
+            </div>
+            <div class="toolbar"><a href="#">Preview</a>  |  <span style="color: grey">XML</span> |  <a href="#" onclick="javascript:window.print();" title="Click for print friendly version">Print Article</a></div>
+            <div class="license"><a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
+               </div>
+         </div>
+      </div>
+   </body>
+</html>
