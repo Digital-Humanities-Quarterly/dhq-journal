@@ -1,0 +1,848 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
+<?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:cc="http://web.resource.org/cc/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dhq="http://www.digitalhumanities.org/ns/dhq">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title type="article" xml:lang="en">Sentiment Analysis: Limits and Progress of the
+                    Syuzhet Package and Its Lexicons</title>
+                <dhq:authorInfo>
+                    <dhq:author_name>Hoyeol<dhq:family>Kim</dhq:family></dhq:author_name>
+                    <idno type="ORCID"
+                        ><!-- if the author has an ORCID ID, include the full URI, e.g. https://orcid.org/0000-0000-0000-0000 --></idno>
+                    <dhq:affiliation/>
+                    <email>elibooklover@gmail.com</email>
+                    <dhq:bio>
+                        <p/>
+                    </dhq:bio>
+                </dhq:authorInfo>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>Alliance of Digital Humanities Organizations</publisher>
+                <publisher>Association for Computers and the Humanities</publisher>
+                <!-- This information will be completed at publication -->
+                <idno type="DHQarticle-id">000611</idno>
+                <idno type="volume"
+                    ><!-- volume number, with leading zeroes as needed to make 3 digits: e.g. 006 --></idno>
+                <idno type="issue"><!-- issue number, without leading zeroes: e.g. 2 --></idno>
+                <date/>
+                <dhq:articleType>article</dhq:articleType>
+                <availability status="CC-BY-ND">
+                    <!-- If using a different license from the default, choose one of the following:
+                  CC-BY-ND (DHQ default): <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>     
+                  CC-BY:  <cc:License rdf:about="https://creativecommons.org/licenses/by/2.5/"/>
+                  CC0: <cc:License rdf:about="https://creativecommons.org/publicdomain/zero/1.0/"/>
+-->
+                    <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>
+                </availability>
+            </publicationStmt>
+
+            <sourceDesc>
+                <p>This is the source</p>
+            </sourceDesc>
+        </fileDesc>
+        <encodingDesc>
+            <classDecl>
+                <taxonomy xml:id="dhq_keywords">
+                    <bibl>DHQ classification scheme; full list available at <ref
+                            target="http://www.digitalhumanities.org/dhq/taxonomy.xml"
+                            >http://www.digitalhumanities.org/dhq/taxonomy.xml</ref></bibl>
+                </taxonomy>
+                <taxonomy xml:id="authorial_keywords">
+                    <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+                </taxonomy>
+            </classDecl>
+        </encodingDesc>
+        <profileDesc>
+            <langUsage>
+                <language ident="en" extent="original"/>
+            </langUsage>
+            <textClass>
+                <keywords scheme="#dhq_keywords">
+                    <!-- Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors -->
+                    <list type="simple">
+                        <item/>
+                    </list>
+                </keywords>
+                <keywords scheme="#authorial_keywords">
+                    <!-- Authors may include one or more keywords of their choice -->
+                    <list type="simple">
+                        <item>Syuzhet</item>
+                        <item>Sentiment Analysis</item>
+                        <item>Lexicons</item>
+                        <item>Bing</item>
+                        <item>Afinn</item>
+                        <item>NRC</item>
+                    </list>
+                </keywords>
+            </textClass>
+        </profileDesc>
+        <revisionDesc>
+            <!-- Each change should include @who and @when as well as a brief note on what was done. -->
+            <change/>
+        </revisionDesc>
+    </teiHeader>
+    <!-- If a translation is added to the original article, add an enclosing <text> and <group> element -->
+    <text xml:lang="en" type="original">
+        <front>
+            <dhq:abstract>
+                <!-- Include a brief abstract of the article -->
+                <p>Syuzhet is a dictionary-based tool for the sentiment analysis of literary texts
+                    that draws upon the Syuzhet, Bing, Afinn, and NRC lexicons. Syuzhet is a work in
+                    progress with the potential to become an invaluable tool for the sentiment
+                    analysis of literary texts. However, there have been doubts about sentiment
+                    analysis in the digital humanities field, especially after Swafford’s impactful
+                    critique of Syuzhet. Since it is impossible to achieve 100% accuracy in
+                    sentiment analysis, we should embrace the imperfection and continue to use
+                    Syuzhet while also making efforts to fully understand its limits and abilities.
+                    In addition, we should continuously provide feedback for the tool, since the
+                    duty of improving digital tools belongs to all digital humanists who employ
+                    digital tools. This article explores the limits of and improvements made upon
+                    Syuzhet by examining and testing its code and functions with 19th century
+                    British novels; the subjectivity of its lexicons; and the validity of Swafford’s
+                    critique.</p>
+            </dhq:abstract>
+            <dhq:teaser>
+                <!-- Include a brief teaser, no more than a phrase or a single sentence -->
+                <p/>
+            </dhq:teaser>
+        </front>
+        <body>
+            <head/>
+            <div>
+                <head>1. Introduction</head>
+                <p>Text mining is no longer an uncommon research method when it comes to analyzing
+                    texts in the digital humanities. Once limited to the research field, text mining
+                    now influences <quote rend="inline">our lives, our teaching, and our
+                        scholarship, and digital humanists</quote> [Binder 2016, 213] as <quote
+                        rend="inline">a logocentric practice</quote> [Clement 2016, 534]. Sentiment
+                    analysis, also known as opinion mining, shares common features with text mining
+                    when parsing, detecting, and locating words or sentences. Sentiment analysis is
+                        <quote rend="inline">the process of extracting an author’s emotional intent
+                        from text</quote> [Kwartler 2017, 85]. Sentiment analysis has historically
+                    focused on product reviews, such as those of movies, hotels, cars, books, and
+                    restaurants, in addition to blog data. There have been attempts at employing
+                    sentiment analysis in literature, mainly grounded on dictionary-based
+                    approaches, but sentiment analysis in literature has been a target of attack in
+                    digital humanities due to its limits as a research method: Swafford’s critique
+                    of the Syuzhet package made a great impact on the digital humanities field by
+                    alerting readers to the danger of choosing faulty tools, although her criticism
+                    rehashed already existing issues in sentiment analysis. Along with her critique
+                    of Syuzhet, other DHers shared erroneous results found through Syuzhet and
+                    expressed uneasy feelings about sentiment analysis in literature. In reality,
+                    perfect codes/tools cannot exist, so we need to <quote rend="inline">embrace
+                            <quote rend="inline">problems</quote></quote> with Syuzhet <quote
+                        rend="inline">as a feature rather than a flaw</quote> [Rhody 2015]. Syuzhet
+                    has the potential to be an exquisite tool for the sentiment analysis of literary
+                    texts if it can overcome its limits with the application of machine/deep
+                    learning algorithms. However, it is impossible to develop digital tools with
+                    100% accuracy, and machine/deep learning algorithms are still under development.
+                    Ted Underwood asserts that if we <quote rend="inline">use algorithms in our
+                        research,</quote> we should <quote rend="inline">find out how they
+                        work</quote> [Underwood 2014, 69]. Similarly, when using digital tools, it
+                    is important to understand their functions, algorithms, and programming syntax,
+                    instead of simply drawing upon the visualized results, in order to avoid
+                    creating faulty results. </p>
+                <p>Sentiment analysis processes are based on three classification techniques: a
+                    lexicon-based approach; a machine learning approach; and a hybrid approach. The
+                    machine learning approach uses machine learning algorithms based on linguistic
+                    features, such as topic modeling, whereas the lexicon-based approach draws upon
+                        <quote rend="inline">a collection of known and precompiled sentiment
+                        terms</quote> [Medhat et al. 2014, 1098]. There are a variety of tools for
+                    sentiment analysis, such as the SentimentR, Tidytext, Syuzhet, RSentiment, and
+                    SentimentAnalysis packages. All of these sentiment analysis packages are
+                    lexicon-based, sharing similar limits and features, such as providing the user
+                    the option to use customized dictionaries. Sentiment analysis algorithms and
+                    lexicons were originally developed with the aim to analyze tweets and product
+                    reviews, but current sentiment analysis has expanded to <quote rend="inline"
+                        >stock markets, new articles, [and] political debates</quote> [Medhat et al.
+                    2014, 1094], and serves a variety of purposes. For instance, the sentiment
+                    analysis package with the Loughran-McDonald Sentiment Words Lists (DictionaryLM)
+                    contains the LM (Law Minor) sentiment words with five categories (positive,
+                    negative, litigious modal, uncertainty constraining), which can be used in a
+                    legal setting. Similarly, Henry’s Financial Dictionary (DictionaryHE) is a
+                    suitable lexicon for economic and monetary topics.</p>
+                <p>Despite the fact that sentiment analysis has been commonly employed in a variety
+                    of fields, mainly for commercial purposes, sentiment analysis for literature did
+                    not exist until January 2015, when the Syuzhet package was first released, aimed
+                    at providing a proper tool for literary analysis. Syuzhet 0.2.0 was released on
+                    February 22, 2015 and was soon critiqued by Swafford, who pointed out problems
+                    with Syuzhet on her personal blog on March 2, 2015, such as (1) splitting
+                    sentences, (2) negators, (3) parts of speech, such as <q>well</q> and
+                        <q>like,</q> (4) lexicons being based on contemporary English words, (5)
+                    counting a word once for a sentence even if it is repeated, (6) scoring
+                    subjectivity, (7) satire and sarcasm, (8) foundation shapes. Despite the effort
+                    by Jockers’ lab to create a useful tool for sentiment analysis tailored to
+                    analyzing literary texts, the limits of Syuzhet that Swafford pointed out caused
+                    DHers to have qualms about sentiment analysis in literature. After Swafford’s
+                    criticism against Syuzhet 0.2.0, Syuzhet 1.0.0 was released on April 28, 2016,
+                    followed by another release on December 14, 2017 of the 1.0.4 version. I decided
+                    to closely examine Syuzhet 1.0.4 to impart the limits and progress of Syuzhet,
+                    with the subjects of my experiment being mainly from 19th century British
+                    novels, since they are not under copyright, are long enough to produce valid
+                    analyses, and are credited for their well-structured plots.</p>
+            </div>
+            <div>
+                <head>2. Lexicons</head>
+                <p>The term Syuzhet stems from <quote rend="inline">the Russian Formalists Victor
+                        Shklovsky and Vladimir Propp who divided narrative into two components, the
+                            <quote rend="inline">fabula</quote> and the <quote rend="inline"
+                            >syuzhet</quote></quote> to depict narrative structures of story.
+                    Syuzhet intends to provide <quote rend="inline">the latent structure of
+                        narrative by means of sentiment analysis</quote> and specifically <quote
+                        rend="inline">the emotional shifts that serve as proxies for the narrative
+                        movement between conflict and conflict resolution</quote> [Jockers 2017c].
+                    Jockers’ explanation of Syuzhet describes it as a sentiment analysis tool for
+                    the analysis of literary texts. Syuzhet is a dictionary-based package, mainly
+                    drawing upon four standard lexicons: Syuzhet, Bing, Afinn, and NRC.</p>
+                <table>
+                    <head>Number of Sentiment Words in Lexicons Used in the Syuzhet Package</head>
+                    <row>
+                        <cell/>
+                        <cell role="label">Syuzhet</cell>
+                        <cell role="label">Bing</cell>
+                        <cell role="label">Afinn</cell>
+                        <cell role="label">NRC</cell>
+                    </row>
+                    <row>
+                        <cell role="label">No. of Positive Words</cell>
+                        <cell role="data">3587</cell>
+                        <cell role="data">2006</cell>
+                        <cell role="data">878</cell>
+                        <cell role="data">2312</cell>
+                    </row>
+                    <row>
+                        <cell role="label"> No. of Negative Words</cell>
+                        <cell role="data">7161</cell>
+                        <cell role="data">4783</cell>
+                        <cell role="data">1598</cell>
+                        <cell role="data">3324</cell>
+                    </row>
+                    <row>
+                        <cell role="label">No. of Other Words</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">1</cell>
+                        <cell role="data">8265</cell>
+                    </row>
+                    <row>
+                        <cell role="label">Total</cell>
+                        <cell role="data"> 10748</cell>
+                        <cell role="data">6789</cell>
+                        <cell role="data">2477</cell>
+                        <cell role="data">13901</cell>
+                    </row>
+                </table>
+                <p>The Bing, Afinn, and Syuzhet lexicons provide polarity which sorts words into
+                    positive or negative positions with numeric values. The Bing lexicon has a
+                    binary categorization, which simply has two values of –1 and 1. The Afinn
+                    lexicon grades words between –5 and 5. The Syuzhet lexicon has more specific
+                    values for each sentiment word, ranging between –1 and 1, which are –1.0, –0.8
+                    –0.75, –0.6, –0.5, –0.4, –0.25, 0.1, 0.25, 0.4, 0.5, 0.6, 0.75, 0.8, 1.0. The
+                    NRC lexicon sorts sentiment words into categories consisting of positive,
+                    negative, anger, anticipation, disgust, fear, joy, sadness, surprise and trust.
+                    The other words from the NRC lexicon in Table 1 consist of anger (1247),
+                    anticipation (839), disgust (1058), fear (1476), joy (689), sadness (1191),
+                    surprise (534), and trust (1231). A number of words from the NRC lexicon are
+                    included in different categories at the same time, but the Syuzhet package can
+                    only work with positive and negative lexicons from the NRC lexicon. Excluding
+                    duplicate words in the different feeling categories of the NRC lexicon, there
+                    are 6,468 unique words. Among these, there are 81 words which belong to both
+                    positive and negative categories, such as <q>boisterous,</q>
+                    <q>endless,</q> and <q>revolution.</q> The Syuzhet package processes those 81
+                    words with a score of 0. In addition, if a word was not categorized as positive
+                    or negative, it will score 0. For example, <q>confront</q> falls into two
+                    categories: anger and anticipation, but scores 0, whereas <q>annoy</q> scores
+                    –1, which is categorized as negative, anger, and disgust in the NRC
+                    lexicons.</p>
+                <figure>
+                    <head>Similar results from four different lexicons</head>
+                    <graphic url="resources/images/fig1"/>
+                </figure>
+                <p>Figures 1 and 2 were created through the get_dct_transform function of Syuzhet
+                    using four different lexicons, Bing, Afinn, NRC, and Syuzhet, for sixteen
+                    novels. In figure 1, the emotional valence of each lexicon is similar over the
+                    narrative time from eight novels: Charles Dickens’ <title rend="italic">Oliver
+                        Twist</title> and <title rend="italic">Little Dorrit</title>, George Eliot’s
+                        <title rend="italic">Adam Bede</title>, <title rend="italic">The Mill on the
+                        Floss</title> and <title rend="italic">Middlemarch</title>, Thomas Hardy’s
+                        <title rend="italic">The Return of the Native</title>, Elizabeth Gaskell’s
+                        <title rend="italic">North and South</title>, and Mary Elizabeth Braddon’s
+                        <title rend="italic">Lady Audley’s Secret</title>.</p>
+                <figure>
+                    <head>Differing results from four different lexicons</head>
+                    <graphic url="resources/images/fig2"/>
+                </figure>
+                <p>Figure 2, however, reveals inconsistent emotional valences from four lexicons for
+                    eight novels: Charles Dickens’ <title rend="italic">Our Mutual Friend</title>
+                    and <title rend="italic">Bleak House</title>, Wilkie Collins’ <title
+                        rend="italic">The Woman in White</title>, Jane Austen’s <title rend="italic"
+                        >Pride and Prejudice</title>, Emily Brontë’s <title rend="italic">Wuthering
+                        Heights</title>, Charlotte Brontë’s <title rend="italic">Jane Eyre</title>
+                    and <title rend="italic">Villette</title>, and James Joyce’s <title
+                        rend="italic">A Portrait of the Artist as a Young Man</title>. </p>
+                <p>What causes different sentiment analysis results to be generated depending on the
+                    lexicon? I examined the differences between the four lexicons based on
+                    positivity and negativity in order to find the reasons why sentiment
+                    trajectories could be different between them. Table 2 reveals that the Bing and
+                    Afinn lexicons have the highest similarity of deciding positivity and
+                    negativity, whereas the Syuzhet and NRC lexicons have the lowest number between
+                    the results, although the number is still high. </p>
+                <table>
+                    <head>Similarity of deciding positivity and negativity between lexicons used in
+                        the Syuzhet package</head>
+                    <row>
+                        <cell role="label">Lexicons (No. of Words)</cell>
+                        <cell role="label">Syuzhet-Bing (5,910)</cell>
+                        <cell role="label">Syuzhet-Afinn (2,285)</cell>
+                        <cell role="label">Syuzhet-NRC (4,783)</cell>
+                        <cell role="label">Bing-Afinn (1,315)</cell>
+                        <cell role="label">Bing-NRC (2,396)</cell>
+                        <cell role="label">Afinn-NRC (990)</cell>
+                    </row>
+                    <row>
+                        <cell role="label">Similarity of Deciding Positivity and Negativity </cell>
+                        <cell role="data">98.26%</cell>
+                        <cell role="data">98.47%</cell>
+                        <cell role="data">96.59%</cell>
+                        <cell role="data">98.71%</cell>
+                        <cell role="data">98.33%</cell>
+                        <cell role="data">98.18%</cell>
+                    </row>
+                </table>
+                <p>The percent similarity for giving the same words positive or negative values
+                    between two different lexicons are the followings: Syuzhet-Bing (98.26%, 5,910
+                    words), Syuzhet-Afinn (98.47%, 2,285 words), Syuzhet-NRC (96.59%, 4,783 words),
+                    Bing-Afinn (98.71%, 1,315 words), Bing-NRC (98.33%, 2,396 words), and Afinn-NRC
+                    (98.18%, 990 words). This means that the Syuzhet and Bing lexicons have 5,910
+                    common words that, when given positive and negative scores, conflict 1.74% of
+                    the time. For example, the words <q>avenge,</q>
+                    <q>enough,</q> and <q>envy</q> are scored 0.25, –0.25, and –0.8 by the Syuzhet
+                    lexicon, versus –1, 1, and 1 by the Bing lexicon. Looking into the comparison of
+                    the Syuzhet and NRC lexicons, the words <q>absolute,</q>
+                    <q>ancient,</q> and <q>blush</q> score –0.25, 0.25, and 0.6 in the Syuzhet
+                    lexicon, versus 1, –1, and –1 in the NRC lexicon, respectively. These different
+                    decisions whether words will be assigned positive or negative can bring about
+                    different results during sentiment analysis, as shown in figure 2.</p>
+                <table>
+                    <head>Percentage of shared words between lexicons used in the Syuzhet
+                        package</head>
+                    <row>
+                        <cell role="label">Lexicons (No. of Words)</cell>
+                        <cell role="label">Syuzhet-Bing (5,910)</cell>
+                        <cell role="label">Syuzhet-Afinn (2,285)</cell>
+                        <cell role="label">Syuzhet-NRC (4,783)</cell>
+                        <cell role="label">Bing-Afinn (1,315)</cell>
+                        <cell role="label">Bing-NRC (2,396)</cell>
+                        <cell role="label">Afinn-NRC (990)</cell>
+                    </row>
+                    <row>
+                        <cell role="label">Syuzhet</cell>
+                        <cell role="data">54.99%</cell>
+                        <cell role="data">21.26%</cell>
+                        <cell role="data">44.50%</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">-</cell>
+                    </row>
+                    <row>
+                        <cell role="label">Bing</cell>
+                        <cell role="data">87.05%</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">19.37%</cell>
+                        <cell role="data">35.29%</cell>
+                        <cell role="data">-</cell>
+                    </row>
+                    <row>
+                        <cell role="label">Afinn</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">92.25%</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">53.09%</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">39.97%</cell>
+                    </row>
+                    <row>
+                        <cell role="label">NRC</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">73.95%</cell>
+                        <cell role="data">-</cell>
+                        <cell role="data">37.04%</cell>
+                        <cell role="data">15.31%</cell>
+                    </row>
+                </table>
+                <p>Based on table 3, the percentage of words included in the Syuzhet package that
+                    are shared with any given lexicon are relatively low across the board. This is
+                    most likely due to the fact that the Syuzhet lexicon was created much later with
+                    reference to the Bing, Afinn, and NRC lexicons, and therefore includes words
+                    from all three. Because of this, Syuzhet has the most words of any lexicon (not
+                    including repeated words in the NRC lexicon) at 10,748 words, causing the
+                    disproportion between the percentages of shared words for Syuzhet and the
+                    lexicons it is being compared with. Similarly, Afinn, with the fewest words of
+                    the four lexicons, when compared with them generates higher percentages for
+                    itself.</p>
+                <p>Despite having the same tool setting conditions, depending on the lexicon,
+                    sentiment trajectories could be different due to the subjectivity of the
+                    lexicons. The inconsistent sentiment scores of the Syuzhet lexicon result in the
+                    discrediting of dictionary-based sentiment analysis. Stephen Ramsay states that
+                    literary criticism is not only <quote rend="inline">a qualitative matter</quote>
+                    but also <quote>an insistently subject manner of engagement.” Likewise, creating
+                        lexicons is a “subject manner of engagement</quote> [Ramsay 2011, 8] through
+                    the subjective interpretation of emotions used in labeling words with scores.
+                    Sentiment analysis packages provide customizing functions, either through the
+                    customization of dictionaries or the use of dictionaries that are created from
+                    scratch, in order to overcome this limit. Nonetheless, it would be challenging
+                    to create a dictionary that avoids every critique of subjectivity.</p>
+                <p>Syuzhet 1.0.4 has not provided a function to use custom dictionaries yet. Syuzhet
+                    2.0.0 is expected to provide the function, but it usually requires a
+                    considerable amount of time and effort to create sentiment dictionaries, and
+                    customized dictionaries might face the question of reliability and credibility
+                    when used in research. Instead of creating a sentiment dictionary from scratch,
+                    researchers can use pre-made sentiment dictionaries, such as the psychological
+                    Harvard-IV dictionary (DictionaryGI), or customize their sentiment analysis by
+                    adding algorithms, but they cannot change the sentiment scores from existing
+                    lexicons. </p>
+            </div>
+            <div>
+                <head>3. Syuzhet</head>
+                <div>
+                    <head>3.1 Parsing</head>
+                    <p>The goal of opinion mining is to generate relevant information from texts for
+                        analysis. To do so, parsing text is the first step. However, there can be
+                        distortions in the process of text mining if raw data are not trimmed.
+                        Therefore, well-structured text data need to be inputted for sentiment
+                        analysis to generate the correct data. In Syuzhet, there are two different
+                        ways to parse text and transform it into vector values: (1) Tokenizing the
+                        text into sentences, and then transforming the text into a numeric vector
+                        for each sentence. (2) Tokenizing the text into words, and then transforming
+                        each word into vector representations. Depending on the purpose of research,
+                        the text is tokenized into sentences or words through either the
+                        get_sentences function or the get_tokens function. For the sentiment
+                        analysis of novels, the first method, which tokenizes the text into
+                        sentences, is normally chosen, so I will focus on parsing the text into
+                        sentences using the Syuzhet package. The Syuzhet package originally
+                        (versions 1.0.1 and earlier) called upon the OpenNLP API, which is an open
+                        source, in order to implement the get_sentences and the get_tokens
+                        functions. In addition, the Syuzhet package originally required installing
+                        Oracle’s Java and two R packages, namely <q>openNLPdata</q> and <q>rJava</q>
+                        in order to use the OpenNLP parser, which was not user-friendly. Both the
+                        get_sentences function and the get_tokens function parse sentences or
+                        tokenize words into numeric vectors of sentiment values. Parsing text is a
+                        basic query used to process natural languages, as computers cannot read
+                        characters, only numbers. Swafford points out the problems with the OpenNLP
+                        parser when grouping sentences [Swafford 2015], and Jockers responds to her
+                        by asserting that the OpenNLP parser and the Stanford CoreNLP parser are
+                            <quote rend="inline">good enough</quote> [Jockers 2015], although he
+                        admits that these parsers have problems. In fact, the Stanford parser is a
+                        well-constructed tool, which applies a Part-Of-Speech Tagger (POS Tagger).
+                        The OpenNLP parser has been improved, but I found that Syuzhet no longer
+                        uses the OpenNLP parser for the get_sentences function, despite Jockers
+                        mentioning that it does [Jockers 2017a]. Instead, Syuzhet draws upon the
+                        Textshape package developed by Tyler Rinker for parsing sentences. It seems
+                        the Syuzhet manual has not been updated yet, as this change in the parser by
+                        Jockers went undocumented. It is possible that Jockers made the change in
+                        order to acknowledge the limits of the OpenNLP parser for literary text.
+                        Syuzhet 1.0.2 was updated with the removal of the Java dependency, which
+                        means that Syuzhet users do not have to install Oracle’s Java and its
+                        dependent packages, <q>openNLPdata</q> and <q>rJava,</q> anymore to utilize
+                        the Textshape package, in addition to parallelization of the get_sentiment
+                        function by Philip Bulsink on July 28, 2017. </p>
+                    <table>
+                        <head>Comparison of the parsing results from sixteen novels using Syuzhet
+                            0.2.0 and 1.0.4</head>
+                        <row>
+                            <cell role="label">Author | Title Version</cell>
+                            <cell role="label"> Syuzhet 0.2.0</cell>
+                            <cell role="label">Syuzhet 1.0.4</cell>
+                            <cell role="label">Change</cell>
+                        </row>
+                        <row>
+                            <cell role="data">Charles Dickens</cell>
+                            <cell role="data"><title rend="italic">Oliver Twist</title></cell>
+                            <cell role="data">6,887</cell>
+                            <cell role="data">9,128</cell>
+                            <cell role="data">+35.24%</cell>
+                        </row>
+                        <row>
+                            <cell/>
+                            <cell role="data"><title rend="italic">Bleak House</title></cell>
+                            <cell role="data">18,171</cell>
+                            <cell role="data">20,319</cell>
+                            <cell role="data">+11.82%</cell>
+                        </row>
+                        <row>
+                            <cell/>
+                            <cell role="data"><title rend="italic">Little Dorrit</title></cell>
+                            <cell role="data">16,241</cell>
+                            <cell role="data">18,110</cell>
+                            <cell role="data">+11.51%</cell>
+                        </row>
+                        <row>
+                            <cell/>
+                            <cell role="data"><title rend="italic">Our Mutual Friend</title></cell>
+                            <cell role="data">15,339</cell>
+                            <cell role="data">20,261</cell>
+                            <cell role="data">+32.09%</cell>
+                        </row>
+                        <row>
+                            <cell role="data">George Eliot</cell>
+                            <cell role="data"><title rend="italic">Adam Bede</title></cell>
+                            <cell role="data">8,199</cell>
+                            <cell role="data">8,909</cell>
+                            <cell role="data">+8.66%</cell>
+                        </row>
+                        <row>
+                            <cell/>
+                            <cell role="data"><title rend="italic">Mill on the Floss</title></cell>
+                            <cell role="data">7,597</cell>
+                            <cell role="data">8,768</cell>
+                            <cell role="data">+10.19%</cell>
+                        </row>
+                        <row>
+                            <cell/>
+                            <cell role="data"><title rend="italic">Middlemarch</title></cell>
+                            <cell role="data">13,540</cell>
+                            <cell role="data">14,415</cell>
+                            <cell role="data">+6.46%</cell>
+                        </row>
+                        <row>
+                            <cell role="data">Charlotte Brontë</cell>
+                            <cell role="data"><title>Jane Eyre</title></cell>
+                            <cell role="data">8,605</cell>
+                            <cell role="data">9,663</cell>
+                            <cell role="data">+12.30%</cell>
+                        </row>
+                        <row>
+                            <cell/>
+                            <cell role="data"><title rend="italic">Villette</title></cell>
+                            <cell role="data">9,172</cell>
+                            <cell role="data">10,179</cell>
+                            <cell role="data">+10.98%</cell>
+                        </row>
+                        <row>
+                            <cell role="data">Emily Brontë</cell>
+                            <cell role="data"><title rend="italic">Wuthering Heights</title></cell>
+                            <cell role="data">5,528</cell>
+                            <cell role="data">6,755</cell>
+                            <cell role="data">+22.20%</cell>
+                        </row>
+                        <row>
+                            <cell role="data">Jane Austen</cell>
+                            <cell role="data"><title rend="italic">Pride and
+                                Prejudice</title></cell>
+                            <cell role="data">5,633</cell>
+                            <cell role="data">5,938</cell>
+                            <cell role="data">+5.41%</cell>
+                        </row>
+                        <row>
+                            <cell role="data">Wilkie Collins</cell>
+                            <cell role="data"><title rend="italic">The Woman in White</title></cell>
+                            <cell role="data">12,675</cell>
+                            <cell role="data">13,472</cell>
+                            <cell role="data">+6.29%</cell>
+                        </row>
+                        <row>
+                            <cell role="data">Elizabeth Gaskell</cell>
+                            <cell role="data"><title rend="italic">North and South</title></cell>
+                            <cell role="data">8,739</cell>
+                            <cell role="data">10,418</cell>
+                            <cell role="data">+19.21%</cell>
+                        </row>
+                        <row>
+                            <cell role="data">Mary Elizabeth Braddon</cell>
+                            <cell role="data"><title rend="italic">Lady Audley's
+                                Secret</title></cell>
+                            <cell role="data">6,670</cell>
+                            <cell role="data">7,288</cell>
+                            <cell role="data">+9.27%</cell>
+                        </row>
+                        <row>
+                            <cell role="data">Thomas Hardy</cell>
+                            <cell role="data"><title rend="italic">The Return of the
+                                Native</title></cell>
+                            <cell role="data">7,888</cell>
+                            <cell role="data">8,922</cell>
+                            <cell role="data">+13.11%</cell>
+                        </row>
+                        <row>
+                            <cell role="data">James Joyce</cell>
+                            <cell role="data"><title rend="italic">A Portrait of the Artist as a
+                                    Young Man</title></cell>
+                            <cell role="data">5,146</cell>
+                            <cell role="data">5,347</cell>
+                            <cell role="data">+3.91%</cell>
+                        </row>
+                        <row>
+                            <cell role="data">Total Sentences</cell>
+                            <cell role="data">156,390</cell>
+                            <cell role="data">177,892</cell>
+                            <cell role="data">+13.75%</cell>
+                        </row>
+                    </table>
+                    <p>In table 4, I compared the parsing results from sixteen novels using Syuzhet
+                        0.2.0 with the OpenNLP parser and Syuzhet 1.0.4 with the Textshape parser in
+                        order to examine the improvements of the parsing function in Syuzhet. Table
+                        4 reveals the fact that the parsing function of Syuzhet was improved across
+                        the board after Syuzhet deployed the Textshape package for parsing instead
+                        of the OpenNLP parser. The parsing results from the sixteen novels between
+                        Syuzhet 0.2.0 and 1.0.4 have a 13.75% increase. For example, table 5, which
+                        shows the parsing result from Charles Dickens’ Our Mutual Friend, informs
+                        that the parsing function of Syuzhet 1.0.2 was improved by splitting
+                        sentences more correctly. The OpenNLP parser often failed to split sentences
+                        such as: <quote rend="inline"><quote rend="inline">I’ll take the rest of the
+                                spell.</quote>
+                            <quote rend="inline">No, no, father!</quote></quote> In addition, the
+                        OpenNLP parser did not split sentences which ended with exclamation and
+                        quotation marks. For example, table 5, which is the parsing result from
+                        George Eliot’s Middlemarch, is one of examples that proves that the OpenNLP
+                        does not process an exclamation mark as a splitter. In other words, the
+                        Textshape package parsed the text into sentences more correctly than the
+                        OpenNLP parser based on tables 4, 5 and 6. </p>
+                    <table>
+                        <head>Parsing from George Eliot’s <title rend="italic">Middlemarch</title>
+                            (Chapter 1)</head>
+                        <row>
+                            <cell role="label">Syuzhet ≤ 1.0.1</cell>
+                            <cell role="label">Syuzhet ≥ 1.0.2</cell>
+                        </row>
+                        <row>
+                            <cell role="data"><quote rend="inline">Has Mr. Casaubon a great
+                                    soul?</quote> Celia was not without a touch of naive
+                                malice.</cell>
+                            <cell role="data"><quote rend="inline">Has Mr. Casaubon a great
+                                    soul?</quote></cell>
+                        </row>
+                        <row>
+                            <cell/>
+                            <cell role="data">Celia was not without a touch of naive malice.</cell>
+                        </row>
+                    </table>
+                    <table>
+                        <head>Parsing from Charles Dickens’ <title rend="italic">Our Mutual
+                                Friend</title> (Book 1, Chapter 1)</head>
+                        <row>
+                            <cell role="label">Syuzhet ≤ 1.0.1</cell>
+                            <cell role="label">Syuzhet ≥ 1.0.2</cell>
+                        </row>
+                        <row>
+                            <cell role="data">‘Here! and give me hold of the sculls.</cell>
+                            <cell role="data">‘Here!</cell>
+                        </row>
+                        <row>
+                            <cell role="data"/>
+                            <cell role="data">and give me hold of the sculls.</cell>
+                        </row>
+                        <row>
+                            <cell role="data">I’ll take the rest of the spell.’ ‘No, no,
+                                father!</cell>
+                            <cell role="data">I’ll take the rest of the spell.’</cell>
+                        </row>
+                        <row>
+                            <cell role="data"/>
+                            <cell role="data">‘No, no, father!</cell>
+                        </row>
+                        <row>
+                            <cell role="data">No! I can’t indeed.</cell>
+                            <cell role="data">No!</cell>
+                        </row>
+                        <row>
+                            <cell role="data"/>
+                            <cell role="data">I can’t indeed.</cell>
+                        </row>
+                    </table>
+                    <table>
+                        <head>Parsing from Charles Dickens’ <title rend="italic">Bleak House</title>
+                            (Book 1, Chapter 3)</head>
+                        <row>
+                            <cell role="label">Syuzhet ≤ 1.0.1</cell>
+                            <cell role="label">Syuzhet ≥ 1.0.2</cell>
+                        </row>
+                        <row>
+                            <cell role="data"><quote rend="inline">Mrs. Rachael, I needn’t inform
+                                    you who were acquainted with the late Miss Barbary’s affairs,
+                                    that her means die with her and that this young lady, now her
+                                    aunt is dead--</quote>
+                                <quote rend="inline">My aunt, sir!</quote>
+                                <quote rend="inline">It is really of no use carrying on a deception
+                                    when no object is to be gained by it,</quote> said Mr. Kenge
+                                smoothly, <quote rend="inline">Aunt in fact, though not in
+                                    law.</quote></cell>
+                            <cell role="data"><quote rend="inline">Mrs. Rachael, I needn’t inform
+                                    you who were acquainted with the late Miss Barbary’s affairs,
+                                    that her means die with her and that this young lady, now her
+                                    aunt is dead--</quote>
+                                <quote rend="inline">My aunt, sir!</quote></cell>
+                        </row>
+                        <row>
+                            <cell role="data"/>
+                            <cell role="data"><quote rend="inline">It is really of no use carrying
+                                    on a deception when no object is to be gained by it,</quote>
+                                said Mr. Kenge smoothly, <quote rend="inline">Aunt in fact, though
+                                    not in law.</quote></cell>
+                        </row>
+                    </table>
+                    <p>Based on the parsing result in table 7, the Textshape parser split sentences
+                        after an exclamation mark, but not a dash. Syuzhet 1.0.4 with the Textshape
+                        parser sorts sentences better than Syuzhet 1.0.1 with the OpenNLP parser.
+                        The Textshape parser, however, still has room for improvement for splitting
+                        sentences. For example, the Textshape parser infrequently fails to split
+                        sentences based on a period, such as: <quote rend="inline"><quote
+                                rend="inline">My dear, I don’t know it,</quote> said I. <quote
+                                rend="inline">You do,</quote> she said very shortly.</quote> (<title
+                            rend="italic">Bleak House</title>, Book 1, Chapter 4) in addition to the
+                        dash. Based on the parsed result of sixteen novels, I concluded that the
+                        Textshape package basically separates sentences based on a period,
+                        exclamation mark, or question mark.</p>
+                </div>
+                <div>
+                    <head>3.2 Get_Sentiment</head>
+                    <p>Syuzhet allocates different numeric vectors to each word/sentence based on
+                        the lexicon chosen. These transitioned numeric vectors are turned into
+                        structured data or visualization for further analysis. In Syuzhet, the
+                        get_sentiment function transforms texts into accumulative numeric values for
+                        sentiment analysis by matching each word with sentiment scores in selected
+                        lexicons. Reloading the get_sentiment function, the Syuzhet lexicon and
+                        English are set as default. If languages except for English are inputted
+                        into Syuzhet, an error or the following message will pop up: <quote
+                            rend="inline">Sorry, your language choice is not yet supported.</quote>
+                        Jockers revealed that in Syuzhet 2.0, <quote rend="inline">support for
+                            sentiment detection in multiple languages was added by using the
+                            expanded NRC lexicon from Saif Mohammed</quote> [Jockers 2017c]. In
+                        order to use the NRC lexicon, the get_nrc_sentiment function needs to be
+                        employed. The get_nrc_sentiment function simply helps perform sentiment
+                        analysis with the NRC lexicon by transforming character values into numeric
+                        vectors through the get_nrc_values function. The get_nrc_values function
+                        calls on the DplyR and TidyR packages in order to execute sentiment analysis
+                        with the NRC lexicon. Transformed numeric vectors are allocated into each
+                        emotion categorization.</p>
+                    <p>Syuzhet does not detect the syntactical and semantic information of each
+                        sentence, but simply transforms each word found in the lexicons into
+                        numerical sentiment vectors. Using deep neural network (DNN) models, when it
+                        comes to approaching NLP, word embeddings, which are <q>typically
+                            pre-trained,</q> made it possible for the learned word vectors to
+                            <q>capture general syntactical and semantic information</q> [Do et al.
+                        2019, 276]. I tested this with a variety of different sentences via the
+                        get_sentiment function, which uses the Syuzhet lexicon by default (see table
+                        8). The results from both A and B were 0.75. The word, <q>happy</q> was
+                        allocated 0.75 points by the Syuzhet lexicon, but the get_sentiment function
+                        ignored <q>not</q> in B. I also tested B by replacing <q>not</q> with
+                            <q>never,</q> and I got the same result. Furthermore, C produced –0.5
+                        points, and D generated 0.25 points. The word, <q>sad</q> was given –0.5
+                        points. D scored 0.25 points due to the combination of <q>sad</q> (–0.5) and
+                            <q>happy</q> (0.75). I also tested the sentences with the Bing, Afinn,
+                        and NRC lexicons, using the get_sentiment function.</p>
+                    <table>
+                        <head>Experiment in Syuzhet with four lexicons</head>
+                        <row>
+                            <cell/>
+                            <cell role="label">Sentences</cell>
+                            <cell role="label">Syuzhet</cell>
+                            <cell role="label">Bing</cell>
+                            <cell role="label">Afinn</cell>
+                            <cell role="label">NRC</cell>
+                        </row>
+                        <row>
+                            <cell role="data">A.</cell>
+                            <cell role="data">She was happy.</cell>
+                            <cell role="data">0.75</cell>
+                            <cell role="data">1</cell>
+                            <cell role="data">3</cell>
+                            <cell role="data">1</cell>
+                        </row>
+                        <row>
+                            <cell role="data">B.</cell>
+                            <cell role="data">She was not happy.</cell>
+                            <cell role="data">0.75</cell>
+                            <cell role="data">1</cell>
+                            <cell role="data">3</cell>
+                            <cell role="data">1</cell>
+                        </row>
+                        <row>
+                            <cell role="data">C.</cell>
+                            <cell role="data">She was sad.</cell>
+                            <cell role="data">–0.5</cell>
+                            <cell role="data">–1</cell>
+                            <cell role="data">–2</cell>
+                            <cell role="data">0</cell>
+                        </row>
+                        <row>
+                            <cell role="data">D.</cell>
+                            <cell role="data">She was happy but she is sad now.</cell>
+                            <cell role="data">0.25</cell>
+                            <cell role="data">0</cell>
+                            <cell role="data">1</cell>
+                            <cell role="data">1</cell>
+                        </row>
+                        <row>
+                            <cell role="data">E.</cell>
+                            <cell role="data">She was happy, and she is still happy now.</cell>
+                            <cell role="data">0.75</cell>
+                            <cell role="data">1</cell>
+                            <cell role="data">3</cell>
+                            <cell role="data">1</cell>
+                        </row>
+                        <row>
+                            <cell role="data">F.</cell>
+                            <cell role="data">She was happy but she is no longer happy.</cell>
+                            <cell role="data">0.75</cell>
+                            <cell role="data">1</cell>
+                            <cell role="data">2</cell>
+                            <cell role="data">1</cell>
+                        </row>
+                        <row>
+                            <cell role="data">G.</cell>
+                            <cell role="data">She was extremely happy.</cell>
+                            <cell role="data">0.75</cell>
+                            <cell role="data">1</cell>
+                            <cell role="data">3</cell>
+                            <cell role="data">1</cell>
+                        </row>
+                    </table>
+                    <p>This result indicates that the Syuzhet package still has issues when
+                        semantically detecting sentences, as Swafford has pointed out in the Syuzhet
+                        0.2.0 version. The comparison between A and B shows that Syuzhet has no
+                        function to detect negators. D and F depict the void of a detector for
+                        adversative conjunctions in Syuzhet. In addition, the fact that the
+                        sentiment score of A is same with that of G reveals that Syuzhet does not
+                        properly detect amplifiers. Table 8 demonstrates how Syuzhet simply reports
+                        accumulative sentiment scores based on the words in each sentence.</p>
+                </div>
+                <div>
+                    <head>3.3 Syuzhet Functions for Sentiment Trajectory</head>
+                    <p>Jockers mentions that the more sentences you have in a chunk, the less
+                        extreme plot trajectories become. There are four different functions in
+                        Syuzhet to show the emotional valence of stories throughout narrative time:
+                        the get_sentiment, get_percentage_values, get_transformed_values, and
+                        get_dct_transform functions. I used the get_sentiment function to get the
+                        sentiment scores above, which provides the sentiment values of each word or
+                        sentence. The get_percentage_values function <quote rend="inline">divides a
+                            text into an equal number of <quote rend="inline">chunks</quote> and
+                            then calculates the mean sentiment valence for each.</quote> The
+                        get_transformed_value function uses the Fourier with a low pass filter to
+                        make the graph smooth, but Jockers recommends the get_dct_transform function
+                        in lieu of the get_transformed_value because the get_transformed_value is
+                        only being maintained for legacy purposes. The get_dct_tansform function
+                        draws upon <quote rend="inline">the simpler discrete cosine transformation
+                            (DCT),</quote> and its strength is to depict <quote rend="inline">edge
+                            values in the smoothed version of the sentiment vector</quote> [Jockers
+                        2017a]. The get_percentage_values, get_transformed_value and
+                        get_dct_transform functions are percentage-based functions, whereas the
+                        get_sentiment function is based on the number of sentences. The four
+                        functions are displayed with an X axis for narrative time and a Y axis for
+                        emotional valence.</p>
+                </div>
+            </div>
+        </body>
+        <back>
+            <listBibl>
+                <bibl/>
+            </listBibl>
+
+        </back>
+    </text>
+</TEI>
