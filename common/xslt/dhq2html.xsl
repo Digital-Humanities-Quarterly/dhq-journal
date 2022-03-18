@@ -1590,7 +1590,7 @@
             <div id="worksCited">
                 <h2>Works Cited</h2>
                 <xsl:apply-templates select="/tei:TEI/tei:text/tei:back/tei:listBibl//tei:bibl">
-                    <xsl:sort data-type="text" select="@label"/>
+                    <xsl:sort data-type="text" select="(@sortKey, @label)[1]"/>
                     <!-- insert logic for calling biblio -->
                 </xsl:apply-templates>
             </div>
