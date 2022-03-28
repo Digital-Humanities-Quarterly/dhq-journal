@@ -18,7 +18,6 @@
     <!--<xsl:strip-space elements="dhqBiblio:*"/>-->
 
     <!-- <xsl:param name="aprilfool" select="'true'"/> -->
-    <xsl:param name="oldest_vol_with_pdf" select="number('13')" as="xs:double"/>
     <xsl:param name="static_server" select="'https://dhq-static.digitalhumanities.org/'"/>
     <xsl:param name="static_pdf_directory" select="'pdf'"/>
     <xsl:param name="context"/>
