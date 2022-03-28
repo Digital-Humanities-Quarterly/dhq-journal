@@ -18,7 +18,8 @@
     <!--<xsl:strip-space elements="dhqBiblio:*"/>-->
 
     <!-- <xsl:param name="aprilfool" select="'true'"/> -->
-    <xsl:param name="oldest_vol_with_pdf" select="number('13')" as="xs:double"/>
+    <xsl:param name="static_server" select="'https://dhq-static.digitalhumanities.org/'"/>
+    <xsl:param name="static_pdf_directory" select="'pdf'"/>
     <xsl:param name="context"/>
     <xsl:param name="docurl"/>
     <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
@@ -222,15 +223,15 @@
                 </xsl:attribute>
                 <xsl:text>XML</xsl:text>
             </a>
-            <xsl:if test="$vol_no_zeroes >= $oldest_vol_with_pdf">
+            
                 |&#x00a0;
                 <a rel="external">
                     <xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.pdf')"/>
+                        <xsl:value-of select="concat($static_server,$static_pdf_directory,'/',$id,'.pdf')"/>
                     </xsl:attribute>
                     <xsl:text>PDF</xsl:text>
                 </a>
-            </xsl:if>
+            
             |&#x00a0;
             <a href="#" onclick="javascript:window.print();"
                 title="Click for print friendly version">Print</a>
