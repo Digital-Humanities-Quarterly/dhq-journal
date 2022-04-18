@@ -14,7 +14,7 @@
           <link rel="stylesheet" type="text/css" media="print" href="/{$context}/common/css/dhq_print.css"/>
           <link rel="alternate" type="application/atom+xml"  href="/{$context}/feed/news.xml"/>
           <link rel="shortcut icon" href="/{$context}/common/images/favicon.ico"/>
-          <script type="text/javascript" src="/{$context}/common/js/javascriptLibrary.js">
+          <script defer="defer" type="text/javascript" src="/{$context}/common/js/javascriptLibrary.js">
             <xsl:comment> serialize </xsl:comment>
           </script>
             <!-- Google Analytics -->
