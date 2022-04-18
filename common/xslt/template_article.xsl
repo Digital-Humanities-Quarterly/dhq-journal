@@ -145,6 +145,7 @@
                 <xsl:call-template name="customBody"/>
                 <xsl:call-template name="body-end-scripts"/>
             </body>
+            <script>externalLinks();</script>
         </html>
     </xsl:template>
     

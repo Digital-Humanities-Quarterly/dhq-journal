@@ -167,4 +167,4 @@ function externalLinks() {
     }
     showLang();
 }
-window.onload = externalLinks;
+
