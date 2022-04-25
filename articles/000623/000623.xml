@@ -1,0 +1,1566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
+<?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+   xmlns:mml="http://www.w3.org/1998/Math/MathML">
+   <teiHeader>
+      <fileDesc>
+         <titleStmt>
+            <title type="article" xml:lang="en">Algorithmic Close Reading: Using Semantic Triplets
+               to Index and Analyze Agency in Holocaust Testimonies</title>
+            <dhq:authorInfo>
+               <dhq:author_name>Todd <dhq:family>Presner</dhq:family>
+               </dhq:author_name>
+               <idno type="ORCID"
+                  ><!--if the author has an ORCID ID, include the full URI, e.g. https://orcid.org/0000-0000-0000-0000--></idno>
+               <dhq:affiliation>UCLA</dhq:affiliation>
+               <email>presner@ucla.edu</email>
+               <dhq:bio>
+                  <p>Todd Presner is Chair of UCLA’s Digital Humanities Program and Ross Professor
+                     of Germanic Languages and Comparative Literature. Since 2018, he is Associate
+                     Dean of Digital Innovation in the Division of Humanities and Adviser to the
+                     Vice Chancellor of Research for Humanities, Arts, and Social Sciences
+                     research.</p>
+               </dhq:bio>
+            </dhq:authorInfo>
+            <dhq:authorInfo>
+               <dhq:author_name>Lizhou <dhq:family>Fan</dhq:family>
+               </dhq:author_name>
+               <idno type="ORCID"
+                  ><!--if the author has an ORCID ID, include the full URI, e.g. https://orcid.org/0000-0000-0000-0000--></idno>
+               <dhq:affiliation>University of Michigan</dhq:affiliation>
+               <email>lizhouf@umich.edu</email>
+               <dhq:bio>
+                  <p/>
+               </dhq:bio>
+            </dhq:authorInfo>
+         </titleStmt>
+         <publicationStmt>
+            <publisher>Alliance of Digital Humanities Organizations</publisher>
+            <publisher>Association for Computers and the Humanities</publisher>
+            <!--This information will be completed at publication-->
+            <idno type="DHQarticle-id">000623</idno>
+            <idno type="volume"
+               ><!--volume number, with leading zeroes as needed to make 3 digits: e.g. 006--></idno>
+            <idno type="issue"><!--issue number, without leading zeroes: e.g. 2--></idno>
+            <date/>
+            <dhq:articleType>article</dhq:articleType>
+            <availability status="CC-BY-ND">
+               <!--If using a different license from the default, choose one of the following:
+                  CC-BY-ND (DHQ default):        
+                  CC-BY:    
+                  CC0:  -->
+               <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>
+            </availability>
+         </publicationStmt>
+         <sourceDesc>
+            <p>This is the source</p>
+         </sourceDesc>
+      </fileDesc>
+      <encodingDesc>
+         <classDecl>
+            <taxonomy xml:id="dhq_keywords">
+               <bibl>DHQ classification scheme; full list available at <ref
+                     target="http://www.digitalhumanities.org/dhq/taxonomy.xml"
+                     >http://www.digitalhumanities.org/dhq/taxonomy.xml</ref>
+               </bibl>
+            </taxonomy>
+            <taxonomy xml:id="authorial_keywords">
+               <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+            </taxonomy>
+         </classDecl>
+      </encodingDesc>
+      <profileDesc>
+         <langUsage>
+            <language ident="en" extent="original"/>
+            <language ident="de"/>
+         </langUsage>
+         <textClass>
+            <keywords scheme="#dhq_keywords">
+               <!--Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors-->
+               <list type="simple">
+                  <item/>
+               </list>
+            </keywords>
+            <keywords scheme="#authorial_keywords">
+               <!--Authors may include one or more keywords of their choice-->
+               <list type="simple">
+                  <item>Indexing Agency in Testimonies</item>
+                  <item>Digital Humanities</item>
+                  <item>Holocaust Studies</item>
+                  <item>Information Extraction</item>
+                  <item>Semantic Triplets</item>
+               </list>
+            </keywords>
+         </textClass>
+      </profileDesc>
+      <revisionDesc>
+         <!--Each change should include @who and @when as well as a brief note on what was done.-->
+         <change/>
+      </revisionDesc>
+   </teiHeader>
+   <text xml:lang="en" type="original">
+      <front>
+         <dhq:abstract>
+            <p>The following article presents a digital humanities exploration of indexing and
+               analyzing expressions of agency in Holocaust testimonies. Using a set of text
+               analysis methods to identify, classify, and visualize “semantic triplets,” we show
+               how attention to agency complements and extends conventional approaches to indexing.
+               Our examples come from two corpora of Holocaust oral histories: the first were
+               conducted in Displaced Persons camps in 1946 by an interviewer named David Boder; the
+               second were conducted by the USC Shoah Foundation Visual History Archive in the
+               1990s. We focus on two salient testimonies from each corpus in order to describe the
+               methodology and what the analysis of agency can contribute to the writing of
+               “microhistories” of the Holocaust. Building on semantic web analyses, the methods
+               provide a groundwork for the development of a graph database to search testimonies by
+               agency and thereby provide historical insights about what people report they did and
+               what was done to them.</p>
+         </dhq:abstract>
+         <dhq:teaser>
+            <!--Include a brief teaser, no more than a phrase or a single sentence-->
+            <p/>
+         </dhq:teaser>
+      </front>
+      <body>
+         <div>
+            <head>1: Introduction</head>
+            <p>Oral histories conducted with survivors are infinitely rich sources for understanding
+               the complex events of the Holocaust. As first-person narratives, oral history
+               interviews with Holocaust survivors provide vital, eyewitness testimony about the
+               rise of Nazi Germany, the violent acts of genocide, and reflections on its aftermath.
+               The <q>era of the witness,</q> as Annette Wieviorka calls it, coincides with the
+               emergence of institutional recording initiatives, such as those at Yad Vashem, Yale’s
+               Fortunoff Video Archive, the US Holocaust Memorial Museum (USHMM), and the USC Shoah
+               Foundation Visual History Archive [Wieviorka 2006]. Altogether, these archives have
+               recorded well over one-hundred thousand hours of testimony and preserved hundreds of
+               thousands of individual stories.</p>
+            <p>Because of the sheer size of these collections, indexing systems are critically
+               important for accessing their content. As such, all of these collections can be
+               searched effectively by names, dates, events, places, organizations, and various
+               subject headings. This is because <q>noun-based ontologies</q> form the taxonomic
+               structure of most indexing systems and finding aids. Attuned to the objective realm
+               of what was said, these ontologies help make the general content of an oral history
+               discoverable and accessible to researchers and the broader community of listeners.
+               When users enter keywords into a textbox, search and retrieval works because the
+               content is consistently and thoroughly described by a standardized, controlled
+               vocabulary [Presner 2016).</p>
+            <p>Not surprisingly, this is also the approach of most entity-recognition software
+               packages, such as OpenNLP [The Apache Software Foundation 2017) and SpaCy [Explosion
+               AI 2020), which are very successful at identifying things said, such as proper names,
+               organizations, geographic locations, historical events, dates, units of time,
+               quantities, and other numerical units, such as percentages and times of day. But one
+               of the fundamental limits is the focus on extracting isolated elements (primarily
+               nouns) rather than larger narrative units that describe what people did and what was
+               done to them. The purpose of this paper is to ask: In what ways can oral histories be
+               mined computationally to index how survivors narrate behaviors, actions, reactions,
+               assessments, and modes of self-orientation and personal agency? This is vitally
+               important in Holocaust testimonies since agency is often described within networks of
+               violence and coercion. This paper explores a method for extracting, characterizing,
+               and interlinking <q>semantic triplets</q> to index and analyze vectors of action and
+               agency, rather than just discrete topics, themes, or isolated nouns. In so doing, we
+               complement conventional indexing to gain a richer, nuanced understanding of the
+               events, agents, and actions described in a testimony.</p>
+            <p>A semantic triplet is a grammatical unit consisting of <term>Subjects</term>,
+                  <term>Relations</term>, and <term>Objects</term>. <term>Subject</term>s are units
+               consisting of nouns, primarily people, pronouns, and proper names, as well as direct
+               modifiers of the subject. <term>Relation</term>s are verb units including one or more
+               verbs, related prepositions, and modifiers like adverbs. <term>Objects</term>, both
+               direct and indirect, have a broader range of parts-of-speech and include regular noun
+               units, adjectives, adverbs, and more. For example, <said>I removed the yellow
+                  patch</said><note> Removing the <q>yellow patch</q> refers to removing the yellow
+                  star that Jews were forced to wear on their outer garments to identify themselves
+                  publicly. </note> is a semantic triplet expressed as active speech (something the
+               subject did), while <said>I was shipped to Auschwitz</said> is a semantic triplet
+               expressed as passive speech (something done by an unspecified agent to the subject).
+               By linking semantic triplets with descriptive, keyword metadata, we hope to show how
+               new patterns of agency and previously unrecognized <quote rend="inline"
+                  >microhistories</quote> [Zalc and Bruttmann 2016) can be highlighted and
+               discovered within oral histories. Rather than considering our method as a reduction
+               or simplification of the text into discrete units of data, we argue that semantic
+               triplets form a paratext that highlights the richness of the testimonial narrative by
+               adding to existing metadata and methods of indexing.</p>
+         </div>
+         <div>
+            <head>2: Indexing Approaches in Two Corpora of Holocaust Testimonies</head>
+            <div>
+               <head>2.1: Corpus #1: David Boder’s 1946 Interviews with Displaced Survivors </head>
+               <p>The psychologist and linguist David Boder has a unique place in the history of
+                  Holocaust testimony collection because he was the first person to record the
+                  voices of displaced survivors in their own words after the end of World War
+                     II.<note> Both before and after the time that Boder completed his audio
+                     recordings, various Historical Commissions throughout Germany, Poland, Hungary,
+                     and Eastern Europe also collected personal stories, primarily through written
+                     questionnaires and interviews [Jockusch 2012).</note> In the summer and early
+                  fall of 1946, he conducted over a hundred interviews with Jewish survivors and
+                  other displaced people in nine different languages (mostly in German and Yiddish,
+                  but also in English, Russian, Polish, French, Lithuanian, Latvian, and Spanish),
+                  using a relatively new technology called a wire recorder.<note> The best biography
+                     of Boder and the significance of his recordings is <title rend="italic">The
+                        Wonder of their Voices: The 1946 Holocaust Interviews of David Boder</title>
+                     [Rosen 2010).</note> He carried out his interviews in Displaced Persons (DP)
+                  camps and other safe houses in France, Switzerland, Italy, and Germany, mostly
+                  with Jewish survivors of concentration camps and slave labor camps, as well as
+                  with a smaller group of non-Jewish refugees consisting of Mennonites and other
+                  Christians who had fled Soviet territories. The interviews range in length from
+                  about 15 minutes to over four hours, with most about one-hour in duration. He
+                  asked over 16,000 questions to his subjects in an attempt to understand the
+                  historical events of the Holocaust and learn about his interviewee’s personal
+                  story of loss and survival.<note> Boder and his interviewees do not use the term
+                        <q>Holocaust,</q> as this term did not come into common usage until the
+                     1950s to describe the Nazi genocide of the Jews. He does, however, refer to and
+                     attempt to explicate <quote>the concentration camp phenomenon</quote> (xiv) in
+                     the preface to his book of interviews, <title rend="italic">I Did Not Interview
+                        the Dead </title>(1949). He says that the <q>displaced</q> and
+                        <q>uprooted</q> people were <quote>dislocated by a world catastrophe</quote>
+                     (xviii), perhaps referencing the Hebrew word <foreign xml:lang="iw"
+                        >Shoah</foreign> or the Yiddish word <foreign xml:lang="yi"
+                        >Churban</foreign>, both of which were used by his interviewees to describe
+                     the destruction of the Jewish communities of Europe.</note> Today, Boder’s
+                  interviews are available online, as audio files in their original languages as
+                  well as in English translation, through the Illinois Institute of Technology’s
+                     <title rend="quotes">Voices of the Holocaust</title> project.<note> Copies of
+                     the original wire spools were sent to the Library of Congress, which, decades
+                     later, procured the technical means to undertake the media transfer of the
+                     wire-recorded audio to tape. Later, they were digitized by the Illinois
+                     Institute of Technology (IIT) and made available as WAV files through the
+                     Aviary platform. The interviews can be accessed on the Voices of the Holocaust
+                     website: <ref target="https://voices.library.iit.edu/david_boder"
+                        >https://voices.library.iit.edu/david_boder</ref>. The English translations,
+                     annotations, and indexing were done by Boder for the testimonies in his book,
+                        <title rend="italic">Topical Autobiographies of Displaced People
+                     </title>(Boder 1950-56).</note>
+               </p>
+               <p>After the interviews were recorded, Boder spent nearly ten years preparing a
+                  3,194-page anthology of the survivor reports, which he called <title rend="italic"
+                     >Topical Autobiographies of Displaced People</title>.<note> Boder’s full
+                     indices are found at the end of <title rend="italic">Topical Autobiographies of
+                        Displaced People</title> (Boder 1950-56), 3,105-3,159.</note> It consisted
+                  of typewritten translations, which he marked-up and indexed, of 70 of the
+                  testimonies. He developed the first indices for characterizing the experiences of
+                  Holocaust survivors, including a <q>subjects and situations</q> index with more
+                  than 300 entries, a <q>geographic and ethnic</q> index with over 400 entries, a
+                     <q>persons and organizations</q> index with close to 300 entries, and a
+                     <q>trauma inventory</q> enumerating 46 types of trauma and violence experienced
+                  by survivors. His <q>subjects and situations</q> index represented the first
+                  controlled vocabulary for indexing Holocaust testimonies and included shared
+                  experiences like deportations, selections, mistreatment, and killings as well as
+                  personal experiences such as food deprivation, thirst, and screaming.</p>
+               <p>Our analysis below will focus on two of these testimonies: The first is an
+                  interview he conducted on September 26, 1946, with a 34-year-old, Polish-Jewish
+                  woman named Anna Kovitzka (given the pseudonym <q>Anna Kaletska</q> by Boder).
+                  Kovitzka lost most of her family, including her young baby, who she had given to a
+                  Christian Polish woman in the hopes that the child would be able to survive. The
+                  Polish woman was later denounced by a neighbor, and the child was killed. The
+                  hour-long interview, spoken in Yiddish, covers about eight years of her life and
+                  moves between her birthplace of Kielce, escaping the Grodno ghetto, being deported
+                  to Auschwitz, and, finally, at the end of the war, being driven back into Germany,
+                  and ending up after the war in Wiesbaden, where she is interviewed. The second
+                  interview is with a German-Jewish survivor named Jürgen Bassfreund, who was also
+                  deported to Auschwitz, where he worked in a forced labor factory. Conducted in
+                  Munich on September 20, 1946, Bassfreund describes the rise of Hitler in Germany,
+                  the deportation and death of his mother, and the horrific conditions he endured
+                  while being transferred between multiple concentration camps. We chose this
+                  particular interview because Bassfreund – who later changed his name to Jack Bass
+                  – was re-interviewed by the USC Shoah Foundation in 1997, in his home in
+                  Alabama.</p>
+            </div>
+            <div>
+               <head>2.2: Corpus #2: The USC Shoah Foundation Visual History Archive</head>
+               <p>Containing about 55,000 audiovisual testimonies, the Shoah Foundation’s Visual
+                  History Archive (VHA) is the largest digital archive of Holocaust and genocide
+                  testimonies in the world. The videos range in length from several minutes to more
+                  than ten hours, although most are between one and three hours in duration.
+                  Indexers trained by the Foundation tagged the videos with keywords by linking
+                  one-minute segments of video to one or more search terms in its 60,000+ word,
+                  hierarchical thesaurus. In addition, transcripts are currently being created for
+                  many of the testimonies in their original languages as well as in English
+                     translation.<note> The Shoah Foundation generously provided our team with 983
+                     English-language transcripts prepared by ProQuest and an additional set of 900
+                     German language testimonies prepared by the Freie University in Berlin. While
+                     this article describes only the analyses conducted with English-language
+                     transcripts, the methods are being developed for German, too.</note>
+               </p>
+               <p>Using a tool called a “Video Indexing Application,” the majority of the
+                  testimonies were automatically separated into discrete, one-minute segments, and
+                  an indexer was prompted to assign a keyword from the thesaurus to the segment
+                  (although not every segment had to have an indexing keyword). The VHA derived its
+                  indexing protocols from the National Information Standards Organization’s Z39.19
+                  standard for the construction, format, and management of monolingual controlled
+                  vocabularies. While useful for identifying topics, people, places, and events for
+                  general searching, the index tends to obscure individual actions and agency, not
+                  to mention aspects of performative delivery, subjective experiences, and
+                  expressions of questioning, doubt, and possibility (Presner 2016). Even though the
+                  aim of the index is objectivity, it is important to underscore that a human
+                  listener decided what to index and what not to index; a human listener decided
+                  what indexing term to use and what indexing term not to use; and a human listener
+                  decided if a given narrative segment should be described by a keyword or not. What
+                  is missing in the indexing system’s “philosophy of pursued objectivity” (USC Shoah
+                  Foundation 2006) are the specific semantic expressions used by survivors to
+                  describe actions, give evaluative assessments, provide orientation, and tell about
+                  other types of agency and activities, including subjective experiences and
+                  everyday behaviors, reactions, and acts of resistance.</p>
+               <p>In addition to the Jürgen Bassfreund/Jack Bass re-interview, our analysis will
+                  focus on the testimony of Erika Jacoby. Jacoby, a Hungarian Jew deported to
+                  Auschwitz with her family in the Summer of 1944, survived the camp with her
+                  mother. Her family was among the hundreds of thousands of Hungarian Jews deported
+                  to Auschwitz at the height of the mass murder operations at Auschwitz. She was
+                  separated from her grandparents and other members of her family at the ramp of
+                  Auschwitz-Birkenau and never saw them again. She was able to stay together with
+                  her mother, and both were selected for forced labor at Auschwitz. Her testimony
+                  was recorded in her home in Los Angeles in 1994. Like the testimony of Bass, the
+                  interview follows the structure of a chronological life-story, beginning with
+                  childhood, experiences during the War and Holocaust, liberation, and eventual
+                  immigration to the United States.</p>
+               <p>The four testimonies discussed in this article are intended to provide a
+                  proof-of-concept for a method to identify and index expressions of agency. Our
+                  hope is that the methods can be used to complement conventional, subject-based
+                  indexing and open new possibilities for cross-corpora analysis. </p>
+            </div>
+         </div>
+         <div xml:id="bookmark=id.2et92p0">
+            <head>3 Methodology</head>
+            <p>
+               <hi rend="italic">Figure 1: Processing and Categorizing Triplets </hi>
+            </p>
+            <p>At the highest level, the aim of our research method is the transformation of a
+               Holocaust archives relational database (keywords linked to testimony segments) into a
+               Holocaust triplets graph database (networks of semantic triplets derived from the
+               testimonial transcripts). As shown in Figure 1, we use both interview transcripts and
+               their metadata, while our main contribution, as discussed in this article, is the
+               identification, extraction, and categorization of semantic triplets from the
+               transcripts. Our process can be summarized as follows: First, we identify and extract
+               triplets algorithmically from the cleaned transcripts; then, we use text mining
+               methods to assign categories and cluster the triplets; finally, the results are
+               manually reviewed (human check, correction, and curation). After that, they can be
+               stored, along with the original metadata, in a Tableau dashboard or eventually a
+               graph database for querying, indexing, and visualization. We will introduce these
+               core methods below.</p>
+            <div xml:id="bookmark=id.tyjcwt">
+               <head>3.1 Semantic Triplets Extraction</head>
+               <p>Triplestore and RDF store are databases optimized for storing and retrieving
+                  semantic triplets (Rusher 2006; Peter 2001). In general, triplets take the form of
+                  subject-predicate-object expressions and can be searched through network relations
+                  between entities. Digital humanities scholars have used semantic web methods, such
+                  as linked data, to facilitate interoperable research structures to analyze social
+                  or cultural datasets (Hyvönen 2020) as well as to model scholarly processes in the
+                  humanities by exploring the productive tension between formally structured,
+                  semantic data and humanities scholarship (Bradley and Pasin 2017). Inspired by
+                  both the database design of Triplestore and RDF store and their humanistic
+                  applications, we have developed our own process of extracting semantic triplets
+                  from spoken testimonies. Our approach is best situated in the field of information
+                  extraction for domain specific documents (in our case, Holocaust and genocide
+                  testimonies), while the methods and ideas are replicable in other domains such as
+                  oral histories more broadly, autobiographies, and personal narratives. </p>
+               <p>Traditionally, researchers proceed by creating open information extractors using
+                  token related patterns (Yates et al. 2007; Fader, Soderland, and Etzioni 2011) or
+                  dependency parsing related features (Wu and Weld 2010; Mausam et al. 2012). With
+                  the advancement of machine learning technologies, we now see a trend of switching
+                  the research focus from extracting informative and broad coverage semantic
+                  triplets to producing canonical triplets which are linguistically coherent
+                  (Angeli, Johnson Premkumar, and Manning 2015). This trend of research tends to
+                  focus on improving the extractors’ accuracy, and, to date, there are few
+                  applications that use semantic triplets to analyze spoken, personal narratives,
+                  which resist formalized structures. Our semantic triplets extraction method is an
+                  automated, rule-based process to aid close reading and focuses on extracting
+                  expressions of agency and statements that speak to memories of individual and
+                  collective actions. </p>
+               <p>This triplet extraction method leverages a combination of chunk parsing, also
+                  known as partial parsing, and domain specific dictionaries. It focuses on the
+                  lower-level chunks of nouns and/or adjectives (NAP) and verbs, which are groups of
+                  connected but non-recursive tokens with different levels in syntactic structures
+                  of sentences.<note> For simplicity and consistency, we still use the name <hi
+                        rend="italic">Noun Chunk</hi> to represent the extended version, i.e. nouns
+                     and/or adjectives (NAP).</note> The basic linguistic representation of the
+                  chunks’ rules with regular expression are converted from the NP and VP expressions
+                  of Abney (1996)’s rules as</p>
+               <p>
+                  <mml:math>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">N</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">A</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">P</mi>
+                     <mo xmlns="http://www.w3.org/1998/Math/MathML">→</mo>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">D</mi>
+                     <mo xmlns="http://www.w3.org/1998/Math/MathML">?</mo>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">A</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">*</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">N</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">*</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">N</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML"> </mi>
+                     <mo xmlns="http://www.w3.org/1998/Math/MathML">|</mo>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML"> </mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">D</mi>
+                     <mo xmlns="http://www.w3.org/1998/Math/MathML">?</mo>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">A</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">*</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">A</mi>
+                  </mml:math>
+               </p>
+               <p>and</p>
+               <p>
+                  <mml:math>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">V</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">P</mi>
+                     <mo xmlns="http://www.w3.org/1998/Math/MathML">→</mo>
+                     <msub xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mrow>
+                           <mi>V</mi>
+                        </mrow>
+                        <mrow>
+                           <mo>-</mo>
+                           <mi>t</mi>
+                           <mi>n</mi>
+                           <mi>s</mi>
+                        </mrow>
+                     </msub>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML"> </mi>
+                     <mo xmlns="http://www.w3.org/1998/Math/MathML">|</mo>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML"> </mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">A</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">u</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">x</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML"> </mi>
+                     <msub xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mrow>
+                           <mi>V</mi>
+                        </mrow>
+                        <mrow>
+                           <mo>-</mo>
+                           <mi>i</mi>
+                           <mi>n</mi>
+                           <mi>g</mi>
+                        </mrow>
+                     </msub>
+                  </mml:math>
+               </p>
+               <p>where <mml:math>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">D</mi>
+                  </mml:math> means determiner, <mml:math>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">A</mi>
+                  </mml:math> means adjectives, <mml:math>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">N</mi>
+                  </mml:math> means Nouns, <mml:math>
+                     <msub xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mrow>
+                           <mi>V</mi>
+                        </mrow>
+                        <mrow>
+                           <mo>-</mo>
+                           <mi>t</mi>
+                           <mi>n</mi>
+                           <mi>s</mi>
+                        </mrow>
+                     </msub>
+                  </mml:math> means the variation of a verb depending on its tense, <mml:math>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">A</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">u</mi>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">x</mi>
+                  </mml:math> means auxiliary, and <mml:math>
+                     <msub xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mrow>
+                           <mi>V</mi>
+                        </mrow>
+                        <mrow>
+                           <mo>-</mo>
+                           <mi>i</mi>
+                           <mi>n</mi>
+                           <mi>g</mi>
+                        </mrow>
+                     </msub>
+                  </mml:math> means the present participle of a verb. Using the natural language
+                  processing tools in SpaCy, we further extend these rules for chunks using the
+                  built-in Noun Chunk function and a customized Matcher of verb chunks.<note> Our
+                     work is built on the pretrained SpaCy model “en_core_web_lg,” which is an
+                     English pipeline with components including part of speech tagger, dependency
+                     parser, and lemmatizer.</note> Our extension includes more parts of speech as
+                  the possible components around core nouns, verbs, and adjectives, and we link the
+                  chunks together to check if we fully process the sentences.<note> Our method is
+                     inspired by the built-in SpaCy function of noun chunk extraction, as described
+                     in its python source code <ref
+                        target="https://github.com/explosion/spaCy/blob/master/spacy/lang/en/syntax_iterators.py"
+                        >syntax_iterators.py</ref>.</note>
+               </p>
+               <p>For example, Figure 2 shows a parsing tree with the different parts of a triplet.
+                  In the sentence “I was clinging to the window,” we detect the active agency of
+                  window clinging with “I” as the subject noun chunk and “the window” as the object
+                  noun chunk. In this case, the verb chunk includes the verb, an auxiliary verb, and
+                  a preposition. Using this extraction method, in our four example testimonies, we
+                  are able to extract more than 3,000 triplets. Some sentences may contain multiple
+                  triplets, such as this sentence: “I went with her down to the door, and there I
+                  stood across the street, hidden in the gate, and I saw how my child was lying on
+                  the snow.” In this example, four triplets were extracted: “I went with her,” “I
+                  stood across the street,” “I hidden in the gate,” and “my child was lying on the
+                  snow.” </p>
+               <p>
+                  <lb/>
+                  <hi rend="italic">Figure 2: A Parsing Tree with Lexical Chunks that Form a
+                     Triplet</hi>
+               </p>
+               <p>When parsing longer sentences, we always include, in a separate column for each
+                  triplet, what we call “context terms.” We define the context terms to be all the
+                  related lexical chunks other than those included in the extracted triplet. In the
+                  first triplet above (“I went with her”), the contextual chunks are the following
+                  words: the door, the street, the gate, my child, the snow. The context is
+                  especially important when we want to understand an action embedded in a complex
+                  sentence or create network diagrams from the triplets.<note> As discussed in
+                     section 5, we have also developed a fuller, chunk-based extraction method that
+                     enables us to capture longer object phrases with higher accuracy. </note>
+               </p>
+            </div>
+            <div xml:id="bookmark=id.3dy6vkm">
+               <head>3.2 Characterization: Action, Orientation, and Evaluation (AEO) Categories with
+                  Subcategories</head>
+               <p>One of our methods for characterizing semantic triplets is derived from Labov and
+                  Waletzky’s (1997) social-linguistic model of narratives, where clauses are
+                  characterized by temporal organization (the order in which the subject narrates
+                  events and actions in the story), evaluative description (personal assessments
+                  made by the narrator), and contextual orientation (usually information provided by
+                  the narrator that helps orient the listener). Statements of evaluation provide
+                  judgment about a person or situation, while statements of orientation provide
+                  contextual or relational information. Various scholars have developed tools or
+                  solved related problems using the Labov model: For example, Swanson et al. (2014)
+                  created a part of speech (POS) based algorithm for clause type detection and
+                  labelling based on this model; and Saldias and Roy (2020) used this model to train
+                  a classifier to analyze and compare spoken personal narratives. Although these
+                  applications to characterizing narratives focus on the clause level, the Labov
+                  model is also applicable to our research because triplets are derived from clauses
+                  and need to retain semantic information.</p>
+               <p>Not unlike the use of text mining to study literary “styles” (Jockers and
+                  Underwood 2015), we use our text mining methods to classify triplets by similar
+                  types of speech in order to discover relationships between different types of
+                  expressions of agency in oral histories. We divide descriptions of agency into
+                  four sub-categories: active, passive, coercive, and speculative speech. Active and
+                  passive speech are, respectively, actions done by the subject of the triplet and
+                  actions done by others to the subject; coercive speech may have an active
+                  structure but a passive meaning since it represents something the subject was
+                  forced to do (sometimes without mentioning the person or group responsible for the
+                  coercion); and, lastly, speculative speech, often expressed through modal verbs,
+                  represents an uncertain or imaginary action, or a statement of possibility,
+                  desire, ability, or futurity. While these categories are not perfect or
+                  definitive, they help to identify the general kinds of speech describing actions.
+                  We summarize and provide examples for the two-level AEO characterization system in
+                  Table 1.</p>
+               <p>
+                  <hi rend="italic">Table 1: Two-level AEO Characterization System with
+                     Examples</hi>
+               </p>
+               <table>
+                  <row role="data">
+                     <cell>Categories</cell>
+                     <cell>Examples</cell>
+                  </row>
+                  <row role="data">
+                     <cell>Agency</cell>
+                     <cell>Active</cell>
+                     <cell>I removed the yellow patch.</cell>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell>Passive</cell>
+                     <cell>I was shipped to Auschwitz.</cell>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell>Coercive</cell>
+                     <cell>My father had to leave his home.</cell>
+                  </row>
+                  <row role="data">
+                     <cell/>
+                     <cell>Speculative</cell>
+                     <cell>They could consummate the terrible deed.</cell>
+                  </row>
+                  <row role="data">
+                     <cell>Evaluation</cell>
+                     <cell>I am not ashamed.</cell>
+                  </row>
+                  <row role="data">
+                     <cell>Orientation</cell>
+                     <cell>I remembered a Christian woman.</cell>
+                  </row>
+               </table>
+               <p>The Triplets AEO Algorithm implements the above process as a basic
+                  characterization system. In SpaCy, the algorithm takes tokens consisting of the
+                  Relation Verb Chunks, <mml:math>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">R</mi>
+                  </mml:math>, and Object Noun Chunks, <mml:math>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">O</mi>
+                  </mml:math>. For each token in both <mml:math>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">R</mi>
+                  </mml:math> and <mml:math>
+                     <mi xmlns="http://www.w3.org/1998/Math/MathML">O</mi>
+                  </mml:math>, there is retrievable syntactic information including (but not limited
+                  to) a part of speech (POS) tag, a dependency tag, and the lemma form of the word.
+                  We then put together this lexicon- and rule-based mechanism as shown in Appendix
+                  I, Algorithm 1.</p>
+            </div>
+            <div xml:id="bookmark=id.1t3h5sf">
+               <head>3.3 Characterization: Perpetrators, Victims, and Others (PVO) Categories</head>
+               <p>The tripartite approach to characterizing victims, perpetrators, and bystanders
+                  has been around for decades in Holocaust historiography (Hilberg 1992). While not
+                  absolute or unproblematic, we strive to disambiguate subjects and objects in
+                  triplets when they are identified as people or groups. To do so, we first used the
+                  Entity Recognition pre-trained models in SpaCy to determine the category of a NOUN
+                  (people, organizations, geographic locations, and so forth). We, then, manually
+                  classified the detectable entities, where possible, into victim and perpetrator
+                  groups. For example, the phrases “the German Army,” “the SS,” or “the Gestapo” are
+                  detected as organizations and marked as Perpetrator, whereas the interviewee (“I”
+                  and “we”) as well as familial units (parents, grandparents, sister, brother, and
+                  so forth) are marked as Victim. Pronouns, however, were not disambiguated. This
+                  classification method will always be incomplete, as many subjects and objects do
+                  not unequivocally belong to the victim or perpetrator group. The “gray zone”
+                  contains bystanders, aid-providers, “implicated subjects,” and people who moved
+                  across categories and do not easily fit the binary (Rothberg 2019; Luft 2015).
+                  These and other such subjects and objects are also extracted but not categorized,
+                  as they demand human scrutiny of context and, indeed, prompt further questions and
+                  future research about the range of agents in an oral history. For the ones that
+                  are certain, we created lists of victim and perpetrator lemmas, which provided the
+                  base forms of the entity words in the triplets.</p>
+            </div>
+         </div>
+         <div xml:id="bookmark=id.4d34og8">
+            <head>4 Results and Applications</head>
+            <p>
+               <hi rend="italic">Figure 3: Distribution of AEO Categories in Four Testimonies</hi>
+            </p>
+            <p>In Figure 3, we show statistical summaries of the triplets in each of the four
+               testimonies. The triplets were algorithmically generated from the transcripts,
+               assigned categories by speech type, and evaluated for accuracy. The size of each pie
+               chart is scaled to the number of triplets extracted for each testimony. Boder’s
+               interviews are shorter than the Shoah Foundation interviews (and, of course, end in
+               1946, rather than the 1990s). Due to the large number of triplets, we needed to
+               develop ways to categorize and cluster the results. This entailed categorizing the
+               triplets into six types of speech, assigning Victim and Perpetrator identities to
+               certain subjects and objects, and experimenting with using a Wordnet-based
+               characterization of the objects to cluster them by lemma and categories.<note> The
+                  process of assigning “victim” and “perpetrator” identities is very incomplete due
+                  to the need to disambiguate pronouns (“they,” “he,” “she”) as well as account for
+                  proper names. </note> For our initial version of the triplet extraction process,
+               6.5% of the triplets were manually corrected due to incorrect or incomplete subjects,
+               verb relations, or objects. In addition, about 14% were manually removed from the
+               original output because the triplet did not make sense grammatically or was
+               misidentified as a triplet. The challenges and shortcomings of the triplet extraction
+               process are discussed in section 5.2. To better analyze the triplets and their
+               characterization, we created an interactive Triplets Dashboard, shown in Figure 4,
+               which brings together the corrected triplets output, an object lemmas bubble plot,
+               and multiple other filters.<note> This is <ref
+                     target="https://public.tableau.com/app/profile/lizhou/viz/Tableau_triplets_sheet_V3/TripletsDashboard"
+                     >the interactive triplets dashboard</ref>. </note>
+            </p>
+            <p>As a finding aid, the dashboard helps us query and sort the triplets by interview,
+               subject, object, speech type, and more. In the dashboard, a search for semantic
+               triplets can be initiated on any term, category, or type of speech both within a
+               given testimony or across a group of testimonies. In the screenshot, we see the
+               triplets around Bassfreund’s description of his deportation from Berlin to his
+               selection for forced labor in Auschwitz. They evidence a wide-range of speech acts,
+               including active speech about other people’s agency (“they gave us six slices” and
+               “they placed a can”), passive speech (“we were put on trains” and “we were driven out
+               of the cars”), coercive speech (“we had to sign affidavits” and “we have to leave
+               Germany”), speculative speech (“I shall never forget those screams”), evaluation (“it
+               was uncomfortable” and “the screams were terrible”), and orientation (“I have
+               forgotten something” and “the people had a premonition”). Looking further at the
+               contextual information for the coerced action of being forced to sign affidavits, for
+               example, we see the following terms: “our disloyalty,” “Germany,” “account,” and
+               “hostility.” The original sentence can be seen on the far right of the triplet
+               output, as translated by Boder: “Before being sent away we had to sign affidavits
+               that we have to leave Germany on account of our disloyalty and hostility to
+                  Germany.”<note> The German original also shows both passive and coerced speech:
+                  “Bevor wir abtransportiert wurden, mussten wir unterschreiben, dass wir wegen
+                  staatspolitischer und feindlicher Umtriebe Deutschland verlassen müssen.”
+                  (Bassfreund) </note>
+            </p>
+            <p>
+               <hi rend="italic">Figure 4: Semantic Triplets Dashboard in Tableau (version 1.0)</hi>
+            </p>
+            <p>
+               <hi rend="italic"> Selection from Boder’s interview with Jürgen Bassfreund</hi>
+            </p>
+            <p>Another way triplets can be used is to identify instances of different types of
+               speech within a testimony. For example, leading up to and following his description
+               of being deported to Auschwitz, we can visualize all the passive and coercive
+               statements made by Bassfreund in which “I” or “we” is the subject. As shown in Figure
+               5, there are over 50 such instances of passive and coercive speech described in this
+               section of his interview with Boder (about ten type-written pages). Bassfreund
+               emphasizes, with precise language, what was done to him and the Jewish community by
+               the Nazis (we were surrounded, taken, moved, driven out, loaded on, led to, rubbed
+               with, shoved into, sent into, transferred to) as well as what was specifically done
+               to him (I was forcibly taken, assigned, sent, transferred).<note> Examples in the
+                  original German, which all follow the semantic pattern of passive speech in the
+                  English translations, include: “Plötzlich waren wir umringt von der Leibstandarte,
+                  und wurden dann mit Füßen getreten und in Autos verladen”; “Und dann kamen wieder
+                  Autos und wieder wurden wir von der Leibstandarte zu einem ganz entlegenen Bahnhof
+                  in Berlin gebracht und wurden dort einwagoniert”; “wir wurden aus diesen Wagons
+                  herausgetrieben;” “wir wurden mit Petroleum eingerieben.” (Bassfreund) </note>
+            </p>
+            <p>
+               <hi rend="italic">Figure 5: Selection of Bassfreund’s Passive and Coercive Speech
+                  (Boder interview), with “we” and “I” as subject, respectively</hi>
+            </p>
+            <p>We can now show our approach to semantic triplets extends and deepens topical
+               indexing by pairing the triplets with the human-created indexing terms. As developed
+               by both Boder and the Shoah Foundation, we see a significant continuity in terms of
+               topics and themes (places, time periods, people, conditions, and events) used to
+               index the testimonies. For instance, on pages 292-293 of Bassfreund’s testimony in
+                  <hi rend="italic">Topical Autobiographies</hi>, Boder indexed the testimony with
+               the following terms: bathing, clothing, hair cutting and shaving, professional
+               criminals, confiscations, punishments, and tattoos. Similarly, in segment 25 of Bass’
+               testimony, we see the following indexing terms from the Shoah Foundation: Auschwitz I
+               (Poland: Concentration Camp), camp forced labor, camp latrines, camp living
+               conditions, camp selections, Poland 1941 (June 21) - 1945 (May 7), prisoner hair
+               cutting forced labor, transfer from Auschwitz III-Monowitz (Poland: Concentration
+               Camp), and transfer to Auschwitz I (Poland: Concentration Camp). While these topics
+               certainly give us guidance for finding the overarching places, dates, conditions in
+               captivity, movement, and forced labor, the indexing is not at the level of sentences
+               or clauses and, therefore, we do not really know what Bassfreund/Bass did or what was
+               done to him. As we see in Figure 6, we produce a corresponding network of just a few
+               of the triplets derived from these specific parts of his testimonies. The
+               interrelated set of triplets provide information about un-indexed subjects and agents
+               (both victims and perpetrators), un-indexed actions (written on, picked up by, worked
+               in, filled, sent), and un-indexed objects (the formation, their stomach, a truck, the
+               crematories, human hair, mattresses, packages, and a mountain). Altogether, they
+               point us toward ways of using the extracted semantic triplets to read, mark-up, and
+               index testimonies by including microhistorical accounts of actions by both victims
+               and perpetrators. </p>
+            <p>(a) Bassfreund (interviewed by Boder) (b) Bass (interviewed by the Shoah
+               Foundation)</p>
+            <p>
+               <hi rend="italic">Figure 6: Selected Examples of Triplets related to Indexing
+                  Categories in Two Testimonies</hi>
+            </p>
+            <p>In the next section, we discuss some of the applications of the triplets to
+               identifying acts of resistance, detecting unindexed stories, and analyzing larger
+               semantic networks.</p>
+            <div xml:id="bookmark=id.2s8eyo1">
+               <head>4.1 Microhistorical Acts of Resistance</head>
+               <p>While large-scale acts of resistance (such as the Warsaw Ghetto uprising or the
+                  Sonderkommando rebellion in Auschwitz) are rightly known and celebrated, there has
+                  been comparatively less appreciation of the range of everyday, seemingly ordinary
+                  acts of resistance by individuals. One historian who is working at the vanguard of
+                  this reappraisal of Jewish agency is Wolf Gruner, who has delved into numerous
+                  police and municipal archives in Germany to uncover the wide-range of acts of
+                  defiance, opposition, and protest by Jews living in Nazi Germany (Gruner 2011;
+                  2016b). In his studies of “microhistories,” he has unearthed thousands of examples
+                  of Jews mounting both formal and informal protest, ranging from the filing of
+                  petitions and government complaints to outright acts of defiance, such as sitting
+                  on benches marked “Aryan only” or refusing to use the forced middle name of
+                  “Israel” or “Sara,” to physical and armed resistance against Nazi officials
+                  (Gruner 2016a). For our purposes here, we are interested in using our
+                  computational method of identifying networks of semantic triplets to find
+                  underappreciated or largely unknown acts of everyday resistance within Holocaust
+                  testimonial narratives. Our argument is that triplets point to a wide-range of
+                  small-scale actions that would otherwise go unremarked, since they do not,
+                  generally speaking, rise to the level of what might be indexed as “acts of
+                  resistance.” Oftentimes, these actions are not even considered to be “indexable
+                  content,” and thus they are extremely difficult to locate.</p>
+               <div xml:id="bookmark=id.17dp8vu">
+                  <head>
+                     <hi rend="italic">4.1.1 Example 1: Anna Kovitzka</hi>
+                  </head>
+                  <p>Interviewed by Boder in 1946, Anna Kovitzka’s story is particularly poignant,
+                     as she describes the violent separation and loss of her family and, in
+                     particular, her efforts to save her baby girl who was born in the Grodno
+                     ghetto. With her husband, she managed to escape the ghetto in the hopes of
+                     finding someone to care for her child. Shortly after giving up the child to a
+                     Christian woman who promised to protect her, Kovitzka was deported to
+                     Auschwitz. The child, unfortunately, did not survive as the Christian woman was
+                     denounced for trying to protect a Jewish baby. Examining the indexing terms
+                     used by Boder to mark-up her testimony, we see a wide-range of themes and
+                     topics, including: geographic locations (Wiesbaden, Kielce, Grodno, Slonim,
+                     Lvov, and Auschwitz), living conditions and objects (epidemics, starvation,
+                     thirst, illness, sleeping accommodations, and clothing), people (children,
+                     Gestapo, Prisoners-of-War, family, and Gypsies), and events (looting,
+                     childbirth, burials, flight, killings, escapes, work, bathing, rebellion, and
+                     appells or roll calls in camps). The last group of events certainly raises
+                     questions about actions, but without further analysis, we cannot know who was
+                     looting, escaping, working, rebelling, or even giving birth to a child.
+                     Moreover, without delving into the testimony, we cannot uncover specific
+                     vectors of agency (such as who did what, how did they do it, and to whom).</p>
+                  <p>By examining the semantic triplets around the topical indexing term “escapes,”
+                     we can illuminate the specific agency described by Kovitzka in this part of her
+                     testimony (Table 2). The triplets indicate the actions of Kovitzka and her
+                     husband to escape the ghetto in order to save their child: “went over” the
+                     wires, “set up a chair,” “raised” the wire, “went out” on the street, “removed”
+                     the yellow patch, and, finally, “went down” the street. In each case, we see
+                     active speech describing a set of actions that occurred in the context of
+                     escaping the ghetto, even after she reports that sixteen Jews were killed at
+                     the gate in a first attempt to escape. While this section of the text is
+                     indexed by Boder as “escapes,” “curfew,” “fences,” and “yellow star,” the
+                     actual acts of escaping the ghetto through the wires, removing the yellow Star
+                     of David, and going down the street represent acts of resistance and agency
+                     that can be successfully detected and added to the index through computational
+                     text analysis attuned to semantic triplets.</p>
+                  <p>
+                     <hi rend="italic">Table 2: Anna Kovitzka Triplets (around “escapes”)</hi>
+                  </p>
+                  <table>
+                     <row role="data">
+                        <cell>Subjects</cell>
+                        <cell>Relations</cell>
+                        <cell>Objects</cell>
+                        <cell>Context and Coreference</cell>
+                     </row>
+                     <row role="data">
+                        <cell>Sixteen Jews</cell>
+                        <cell>fell at</cell>
+                        <cell>the gate</cell>
+                        <cell>first attempt</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>went over</cell>
+                        <cell>the wires</cell>
+                        <cell>second attempt, my man, me, the child, her</cell>
+                     </row>
+                     <row role="data">
+                        <cell>my man</cell>
+                        <cell>handed</cell>
+                        <cell>the child</cell>
+                        <cell>I, the wires, the second attempt, me, I, her</cell>
+                     </row>
+                     <row role="data">
+                        <cell>My man</cell>
+                        <cell>set up</cell>
+                        <cell>a chair</cell>
+                        <cell>me</cell>
+                     </row>
+                     <row role="data">
+                        <cell>He</cell>
+                        <cell>raised</cell>
+                        <cell>one wire</cell>
+                        <cell>Coreference: He = my man</cell>
+                     </row>
+                     <row role="data">
+                        <cell>He</cell>
+                        <cell>handed</cell>
+                        <cell>the child</cell>
+                        <cell>me, Coreference: He = my man</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>went out in</cell>
+                        <cell>the street</cell>
+                        <cell/>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>removed</cell>
+                        <cell>the yellow patch</cell>
+                        <cell/>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>went down</cell>
+                        <cell>the street</cell>
+                        <cell/>
+                     </row>
+                  </table>
+               </div>
+               <div xml:id="bookmark=id.3rdcrjn">
+                  <head>Using the dashboard to search on the object “child” in Kovitzka’s testimony
+                     reveals a number of triplets that show her attempts to save her child and,
+                     ultimately, the child’s fate: “I must save my child,” “My man handed the
+                     child,” “she has taken my child,” “she had picked up the child,” “I don’t have
+                     my child,” “she kept the child,” “she loved the child,” “my child was lying on
+                     the snow,” and “they buried the child.” The tragedy of Kovitzka’s loss of her
+                     child forms the traumatic core of her testimony and, yet, there is barely any
+                     indication of this from the indexing terms. The creation of a semantic network
+                     around the term “child” would help us locate and appreciate these critical
+                     actions and thus begin to index the testimony attuned to expressions of agency
+                     (Figure 7).</head>
+                  <p>
+                     <hi rend="italic">Figure 7: Building a semantic network from triplets related
+                        to the term “child” in Anna Kovitzka’s testimony</hi>
+                  </p>
+               </div>
+               <div>
+                  <head>
+                     <hi rend="italic">4.1.2 Example 2: Erika Jacoby</hi>
+                  </head>
+                  <p>After being deported to Auschwitz and separated from her grandparents on the
+                     arrival ramp, Jacoby and her mother are selected for the slave labor camp.
+                     Their heads are shaven; they are deloused for lice; and they are given meager
+                     clothes. Most of Jacoby’s testimony, then, focuses on everyday life in
+                     Auschwitz, including forced labor, sleeping conditions, food rations, violence,
+                     and abuse. While the associated triplets bear witness to her struggle for
+                     survival, our indexing of agency in Jacoby’s testimony also included the
+                     following groups of triplets. As shown in Table 3, after one passive
+                     construction, we see five successive, active constructions and one triplet
+                     characterized as “orientation” (considered as information to the
+                     interviewer).</p>
+                  <p>
+                     <hi rend="italic">Table 3: Erika Jacoby Triplets (401 to 407)</hi>
+                  </p>
+                  <table>
+                     <row role="data">
+                        <cell>Subjects</cell>
+                        <cell>Relations</cell>
+                        <cell>Objects</cell>
+                        <cell>AEO Category</cell>
+                     </row>
+                     <row role="data">
+                        <cell>We</cell>
+                        <cell>were</cell>
+                        <cell>taken to a bath</cell>
+                        <cell>Agency (Passive Speech)</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>were going by</cell>
+                        <cell>a German officer’s area</cell>
+                        <cell>Agency (Active Speech)</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>saw</cell>
+                        <cell>a swimming pool</cell>
+                        <cell>Agency (Active Speech)</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>jumped out of</cell>
+                        <cell>the line</cell>
+                        <cell>Agency (Active Speech)</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>dove into</cell>
+                        <cell>the swimming pool</cell>
+                        <cell>Agency (Active Speech)</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>swam across</cell>
+                        <cell>the pool</cell>
+                        <cell>Agency (Active Speech)</cell>
+                     </row>
+                     <row role="data">
+                        <cell>They</cell>
+                        <cell>didn’t shoot</cell>
+                        <cell>me</cell>
+                        <cell>Orientation</cell>
+                     </row>
+                  </table>
+                  <p>This utterly astonishing action is not marked up or identified in any way
+                     through the Shoah Foundation’s topical indexing. In fact, there is no word
+                     search that will find this part of her testimony. Jacoby relays the story in
+                     just a dozen sentences, comprising about 50 seconds of her two-hour testimony.
+                     And yet it is a stunning act of defiance, risk, and agency. </p>
+                  <p>Here is the portion of the testimony with a little bit of context to set up the
+                     scene and reflect on its meaning:</p>
+                  <p>“We stayed six weeks in Auschwitz. We had many, many interesting events that
+                     happened to us in Auschwitz. I just want to tell you one that was very
+                     important. And I don’t think I have time to describe Auschwitz. And I’m sure
+                     that it’s well known. But we were– one, one day, we were taken to a bath. We
+                     were taken to a bath about once a week or once every other week. And as we were
+                     marching, we were go– we were going by a German officer’s area. And I saw a
+                     swimming pool. And I jumped out of the line, and I dove into the swimming pool.
+                     And I swam across the pool, and I got back. And they didn’t shoot me, and I
+                     survived. But of course, my mother almost died. I mean, it was such an irr–
+                     irresponsible act from my part. But I was young, and I, I needed to be alive.
+                     And I did that.” (Jacoby, 51:40-52:30).</p>
+                  <p>Indeed, there were two “pools” on the grounds of Auschwitz: one for prisoners
+                     and one for SS officers, near blocks 7 and 8. They were built as reservoirs to
+                     store water rather than be used for recreational swimming. Today, a sign
+                     clarifies the remains of the structure: “Fire brigade reservoir built in the
+                     form of a swimming pool, probably in early 1944.” When Jacoby arrived in
+                     Auschwitz in the summer of 1944, the pool would have been complete. The Shoah
+                     Foundation manually tagged these segments of Jacoby’s testimony with the
+                     following keywords: “camp intake procedures,” “camp prisoner marking,” “camp
+                     family interactions,” “loved ones’ contacts,” “prisoner external contact,” and
+                     a single person tag, her mother, Malvina Salamonovits. Judging by these tags,
+                     one might expect her discussion to focus on procedural elements of the camp,
+                     perhaps coupled with how she and her mother survived together. There is nothing
+                     in the indexing that would indicate jumping out line, diving into the pool, and
+                     swimming across. While we can certainly read or hear Jacoby talking about this
+                     experience if we happened to land on this part of her testimony, it remains <hi
+                        rend="italic">an unindexed action</hi>, which otherwise submerges a
+                     significant act of resistance and agency. Through the computational extraction
+                     of triplets, we can index, hone in on, and appreciate this defiant act.</p>
+                  <p>After Auschwitz is liberated by the Soviet army, Jacoby relays that she and her
+                     mother left the camp in search of food and safety from sexual assaults by
+                     Russian soldiers. Over the next three and a half minutes (1:18-1:21), she
+                     describes a set of actions that helped her and her mother survive. She also
+                     tells of acts of revenge and anger committed by her 16-year-old self. Two of
+                     the three segments are tagged by the Shoah Foundation as “food acquisition” and
+                     “looting” (the third is not tagged at all). These topical terms convey little
+                     about the agency involved and the kinds of actions that a listener may want to
+                     search for and find in her testimony. In Table 4, we reproduce the full set of
+                     23 semantic triplets that our methodology identified over these three minutes.
+                     All forms of agency are included as well as all subjects and objects. The “we”
+                     subject refers to Erika and her mother.</p>
+                  <p>While “food acquisition” and “looting” are indexing terms that signal the
+                     overall set of content, these terms tell us nothing specific about what Erika
+                     and her mother did in the days after liberation; they tell us nothing about the
+                     vectors of agency and reasons for their actions; and they tell us none of the
+                     details of the actions conveyed in her testimony. And perhaps more pointedly,
+                     the indexing terms tend to obscure more than they reveal: Far from abstract
+                     topics, “food acquisition” involved the specific act of stealing and eating a
+                     pig (a non-kosher act of desperation for survival), while “looting” was
+                     connected to Jacoby’s immediate post-War actions, which reflect personal anger,
+                     acts of revenge, and the longing for a “normal life.” The objects she takes
+                     from a home are symbols of family life, domesticity, and normalcy: a white
+                     tablecloth, an apron, and a little silver cup. Her act of “looting” is to take
+                     these everyday, material objects from somebody’s home, the first possessions
+                     that she acquires after liberation from Auschwitz.</p>
+                  <p>
+                     <hi rend="italic">Table 4: Erika Jacoby Triplets (1:18-1:21)</hi>
+                  </p>
+                  <table>
+                     <row role="data">
+                        <cell>Subjects</cell>
+                        <cell>Relations</cell>
+                        <cell>Objects</cell>
+                        <cell>Segments</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>got out of</cell>
+                        <cell>the camp</cell>
+                        <cell>1:18</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>went into</cell>
+                        <cell>town</cell>
+                        <cell>1:18</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>looked for</cell>
+                        <cell>a house</cell>
+                        <cell>1:18</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>found</cell>
+                        <cell>a very beautiful home</cell>
+                        <cell>1:18</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>occupied</cell>
+                        <cell>it</cell>
+                        <cell>1:18</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>couldn’t lock</cell>
+                        <cell>the door</cell>
+                        <cell>1:19</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>barricade</cell>
+                        <cell>it</cell>
+                        <cell>1:19</cell>
+                     </row>
+                     <row role="data">
+                        <cell>they</cell>
+                        <cell>broke into</cell>
+                        <cell>the stores</cell>
+                        <cell>1:19</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>shoved</cell>
+                        <cell>a lot</cell>
+                        <cell>1:19</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>had</cell>
+                        <cell>a canvas bag</cell>
+                        <cell>1:19</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>passed by</cell>
+                        <cell>a butcher store</cell>
+                        <cell>1:19</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>took off</cell>
+                        <cell>half a pig</cell>
+                        <cell>1:19</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>carried</cell>
+                        <cell>it</cell>
+                        <cell>1:19</cell>
+                     </row>
+                     <row role="data">
+                        <cell>my mother</cell>
+                        <cell>saw</cell>
+                        <cell>it</cell>
+                        <cell>1:19</cell>
+                     </row>
+                     <row role="data">
+                        <cell>she</cell>
+                        <cell>cooked</cell>
+                        <cell>the pig</cell>
+                        <cell>1:19</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>ate</cell>
+                        <cell>it</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>we</cell>
+                        <cell>got</cell>
+                        <cell>sick</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>was trying to find</cell>
+                        <cell>a way</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>We</cell>
+                        <cell>stayed in</cell>
+                        <cell>this town</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>want to mention to</cell>
+                        <cell>you</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>didn’t bring</cell>
+                        <cell>it</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>have</cell>
+                        <cell>a memento</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>broke into</cell>
+                        <cell>a house</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>had</cell>
+                        <cell>so much anger</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>expressed</cell>
+                        <cell>that anger</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>went into</cell>
+                        <cell>that house</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>broke</cell>
+                        <cell>the piano</cell>
+                        <cell>1:20</cell>
+                     </row>
+                     <row role="data">
+                        <cell>many people</cell>
+                        <cell>went into</cell>
+                        <cell>homes</cell>
+                        <cell>1:21</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>did not want</cell>
+                        <cell>anything</cell>
+                        <cell>1:21</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>took from</cell>
+                        <cell>the house</cell>
+                        <cell>1:21</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>took</cell>
+                        <cell>a white tablecloth</cell>
+                        <cell>1:21</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>took</cell>
+                        <cell>an apron</cell>
+                        <cell>1:21</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>took</cell>
+                        <cell>a little silver cup</cell>
+                        <cell>1:21</cell>
+                     </row>
+                     <row role="data">
+                        <cell>it</cell>
+                        <cell>had</cell>
+                        <cell>the initials</cell>
+                        <cell>1:21</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>kept</cell>
+                        <cell>it</cell>
+                        <cell>1:21</cell>
+                     </row>
+                     <row role="data">
+                        <cell>I</cell>
+                        <cell>longed to establish</cell>
+                        <cell>a normal life</cell>
+                        <cell>1:21</cell>
+                     </row>
+                  </table>
+               </div>
+            </div>
+         </div>
+         <div xml:id="bookmark=id.lnxbz9">
+            <head>5 Discussion, Limitations, and New Work</head>
+            <p>Although our process of extracting and characterizing triplets creates new paratexts
+               that enhance our interpretation and ability to index testimonies by descriptions of
+               agency, there are a number of limitations and shortcomings. The major issue is that
+               “semantic triplets” – strictly speaking as subjects, verb relations, and objects –
+               can oversimplify narrative expressivity when truncated, extracted, or
+               decontextualized. Below, we will identify and discuss a number of limitations as well
+               as discuss how our newer, “meticulous” triplet extraction process (version 2.0)
+               addresses some of those problems. </p>
+            <div xml:id="bookmark=kix.pepef34z77cd">
+               <head>5.1 Considering Coreferences: Pronoun Disambiguation and Entity Linking</head>
+               <p>As is evident in many of the triplets, pronouns often exist in subjects and
+                  objects, and they are sometimes ambiguous. For example, there are multiple
+                  references to “he,” “she,” “they,” or “them” where the pronoun could refer to a
+                  perpetrator in one line but a victim in the following. Thus, a coreferencing
+                  solution for the triplets needs to disambiguate pronouns or, at the very least,
+                  link triplets together such that the coreference can be clearly identified. We
+                  experimented with using NeuralCoref, a coreference resolution python package which
+                  annotates and resolves coreference clusters using a neural network (Hugging Face
+                  2019). However, this pre-trained language model is based on out-of-domain text
+                  data, and it is only effective about half the time, which is not precise enough
+                  for our needs. </p>
+               <p>Thus, we are working on creating our own model of coreferencing for use in
+                  Holocaust and genocide testimonies. This close-domain model was initially trained
+                  by annotating testimonies using BRAT, a web-based annotation tool that allows
+                  customized labels for entities and coreferences (Stenetorp 2012). Inspired by the
+                  annotation process of entities and coreferences in an English literature dataset,
+                  we will use a customized set of entity types, including named people, groups,
+                  communities, as well as other regular named-entities like organizations and
+                  geo-political entities (Bamman 2019). Our hope is that the training model, derived
+                  from a diverse set of annotated Holocaust testimonies, will help us disambiguate
+                  pronouns throughout a corpus. </p>
+            </div>
+            <div xml:id="bookmark=kix.6bb2i1dd5ezm">
+               <head>5.2 Revisiting the Chunk Method: A More “Meticulous” Triplet Extraction Process </head>
+               <p>Our chunk-based triplets extraction method is certainly not flawless. One
+                  challenge is that important expressions that are not triplets are simply not found
+                  (for instance, “we were separated”). Another challenge is how to capture fuller
+                  object phrases and distinguish direct and indirect objects. In this version, we
+                  capture both, and usually the direct object is part of the triplet and the
+                  indirect object is part of the contextual information; in the more “meticulous”
+                  version, we capture fuller object phrases by extracting from the “context” as much
+                  as possible. Although the objects tend to be longer, they are more complete and
+                  integrate the contextual elements within the object phrase itself. This newer
+                  version results in both more triplets being extracted and higher accuracy.<note>
+                     The details of the “meticulous” version, including the rules and sample data,
+                     are available in the Github repository: <ref
+                        target="https://github.com/lizhouf/semantic_triplets"
+                        >https://github.com/lizhouf/semantic_triplets</ref>
+                  </note>
+               </p>
+               <p>An ongoing challenge, however, concerns certain sentences with dependent,
+                  relative, or conditional clauses, which are not always captured completely or may
+                  be broken apart in the course of the chunk method. This problem can be seen with
+                  “if, then” statements or ones that begin with a form of negation. For example,
+                  this sentence spoken by Bassfreund, is turned into three triplets: “And it was
+                  already night and the SS opened the doors and said if we throw out the dead bodies
+                  we shall get some food.” Getting food from the SS is dependent upon the victims
+                  being forced to throw out dead bodies from the train. Although the triplets are
+                  captured individually, maintaining the specific contingency of the actions and
+                  understanding the reasons for them requires human review and interpretation.</p>
+               <p>While network analysis may give rise to new narrative orderings that allow us to
+                  see relationships across a testimony or corpus, we also preserve the narrative
+                  sequence of the triplets in our extraction process since the context for a triplet
+                  certainly matters both within an individual sentence and between sentences. For
+                  instance, when Bass says: “Well, you could tell. These guys were very rough and
+                  very bad. They used to beat you up, and scream, and holler, and push you. And hit
+                  you with a– a rubber– piece of rubber there. It looked like a rubber hose.” Our
+                  triplet extraction method maintains the contiguity between the description of the
+                  men (former criminals who the Nazis put in place as supervisors in camps) so that
+                  the last triplet (“it looked like a rubber hose”) continues to make sense within
+                  this context. Sequential groupings are one way to maintain narrative continuity. </p>
+               <p>Another basic challenge that we face is extracting triplets from fragmented,
+                  vernacular speech, which the process often has trouble parsing. Survivors
+                  sometimes switch from first-person narration to second or third-person; sometimes
+                  the sentences contain incomplete thoughts, repetitions, or stuttering; sometimes
+                  the transcribed sentence lacks regular punctuation; and sometimes survivors quote
+                  the speech of others directly or indirectly. The triplet extraction process has no
+                  way of telling if a triplet refers to the quoted or attributed speech of someone
+                  else. For example, Anna Kovitzka says: “Once my man said: ‘I can’t make peace with
+                  them. Our child must be saved even if we two shall die.’” While two triplets are
+                  extracted (“I can’t make peace with them” and “our child must be saved”), the
+                  triplets are not attributed to her husband because the phrase “once my man said”
+                  is not part of either triplet. </p>
+               <p>To take another example: In his interview with Boder, Bassfreund says: “We were
+                  rubbed with kerosene” with respect to the delousing process in Auschwitz. That
+                  triplet is easily found; however, in his later interview with the Shoah
+                  Foundation, he says: “And then they did some – used some kind of delousing agent,
+                  they poured all over us.” No triplets were found in the first version of our
+                  process, as the sentence is spoken with breaks that less clearly connect the
+                  subject (“they”) to the verbs and objects. To address this, our “meticulous”
+                  version of triplet extraction is based on a set of finer-defined, semantic rules
+                  to extract noun and verb chunks. To make chunks include more contextual
+                  information and complete grammatical structures, we add a layer in between the
+                  sentence and chunk levels, which we call the “segment level,” for chunk-boundary
+                  decision making, as shown in Figure 8. Even though the sentence is not
+                  grammatically correct, the new extraction method is able to find the triplets in
+                  this sentence, while the previous approach was not. And although some objects and
+                  object phrases become longer than expected, we can now extract a more complete
+                  context for the objects of a triplet. We are also experimenting with categorizing
+                  object phrases based on semantic features like word lemmas, WordNet synsets, and
+                  dependency parsing, which will create more filters for large scale triplets
+                  retrieval.</p>
+               <p>
+                  <hi rend="italic">Figure 8: Example of the Three-level Chunk-based Triplets
+                     Extraction Method</hi>
+               </p>
+            </div>
+            <div xml:id="bookmark=kix.o1ayauhedcf3">
+               <head>5.3 Other Improvements and Potential Applications</head>
+               <p>Based on the indexing and analysis of agency in the four example testimonies
+                  discussed here, we have applied our “meticulous” method to over a thousand
+                  Holocaust testimonies. The output creates a new paratext of triplets for each
+                  interview that provides a set of additional metadata that can be queried, indexed,
+                  and overlaid on existing metadata. The triplets are intended to function as
+                  finding aids to supplement the original text by providing a new set of metadata
+                  attuned to articulations of agency. One of the promising directions is to query
+                  “shared experiences” (such as reports of and responses to discrimination) across a
+                  corpus using the semantic triplets. What, for example, did hundreds of different
+                  witnesses say about their memories of discrimination during the 1930s and early
+                  40s and how did they describe their individual reactions? How many other people
+                  remember removing the yellow star from their clothes and what did they say they
+                  did next? </p>
+               <p>Going forward, we hope to create a better finding aid and scaled-up visualization
+                  tool, perhaps through an indexing dashboard supported by a triplets database.
+                  Researchers can then query and visualize through the same interface to find
+                  semantic triplets and generate associated networks. This interactive dashboard
+                  could combine the flexibility of curation in the Triplets Dashboard in Tableau
+                  with a Neo4j Network Visualization Dashboard. At the same time, we are continuing
+                  to explore how searching for “agency” within a narrative can complement standard
+                  thematic and topical searches through network clustering and category clustering
+                  of triplets. </p>
+            </div>
+         </div>
+         <div xml:id="bookmark=id.44sinio">
+            <head>6. Conclusion</head>
+            <p>Semantic triplets are a text immanent way to computationally identify and index
+               descriptions of agency within oral histories. While conventional indexing is
+               important for finding overarching themes and topics, it relies on the creation of a
+               secondary scaffolding for searching within the testimonies, almost always attuned to
+               named entities, topics, and general themes. Indexing semantic triplets, on the other
+               hand, is primarily an algorithmic approach to identify specific expressions of agency
+               and their lexical context from transcripts. As such, we are able to link and analyze
+               multiple vectors of action and attune our reading and listening to networks of
+               agents, relations, objects, and contexts. Our approach always relies on and is
+               derived from the interviewee’s spoken (and transcribed) language. In this regard, it
+               is a kind of “algorithmic close reading” built on a paratext derived from the
+               original transcript. Although “distant reading” remains a powerful approach for
+               statistically summarizing the content of a corpus, digital humanities scholars have
+               also warned against the seduction of “delegating observation” and “delegating
+               interpretation” to machines (Underwood 2019, 157-158). In many ways, semantic
+               triplets use some of the algorithmic tools of distant reading (large-scale text
+               analysis attuned to patterns, classifications, and clusters) to enable humans to
+               undertake close readings and perform interpretative queries. It is up to us to figure
+               out the meaning or significance of any description of agency in the context of an
+               oral history or corpus.</p>
+            <p>In this sense, our approach is also quite different from current machine learning
+               methods for information extraction systems. Although seemingly unpopular these days
+               from a natural language processing perspective, a fully rule-based and easily
+               interpretable system works well for our purposes of triplets extraction and analysis.
+               We can describe the algorithms we use based on conditional statements and clear rules
+               for additional human curation and correction. Computational indexing of agency shifts
+               the scale of analysis to individual mentions of agency and interconnected actions,
+               helping us read and listen to testimonies in ways that deepen our understanding of
+               what people report they did and what was done to them. </p>
+         </div>
+         <div xml:id="bookmark=id.2jxsxqh">
+            <head>7. Acknowledgements</head>
+            <p>The research presented here owes a significant debt of gratitude to the USC Shoah
+               Foundation, particularly Stephen Smith, Samuel Gustman, Martha Stroud, Claudia
+               Wiedeman, and Crispin Brooks. All of the analyses presented in this paper were
+               performed at UCLA under the direction of Todd Presner. The co-authors, Lizhou Fan and
+               Todd Presner, are grateful to UCLA team members Anna Bonazzi, Rachel Deblinger, Kyle
+               Rosen, Michelle Lee, and Wanxin Xie. We also thank Anne Knowles, David Shepard,
+               Anthony Caldwell, Wolf Gruner, and Zoe Borovsky for their generous support and
+               feedback over the years.</p>
+            <p>
+               <pb/>
+            </p>
+            <p>Works Cited</p>
+            <p>Abney, Steven. 1996. “Partial Parsing via Finite-State Cascades.” <hi rend="italic"
+                  >Nat. Lang. Eng.</hi> 2 (4): 337–344.
+               https://doi.org/10.1017/S1351324997001599.</p>
+            <p>Angeli, Gabor, Melvin Jose Johnson Premkumar, and Christopher D. Manning. 2015.
+               “Leveraging Linguistic Structure For Open Domain Information Extraction.” In <hi
+                  rend="italic">Proceedings of the 53rd Annual Meeting of the Association for
+                  Computational Linguistics and the 7th International Joint Conference on Natural
+                  Language Processing (Volume 1: Long Papers)</hi>, 344–354. Beijing, China:
+               Association for Computational Linguistics. <ref
+                  target="https://aclanthology.org/P15-1034"
+               >https://aclanthology.org/P15-1034</ref>.</p>
+            <p>Bamman, David, Olivia Lewke, and Anya Mansoor. 2019. “An annotated dataset of
+               coreference in English literature.” arXiv preprint arXiv:1912.01140.</p>
+            <p>Bass, Jack. Interview 30765. <hi rend="italic">Visual History Archive</hi>, USC Shoah
+               Foundation, 1997. Accessed November 1, 2020. </p>
+            <p>Bassfreund, Jürgen. Interview with David Boder (September 20, 1946). <hi
+                  rend="italic">Topical Autobiographies of Displaced People</hi>. 276-318. Also
+               available on: <hi rend="italic">Voices of the Holocaust</hi>, Illinois Institute of
+               Technology. <ref target="https://voices.library.iit.edu/interview/bassfreundJ"
+                  >https://voices.library.iit.edu/interview/bassfreundJ</ref>. Accessed November 1,
+               2020. </p>
+            <p>Boder, David. 1949. <hi rend="italic">I Did Not Interview the Dead</hi>. University
+               of Illinois Press. </p>
+            <p>Boder, David. 1950-56. <hi rend="italic">Topical Autobiographies of Displaced
+                  People</hi>. UCLA Special Collections, Young Research Library. Unpublished
+               manuscript. Boxes 9-11.</p>
+            <p>Bradley, John, and Michele Pasin. 2017. “Fitting Personal Interpretation with the
+               Semantic Web: Lessons Learned from Pliny.” <hi rend="italic">DHQ: Digital Humanities
+                  Quarterly</hi> 11 (1).</p>
+            <p>Explosion AI. 2020. “Industrial-Strength Natural Language Processing.” 2020.
+               https://spacy.io/.</p>
+            <p>Fader, Anthony, Stephen Soderland, and Oren Etzioni. 2011. “Identifying Relations for
+               Open Information Extraction.” In <hi rend="italic">Proceedings of the 2011 Conference
+                  on Empirical Methods in Natural Language Processing</hi>, 1535–1545. Edinburgh,
+               Scotland, UK.: Association for Computational Linguistics.
+               https://www.aclweb.org/anthology/D11-1142.</p>
+            <p>Gruner, Wolf. 2011. “‘The Germans Should Expel the Foreigner Hitler’: Open Protest
+               and Other Forms of Jewish Defiance in Nazi Germany.” Edited by David Silberklang. <hi
+                  rend="italic">Yad Vashem Studies</hi> 39 (2): 13–53.</p>
+            <p>— — — . 2016a. “Defiance and Protest. A Comparative Micro-Historical Re-Evaluation of
+               Individual Jewish Responses towards Nazi Persecution.” Edited by Claire Zalc and Tal
+               Bruttmann. <hi rend="italic">Microhistories of the Holocaust</hi>, 209–26.</p>
+            <p>— — — . 2016b. “Defiance and Protest: Forgotten Acts of Individual Jewish
+               Resistance.”
+               https://www.cornell.edu/video/wolf-gruner-jewish-defiance-protest-nazi-germany.</p>
+            <p>Hilberg, Raul. 1992. <hi rend="italic">Perpetrators, Victims, Bystanders: The Jewish
+                  Catastrophe, 1933-1945</hi>. Aaron Asher Books New York.</p>
+            <p>Hugging Face. 2019. “NeuralCoref 4.0: Coreference Resolution in SpaCy with Neural
+               Networks.” 2019. https://github.com/huggingface/neuralcoref.</p>
+            <p>Hyvönen, Eero. 2020. “Using the Semantic Web in Digital Humanities: Shift from Data
+               Publishing to Data-Analysis and Serendipitous Knowledge Discovery.” <hi rend="italic"
+                  >Semantic Web</hi>,11(1): 187-193.</p>
+            <p>Jacoby, Erika. Interview 8. Segments, 52-53, 78-82. <hi rend="italic">Visual History
+                  Archive</hi>, USC Shoah Foundation, 1994. Accessed November 1, 2020. </p>
+            <p>Jockers, Matthew L., and Ted Underwood. 2015. “Text-Mining the Humanities.” <hi
+                  rend="italic">A New Companion to Digital Humanities</hi>, Edited by <ref
+                  target="https://onlinelibrary.wiley.com/action/doSearch?ContribAuthorRaw=Schreibman%2C+Susan"
+                  >Susan Schreibman</ref>, <ref
+                  target="https://onlinelibrary.wiley.com/action/doSearch?ContribAuthorRaw=Siemens%2C+Ray"
+                  >Ray Siemens</ref>, and <ref
+                  target="https://onlinelibrary.wiley.com/action/doSearch?ContribAuthorRaw=Unsworth%2C+John"
+                  >John Unsworth</ref>. John Wiley and Sons. 291–306.</p>
+            <p>Jockusch, Laura. 2012. <hi rend="italic">Collect and Record! Jewish Holocaust
+                  Documentation in Early Postwar Europe</hi>. Oxford University Press.</p>
+            <p>Kovitzka (Kaletska), Anna. Interview with David Boder (September 26, 1946). <hi
+                  rend="italic">Topical Autobiographies of Displaced People</hi>. 244-275. Also
+               available on: <hi rend="italic">Voices of the Holocaust</hi>, Illinois Institute of
+               Technology. <ref target="https://voices.library.iit.edu/interview/kaletskaA"
+                  >https://voices.library.iit.edu/interview/kaletskaA</ref>. Accessed November 1,
+               2020. </p>
+            <p>Labov, William, and Joshua Waletzky. 1997. “Narrative Analysis: Oral Versions of
+               Personal Experience.” <hi rend="italic">Journal of Narrative &amp; Life History</hi>
+               7 (1–4): 3–38.</p>
+            <p>Luft, Aliza. 2015. “Toward a Dynamic Theory of Action at the Micro Level of Genocide: </p>
+            <p>Killing, Desistance, and Saving in 1994 Rwanda.” Sociological Theory 33.2:
+               148–72.</p>
+            <p>Mausam, Michael Schmitz, Stephen Soderland, Robert Bart, and Oren Etzioni. 2012.
+               “Open Language Learning for Information Extraction.” In <hi rend="italic">Proceedings
+                  of the 2012 Joint Conference on Empirical Methods in Natural Language Processing
+                  and Computational Natural Language Learning</hi>, 523–534. Jeju Island, Korea:
+               Association for Computational Linguistics.
+               https://www.aclweb.org/anthology/D12-1048.</p>
+            <p>Peter, Dingley Andrew. 2001. Data replication system and method. US6304882B1, issued
+               October 16, 2001.
+               https://worldwide.espacenet.com/patent/search/family/009930067/publication/US2003145022A1?q=US2003145022.</p>
+            <p>Presner, Todd. 2016. “The Ethics of the Algorithm: Close and Distant Listening to the
+               Shoah Foundation Visual History Archive.” In <hi rend="italic">Probing the Ethics of
+                  Holocaust Culture</hi>, edited by Claudio Fogu, Wulf Kansteiner, and Todd Presner,
+               175–202. Harvard University Press.</p>
+            <p>Rosen, Alan. 2010. <hi rend="italic">The Wonder of Their Voices: The 1946 Holocaust
+                  Interviews of David Boder</hi>. Oxford University Press.</p>
+            <p>Rothberg, Michael. 2019. <hi rend="italic">The Implicated Subject: Beyond Victims and
+                  Perpetrators</hi>. Stanford University Press.</p>
+            <p>Rusher, Jack. 2006. “Triple Store.” 2006.
+               https://www.w3.org/2001/sw/Europe/events/20031113-storage/positions/rusher.html.</p>
+            <p>Saldias, Belen, and Deb Roy. 2020. “Exploring Aspects of Similarity between Spoken
+               Personal Narratives by Disentangling Them into Narrative Clause Types.” In <hi
+                  rend="italic">Proceedings of the First Joint Workshop on Narrative Understanding,
+                  Storylines, and Events</hi>, 78–86. Online: Association for Computational
+               Linguistics. https://doi.org/10.18653/v1/2020.nuse-1.10.</p>
+            <p>Stenetorp, Pontus, Sampo Pyysalo, Goran Topić, Tomoko Ohta, Sophia Ananiadou, and
+               Jun’ichi Tsujii. "BRAT: a web-based tool for NLP-assisted text annotation." In
+               Proceedings of the Demonstrations at the 13th Conference of the European Chapter of
+               the Association for Computational Linguistics, pp. 102-107. 2012.</p>
+            <p>Swanson, Reid, Elahe Rahimtoroghi, Thomas Corcoran, and Marilyn Walker. 2014.
+               “Identifying Narrative Clause Types in Personal Stories.” In <hi rend="italic"
+                  >Proceedings of the 15th Annual Meeting of the Special Interest Group on Discourse
+                  and Dialogue (SIGDIAL)</hi>, 171–180. Philadelphia, PA, U.S.A.: Association for
+               Computational Linguistics. https://doi.org/10.3115/v1/W14-4323.</p>
+            <p>The Apache Software Foundation. 2017. “Welcome to Apache OpenNLP.” 2017.
+               http://opennlp.apache.org/.</p>
+            <p>Underwood, T. 2019. <hi rend="italic">Distant Horizons: Digital Evidence and Literary
+                  Change</hi>. University of Chicago Press. </p>
+            <p>USC Shoah Foundation. 2006. <hi rend="italic">Indexing Guidelines</hi>. <ref
+                  target="https://sfi.usc.edu/sites/default/files/docfiles/Indexing_Guidelines_0.pdf"
+                  >https://sfi.usc.edu/sites/default/files/docfiles/Indexing_Guidelines_0.pdf</ref>.</p>
+            <p>
+               <hi rend="italic">Voices of the Holocaust</hi>. Illinois Institute of Technology,
+               Paul V. Galvin Library. <ref target="https://voices.library.iit.edu/"
+                  >https://voices.library.iit.edu/</ref>. </p>
+            <p>Wieviorka, Annette. 2006. <hi rend="italic">The Era of the Witness</hi>. Translated
+               by Jared Stark. Cornell University Press.</p>
+            <p>Wu, Fei, and Daniel S. Weld. 2010. “Open Information Extraction Using Wikipedia.” In
+                  <hi rend="italic">Proceedings of the 48th Annual Meeting of the Association for
+                  Computational Linguistics</hi>, 118–127. Uppsala, Sweden: Association for
+               Computational Linguistics. https://www.aclweb.org/anthology/P10-1013.</p>
+            <p>Yates, Alexander, Michele Banko, Matthew Broadhead, Michael Cafarella, Oren Etzioni,
+               and Stephen Soderland. 2007. “TextRunner: Open Information Extraction on the Web.” In
+                  <hi rend="italic">Proceedings of Human Language Technologies: The Annual
+                  Conference of the North American Chapter of the Association for Computational
+                  Linguistics (NAACL-HLT)</hi>, 25–26. Rochester, New York, USA: Association for
+               Computational Linguistics. https://www.aclweb.org/anthology/N07-4013.</p>
+            <p>Zalc, Claire, and Tal Bruttmann, eds. 2016. <hi rend="italic">Microhistories of the
+                  Holocaust</hi>. Berghahn Books.</p>
+         </div>
+         <div>
+            <head>
+               <pb/>Appendix</head>
+            <div xml:id="bookmark=id.3j2qqm3">
+               <head>Triplets AEO Algorithm, as an Example of High Interpretability</head>
+            </div>
+         </div>
+      </body>
+      <back>
+         <listBibl>
+            <bibl/>
+         </listBibl>
+      </back>
+   </text>
+</TEI>
