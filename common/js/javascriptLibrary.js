@@ -103,7 +103,7 @@ function initArray() {
 //Remove all content in text elements with lang attributes not equal to
 //  the one passed by parameter. Default at page load is 'en'.
 function showLang() {
-    if (localStorage.getItem('pagelang') === undefined) {
+    if (localStorage.getItem('pagelang') == undefined) {
         localStorage.setItem('pagelang', 'en');
     }
     lang = localStorage.getItem('pagelang');
