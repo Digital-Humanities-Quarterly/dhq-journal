@@ -157,8 +157,10 @@
       <let name="rr" value="concat($r,'(&#x2013;',$r,')?')"/>
       <!-- $drrr is a choice between $dr and $rr -->
       <let name="drrr" value="concat('(',$dr,'|',$rr,')')"/>
-      <!-- $seq is a sequence of one or more $drrr, comma-delimited -->
-      <let name="seq" value="concat('^',$drrr,'(, ',$drrr,')*$')"/>
+      <!-- $s is one of a set of special characters -->	
+      <let name="s" value="'[§¶]*'"></let>	
+      <!-- $seq is a sequence of one or more $drrr, comma-delimited, with optional special-character prefix $s -->
+      <let name="seq" value="concat('^',$s,$drrr,'(, ',$drrr,')*$')"/>
       
       <assert test="not(@loc) or matches(@loc,$seq)" role="warning"
         ><name/>/@loc '<value-of select="@loc"/>' is unusual: please
