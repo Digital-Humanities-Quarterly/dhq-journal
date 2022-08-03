@@ -185,7 +185,7 @@
     <rule context="tei:ptr">
       <!-- testing tei:ptr linking externally -->
       <extends rule="target-uri-constraints"/>
-      <assert test="exists(parent::tei:bibl)"><value-of select="name(..)"
+      <assert test="exists(parent::tei:bibl) or exists(@type='dhq-annex-embed')"><value-of select="name(..)"
         />/<name/>/@target points externally, but is not inside bibl</assert>
       <assert test="empty(@loc)"><name/> pointing externally should not have @loc</assert>
     </rule>
