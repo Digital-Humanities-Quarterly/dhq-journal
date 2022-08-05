@@ -147,24 +147,26 @@
       <extends rule="target-uri-constraints"/>
       <assert test="replace(@target,'^#','') = //tei:bibl/@xml:id"
         role="warning"><name/> does not reference a bibl</assert>
-      <!-- $d is an arabic natural number (one or more digits not starting with 0) -->
+    	<!-- 
+      <!- $d is an arabic natural number (one or more digits not starting with 0) 
       <let name="d" value="'[1-9]\d*'"/>
-      <!-- $r is a lower-case roman numeral -->
+      <!- $r is a lower-case roman numeral 
       <let name="r" value="'m{0,4}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})'"/>
-      <!-- $dr is either a single $d or a hyphen-delimited pair --> 
+      <!- $dr is either a single $d or a hyphen-delimited pair 
       <let name="dr" value="concat($d,'(&#x2013;',$d,')?')"/>
-      <!-- $rr is the same as $dr, for roman numerals -->
+      <!- $rr is the same as $dr, for roman numerals 
       <let name="rr" value="concat($r,'(&#x2013;',$r,')?')"/>
-      <!-- $drrr is a choice between $dr and $rr -->
+      <!- $drrr is a choice between $dr and $rr 
       <let name="drrr" value="concat('(',$dr,'|',$rr,')')"/>
-      <!-- $s is one of a set of special characters -->	
+      <!- $s is one of a set of special characters 	
       <let name="s" value="'[§¶]*'"></let>	
-      <!-- $seq is a sequence of one or more $drrr, comma-delimited, with optional special-character prefix $s -->
+      <!- $seq is a sequence of one or more $drrr, comma-delimited, with optional special-character prefix $s 
       <let name="seq" value="concat('^',$s,$drrr,'(, ',$drrr,')*$')"/>
       
       <assert test="not(@loc) or matches(@loc,$seq)" role="warning"
         ><name/>/@loc '<value-of select="@loc"/>' is unusual: please
         check</assert>
+    	 -->
       <report test="contains(@loc,'-')" role="warning"><name/>/@loc contains
         '-' (hyphen): try '&#x2013;' (en-dash)</report>
       <!-- elsewhere we check bibl elements to which we have ptr cross-references,
