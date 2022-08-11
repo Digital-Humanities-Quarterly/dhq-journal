@@ -147,7 +147,8 @@
       <extends rule="target-uri-constraints"/>
       <assert test="replace(@target,'^#','') = //tei:bibl/@xml:id"
         role="warning"><name/> does not reference a bibl</assert>
-    	<!-- 
+    	<!-- Removing the checks on @loc; actual values are too complex to model/constrain with Schematron. 
+    		Retaining the code in case we want it later.
       <!- $d is an arabic natural number (one or more digits not starting with 0) 
       <let name="d" value="'[1-9]\d*'"/>
       <!- $r is a lower-case roman numeral 
