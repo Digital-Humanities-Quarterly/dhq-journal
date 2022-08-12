@@ -93,7 +93,6 @@
     <rule context="tei:classDecl/*">
       <report test="true()"><name/> unexpected here</report>
     </rule>
-
     
     <rule context="tei:front//dhq:*">
       <assert test="normalize-space(.)"><name/> is empty</assert>
@@ -115,6 +114,16 @@
     <rule role="warning" context="tei:div">
       <report test="empty(tei:head)">A div has no head.</report>
     </rule>
+  	
+  	<!-- Checks new  <change> template (implemented 2022-08)
+  		to verify the article number was replaced in the gitHub url -->
+  	<rule role="error" context="tei:change/tei:ref">
+  		<extends rule="target-uri-constraints"/>
+  		<report role="error" test="matches(@target,'NNNNNN')">
+  			Revision description appears suspect: does not contain proper article id.
+  		</report>
+  	</rule>
+  	
     <rule role="warning" context="tei:head">
       <assert test="empty(preceding-sibling::tei:head)">This is not the first head in this element; please check (is this a new div or caption)?</assert>
     </rule>
@@ -147,22 +156,27 @@
       <extends rule="target-uri-constraints"/>
       <assert test="replace(@target,'^#','') = //tei:bibl/@xml:id"
         role="warning"><name/> does not reference a bibl</assert>
-      <!-- $d is an arabic natural number (one or more digits not starting with 0) -->
+    	<!-- Removing the checks on @loc; actual values are too complex to model/constrain with Schematron. 
+    		Retaining the code in case we want it later.
+      <!- $d is an arabic natural number (one or more digits not starting with 0) 
       <let name="d" value="'[1-9]\d*'"/>
-      <!-- $r is a lower-case roman numeral -->
+      <!- $r is a lower-case roman numeral 
       <let name="r" value="'m{0,4}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})'"/>
-      <!-- $dr is either a single $d or a hyphen-delimited pair --> 
+      <!- $dr is either a single $d or a hyphen-delimited pair 
       <let name="dr" value="concat($d,'(&#x2013;',$d,')?')"/>
-      <!-- $rr is the same as $dr, for roman numerals -->
+      <!- $rr is the same as $dr, for roman numerals 
       <let name="rr" value="concat($r,'(&#x2013;',$r,')?')"/>
-      <!-- $drrr is a choice between $dr and $rr -->
+      <!- $drrr is a choice between $dr and $rr 
       <let name="drrr" value="concat('(',$dr,'|',$rr,')')"/>
-      <!-- $seq is a sequence of one or more $drrr, comma-delimited -->
-      <let name="seq" value="concat('^',$drrr,'(, ',$drrr,')*$')"/>
+      <!- $s is one of a set of special characters 	
+      <let name="s" value="'[§¶]*'"></let>	
+      <!- $seq is a sequence of one or more $drrr, comma-delimited, with optional special-character prefix $s 
+      <let name="seq" value="concat('^',$s,$drrr,'(, ',$drrr,')*$')"/>
       
       <assert test="not(@loc) or matches(@loc,$seq)" role="warning"
         ><name/>/@loc '<value-of select="@loc"/>' is unusual: please
         check</assert>
+    	 -->
       <report test="contains(@loc,'-')" role="warning"><name/>/@loc contains
         '-' (hyphen): try '&#x2013;' (en-dash)</report>
       <!-- elsewhere we check bibl elements to which we have ptr cross-references,
@@ -183,7 +197,7 @@
     <rule context="tei:ptr">
       <!-- testing tei:ptr linking externally -->
       <extends rule="target-uri-constraints"/>
-      <assert test="exists(parent::tei:bibl)"><value-of select="name(..)"
+      <assert test="exists(parent::tei:bibl) or exists(@type='dhq-annex-embed')"><value-of select="name(..)"
         />/<name/>/@target points externally, but is not inside bibl</assert>
       <assert test="empty(@loc)"><name/> pointing externally should not have @loc</assert>
     </rule>
