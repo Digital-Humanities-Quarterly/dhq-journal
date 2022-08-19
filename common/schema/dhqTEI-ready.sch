@@ -93,7 +93,6 @@
     <rule context="tei:classDecl/*">
       <report test="true()"><name/> unexpected here</report>
     </rule>
-
     
     <rule context="tei:front//dhq:*">
       <assert test="normalize-space(.)"><name/> is empty</assert>
@@ -115,6 +114,16 @@
     <rule role="warning" context="tei:div">
       <report test="empty(tei:head)">A div has no head.</report>
     </rule>
+  	
+  	<!-- Checks new  <change> template (implemented 2022-08)
+  		to verify the article number was replaced in the gitHub url -->
+  	<rule role="error" context="tei:change/tei:ref">
+  		<extends rule="target-uri-constraints"/>
+  		<report role="error" test="matches(@target,'NNNNNN')">
+  			Revision description appears suspect: does not contain proper article id.
+  		</report>
+  	</rule>
+  	
     <rule role="warning" context="tei:head">
       <assert test="empty(preceding-sibling::tei:head)">This is not the first head in this element; please check (is this a new div or caption)?</assert>
     </rule>
