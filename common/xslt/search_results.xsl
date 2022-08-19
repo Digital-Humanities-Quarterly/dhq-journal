@@ -81,6 +81,7 @@
                 Total Hits: <xsl:value-of select="@total-count"/>,
                 Pages: <xsl:value-of select="@count-of-pages"/>
             </span>
+        	<br/>Results are sorted by number of hits per article.
         </p>
         <xsl:if test="@total-count > 0">
             <!-- Print navigation if results exceed one page [CRB] -->
