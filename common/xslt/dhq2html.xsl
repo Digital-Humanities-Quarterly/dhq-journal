@@ -11,8 +11,9 @@
     exclude-result-prefixes="#all" version="2.0">
 
     <xsl:import href="coins.xsl"/>
+	<!-- Stylesheet no longer needed? retained here for reference
     <xsl:import href="../../biblio/DHQ-Biblio-v2/xslt/dhqBiblio-ChicagoLoose-html.xsl"/>
-
+-->
     <!-- Overriding any strip-space in imported stylesheets -->
     <xsl:preserve-space elements="tei:* dhq:* dhqBiblio:title dhqBiblio:additionalTitle"/>
     <!--<xsl:strip-space elements="dhqBiblio:*"/>-->
@@ -58,7 +59,7 @@
   <xsl:key name="biblioIdKey" match="dhqBiblio:BiblioSet/*" use="@ID"/>
 
 
-<!-- jawalsh: tempalte below makes Biblio happen -->
+<!-- jawalsh: tempalte below makes Biblio happen 
 <xsl:template match="tei:listBibl//tei:bibl[count(key('biblioIdKey',@key,$biblio)) = 1]" priority="9">
     <div class="bibl"><span class="ref">
       <xsl:attribute name="id">
@@ -73,12 +74,12 @@
       <xsl:apply-templates select="key('biblioIdKey',@key,$biblio)" mode="dhqBiblio:ChicagoLoose"/>
     </div>
   </xsl:template>
-
-
+-->
+<!--
   <xsl:template match="tei:listBibl//tei:bibl[@key]" priority="1">
-              <div class="bibl fallback"><xsl:call-template name="show-bibl-fallback"/><!-- <strong style="font-weight:bold;"><xsl:value-of select="concat('WARNING: No biblio citation found for @key: ',$key)"/></strong>--></div>
+              <div class="bibl fallback"><xsl:call-template name="show-bibl-fallback"/> <strong style="font-weight:bold;"><xsl:value-of select="concat('WARNING: No biblio citation found for @key: ',$key)"/></strong></div>
   </xsl:template>
-
+-->
 
 
   <!-- +++++++ biblio: end                                  +++++++ -->
