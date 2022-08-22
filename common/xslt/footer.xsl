@@ -6,7 +6,7 @@
         <xsl:param name="docurl"/>
         <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
         <div id="footer"> 
-            <div style="float:left">
+            <div style="float:left; max-width:70%;">
             <!--DHQ Preview Web Site: Content in Draft Form. Final version will appear: <a
                 href="http://www.digitalhumanities.org/dhq/" class="footer"
                 >http://www.digitalhumanities.org/dhq/</a>. <br/> -->URL: <xsl:value-of
