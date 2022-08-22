@@ -12,7 +12,7 @@
                 >http://www.digitalhumanities.org/dhq/</a>. <br/> -->URL: <xsl:value-of
                 select="concat($baseurl,$docurl)"/><br/>Last updated:
             <script type="text/javascript">
-                var monthArray = new initArray("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+                var monthArray = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
                 var lastModifiedDate = new Date(document.lastModified);
                 var currentDate = new Date();
                 document.write(" ",monthArray[(lastModifiedDate.getMonth()+1)]," ");
