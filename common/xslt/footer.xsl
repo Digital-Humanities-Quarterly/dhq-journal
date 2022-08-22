@@ -10,14 +10,14 @@
             <!--DHQ Preview Web Site: Content in Draft Form. Final version will appear: <a
                 href="http://www.digitalhumanities.org/dhq/" class="footer"
                 >http://www.digitalhumanities.org/dhq/</a>. <br/> -->URL: <xsl:value-of
-                select="concat($baseurl,$docurl)"/><br/>Last updated:
+                select="concat($baseurl,$docurl)"/><!--<br/>Last updated:
             <script type="text/javascript">
                 var monthArray = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
                 var lastModifiedDate = new Date(document.lastModified);
                 var currentDate = new Date();
                 document.write(" ",monthArray[(lastModifiedDate.getMonth()+1)]," ");
                 document.write(lastModifiedDate.getDate(),", ",(lastModifiedDate.getFullYear()));
-            </script>
+            </script>-->
             <br/> Comments: <a><xsl:attribute name="href">
                 <xsl:value-of select="'mailto:dhqinfo@digitalhumanities.org'"/>
             </xsl:attribute><xsl:attribute name="class">
