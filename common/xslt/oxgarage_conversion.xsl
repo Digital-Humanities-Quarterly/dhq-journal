@@ -102,10 +102,12 @@
                     </keywords>
                 </textClass>
             </profileDesc>
-            <revisionDesc>
-                <xsl:comment>Each change should include @who and @when as well as a brief note on what was done.</xsl:comment>
-                <change></change>
-            </revisionDesc>
+           <revisionDesc>
+        	<!-- Replace "XXXXXX" in the @target of ref below with the appropriate DHQarticle-id value. -->
+        	   <change>The version history for this file can be found on <ref target=
+        		"https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/master/articles/NNNNNN/NNNNNN.xml">GitHub
+        	   </ref></change>
+   	       </revisionDesc>
         </teiHeader>
     </xsl:template>
     
