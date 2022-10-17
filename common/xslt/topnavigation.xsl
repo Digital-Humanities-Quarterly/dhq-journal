@@ -40,6 +40,14 @@
                         <xsl:value-of select="'topnav'"/>
                     </xsl:attribute>dhq people</a>
                 </span>
+                <span>
+                    <a><xsl:attribute name="href">
+                        <xsl:value-of select="concat('/',$context,'/news/news.html')"/>
+                    </xsl:attribute><xsl:attribute name="class">
+                        <xsl:value-of select="'topnav'"/>
+                    </xsl:attribute>news</a>
+                </span>
+            	
                 <span id="rightmost">
                     <a><xsl:attribute name="href">
                         <xsl:value-of select="concat('/',$context,'/contact/contact.html')"/>
