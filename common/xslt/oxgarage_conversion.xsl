@@ -80,6 +80,9 @@
                     <taxonomy xml:id="authorial_keywords">
                         <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
                     </taxonomy>
+            		<taxonomy xml:id="project_keywords">
+            			<bibl>DHQ project registry; full list available at <ref target="http://www.digitalhumanities.org/dhq/projects.xml">http://www.digitalhumanities.org/dhq/projects.xml</ref></bibl>
+            		</taxonomy>
                 </classDecl>
             </encodingDesc>
             <profileDesc>
@@ -100,6 +103,11 @@
                             <item></item>
                         </list>
                     </keywords>
+            		<keywords scheme="#project_keywords">
+            			<list type="simple">
+            				<item></item>
+            			</list>
+            		</keywords>
                 </textClass>
             </profileDesc>
            <revisionDesc>
