@@ -1,6 +1,14 @@
 xquery version "3.1";
 
 (:~
+ : Generate a table of DHQ article content in plaintext, with limited metadata. To run this
+ : script, follow the instructions for "The general XQuery transformation scenario" at
+ : https://github.com/NEU-DSG/wwp-public-code-share/blob/main/docs/setup-xquery.md
+ : 
+ : ~~~~~
+ : 
+ : ORIGINAL HEADER:
+ : 
  : A script to strip out the text from a TEI document, while retaining some metadata 
  : from the header. While intended for use with TEI created by the Women Writers 
  : Project, it can be used on other documents with a little tweaking.
@@ -115,7 +123,7 @@ xquery version "3.1";
 
 (:  VARIABLES  :)
   declare variable $dhq-articles := 
-    collection('dhq-journal/articles/?select=*.xml;recurse=yes;on-error=ignore');
+    collection('../../articles/?select=*.xml;recurse=yes;on-error=ignore');
   declare variable $use-docs external := $dhq-articles;
   
   (: Set $return-only-words to 'true()' to remove the header row and file metadata 
