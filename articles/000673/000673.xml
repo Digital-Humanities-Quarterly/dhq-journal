@@ -320,11 +320,11 @@
                     each referring to a single Arabic word, and each consisting of eight fields —
                     Arabic morphologic lemma (1), POS (2), positive sentiment score (3), negative
                     sentiment score (4), confidence (5), Arabic WordNet (AWN) offset (6), sentiment
-                    WordNet offset (7), and AWN lemma (8). An example is: <!-- <dhq:example>
-                        <head>Two entries in ArSenL. NIL = not in language</head> <imobiyriyAliy~_1;
-                        a;0;0.125;50; NIL;02746897; NIL zrAEap_1; n;0;0;100;100861982;00916464;
-                        ziraAoEap_n1AR</dhq:example> --> Given its large
-                    lexicon, it was selected for our study.</p>
+                    WordNet offset (7), and AWN lemma (8). An example is: <dhq:example>
+                        <head>Two entries in ArSenL. NIL = not in language</head>
+                        <eg lang="code-general">&lt;imobiyriyAliy~_1; a;0;0.125;50; NIL;02746897;
+                            NIL zrAEap_1; n;0;0;100;100861982;00916464; ziraAoEap_n1AR</eg>
+                    </dhq:example> Given its large lexicon, it was selected for our study.</p>
                 <p>Another tool that we used was the Arabic WordNet (AWN) [9, 18], based on WordNet
                     [27], which are, respectively, lexical resources in standard Arabic and English.
                     The Arabic WordNet is a large lexical database, comprising nouns, verbs,
@@ -390,9 +390,13 @@
                 <p>Classical Arabic poetry is built of consecutive verses (lines in a poem), with
                     each verse divided into two parts (hemistiches), the so-called ṣadr -صدر and
                     ʿajuz-عجز, respectively. This is an example of a verse:</p>
-                <!-- <dhq:example><quote rend="inline"><foreign xml:lang="ar">ولا عيب فيهم غير أن سيوفهم - بهن فلول من قراع الكتائب</foreign></quote> There is no fault in them,
-                        excepting that their swords have suffered dents in clashes with battalions
-                    </dhq:example> Example 2. A Classical Arabic verse -->
+                <dhq:example>
+                    <head>A Classical Arabic verse</head>
+                    <quote rend="inline"><p xml:lang="ar">ولا عيب فيهم غير أن سيوفهم - بهن فلول من
+                            قراع الكتائب</p>
+                        <p xml:lang="en">There is no fault in them, excepting that their swords have
+                            suffered dents in clashes with battalions</p></quote>
+                </dhq:example>
                 <p>Of the 180 rhetorical elements in Arabic poetry [10], we focus on the 20 most
                     frequently used. In the following, we bring brief definitions, sometimes with
                     simple examples. Detailed definitions, including detailed examples, are found in
@@ -594,6 +598,160 @@
                 <p>Working with only a small number of annotated poems, we were unable to use any
                     classical machine-learning technique to identify these elements automatically,
                     so our approach was rule-based.</p>
+                <p>A prototype of a rule-based system was built for automatic identification of
+                    these elements. The dataset, tools and methods are now described.</p>
+                <div>
+                    <head>i. Poems Dataset</head>
+                    <p>Over the years, we collected a repository of Classical Arabic
+                                poetry<note><ref
+                                target="https://arabic-rhetoric.haifa.ac.il/#/aboutApp.html"
+                                >https://arabic-rhetoric.haifa.ac.il/#/aboutApp.html</ref> – link to
+                            the system</note> comprising 25,835 poems by 675 different poets. It
+                        includes pre-Islamic poetry, written before 622 CE; work by poets who lived
+                        in the pre-Islamic and early Islamic periods, known as <foreign
+                            xml:lang="ar">mukhaḍrams</foreign>; that of poets who lived in the
+                        Umayyad era (661-750 CE); and of Abbasid poets who lived after 750 CE. For
+                        the purpose of this study, 75 poems, composed according to the classical
+                        Arabic meters called the Khalīlian meters, and comprising an average 27 <hi
+                            rend="bold">verses</hi> each, were collected and manually analyzed to
+                        identify their rhetorical elements. The poems were chosen to cover two main
+                        periods: the Abbasid (between the 8th and 10th centuries CE) and pre-Abbasid
+                        eras (poets who lived between the 6th and 8th centuries CE). The poems of
+                        the first period are often shorter than those of the second, and therefore
+                        their number is greater: 48 poems in comparison with 29 from the first era
+                        (five pre-Islamic poems, seven poems which were composed by poets who lived
+                        in pre-Islamic times, but whose lifetimes extended into the early Islamic
+                            [<foreign xml:lang="ar">mukhaḍrams</foreign> poets], and 17 poems from
+                        the Umayyad era). The number of verses in the poems in the two main eras is,
+                        however, to some degree balanced. It comprises 887 verses from the Abbasid
+                        period and 752 from the pre-Abbassid (140 pre-Islamic verses, 232 <foreign
+                            xml:lang="ar">mukhaḍrams</foreign>, and 380 Umayyad).</p>
+                    <p>From these poems, 20 different rhetorical elements were selected and manually
+                        annotated. (See Appendix 9.3 for the exact number of examples in each
+                        dataset.)</p>
+                </div>
+                <div>
+                    <head>ii. NLP Tools and Data Sources</head>
+                    <p>This subsection describes the NLP tools and data sources, and the techniques
+                        applied in the framework.</p>
+                    <list type="ordered">
+                        <item><title rend="italic">AlKhalil2</title>, The AlKhalil2 [5] was chosen
+                            because of its large database and because it is a morpho-syntactic
+                            analyzer of standard Arabic words out of context. The system analyses
+                            either partially or totally vowelized words. We used their morphological
+                            features, including prefix, stem and type of word, all of which are very
+                            useful in identifying most of the rhetorical elements. It is important
+                            to note, however, that AlKhalil2 was designed for modern Arabic whereas
+                            the classical Arabic poetry with which we worked differs from modern
+                            Arabic. As a first step, we report on evaluating it on our corpus and
+                            then discuss its implications.</item>
+                        <item><title rend="italic">ArSenL Sentiment Lexicon</title>, The ArSenL [8]
+                            was selected for its large sentiment lexicon (154,396 entries). They
+                            comprise the eight fields shown in our background section — positive
+                            sentiment score (3), negative sentiment score (4) and AWN lemma (8).
+                            When the AWN lemma includes NIL (i.e., not in language), we interpreted
+                            the morphological word in the first field according to the Buckwalter
+                            Arabic Morphological Analyzer [7] to retrieve the Arabic word-form.
+                            Where the field AWN lemma included a valid offset (i.e., not NIL), we
+                            retrieved the Arabic word from AWN [23]. The final step was calculating
+                            the objective score of each word, which is the sum of the fields of
+                            positive and negative sentiment scores. It should be noted that most
+                            words scored neutral.</item>
+                        <item><title rend="italic">Arabic WordNet</title>. We used the AWN source
+                            code to retrieve Arabic words from sentiment lexicons (described
+                            below).</item>
+                        <item><title rend="italic">Buckwalter Arabic Morphological Analyzer</title>
+                            [7] helped build a sentiment lexicon (tool 2), because entries in ArSenL
+                            [8] contain fields that include NIL. This tool was used to convert
+                            Morphologic Arabic words to Arabic words (e.g., &lt;imobiyriyAliy~ to
+                                <foreign xml:lang="ar">إمبيريالي</foreign>).</item>
+                        <item><title rend="italic">Arabic Sentiment Lexicon</title>. We developed an
+                            Arabic sentiment lexicon, comprising 8,765 positive words and 9,813
+                            negative words, in three phases. The first phase involved automatically
+                            retrieving Arabic words and their sentimental polarities from ArSenL
+                            [8], using the Buckwalter Arabic Morphological Analyzer [7] and AWN
+                            [24]. The second phase manually retrieved Arabic words and their
+                            polarities from another lexicon [31], and the final phase was manually
+                            enriching the lexicon with Arabic words and their polarities from the
+                                    internet.<note><ref
+                                    target="https://ar.wikipedia.org/wiki/%D9%82%D8%A7%D8%A6%D9%85%D8%A9_%D8%A7%D9%84%D8%A7%D9%86%D9%81%D8%B9%D8%A7%D9%84%D8%A7%D8%AA_%D8%A7%D9%84%D8%B9%D8%A7%D8%B7%D9%81%D9%8A%D8%A9"
+                                    >https://ar.wikipedia.org/wiki/%D9%82%D8%A7%D8%A6%D9%85%D8%A9_%D8%A7%D9%84%D8%A7%D9%86%D9%81%D8%B9%D8%A7%D9%84%D8%A7%D8%AA_%D8%A7%D9%84%D8%B9%D8%A7%D8%B7%D9%81%D9%8A%D8%A9</ref></note></item>
+                        <item><title rend="italic">Arabic Sentiment Analyser</title>. We developed a
+                            word polarity-based Arabic Sentiment Analyzer using the lexicon
+                            described above (see Figure 7). <list type="unordered">
+                                <item>Step 1 was building a lexicon of sentiment words. It comprised
+                                    two text files — the first file consisting of positive words,
+                                    the second of negative. In addition, we manually created a text
+                                    file of negative words.</item>
+                                <item>Step 2 was building an Arabic Sentiment Analyzer based on
+                                    polarity. Text <hi rend="bold">verses</hi> were inputted, each
+                                        <hi rend="bold">verse</hi> devoted to one word in all its
+                                    possible forms. (All words in each <hi rend="bold">verse</hi>
+                                    appear without diacritics because the lexicon includes words
+                                    without diacritics.) The analyzer checks each word in the <hi
+                                        rend="bold">verses</hi>. Should it appear in one of the
+                                    lexicons, its polarity value is set according to that lexicon.
+                                    If, however, there is a negation particle before the word (in
+                                    Arabic, they are mainly <foreign xml:lang="ar">بل, بلى, ليس,
+                                        لكن, نعم. لم، لا، لن</foreign>), its polarity is assigned
+                                    the opposite value of the lexicon. The analyzer then calculates
+                                    the final sentiment of the input: if the number of positive
+                                    words is greater than that of negative words, the analyzer
+                                    returns a value of 1; if negative words comprise the greater
+                                    number, it returns -1; where they are equal, it returns 0 (i.e.,
+                                    neutral). This serves to identify the Satirist’s and Encomiast’s
+                                    Feints (see Figure 6).</item>
+                            </list>
+                        </item>
+                        <item><title rend="italic">Arabic Lexicon for Antithesis</title>. We
+                            developed an Arabic lexicon for words with contradictory meanings. It
+                            comprises 453 pairs of opposites, compiled in two stages. First was
+                            retrieving English words and their opposites from the internet [35, 36],
+                            and using the AWN Browser 2.0.1 to get their Arabic opposites and
+                            synonyms. Second was manually enriching these opposites with Arabic
+                            words and their synonyms [21].</item>
+                        <item><title rend="italic">Graphical User Interface (GUI)</title> (see
+                            Figures 2 &amp; 4).</item>
+                    </list>
+                </div>
+                <div>
+                    <head>iii. Rhetoric Elements Identification Framework and Prototype</head>
+                    <p>We created a user-friendly system that integrates the NLP tools described
+                        above with a rule-based elements identification mechanism for automatic
+                        identification of rhetorical elements. The GUI and the algorithms are from
+                        NetBeans IDE 8.0.1 using Java platform JDK 1.8. The source codes of the
+                        first six tools were also implemented in Java. Figure 1 presents the
+                        abstract process of rhetorical element identification on a complete poem,
+                        line by line, while Figures 1 &amp; 5 show the process of identifying a
+                        rhetorical element. Figure 1 shows the overall abstract process of line by
+                        line analysis while Figure 5 shows an example of identifying one specific
+                        rhetorical element – <q>Simile</q> (as there are different implementations
+                        for different rules).</p>
+                    <figure>
+                        <head>Abstract framework for rhetorical element identification. The process
+                            starts with selecting a poem and a rhetorical element. The system
+                            analyses the poem line by line to identify the rhetorical
+                            element.</head>
+                        <figDesc>Flowchart of steps in poem breakdown</figDesc>
+                        <graphic url="resources/images/figure01.png"/>
+                    </figure>
+                    <p>The Graphic User Interface (GUI) for identifying rhetorical elements is shown
+                        in Figure 3. The process is as follows (see Figure 3): <list type="ordered">
+                            <item>Activate the system (1), and select a poem (2).</item>
+                            <item>Select a rhetorical element from the 20 in the GUI.</item>
+                            <item>Run the tools to identify the selected element for each verse. If
+                                more than one element is chosen, repeat the process for each</item>
+                            <item>The color-coded results are visualized (3).</item>
+                        </list>
+                        <figure>
+                            <head>The main Graphic User Interface (GUI). The selected poem is on the
+                                left. Each button on the right is responsible for identifying a
+                                rhetorical element, color-matched to the poem’s text.</head>
+                            <figDesc>Dashboard of the Graphic User Interface, showing menu options.</figDesc>
+                            <graphic url="resources/images/figure02.png"/>
+                        </figure>
+                    </p>
+                </div>
             </div>
         </body>
         <back>
