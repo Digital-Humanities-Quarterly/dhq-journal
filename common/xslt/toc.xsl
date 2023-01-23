@@ -627,7 +627,7 @@
                 <xsl:choose>
                     <xsl:when test="@xml:lang='en' or string-length(@xml:lang)=0">
 
-                        <xsl:if test="//tei:title/@xml:lang != 'en'">
+                        <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
                         <span class="monospace">[en]&#160;</span>
                         </xsl:if>
                         <!--
@@ -644,7 +644,7 @@
                         <xsl:attribute name="href">
                             <xsl:value-of select="concat('/',$context,'/vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
                         </xsl:attribute>
-                        <xsl:if test="//tei:title/@xml:lang != 'en'">
+                        <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
                         <xsl:attribute name="onclick">
                             <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
                         </xsl:attribute>
