@@ -35,7 +35,27 @@ xquery version "3.1";
     for $match in $sitemap//smap:match
     return
       if ( $match[@type[. eq 'regexp']] ) then
-        ()
+        let $groups :=
+          let $analysis := analyze-string($match/@pattern/data(.), "\([^)]+\)")
+          return $analysis//fn:match/data(.)
+        for $src in $match//@src
+        let $analysis :=
+          if ( matches($src, '\{\d\}') ) then
+            analyze-string($src/data(.), '\{\d\}')
+          else ()
+        let $groupReplacement :=
+          for $strPart in $analysis/*
+          return
+            if ( $strPart[self::fn:match] ) then
+              let $index :=
+                replace($strPart, '\{(\d)\}', '$1')
+                => xs:integer()
+              return $groups[$index]
+            else $strPart/data(.)
+        return
+          if ( exists($groupReplacement) ) then
+            string-join($groupReplacement, '')
+          else ()
       else if ( $match/@pattern[contains(., '*')] ) then
         for $src in $match//@src
         return
@@ -109,7 +129,7 @@ xquery version "3.1";
 let $repoContentsList := file:list($dhq-repo)
 let $repoContents :=
   let $ignorables := (
-      'articles/', '.git/', '.gitignore', '.DS_Store', 'README.md'
+      'articles/', 'editorial/', '.git/', '.gitignore', '.DS_Store', 'README.md'
     )
   for $resource in $repoContentsList
   let $isDir := ends-with($resource, $slash)
