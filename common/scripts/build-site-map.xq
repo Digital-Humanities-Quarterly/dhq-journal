@@ -32,36 +32,40 @@ xquery version "3.1";
   declare variable $context external := 'dhq/';
   
   declare variable $file-patterns-unglobbed :=
-    for $match in $sitemap//smap:match
-    return
-      if ( $match[@type[. eq 'regexp']] ) then
-        let $groups :=
-          let $analysis := analyze-string($match/@pattern/data(.), "\([^)]+\)")
-          return $analysis//fn:match/data(.)
-        for $src in $match//@src
-        let $analysis :=
-          if ( matches($src, '\{\d\}') ) then
-            analyze-string($src/data(.), '\{\d\}')
-          else ()
-        let $groupReplacement :=
-          for $strPart in $analysis/*
+    let $allPatterns :=
+      for $match in $sitemap//smap:match
+      return
+        if ( $match[@type[. eq 'regexp']] ) then
+          let $groups :=
+            let $analysis := analyze-string($match/@pattern/data(.), "\([^)]+\)")
+            return $analysis//fn:match/data(.)
+          for $src in $match//@src
+          let $analysis :=
+            if ( matches($src, '\{\d\}') ) then
+              analyze-string($src/data(.), '\{\d\}')
+            else ()
+          let $groupReplacement :=
+            for $strPart in $analysis/*
+            return
+              if ( $strPart[self::fn:match] ) then
+                let $index :=
+                  replace($strPart, '\{(\d)\}', '$1')
+                  => xs:integer()
+                return $groups[$index]
+              else $strPart/data(.)
           return
-            if ( $strPart[self::fn:match] ) then
-              let $index :=
-                replace($strPart, '\{(\d)\}', '$1')
-                => xs:integer()
-              return $groups[$index]
-            else $strPart/data(.)
-        return
-          if ( exists($groupReplacement) ) then
-            string-join($groupReplacement, '')
-          else ()
-      else if ( $match/@pattern[contains(., '*')] ) then
-        for $src in $match//@src
-        return
-          replace($src, '\.', '\\.')
-          => replace('\{\d\}', '(.+)')
-      else ();
+            if ( exists($groupReplacement) ) then
+              map:entry(string-join($groupReplacement, ''), $src/parent::*)
+            else ()
+        else if ( $match/@pattern[contains(., '*')] ) then
+          for $src in $match//@src
+          let $patternRev :=
+            replace($src, '\.', '\\.')
+            => replace('\{\d\}', '(.+)')
+          return map:entry($patternRev, $src/parent::*)
+        else ()
+    return map:merge($allPatterns)
+    ;
 
 (:  FUNCTIONS  :)
   
@@ -70,11 +74,11 @@ xquery version "3.1";
     let $dirContents := file:list(concat($dhq-repo,$slash,$relative-path))
     let $processedContents :=
       for $resource in $dirContents
-      let $isDir := ends-with($resource, '/')
+      let $isDir := ends-with($resource, $slash)
       let $fullPath := 
         concat($relative-path,$resource)
       let $globMatch :=
-        for $pattern in $file-patterns-unglobbed
+        for $pattern in map:keys($file-patterns-unglobbed)
         return
           if ( matches($fullPath, $pattern) ) then
             $pattern
@@ -105,9 +109,34 @@ xquery version "3.1";
         else if ( exists($globMatch) ) then
           map { 'regex': $globMatch[1] }
         else if ( $resource = ('.DS_Store', 'LICENSE') ) then ()
-        else concat("Nope: ", $fullPath)
+        else () (: concat("Nope: ", $fullPath) :)
+    let $condensedContents :=
+      for $content in $processedContents
+      group by $wildcardPattern := 
+        if ( $content instance of map(xs:string, item()*) and map:contains($content, 'regex') ) then
+          map:get($content, 'regex')
+        else false()
+      return
+        if ( $wildcardPattern ) then
+          let $match := $file-patterns-unglobbed?($wildcardPattern)
+          return
+            typeswitch ($match)
+              case element(smap:generate) return
+                let $xslMap :=
+                  let $matchParent := $match/parent::*
+                  let $outPattern := 
+                    $matchParent/@pattern/data(.)
+                  for $xsl in $matchParent/smap:transform
+                  return local:process-transformation($xsl, $outPattern)
+                return map {
+                    'regexPaths': true(),
+                    'in': $wildcardPattern,
+                    'transforms': array { $xslMap }
+                  }
+              default return $content[1]
+        else $content
     return
-      map:entry($dirName, array { $processedContents })
+      map:entry($dirName, array { $condensedContents })
   };
   
   declare function local:process-transformation($xsl-definition as node(), $save-to-path as xs:string) {
@@ -129,7 +158,7 @@ xquery version "3.1";
 let $repoContentsList := file:list($dhq-repo)
 let $repoContents :=
   let $ignorables := (
-      'articles/', 'editorial/', '.git/', '.gitignore', '.DS_Store', 'README.md'
+      'articles/', (: 'editorial/', :) '.git/', '.gitignore', '.DS_Store', 'README.md'
     )
   for $resource in $repoContentsList
   let $isDir := ends-with($resource, $slash)
