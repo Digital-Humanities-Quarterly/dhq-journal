@@ -124,19 +124,24 @@
                <note> Other digital analyses of metrical Greek language focus more exclusively on natural language processing, such as the Classical Language Tool Kit <ptr target="#cltk"/>; or grammatico-semantic corpus linguistics, such as The Ancient Greek and Latin Dependency Treebank <ptr target="#agdt"/>, the Homeric Dependency Lexicon <ptr target="#hodel"/> (cf. <ptr target="#zanchi2021"/>), and Ancient Greek WordNet <ptr target="#agwn"/>.</note>
                With such information, scholars can then better discern their linguistic causes and potential poetic effects.</p>
             <p>In this article, we introduce SEDES, a software system for identifying, quantifying, and visualizing metrical position in ancient Greek hexameter poetry. Like intertextualist studies of metrical position, SEDES at present focuses on the repetition of words — more specifically, of lemmata. Our present purpose is to describe the design of the SEDES system and demonstrate a sample of its utility.
-               <note> For additional theorization and application of SEDES to close reading and intertextuality, see <ptr target="#sansom2021"/>.</note>  Engineering the system required bringing together existing resources in the processing of Greek poetry, as well as the creation of new processes, measurements, tests, and visualizations, all of which aid researchers of Greek literature and otherwise in the processing of poetic texts for computer and literary analysis and, more generally, provide a method that benefits the quantitative analysis of repetitive language in meter. In what follows, we show how SEDES generates these data, before giving examples of its application to Greek hexameter poetics, in particular the fields of oral formularity and intertextuality.</p>
+               <note> For additional theorization and application of SEDES to close reading and intertextuality, see <ptr target="#sansom2021"/>.</note> 
+               Engineering the system required bringing together existing resources in the processing of Greek poetry, as well as the creation of new processes, measurements, tests, and visualizations, all of which aid researchers of Greek literature and otherwise in the processing of poetic texts for computer and literary analysis and, more generally, provide a method that benefits the quantitative analysis of repetitive language in meter. In what follows, we show how SEDES generates these data, before giving examples of its application to Greek hexameter poetics, in particular the fields of oral formularity and intertextuality.</p>
             </div>
          
             <div>
                <head>Processing Pipeline</head>
-               <p>The core function of SEDES is to assign a numeric value — an expectancy score — to every word in a work of verse. The expectancy of a word is a quantification, in a sense we will define later, of how frequently that word’s lemma appears at a given <term>sedes</term> in a corpus of works. After computing expectancy scores, SEDES provides ways of visualizing and interacting with them. The SEDES system is composed of a pipeline of programs, each of which performs a portion of the processing task. See Figure 1.</p>
-               <p>
-                  <figure>Schematic diagram of information flow through the programs of SEDES</figure>Figure 1. The SEDES processing pipeline comprises three programs: tei2csv, expectancy, and tei2html. Visualizing a text requires analyzing not only it, but all other texts of the corpus.</p>
+               <p>The core function of SEDES is to assign a numeric value — an expectancy score — to every word in a work of verse. The expectancy of a word is a quantification, in a sense we will define later, of how frequently that word’s lemma appears at a given <term xml:lang="grc">sedes</term> in a corpus of works. After computing expectancy scores, SEDES provides ways of visualizing and interacting with them. The SEDES system is composed of a pipeline of programs, each of which performs a portion of the processing task. See Figure 1.</p>
+            
+                  <figure>
+                     <head>The SEDES processing pipeline comprises three programs: tei2csv, expectancy, and tei2html. Visualizing a text requires analyzing not only it, but all other texts of the corpus.</head>
+                     <graphic url="resources/figures/figure01.png"/>
+                     <figDesc>Schematic diagram of information flow through the programs of SEDES</figDesc>
+                  </figure>
                
-               <p>The input to the pipeline is a set of XML documents marked up according to the TEI Guidelines [TEI]. The selection of documents defines the <hi rend="italic">corpus</hi>  relative to which expectancy scores are computed. In developing SEDES, we have used 12 TEI texts from the Perseus Project [Perseus], totaling about 73,000 lines, with a minimum length of 479 lines and a maximum of 21,356. See Table 1 for a listing of texts, which span more than a millennium and comprise a variety of styles. We often define the corpus as all 12 works, but the system makes it possible to work with only a subset, in order to include or exclude certain authors or eras, for example.</p>
+               <p>The input to the pipeline is a set of XML documents marked up according to the TEI Guidelines [TEI]. The selection of documents defines the <term xml:lang="la">corpus</term> relative to which expectancy scores are computed. In developing SEDES, we have used 12 TEI texts from the Perseus Project <ptr target="#perseus"/>, totaling about 73,000 lines, with a minimum length of 479 lines and a maximum of 21,356. See Table 1 for a listing of texts, which span more than a millennium and comprise a variety of styles. We often define the corpus as all 12 works, but the system makes it possible to work with only a subset, in order to include or exclude certain authors or eras, for example.</p>
                
-               <p>Table 1: Works in the full SEDES corpus.</p>
                <table>
+                  <head>Works in the full SEDES corpus.</head>
                   <row role="data">
                      <cell>Work</cell>
                      <cell>Date (circa c.)</cell>
@@ -258,29 +263,38 @@
                   </row>
                </table>
                
-               <p>Though similar techniques could be applied to other forms of verse, SEDES is specially adapted to hexameter. In hexameter, vowels are distinguished by length. A line consists of six feet, which each may be either a long syllable followed by another long syllable (a spondee, denoted ‘– –’), or a long syllable followed by two short syllables (a dactyl, <q>– ⏑ ⏑</q>). The metrical shape of a word — its pattern of long and short syllables — limits the places (<term>sedes</term>) in a line it may appear. (Though there is some flexibility: a word may, subject to certain rules, sometimes be reinterpreted to have a different metrical shape than it would otherwise have, in order to fit the meter.) Even given the range of permissible <q>slots</q> for each word, most words tend to appear at some <term>sedes</term> more often than others. It is this non-uniform distribution of word placements that SEDES is designed to analyze.</p>
-               <p>The first program in the SEDES pipeline, tei2csv, assigns a lemma and a <term>sedes</term>  to every word in the corpus. (We consider multiple instances of the same word separately — the same word in different lines may appear at different <term>sedes</term>, for example.) Later parts of the pipeline will operate, not on the original words of the text directly, but on the <quote rend="inline">lemma–<term>sedes</term> pairs</quote> to which they are mapped by tei2csv. Concretely, tei2csv  does the following three steps of segmentation, lemmatization, and scansion for every document in the corpus:</p>
-               <list type="unordered">
-                  <item>Break the document into lines and words.</item>
-                  <item>Look up a lemma for each word.</item>
-                  <item>Scan every line metrically, thereby finding a <term>sedes</term> for each word.</item>
+               <p>Though similar techniques could be applied to other forms of verse, SEDES is specially adapted to hexameter. In hexameter, vowels are distinguished by length. A line consists of six feet, which each may be either a long syllable followed by another long syllable (a spondee, denoted <q>– –</q>), or a long syllable followed by two short syllables (a dactyl, <q>– ⏑ ⏑</q>). The metrical shape of a word — its pattern of long and short syllables — limits the places (<term xml:lang="grc">sedes</term>) in a line it may appear. (Though there is some flexibility: a word may, subject to certain rules, sometimes be reinterpreted to have a different metrical shape than it would otherwise have, in order to fit the meter.) Even given the range of permissible <q>slots</q> for each word, most words tend to appear at some <term xml:lang="grc">sedes</term> more often than others. It is this non-uniform distribution of word placements that SEDES is designed to analyze.</p>
+               <p>The first program in the SEDES pipeline, tei2csv, assigns a lemma and a <term>sedes</term>  to every word in the corpus. (We consider multiple instances of the same word separately — the same word in different lines may appear at different <term xml:lang="grc">sedes</term>, for example.) Later parts of the pipeline will operate, not on the original words of the text directly, but on the <quote rend="inline">lemma–<term xml:lang="grc">sedes</term> pairs</quote> to which they are mapped by tei2csv. Concretely, tei2csv  does the following three steps of segmentation, lemmatization, and scansion for every document in the corpus:</p>
+               
+               <list type="simple">
+                  <item>1. Break the document into lines and words.</item>
+                  <item>2. Look up a lemma for each word.</item>
+                  <item>3. Scan every line metrically, thereby finding a <term xml:lang="grc">sedes</term> for each word.</item>
                </list>
-               <p>The output of tei2csv is a collection of CSV files, one for each TEI file in the corpus. The CSV files map every instance of every word in the corpus to the lemma and <hi rend="italic">sedes</hi> of that instance, what we call a lemma–<term>sedes</term> pair. The next program in the pipeline, called expectancy, takes these CSV files as input and does the statistics necessary to compute expectancy scores:</p>
-               <list type="unordered">
-                  <item>Compute an expectancy score for every unique lemma–<term>sedes</term> pair.</item>
+               <p>The output of tei2csv is a collection of CSV files, one for each TEI file in the corpus. The CSV files map every instance of every word in the corpus to the lemma and <term xml:lang="grc">sedes</term> of that instance, what we call a lemma–<term xml:lang="grc">sedes</term> pair. The next program in the pipeline, called expectancy, takes these CSV files as input and does the statistics necessary to compute expectancy scores:</p>
+               
+               <list type="simple">
+                  <item>4. Compute an expectancy score for every unique lemma–<term xml:lang="grc">sedes</term> pair.</item>
                </list>
+               
                <p>The output of the expectancy program is another CSV file that maps every observed combination of lemma and <term>sedes</term> to a numeric expectancy score. The final program in the pipeline, tei2html, takes as input the expectancy CSV file and the TEI of any single work — which may or may not be part of the corpus that was used to define expectancy — and produces an output visualization of the work:</p>
-               <list type="unordered">
+               
+               <list type="simple">
                   <item>Produce an HTML file that depicts differences in expectancy across words.</item>
                </list>
+               
                <p>We will describe the above steps in detail in the subsections that follow. But first, we will walk through an example of applying the SEDES processing pipeline to book 1, line 1 of the <title rend="italic">Odyssey</title> <ptr target="#perseusodyssey"/> from start to finish.</p>
                
                <p>In the source TEI file, the line looks like this:
                   <note> The Perseus project is undergoing a transition to<ref target="https://scaife.perseus.org/about/">Perseus version 5.0</ref>, in which, among other changes, TEI texts contain Unicode, rather than Beta Code. At this point, SEDES sources texts from <ref target="https://www.perseus.tufts.edu/hopper/">Perseus 4.0</ref>(Perseus Hopper), which require a preliminary step to decode Beta Code.</note>
                </p>
-               <p>&lt;l&gt;a)/ndra moi e)/nnepe, mou=sa, polu/tropon, o(\s ma/la polla\&lt;/l&gt;</p>
-               <p>The &lt;l&gt;  and &lt;/l&gt;  XML tags delimit a line. The text between the tags is Beta Code <ptr target="#tlgbetacode"/>, a method of representing written ancient Greek using ASCII characters: <q>a</q> represents the letter alpha; <q>)</q>, <q>/</q>, <q>\</q>, and <q>=</q> are various diacritics; and so on. The tei2csv  program isolates the line from the XML markup and decodes the Beta Code to yield a line of verse represented in Unicode:</p>
-               <p><foreign xml:lang="grc">ἄνδρα μοι ἔννεπε, μοῦσα, πολύτροπον, ὃς μάλα πολλὰ</foreign></p>
+               
+               <eg lang="xml">&lt;l&gt;a)/ndra moi e)/nnepe, mou=sa, polu/tropon, o(\s ma/la polla\&lt;/l&gt;</eg>
+               
+               <p>The &lt;l&gt;  and &lt;/l&gt; XML tags delimit a line. The text between the tags is Beta Code <ptr target="#tlgbetacode"/>, a method of representing written ancient Greek using ASCII characters: <q>a</q> represents the letter alpha; <q>)</q>, <q>/</q>, <q>\</q>, and <q>=</q> are various diacritics; and so on. The tei2csv  program isolates the line from the XML markup and decodes the Beta Code to yield a line of verse represented in Unicode:</p>
+               
+               <eg lang="nohighlight"><foreign xml:lang="grc">ἄνδρα μοι ἔννεπε, μοῦσα, πολύτροπον, ὃς μάλα πολλὰ</foreign></eg>
+               
                <p>(<quote rend="inline">Tell me, Muse, about the versatile man, who very many…</quote>) The program then scans the line metrically, marking each syllable as long (notated <q>–</q>) or short (notated <q>⏑</q>). A long syllable counts for 1 position and a short syllable counts for 0.5. The scansion of the example line is:</p>
                
                <table>
@@ -343,10 +357,10 @@
                   </row>
                </table>
                
-               <p>The <term >sedes</term> of a word is the <term>sedes</term> of its first syllable. In this example, <foreign xml:lang="grc">ἄνδρα</foreign> is at <term>sedes</term> 1, <foreign xml:lang="grc">μοι</foreign> is at <term>sedes</term> 2.5, and so on. Separately from scansion, every word in the line is mapped to its lemma. Here, the word <foreign xml:lang="grc">ἄνδρα</foreign> maps to the lemma <foreign xml:lang="grc">ἀνήρ</foreign>, <foreign xml:lang="grc">μοι</foreign> maps to <foreign xml:lang="grc">ἐγώ</foreign>, and so on for the rest of the words. The output of this process is a lemma and a <term>sedes</term> for each word: a lemma–<term>sedes</term> pair. The calculation of <term>sedes</term> and the finding of a lemma are independent operations: it is the syllables of the original words of the line, not their derived lemmata, that determine <term>sedes</term>.</p>
-               <p>The tei2csv  program emits a CSV file with one row per input word, representing the word’s lemma, <term>sedes</term>, and other metadata. In the following listing we have added space to align the columns:</p>
+               <p>The <term xml:lang="grc">sedes</term> of a word is the <term xml:lang="grc">sedes</term> of its first syllable. In this example, <foreign xml:lang="grc">ἄνδρα</foreign> is at <term xml:lang="grc">sedes</term> 1, <foreign xml:lang="grc">μοι</foreign> is at <term xml:lang="grc">sedes</term> 2.5, and so on. Separately from scansion, every word in the line is mapped to its lemma. Here, the word <foreign xml:lang="grc">ἄνδρα</foreign> maps to the lemma <foreign xml:lang="grc">ἀνήρ</foreign>, <foreign xml:lang="grc">μοι</foreign> maps to <foreign xml:lang="grc">ἐγώ</foreign>, and so on for the rest of the words. The output of this process is a lemma and a <term xml:lang="grc">sedes</term> for each word: a lemma–<term xml:lang="grc">sedes</term> pair. The calculation of <term xml:lang="grc">sedes</term> and the finding of a lemma are independent operations: it is the syllables of the original words of the line, not their derived lemmata, that determine <term xml:lang="grc">sedes</term>.</p>
+               <p>The tei2csv program emits a CSV file with one row per input word, representing the word’s lemma, <term>sedes</term>, and other metadata. In the following listing we have added space to align the columns:</p>
                <table>
-                  <row role="data">
+                  <row role="label">
                      <cell>work,</cell>
                      <cell>book_n,</cell>
                      <cell>line_n,</cell>
@@ -464,21 +478,72 @@
                      <cell>"<foreign xml:lang="grc">ἄνδρα μοι</foreign>..."</cell>
                   </row>
                </table>
-               <p>Expectancy is a function of lemma and <term>sedes</term> jointly: it measures, for each lemma, how that lemma is distributed over the possible <term>sedes</term>, in the context of the overall corpus. Having run tei2csv on the <title rend="italic">Odyssey</title>, we run it again on the other works of the corpus to obtain the necessary context, in the form of a collection of CSV files that give a lemma and a <term>sedes</term> for every word. The expectancy program takes all these files as input, analyzes the statistical distribution of <term>sedes</term> for each lemma, and outputs another CSV file that maps lemma–<term>sedes</term> pairs to their expectancy scores, using mathematical formulas we will define below. An excerpt of the output of the expectancy program is shown below. The x column counts the number of occurrences of a lemma–<term>sedes</term> pair throughout the corpus, and z shows the expectancy of that pair. From this sample output, we see that the expectancy of the lemma <foreign xml:lang="grc">ἀνήρ</foreign> (<q>man</q>) at <term>sedes</term> 1 is +1.11, that of <foreign xml:lang="grc">ἐγώ</foreign> (<q>I</q>) at <term>sedes</term> 2 is −0.13, and so on.</p>
-               <p>lemma, sedes, x,  z</p>
-               <p>[...]</p>
-               <p>ἀνήρ,  1,  452,  +1.1089031679816</p>
-               <p>ἀνήρ,  2,  35,  -1.60788923391802</p>
-               <p>ἀνήρ,  2.5,  100,  -1.18440840388571</p>
-               <p>[...]</p>
-               <p>ἐγώ,  2,  430,  -0.132108322471802</p>
-               <p>ἐγώ,  2.5,  1027, +1.79559085302027</p>
-               <p>ἐγώ,  3,  457,  -0.0449259477008033</p>
-               <p>[...]</p>
-               <p>ἐνέπω, 3,  8,  -1.32295427519852</p>
-               <p>[...]</p>
+               <p>Expectancy is a function of lemma and <term xml:lang="grc">sedes</term> jointly: it measures, for each lemma, how that lemma is distributed over the possible <term xml:lang="grc">sedes</term>, in the context of the overall corpus. Having run tei2csv on the <title rend="italic">Odyssey</title>, we run it again on the other works of the corpus to obtain the necessary context, in the form of a collection of CSV files that give a lemma and a <term xml:lang="grc">sedes</term> for every word. The expectancy program takes all these files as input, analyzes the statistical distribution of <term xml:lang="grc">sedes</term> for each lemma, and outputs another CSV file that maps lemma–<term xml:lang="grc">sedes</term> pairs to their expectancy scores, using mathematical formulas we will define below. An excerpt of the output of the expectancy program is shown below. The x column counts the number of occurrences of a lemma–<term>sedes</term> pair throughout the corpus, and z shows the expectancy of that pair. From this sample output, we see that the expectancy of the lemma <foreign xml:lang="grc">ἀνήρ</foreign> (<q>man</q>) at <term xml:lang="grc">sedes</term> 1 is +1.11, that of <foreign xml:lang="grc">ἐγώ</foreign> (<q>I</q>) at <term xml:lang="grc">sedes</term> 2 is −0.13, and so on.</p>
+               <table>
+                  <row role="label">
+                     <cell>lemma</cell>
+                     <cell>sedes</cell>
+                     <cell>x</cell>
+                     <cell>z</cell>
+                  </row>
+                  <row role="data">
+                     <cell cols="4">[...]</cell>
+                  </row>
+                  <row role="data">
+                     <cell><foreign xml:lang="grc">ἀνήρ</foreign></cell>
+                     <cell>1</cell>
+                     <cell>452</cell>
+                     <cell>+1.1089031679816</cell>
+                  </row>
+                  <row role="data">
+                     <cell><foreign xml:lang="grc">ἀνήρ</foreign></cell>
+                     <cell>2</cell>
+                     <cell>35</cell>
+                     <cell>-1.60788923391802</cell>
+                  </row>
+                  <row role="data">
+                     <cell><foreign xml:lang="grc">ἀνήρ</foreign></cell>
+                     <cell>2.5</cell>
+                     <cell>100</cell>
+                     <cell>-1.18440840388571</cell>
+                  </row>
+                  <row role="data">
+                     <cell cols="4">[...]</cell>
+                  </row>
+                  <row role="data">
+                     <cell><foreign xml:lang="grc">ἐγώ</foreign></cell>
+                     <cell>2</cell>
+                     <cell>430</cell>
+                     <cell>-0.132108322471802</cell>
+                  </row>
+                  <row role="data">
+                     <cell><foreign xml:lang="grc">ἐγώ</foreign>,  ,  , </cell>
+                     <cell>2.5</cell>
+                     <cell>1027</cell>
+                     <cell>+1.79559085302027</cell>
+                  </row>
+                  <row role="data">
+                     <cell><foreign xml:lang="grc">ἐγώ</foreign></cell>
+                     <cell>3</cell>
+                     <cell>457</cell>
+                     <cell>-0.0449259477008033</cell>
+                  </row>
+                  <row role="data">
+                     <cell cols="4">[...]</cell>
+                  </row>
+                  <row role="data">
+                     <cell><foreign xml:lang="grc">ἐνέπω</foreign></cell>
+                     <cell>3</cell>
+                     <cell>8</cell>
+                     <cell>-1.32295427519852</cell>
+                  </row>
+                  <row role="data">
+                     <cell cols="4">[...]</cell>
+                  </row>
+               </table>
                
                <p>Finally, the tei2html  program takes as input the TEI file of the <title rend="italic">Odyssey</title>  along with the expectancy CSV file. tei2html  renders a human-readable HTML representation of the text, optionally highlighting each word according to its expectancy. One visualization style is shown below, with words shaded according to their expectancy: low expectancy is dark and high expectancy is light. Other styles will be explored in the section on visualization.</p>
+               
                <p xml:lang="grc">ἄνδρα μοι ἔννεπε, μοῦσα, πολύτροπον, ὃς μάλα πολλὰ</p>
                <p>The programs that constitute SEDES are written in Python 3. Running SEDES from start to finish on every work in our corpus (12 TEI files, 73,000 lines, and 490,000 words) on a 2019 MacBook Pro takes about one minute. About 45% of the time is spent on segmentation, lemmatization, and scansion; 9% on expectancy computation; and 46% on generating visualization output.</p>
                <div>
