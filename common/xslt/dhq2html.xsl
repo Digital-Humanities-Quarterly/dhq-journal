@@ -1432,7 +1432,7 @@
         <span>
             <xsl:call-template name="assign-class"/>
             <xsl:call-template name="id"/>
-	    <xsl:call-template name="style/>
+	        <xsl:call-template name="style"/>
             <xsl:apply-templates/>
         </span>
     </xsl:template>
