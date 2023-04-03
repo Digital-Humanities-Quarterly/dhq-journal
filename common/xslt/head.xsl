@@ -2,6 +2,7 @@
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
     <xsl:param name="context"/>
+    <xsl:param name="assets-path" select="concat('/',$context,'/')"/>
     <xsl:template name="head">
         <xsl:param name="title"/>
         <head>
@@ -9,12 +10,12 @@
             <title>
                 <xsl:value-of select="concat('DHQ: Digital Humanities Quarterly: ',$title)"/>
             </title>
-          <link rel="stylesheet" type="text/css" href="/{$context}/common/css/dhq.css"/>
-          <link rel="stylesheet" type="text/css" media="screen"  href="/{$context}/common/css/dhq_screen.css"/>
-          <link rel="stylesheet" type="text/css" media="print" href="/{$context}/common/css/dhq_print.css"/>
-          <link rel="alternate" type="application/atom+xml"  href="/{$context}/feed/news.xml"/>
-          <link rel="shortcut icon" href="/{$context}/common/images/favicon.ico"/>
-          <script defer="defer" type="text/javascript" src="/{$context}/common/js/javascriptLibrary.js">
+          <link rel="stylesheet" type="text/css" href="{$assets-path}common/css/dhq.css"/>
+          <link rel="stylesheet" type="text/css" media="screen"  href="{$assets-path}common/css/dhq_screen.css"/>
+          <link rel="stylesheet" type="text/css" media="print" href="{$assets-path}common/css/dhq_print.css"/>
+          <link rel="alternate" type="application/atom+xml"  href="{$assets-path}feed/news.xml"/>
+          <link rel="shortcut icon" href="{$assets-path}common/images/favicon.ico"/>
+          <script defer="defer" type="text/javascript" src="{$assets-path}common/js/javascriptLibrary.js">
             <xsl:comment> serialize </xsl:comment>
           </script>
             <!-- Google Analytics -->
