@@ -20,10 +20,16 @@
         <xdoc:short>XSLT stylesheet to transform DHQauthor documents to XHTML.</xdoc:short>
     </xdoc:doc>
     <xsl:param name="context"/>
-    <xsl:param name="fpath"/>
-    <xsl:param name="vol"/>
-    <xsl:param name="issue"/>
-    <xsl:param name="id"/>
+    <!--<xsl:param name="vol">
+      <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume']"/>
+    </xsl:param>
+    <xsl:param name="issue">
+      <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/>
+    </xsl:param>
+    <xsl:param name="id">
+      <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']"/>
+    </xsl:param>-->
+    <xsl:param name="fpath" select="concat('vol/',$vol,'/',$issue,'/',$id,'.html')"/>
     <xsl:param name="error"/>
     <xsl:param name="staticPublishingPath">
         <xsl:value-of select="'../../articles/'"/>
@@ -43,7 +49,7 @@
         </xsl:choose>
       </xsl:param>
         <xsl:choose>
-            <xsl:when test="document('../../toc/toc.xml')//journal[@vol=$vol and @issue=$issue and descendant::item/attribute::id=$cleanId and not(@editorial)]">
+            <xsl:when test="document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes and @issue=$issue and descendant::item/attribute::id=$cleanId and not(@editorial)]">
                 <xsl:apply-templates select="tei:TEI"/>
             </xsl:when>
             <xsl:when test="$error">
