@@ -1,0 +1,59 @@
+<project xmlns:if="ant:if" xmlns:unless="ant:unless" 
+   default="previewArticle" 
+   name="dhq">
+  
+  <!--
+    Apache Ant buildfile for Digital Humanities Quarterly.
+    -->
+  
+<!-- 
+    PROPERTIES
+  -->
+  <!-- See build-properties.xml for the settings used in this file. When referenced, 
+    properties look like this:
+      ${toDir}
+    For more information, see https://ant.apache.org/manual/Tasks/xmlproperty.html -->
+  <xmlproperty file="build-properties.xml" keepRoot="false"/>
+  
+  
+<!-- 
+    ANT TASKS
+  -->
+  
+  <!-- Generate a static version of the website. -->
+  <target name="generateSite"><!-- TODO -->
+    <mkdir dir="${toDir}"/>
+    <echo message="${toDir}"/>
+  </target>
+  
+  <target name="previewArticle">
+    <!-- If the 'article.id' property wasn't already set using the command line, Ant 
+      will prompt for it. -->
+    <input unless:set="article.id" 
+      message="Please give the ID of the article you want to view:" 
+      addproperty="article.id"/>
+    <!-- Test the 'article.id' property to make sure it has 6 digits and doesn't 
+      start with '9'. -->
+    <condition property="article.id.ok" value="${article.id}">
+      <matches string="${article.id}" pattern="^[0-8]\d{5,5}$"/>
+    </condition>
+    <fail unless="article.id.ok"
+       message="An article ID must be 6 digits long. It must not start with '9'"/>
+    <!-- If it doesn't exist yet, create the preview directory specified in 
+      build-properties.xml. -->
+    <mkdir dir="${previewDir}"/>
+    <!-- Transform the article with XSLT. -->
+    <xslt in="articles/${article.id}/${article.id}.xml" 
+          out="${previewDir}/${article.id}.html"
+          style="common/xslt/template_article.xsl"
+          classpath="${processor.location}"
+          force="true"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="dhq"/>
+      <param name="assets-path" expression="../"/>
+    </xslt>
+    <echo message="Created article preview at ${previewDir}/${article.id}.html"/>
+  </target>
+  
+</project>
