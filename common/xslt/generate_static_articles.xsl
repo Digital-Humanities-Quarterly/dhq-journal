@@ -12,11 +12,15 @@
   version="3.0">
   
 <!--
-    Use the DHQ table of contents to transform DHQ articles into HTML.
+    Use the DHQ table of contents to transform DHQ articles into HTML, and create a 
+    mapping between each source directory and its static equivalent.
     
-    The HTML and TEI are stored to the expected path in the static site directory. 
-    For example, the article 000130 and its associated files should be stored at:
-      vol/6/3/000130/
+    An article's HTML and TEI files are stored at the expected path in the static 
+    site directory. For example, the article 000130 and its associated files are 
+    stored at:
+        articles/000130/
+    And their static site equivalent should be stored in this directory structure:
+        vol/6/3/000130/
     
     Ash Clark
     2023
@@ -68,6 +72,9 @@
       <xsl:apply-templates/>
     </articleList>
   </xsl:template>
+  
+  <!-- The editorial section of the TOC is skipped, at least for now. -->
+  <xsl:template match="journal[@editorial eq 'true']"/>
   
   <xsl:template match="journal[@vol][@issue]">
     <xsl:variable name="outDir" select="string-join(($static-dir, 'vol', @vol/data(), 
@@ -128,13 +135,16 @@
     <xsl:variable name="xslMap" as="map(*)">
       <!-- Some DHQ articles have alternate XSL stylesheets. If the article folder 
         contains one at 'resources/xslt/ARTICLEID.xsl', that stylesheet is used 
-        instead of the generic DHQ article stylesheet. -->
+        instead of the generic DHQ article stylesheet. Since the special-case 
+        XSLTs are only used once, we signal that they shouldn't be cached. -->
       <xsl:variable name="altXslPath" 
         select="string-join(($srcDir, 'resources', 'xslt', concat($articleId,'.xsl')), 
           $dir-separator)"/>
       <xsl:variable name="useStylesheet" 
-        select="if ( doc-available($altXslPath) ) then 
-                  map:entry('stylesheet-location', $altXslPath) 
+        select="if ( doc-available($altXslPath) ) then map {
+                    'stylesheet-location': $altXslPath,
+                    'cache': false()
+                  }
                 else $xsl-map-base"/>
       <xsl:variable name="otherEntries" 
         select="map {
@@ -149,15 +159,19 @@
       <xsl:sequence select="map:merge(($useStylesheet, $otherEntries))"/>
     </xsl:variable>
     <!-- Copy the TEI source to the output directory. -->
-    <xsl:result-document href="{$outDir}/{$articleId}.xml">
+    <xsl:result-document href="{$outDir}/{$articleId}.xml"
+       method="xml" indent="false">
       <xsl:sequence select="doc($srcPath)"/>
     </xsl:result-document>
     <!-- Attempt to transform the TEI article into XHTML, and save the result to the 
       output directory. -->
     <xsl:try>
-      <xsl:result-document href="{$outDir}/{$articleId}.html">
+      <xsl:result-document href="{$outDir}/{$articleId}.html"
+         method="xhtml">
         <xsl:sequence select="transform($xslMap)?output"/>
       </xsl:result-document>
+      <!-- If something went wrong, recover but provide information for debugging 
+        the error. -->
       <xsl:catch>
         <xsl:message>
           <xsl:text>Something went wrong in transforming article </xsl:text>
@@ -165,6 +179,9 @@
         </xsl:message>
         <xsl:message select="$err:module"/>
         <xsl:message select="$err:description"/>
+        <!-- When things go wrong, they're likely to go wrong en masse. Each 
+          article's error message is separated with a delimiter. -->
+        <xsl:message>******</xsl:message>
       </xsl:catch>
     </xsl:try>
   </xsl:template>
