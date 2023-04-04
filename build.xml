@@ -2,9 +2,9 @@
    name="dhq"
    default="previewArticle">
   
-  <!--
+<!--
     Apache Ant buildfile for Digital Humanities Quarterly.
-    -->
+  -->
   
 <!-- 
     See build-properties.xml for the settings used in this file. When referenced, 
@@ -19,12 +19,27 @@
     ANT TASKS
   -->
   
-  <!-- Generate a static version of the website. -->
-  <target name="generateSite"><!-- TODO -->
-    <mkdir dir="${toDir}"/>
-    <echo message="${toDir}"/>
+  <!-- Generate static HTML versions of the DHQ articles. -->
+  <target name="generateArticles">
+    <mkdir dir="${toDir}/${context}/vol"/>
+    
   </target>
   
+  <!-- Generate a static version of the website. -->
+  <target name="generateSite" depends="generateArticles">
+    <mkdir dir="${toDir}/${context}"/>
+    <!-- TODO -->
+    <antcall target="compressStatic"/>
+  </target>
+  
+  <!-- Compress the static site's files for backup and transportation. -->
+  <target name="compressStatic">
+    <zip destfile="${toDir}/${context}.zip">
+      <fileset dir="${toDir}/${context}"/>
+    </zip>
+  </target>
+  
+  <!-- Create an HTML preview version of a single article. -->
   <target name="previewArticle">
     <!-- If the 'article.id' property wasn't already set using the command line, Ant 
       will prompt for it. -->
