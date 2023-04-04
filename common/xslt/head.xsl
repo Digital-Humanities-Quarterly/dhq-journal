@@ -8,7 +8,12 @@
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8"/>         
             <title>
-                <xsl:value-of select="concat('DHQ: Digital Humanities Quarterly: ',$title)"/>
+                <!-- Articles can have more than one <title> in <titleStmt> if more 
+                  than one language is represented. By default, this stylesheet will 
+                  take the first one offered. To ensure that the expected title is 
+                  used, check for multiple <title>s and choose one before calling 
+                  the "head" template. -->
+                <xsl:value-of select="concat('DHQ: Digital Humanities Quarterly: ',$title[1])"/>
             </title>
           <link rel="stylesheet" type="text/css" href="{$assets-path}common/css/dhq.css"/>
           <link rel="stylesheet" type="text/css" media="screen"  href="{$assets-path}common/css/dhq_screen.css"/>

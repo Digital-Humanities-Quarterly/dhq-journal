@@ -2,6 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:array="http://www.w3.org/2005/xpath-functions/array"
   xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+  xmlns:err="http://www.w3.org/2005/xqt-errors"
   xmlns:map="http://www.w3.org/2005/xpath-functions/map"
   xmlns:tei="http://www.tei-c.org/ns/1.0"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -21,7 +22,8 @@
     2023
   -->
   
-  <xsl:output encoding="UTF-8" method="xhtml" omit-xml-declaration="no"/>
+  <xsl:output encoding="UTF-8" indent="yes" method="xhtml" 
+    omit-xml-declaration="no"/>
   
  <!--  PARAMETERS  -->
   
@@ -35,6 +37,8 @@
   </xsl:param>
   
   <xsl:param name="static-dir" as="xs:string" required="yes"/>
+  
+  <xsl:param name="context" as="xs:string"/>
   
   
  <!--  GLOBAL VARIABLES  -->
@@ -60,7 +64,9 @@
  <!--  TEMPLATES, #default mode  -->
   
   <xsl:template match="/">
-    <xsl:apply-templates/>
+    <articleList>
+      <xsl:apply-templates/>
+    </articleList>
   </xsl:template>
   
   <xsl:template match="journal[@vol][@issue]">
@@ -81,6 +87,8 @@
       select="string-join(($repo-dir,'articles',$articleId),$dir-separator)"/>
     <xsl:variable name="srcPath" 
       select="concat($srcDir,$dir-separator,$articleId,'.xml')"/>
+    <xsl:variable name="outArticleDir" 
+      select="concat($outDir,$dir-separator,$articleId)"/>
     <!-- Make sure that the TEI article exists before proceeding to transform it. -->
     <xsl:choose>
       <xsl:when test="doc-available($srcPath)">
@@ -88,14 +96,22 @@
           <xsl:with-param name="articleId" select="$articleId"/>
           <xsl:with-param name="srcDir" select="$srcDir"/>
           <xsl:with-param name="srcPath" select="$srcPath"/>
-          <xsl:with-param name="outDir" 
-            select="concat($outDir,$dir-separator,$articleId)"/>
+          <xsl:with-param name="outDir" select="$outArticleDir"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message select="concat('Could not find an article at ',$srcPath)"/>
       </xsl:otherwise>
     </xsl:choose>
+    <!-- Finally, map the source directory and the output directory, for later use. -->
+    <dir>
+      <src>
+        <xsl:value-of select="replace($srcDir, '^file:', '')"/>
+      </src>
+      <out>
+        <xsl:value-of select="replace($outArticleDir, '^file:', '')"/>
+      </out>
+    </dir>
   </xsl:template>
   
   
@@ -121,7 +137,15 @@
                   map:entry('stylesheet-location', $altXslPath) 
                 else $xsl-map-base"/>
       <xsl:variable name="otherEntries" 
-        select="map:entry('source-node', doc($srcPath))"/>
+        select="map {
+            'source-node': doc($srcPath),
+            'stylesheet-params': map {
+                QName((),'context'): $context,
+                QName((),'vol'): $vol,
+                QName((),'issue'): $issue,
+                QName((),'fpath'): concat($outDir,'/',$articleId,'.html')
+              }
+          }"/>
       <xsl:sequence select="map:merge(($useStylesheet, $otherEntries))"/>
     </xsl:variable>
     <!-- Copy the TEI source to the output directory. -->
@@ -135,8 +159,12 @@
         <xsl:sequence select="transform($xslMap)?output"/>
       </xsl:result-document>
       <xsl:catch>
-        <xsl:message>Something went wrong in transforming article 
-          <xsl:value-of select="$articleId"/>.</xsl:message>
+        <xsl:message>
+          <xsl:text>Something went wrong in transforming article </xsl:text>
+          <xsl:value-of select="$articleId"/>
+        </xsl:message>
+        <xsl:message select="$err:module"/>
+        <xsl:message select="$err:description"/>
       </xsl:catch>
     </xsl:try>
   </xsl:template>

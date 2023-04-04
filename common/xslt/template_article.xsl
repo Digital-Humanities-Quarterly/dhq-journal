@@ -29,7 +29,7 @@
     <xsl:param name="id">
       <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']"/>
     </xsl:param>-->
-    <xsl:param name="fpath" select="concat('vol/',$vol,'/',$issue,'/',$id,'.html')"/>
+    <xsl:param name="fpath" select="concat('vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
     <xsl:param name="error"/>
     <xsl:param name="staticPublishingPath">
         <xsl:value-of select="'../../articles/'"/>
