@@ -155,9 +155,9 @@
               </xenoData>
            </xsl:if>
            <revisionDesc>
-        	<!-- Replace "XXXXXX" in the @target of ref below with the appropriate DHQarticle-id value. -->
+             <xsl:comment> Replace "NNNNNN" in the @target of ref below with the appropriate DHQarticle-id value. </xsl:comment>
         	   <change>The version history for this file can be found on <ref target=
-        		"https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/master/articles/NNNNNN/NNNNNN.xml">GitHub
+        		"https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub
         	   </ref></change>
    	       </revisionDesc>
         </teiHeader>
