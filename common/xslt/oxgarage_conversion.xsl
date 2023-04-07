@@ -16,6 +16,9 @@
     <xsl:output method="xml" indent="yes"/>
     <xsl:mode on-no-match="shallow-copy"/>
     
+    <!-- Whether to put the Zotero JSON bibliography entries in the article's <xenoData>. -->
+    <xsl:param name="show-zotero-json" select="false()" as="xs:boolean"/>
+    
     <!-- Before doing anything else, check for Zotero inline citations (processing instructions which contain 
       JSON). The bibliographic data is compiled here so that it can be used elsewhere in the document.s -->
     <xsl:template match="/">
@@ -143,7 +146,7 @@
                 </textClass>
             </profileDesc>
            <!-- Create a copy of the Zotero bibliographic data in <xenoData>. (Useful for debugging.) -->
-           <xsl:if test="exists($compiled-bibliography)">
+           <xsl:if test="$show-zotero-json and exists($compiled-bibliography)">
               <xenoData>
                 <xsl:text>[ </xsl:text>
                 <xsl:sequence select="string-join($compiled-bibliography?*?jsonStr, ',  
