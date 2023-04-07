@@ -359,6 +359,14 @@
     <!-- add quotation mark transformation? -->
     
     <!-- Transformations Re MathML -->
+    <xsl:template match="mml:*">
+      <!-- Make sure MathML element names have the "mml" prefix. -->
+      <xsl:element name="mml:{local-name()}">
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates/>
+      </xsl:element>
+    </xsl:template>
+    
     <xsl:template match="mml:mi/@xml:space"/>
     <!-- fix mathml display issue? -->
     
