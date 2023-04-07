@@ -241,8 +241,8 @@
     <!-- Any <hi> is likely to be a title of some kind when it appears inside one of Zotero's generated 
       "Bibliography" paragraphs. -->
     <xsl:template match="p[@rend eq 'Bibliography']//hi[@rend eq 'italic']" priority="5">
-      <title rend="italic">
-        <xsl:apply-templates/>
+      <title>
+        <xsl:apply-templates select="@* | node()"/>
       </title>
     </xsl:template>
     
@@ -362,8 +362,7 @@
     <xsl:template match="mml:*">
       <!-- Make sure MathML element names have the "mml" prefix. -->
       <xsl:element name="mml:{local-name()}">
-        <xsl:copy-of select="@*"/>
-        <xsl:apply-templates/>
+        <xsl:apply-templates select="@* | node()"/>
       </xsl:element>
     </xsl:template>
     
@@ -402,7 +401,8 @@
             <xsl:value-of select="$bibData?title"/>
           </title>
         </xsl:variable>
-        <biblStruct xml:id="{$citeKey}" type="{$bibData?type}">
+        <biblStruct xml:id="{$citeKey}" type="{$bibData?type}" 
+           corresp="{$citation-map?uris?1}">
           <xsl:if test="$hasContainer">
             <analytic>
               <xsl:sequence select="$basicInfo"/>
