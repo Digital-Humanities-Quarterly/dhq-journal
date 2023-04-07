@@ -28,24 +28,48 @@
           <xsl:sequence select="parse-json(substring-after(., 'CSL_CITATION'))"/>
         </xsl:for-each>
       </xsl:variable>
+      <!-- Prepare DHQ-style citations. -->
+      <xsl:variable name="zoteroCitationPtrs" as="map(*)?">
+        <xsl:if test="exists($zoteroCitationPIs)">
+          <xsl:map>
+            <xsl:for-each select="$zoteroCitationPIs">
+              <xsl:map-entry key="?citationID">
+                <xsl:for-each select="?citationItems?*">
+                  <xsl:variable name="idref" select="?itemData?citation-key"/>
+                  <ptr target="#{$idref}">
+                    <xsl:if test="map:contains(., 'locator')">
+                      <xsl:attribute name="loc" select="?locator"/>
+                    </xsl:if>
+                  </ptr>
+                </xsl:for-each>
+              </xsl:map-entry>
+            </xsl:for-each>
+          </xsl:map>
+        </xsl:if>
+      </xsl:variable>
       <!-- Generate a series of map entries corresponding to each unique Zotero item (bibliography entry)s. -->
-      <xsl:variable name="zoteroCitationItems" as="item()*">
+      <xsl:variable name="zoteroBibEntries" as="item()*">
         <!-- Each map corresponds to an inline citation (marking a reference in the article proper). The map does, 
           however, fully replicate each referenced Zotero item. In order to process each unique item only once, we 
           group the Zotero items by their ID. -->
         <xsl:for-each-group select="$zoteroCitationPIs?citationItems?*" group-by="?id">
           <xsl:map-entry key="current-grouping-key()">
-            <xsl:call-template name="parse-bibliographic-json">
-              <!-- Process only the first Zotero item matching this ID. -->
-              <xsl:with-param name="citation-map" select="head(current-group())"/>
-            </xsl:call-template>
+            <!-- Compile data for the bibliography entry. -->
+            <xsl:variable name="parsedBiblEntry" as="map(*)">
+              <xsl:call-template name="parse-bibliographic-json">
+                <!-- Process only the first Zotero item matching this ID. -->
+                <xsl:with-param name="citation-map" select="head(current-group())"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:sequence select="$parsedBiblEntry"/>
           </xsl:map-entry>
         </xsl:for-each-group>
       </xsl:variable>
       <!-- Proceed to transform the DHQ article as expected, but tunnel the compiled Zotero data to the templates 
         that need them. -->
       <xsl:apply-templates>
-        <xsl:with-param name="compiled-bibliography" select="map:merge($zoteroCitationItems)" tunnel="yes"/>
+        <xsl:with-param name="inline-citations" select="$zoteroCitationPtrs" tunnel="yes"/>
+        <xsl:with-param name="compiled-bibliography" select="map:merge($zoteroBibEntries)" tunnel="yes"/>
       </xsl:apply-templates>
     </xsl:template>
     
@@ -192,6 +216,16 @@
     <xsl:template match="p/@* | note/@* | table/@*"/>
     <xsl:template match="anchor | graphic"/>
     
+    <!-- Replace Zotero's inline citation PIs with DHQ-style <ptr>s. -->
+    <xsl:template match="processing-instruction('biblio')[contains(., 'ZOTERO_ITEM CSL_CITATION')]">
+      <xsl:param name="inline-citations" as="map(*)?" tunnel="yes"/>
+      <xsl:variable name="citationID" 
+        select="substring-after(., 'CSL_CITATION') 
+                => parse-json()
+                => map:get('citationID')"/>
+      <xsl:sequence select="$inline-citations?($citationID)"/>
+    </xsl:template>
+    
     <!-- Try to align Zotero's inserted bibliography with any JSON from the inline citations. -->
     <xsl:template match="p[@rend eq 'Bibliography']"/>
     <xsl:template match="p[@rend eq 'Bibliography'][1]" priority="2">
@@ -328,12 +362,12 @@
   <!-- Compile Zotero's bibliographic data. -->
   <xsl:template name="parse-bibliographic-json" as="map(*)">
     <xsl:param name="citation-map" as="map(*)"/>
-    <xsl:variable name="citeKey" select="$citation-map?itemData?citation-key"/>
     <xsl:variable name="bibData" select="$citation-map?itemData"/>
+    <xsl:variable name="citeKey" select="$bibData?citation-key"/>
     <xsl:map>
-      <xsl:map-entry key="'itemId'" select="$citation-map?id"/>
+      <xsl:map-entry key="'itemId'" select="$bibData?id"/>
       <xsl:map-entry key="'citationKey'" select="$citeKey"/>
-      <xsl:map-entry key="'textCitation'" select="$citation-map?properties?plainCitation"/>
+      <!--<xsl:map-entry key="'textCitation'" select="$citation-map?properties?plainCitation"/>-->
       <xsl:map-entry key="'jsonMap'" select="$bibData"/>
       <xsl:map-entry key="'jsonStr'" select="serialize($citation-map, map { 'method': 'json', 'indent': true() })"/>
       <!-- Generate a <biblStruct> that can be used in the bibliography instead of a <p> or plain <bibl>. -->
