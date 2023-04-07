@@ -3,6 +3,7 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xpath-default-namespace="http://www.tei-c.org/ns/1.0"
     xmlns="http://www.tei-c.org/ns/1.0"
+    xmlns:map="http://www.w3.org/2005/xpath-functions/map"
     xmlns:mml="http://www.w3.org/1998/Math/MathML"
     xmlns:math="http://www.w3.org/2005/xpath-functions/math"
     xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
@@ -14,6 +15,36 @@
     
     <xsl:output method="xml" indent="yes"/>
     <xsl:mode on-no-match="shallow-copy"/>
+    
+    <!-- Before doing anything else, check for Zotero inline citations (processing instructions which contain 
+      JSON). The bibliographic data is compiled here so that it can be used elsewhere in the document.s -->
+    <xsl:template match="/">
+      <xsl:variable name="zoteroCitationPIs" as="item()*">
+        <!-- Try to generate maps from the JSON contents of Zotero "CSL citation" processing instructions. -->
+        <xsl:for-each select="//processing-instruction('biblio')[contains(., 'ZOTERO_ITEM CSL_CITATION')]">
+          <xsl:sequence select="parse-json(substring-after(., 'CSL_CITATION'))"/>
+        </xsl:for-each>
+      </xsl:variable>
+      <!-- Generate a series of map entries corresponding to each unique Zotero item (bibliography entry)s. -->
+      <xsl:variable name="zoteroCitationItems" as="item()*">
+        <!-- Each map corresponds to an inline citation (marking a reference in the article proper). The map does, 
+          however, fully replicate each referenced Zotero item. In order to process each unique item only once, we 
+          group the Zotero items by their ID. -->
+        <xsl:for-each-group select="$zoteroCitationPIs?citationItems?*" group-by="?id">
+          <xsl:map-entry key="current-grouping-key()">
+            <xsl:call-template name="parse-bibliographic-json">
+              <!-- Process only the first Zotero item matching this ID. -->
+              <xsl:with-param name="citation-map" select="head(current-group())"/>
+            </xsl:call-template>
+          </xsl:map-entry>
+        </xsl:for-each-group>
+      </xsl:variable>
+      <!-- Proceed to transform the DHQ article as expected, but tunnel the compiled Zotero data to the templates 
+        that need them. -->
+      <xsl:apply-templates>
+        <xsl:with-param name="compiled-bibliography" select="map:merge($zoteroCitationItems)" tunnel="yes"/>
+      </xsl:apply-templates>
+    </xsl:template>
     
     <!-- DHQ Template Setup -->
     <xsl:template match="TEI">
@@ -34,6 +65,7 @@
     </xsl:template>
     
     <xsl:template match="teiHeader">
+        <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
         <teiHeader>
             <fileDesc>
                 <titleStmt>
@@ -110,6 +142,15 @@
             		</keywords>
                 </textClass>
             </profileDesc>
+           <!-- Create a copy of the Zotero bibliographic data in <xenoData>. (Useful for debugging.) -->
+           <xsl:if test="exists($compiled-bibliography)">
+              <xenoData>
+                <xsl:text>[ </xsl:text>
+                <xsl:sequence select="string-join($compiled-bibliography?*?jsonStr, ',  
+')"/>
+                <xsl:text> ]</xsl:text>
+              </xenoData>
+           </xsl:if>
            <revisionDesc>
         	<!-- Replace "XXXXXX" in the @target of ref below with the appropriate DHQarticle-id value. -->
         	   <change>The version history for this file can be found on <ref target=
@@ -147,6 +188,67 @@
     <!-- Transformations To Contents of <text> -->
     <xsl:template match="p/@* | note/@* | table/@*"/>
     <xsl:template match="anchor | graphic"/>
+    
+    <!-- Try to align Zotero's inserted bibliography with any JSON from the inline citations. -->
+    <xsl:template match="p[@rend eq 'Bibliography']"/>
+    <xsl:template match="p[@rend eq 'Bibliography'][1]" priority="2">
+      <listBibl>
+        <xsl:apply-templates select=". | following-sibling::p[@rend eq 'Bibliography']" mode="biblio"/>
+      </listBibl>
+    </xsl:template>
+    
+    <!-- Any <hi> is likely to be a title of some kind when it appears inside one of Zotero's generated 
+      "Bibliography" paragraphs. -->
+    <xsl:template match="p[@rend eq 'Bibliography']//hi[@rend eq 'italic']" priority="5">
+      <title rend="italic">
+        <xsl:apply-templates/>
+      </title>
+    </xsl:template>
+    
+    <!-- In "biblio" mode, "Bibliography" paragraphs are either:
+        * replaced with <biblStruct>s (if an italicized string matches a title field in the Zotero maps), or
+        * turned into <bibl>s.
+      -->
+    <xsl:template match="p[@rend eq 'Bibliography']" mode="biblio">
+      <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
+      <xsl:variable name="italicizedField" select="descendant::hi[normalize-space(.) ne ''][1]"/>
+      <xsl:variable name="biblMatches" as="map(*)*">
+        <xsl:variable name="biblMatchTitle"
+          select="$compiled-bibliography?*[?jsonMap?title eq $italicizedField]"/>
+        <xsl:variable name="biblMatchContainerTitle"
+          select="$compiled-bibliography?*[?jsonMap?container-title eq $italicizedField]"/>
+        <xsl:choose>
+          <xsl:when test="exists($biblMatchTitle)">
+            <xsl:sequence select="$biblMatchTitle"/>
+          </xsl:when>
+          <xsl:when test="count($biblMatchContainerTitle) eq 1">
+            <xsl:sequence select="$biblMatchContainerTitle"/>
+          </xsl:when>
+          <xsl:when test="count($biblMatchContainerTitle) gt 1">
+            <xsl:variable name="firstToken" 
+              select="(tokenize(normalize-space(.), ' ')[1]) => replace('\W', '')"/>
+            <xsl:if test="exists($firstToken) and $firstToken ne ''">
+              <xsl:sequence select="$biblMatchContainerTitle[exists(?jsonMap?author?*[?family eq $firstToken])]"/>
+            </xsl:if>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:choose>
+        <xsl:when test="count($biblMatches) eq 1">
+          <xsl:sequence select="$biblMatches?teiBibEntry"/>
+        </xsl:when>
+        <xsl:when test="count($biblMatches) gt 1">
+          <xsl:comment> More than one match!!! </xsl:comment>
+          <xsl:sequence select="$biblMatches?teiBibEntry"/>
+          <xsl:comment> End matches!!! </xsl:comment>
+        </xsl:when>
+        <xsl:otherwise>
+          <bibl>
+            <xsl:apply-templates mode="#default"/>
+          </bibl>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
     
     <xsl:template match="note/p">
             <xsl:apply-templates select="child::node()"/>
@@ -220,6 +322,78 @@
     <!-- fix mathml display issue? -->
     
     
+  <!-- Compile Zotero's bibliographic data. -->
+  <xsl:template name="parse-bibliographic-json" as="map(*)">
+    <xsl:param name="citation-map" as="map(*)"/>
+    <xsl:variable name="citeKey" select="$citation-map?itemData?citation-key"/>
+    <xsl:variable name="bibData" select="$citation-map?itemData"/>
+    <xsl:map>
+      <xsl:map-entry key="'itemId'" select="$citation-map?id"/>
+      <xsl:map-entry key="'citationKey'" select="$citeKey"/>
+      <xsl:map-entry key="'textCitation'" select="$citation-map?properties?plainCitation"/>
+      <xsl:map-entry key="'jsonMap'" select="$bibData"/>
+      <xsl:map-entry key="'jsonStr'" select="serialize($citation-map, map { 'method': 'json', 'indent': true() })"/>
+      <!-- Generate a <biblStruct> that can be used in the bibliography instead of a <p> or plain <bibl>. -->
+      <xsl:map-entry key="'teiBibEntry'">
+        <xsl:variable name="hasContainer" select="map:contains($bibData, 'container-title')"/>
+        <xsl:variable name="basicInfo">
+          <xsl:for-each select="$bibData?author?*">
+            <author>
+              <persName>
+                <forename>
+                  <xsl:value-of select=".?given"/>
+                </forename>
+                <surname>
+                  <xsl:value-of select=".?family"/>
+                </surname>
+              </persName>
+            </author>
+          </xsl:for-each>
+          <title>
+            <xsl:attribute name="level" select="if ( $hasContainer ) then 'a' else 'm'"/>
+            <xsl:value-of select="$bibData?title"/>
+          </title>
+        </xsl:variable>
+        <biblStruct xml:id="{$citeKey}" type="{$bibData?type}">
+          <xsl:if test="$hasContainer">
+            <analytic>
+              <xsl:sequence select="$basicInfo"/>
+            </analytic>
+          </xsl:if>
+          <monogr>
+            <xsl:choose>
+              <xsl:when test="$hasContainer">
+                <title level="m">
+                  <xsl:value-of select="$bibData?container-title"/>
+                </title>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:sequence select="$basicInfo"/>
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:if test="map:contains($bibData, 'ISBN')">
+              <idno type="ISBN">
+                <xsl:value-of select="$bibData?ISBN"/>
+              </idno>
+            </xsl:if>
+            <imprint>
+              <publisher>
+                <xsl:value-of select="$bibData?publisher"/>
+              </publisher>
+              <xsl:if test="map:contains($bibData,'publisher-place')">
+                <pubPlace>
+                  <xsl:value-of select="$bibData?publisher-place"/>
+                </pubPlace>
+              </xsl:if>
+              <date>
+                <xsl:value-of select="$bibData?issued?date-parts?*?*"/>
+              </date>
+            </imprint>
+          </monogr>
+        </biblStruct>
+      </xsl:map-entry>
+    </xsl:map>
+  </xsl:template>
 
     
 </xsl:stylesheet>
