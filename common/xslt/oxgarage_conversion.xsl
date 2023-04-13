@@ -189,6 +189,7 @@
     </xsl:template>
     
     <xsl:template match="text">
+        <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
         <xsl:copy>
             <xsl:attribute name="xml:lang">en</xsl:attribute>
             <xsl:attribute name="type">original</xsl:attribute>
@@ -205,7 +206,27 @@
             <xsl:apply-templates/>
             <back>
                 <listBibl>
-                    <bibl></bibl>
+                    <!-- If the document contains Zotero citations, populate the DHQ bibliography with those entries. -->
+                    <xsl:choose>
+                      <xsl:when test="exists($compiled-bibliography)">
+                        <xsl:variable name="biblStructSeq" as="node()*">
+                          <xsl:apply-templates select="descendant::p[@rend eq 'Bibliography']" mode="biblio"/>
+                        </xsl:variable>
+                        <xsl:variable name="unmatchedEntries" as="node()*" 
+                          select="$compiled-bibliography?*[not(?citationKey = $biblStructSeq/@xml:id/data(.))]
+                                                          ?teiBibEntry"/>
+                        <xsl:sequence select="$biblStructSeq"/>
+                        <xsl:if test="exists($unmatchedEntries)">
+                          <xsl:message>Unmatched bibliography entries</xsl:message>
+                          <xsl:comment> Entries below were cited but could not be matched to Zotero's bibliography </xsl:comment>
+                          <xsl:sequence select="$unmatchedEntries"/>
+                        </xsl:if>
+                      </xsl:when>
+                      <!-- If no Zotero metadata could be found, output a <bibl> placeholder. -->
+                      <xsl:otherwise>
+                          <bibl></bibl>
+                      </xsl:otherwise>
+                    </xsl:choose>
                 </listBibl>
             </back>
         </xsl:copy>
@@ -230,13 +251,9 @@
       <xsl:sequence select="$inline-citations?($citationID)"/>
     </xsl:template>
     
-    <!-- Try to align Zotero's inserted bibliography with any JSON from the inline citations. -->
+    <!-- In default mode, skip processing the Zotero-inserted bibliography entries. Bibliography entries 
+      have already been parsed in the template for <text>. -->
     <xsl:template match="p[@rend eq 'Bibliography']"/>
-    <xsl:template match="p[@rend eq 'Bibliography'][1]" priority="2">
-      <listBibl>
-        <xsl:apply-templates select=". | following-sibling::p[@rend eq 'Bibliography']" mode="biblio"/>
-      </listBibl>
-    </xsl:template>
     
     <!-- Any <hi> is likely to be a title of some kind when it appears inside one of Zotero's generated 
       "Bibliography" paragraphs. -->
@@ -252,24 +269,34 @@
       -->
     <xsl:template match="p[@rend eq 'Bibliography']" mode="biblio">
       <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
-      <xsl:variable name="italicizedField" select="descendant::hi[normalize-space(.) ne ''][1]"/>
+      <xsl:variable name="italicizedField" 
+        select="descendant::hi[normalize-space(.) ne ''][1]/replace(., '\W', '')"/>
       <xsl:variable name="biblMatches" as="map(*)*">
         <xsl:variable name="biblMatchTitle"
-          select="$compiled-bibliography?*[?jsonMap?title eq $italicizedField]"/>
+          select="$compiled-bibliography?*[?jsonMap?title[replace(., '\W', '') eq $italicizedField]]"/>
         <xsl:variable name="biblMatchContainerTitle"
-          select="$compiled-bibliography?*[?jsonMap?container-title eq $italicizedField]"/>
+          select="$compiled-bibliography?*[?jsonMap?container-title[replace(., '\W', '') eq $italicizedField]]"/>
         <xsl:choose>
+          <!-- If there wasn't an italicized field to use as testing, look for titles which appear in this string. -->
+          <xsl:when test="not(exists($italicizedField))">
+            <xsl:variable name="me" select="."/>
+            <xsl:sequence select="$compiled-bibliography?*[?jsonMap?title[contains($me, .)]]"/>
+          </xsl:when>
+          <!-- If there's an exact match on the main title, use that entry. -->
           <xsl:when test="exists($biblMatchTitle)">
             <xsl:sequence select="$biblMatchTitle"/>
           </xsl:when>
           <xsl:when test="count($biblMatchContainerTitle) eq 1">
             <xsl:sequence select="$biblMatchContainerTitle"/>
           </xsl:when>
+          <!-- When there's more than one entry that has a "container" title which matches this entry, do further 
+            testing against the first token of this entry.  -->
           <xsl:when test="count($biblMatchContainerTitle) gt 1">
             <xsl:variable name="firstToken" 
               select="(tokenize(normalize-space(.), ' ')[1]) => replace('\W', '')"/>
             <xsl:if test="exists($firstToken) and $firstToken ne ''">
-              <xsl:sequence select="$biblMatchContainerTitle[exists(?jsonMap?author?*[?family eq $firstToken])]"/>
+              <xsl:sequence 
+                select="$biblMatchContainerTitle[exists(?jsonMap?author?*[replace(?family, '\W', '') eq $firstToken])]"/>
             </xsl:if>
           </xsl:when>
         </xsl:choose>
@@ -370,7 +397,40 @@
     <!-- fix mathml display issue? -->
     
     
-  <!-- Compile Zotero's bibliographic data. -->
+  <!-- Compile Zotero's bibliographic data into a map, e.g. 
+      map {
+          'itemId': 480,
+          'citationKey': "hopperGrammaticalization2003",
+          'jsonMap': map { (: Copy of the JSON entry :) },
+          'jsonStr': "", (: JSON serialized as an indented string :),
+          'teiBibEntry':
+            <biblStruct xml:id="hopperGrammaticalization2003"
+                        type="book"
+                        corresp="http://zotero.org/users/7242265/items/UJUERPA2">
+               <monogr>
+                  <author>
+                     <persName>
+                        <forename>Paul</forename>
+                        <surname>Hopper</surname>
+                     </persName>
+                  </author>
+                  <author>
+                     <persName>
+                        <forename>Elizabeth</forename>
+                        <surname>Traugott</surname>
+                     </persName>
+                  </author>
+                  <title level="m">Grammaticalization</title>
+                  <idno type="ISBN">978-0-521-80421-9</idno>
+                  <imprint>
+                     <publisher>Cambridge University Press</publisher>
+                     <pubPlace>Cambridge</pubPlace>
+                     <date>2003</date>
+                  </imprint>
+               </monogr>
+            </biblStruct>
+        }
+    -->
   <xsl:template name="parse-bibliographic-json" as="map(*)">
     <xsl:param name="citation-map" as="map(*)"/>
     <xsl:variable name="bibData" select="$citation-map?itemData"/>
