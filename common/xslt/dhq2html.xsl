@@ -110,7 +110,7 @@
     <xsl:template match="tei:encodingDesc"/>
     <xsl:template match="tei:profileDesc"/>
     <xsl:template match="tei:revisionDesc"/>
-    <xsl:template match="tei:listBibl"/>
+    <!--  <xsl:template match="tei:listBibl"/> reversing the suppression of listBibl since we need to be able to display listBibl outside of the works cited section-->
     <xsl:template match="dhq:label"/>
     <xsl:template match="dhq:teaser"/>
     <xsl:template match="dhq:langUsage"/>
@@ -1623,6 +1623,15 @@
         <xsl:call-template name="show-bibl-fallback"/>
       </span><xsl:text>)&#160;</xsl:text>
     </xsl:template>
+	
+	<!-- adding another template to provide an option without parentheses, in cases where the bibls are in a listBibl in an appendix, rather than in the back matter -->
+ <xsl:template match="tei:div[@type='appendix']//tei:listBibl/tei:bibl">
+      
+      <span class="bibl">
+        <xsl:call-template name="show-bibl-fallback"/>
+      </span>
+    </xsl:template>
+	
 
   <xsl:template name="show-bibl-fallback">
     <span class="ref">
