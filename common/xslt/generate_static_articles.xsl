@@ -31,8 +31,10 @@
   
  <!--  PARAMETERS  -->
   
+  <!-- The character used to separate directories on this filesystem. -->
   <xsl:param name="dir-separator" select="'/'" as="xs:string"/>
   
+  <!-- An absolute path to the DHQ repository. -->
   <xsl:param name="repo-dir" as="xs:string">
     <xsl:variable name="thisXsl" select="concat($dir-separator,
       string-join(('common', 'xslt', 'generate_static_articles.xsl'), $dir-separator),
@@ -40,8 +42,10 @@
     <xsl:sequence select="replace(static-base-uri(), $thisXsl, '')"/>
   </xsl:param>
   
+  <!-- The directory to which the static DHQ site will be saved. -->
   <xsl:param name="static-dir" as="xs:string" required="yes"/>
   
+  <!-- The base URL for DHQ. Passed on to the article HTML transformations. -->
   <xsl:param name="context" as="xs:string"/>
   
   
@@ -134,7 +138,7 @@
     <!-- Create the map which will define the article's transformation. -->
     <xsl:variable name="xslMap" as="map(*)">
       <!-- Some DHQ articles have alternate XSL stylesheets. If the article folder 
-        contains one at 'resources/xslt/ARTICLEID.xsl', that stylesheet is used 
+        contains one at 'resources/xslt/ARTICLE-ID.xsl', that stylesheet is used 
         instead of the generic DHQ article stylesheet. Since the special-case 
         XSLTs are only used once, we signal that they shouldn't be cached. -->
       <xsl:variable name="altXslPath" 

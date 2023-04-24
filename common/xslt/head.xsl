@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    
     <xsl:param name="context"/>
     <xsl:param name="assets-path" select="concat('/',$context,'/')"/>
+    <!-- The character used to separate directories in filepaths. This is only used 
+      for linking to local CSS and Javascript, so that a preview webpage is styled 
+      appropriately on Windows computers. -->
+    <xsl:param name="dir-separator" select="'/'"/>
+    
     <xsl:template name="head">
         <xsl:param name="title"/>
         <head>
-            <meta http-equiv="content-type" content="text/html; charset=utf-8"/>         
+            <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
             <title>
                 <!-- Articles can have more than one <title> in <titleStmt> if more 
                   than one language is represented. By default, this stylesheet will 
@@ -15,12 +21,12 @@
                   the "head" template. -->
                 <xsl:value-of select="concat('DHQ: Digital Humanities Quarterly: ',$title[1])"/>
             </title>
-          <link rel="stylesheet" type="text/css" href="{$assets-path}common/css/dhq.css"/>
-          <link rel="stylesheet" type="text/css" media="screen"  href="{$assets-path}common/css/dhq_screen.css"/>
-          <link rel="stylesheet" type="text/css" media="print" href="{$assets-path}common/css/dhq_print.css"/>
-          <link rel="alternate" type="application/atom+xml"  href="{$assets-path}feed/news.xml"/>
-          <link rel="shortcut icon" href="{$assets-path}common/images/favicon.ico"/>
-          <script defer="defer" type="text/javascript" src="{$assets-path}common/js/javascriptLibrary.js">
+          <link rel="stylesheet" type="text/css" href="{$assets-path}common{$dir-separator}css{$dir-separator}dhq.css"/>
+          <link rel="stylesheet" type="text/css" media="screen"  href="{$assets-path}common{$dir-separator}css{$dir-separator}dhq_screen.css"/>
+          <link rel="stylesheet" type="text/css" media="print" href="{$assets-path}common{$dir-separator}css{$dir-separator}dhq_print.css"/>
+          <link rel="alternate" type="application/atom+xml"  href="{$assets-path}feed{$dir-separator}news.xml"/>
+          <link rel="shortcut icon" href="{$assets-path}common{$dir-separator}images{$dir-separator}favicon.ico"/>
+          <script defer="defer" type="text/javascript" src="{$assets-path}common{$dir-separator}js{$dir-separator}javascriptLibrary.js">
             <xsl:comment> serialize </xsl:comment>
           </script>
             <!-- Google Analytics -->
