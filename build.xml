@@ -2,9 +2,9 @@
    name="dhq"
    default="previewArticle">
   
-<!--
+  <description>
     Apache Ant buildfile for Digital Humanities Quarterly.
-  -->
+  </description>
   
 <!-- 
     See build-properties.xml for the settings used in this file. When referenced, 
@@ -14,13 +14,38 @@
   -->
   <xmlproperty file="build-properties.xml" keepRoot="false"/>
   
+  <!-- Check for the XML Resolver Java class, as it is a dependency for using the 
+    Saxon HE processor. From the Saxon documentation on XSLT with Ant:
+      "In particular, the classpath attribute of the xslt task element has been 
+      unreliable: the safest approach is to ensure that the Jar files needed to run 
+      Saxon are present on the externally-specified classpath (the classpath at the 
+      point where Ant is invoked), rather than relying on the task-specific 
+      classpath."
+    https://www.saxonica.com/html/documentation11/using-xsl/xsltfromant.html
+   -->
+  <available classname="org.xmlresolver.Resolver" property="has.xmlresolver"/>
+  
   
 <!-- 
     ANT TASKS
   -->
   
+  <!-- If the XML Resolver JAR file is not already loaded, provide instructions for 
+    running Ant with the "lib" command line option. Ant <target>s that use Saxon HE 
+    should list this one as a dependency. -->
+  <target name="checkXmlResolver">
+    <echo unless:true="${has.xmlresolver}" level="error"
+>XSL transformations cannot occur unless the XML Resolver JAR 
+is loaded when Ant starts up. Please run Ant again like this:
+      ant -lib common${file.separator}lib</echo>
+    <fail unless="${has.xmlresolver}">Java class `org.xmlresolver.Resolver` is not available.</fail>
+    <!-- Otherwise, a little acknowledgement that this build target succeeded. -->
+    <echo level="info">OK</echo>
+  </target>
+  
   <!-- Generate static HTML versions of the DHQ articles. -->
-  <target name="generateArticles">
+  <target name="generateArticles" depends="checkXmlResolver" 
+     description="Generate static HTML versions of the DHQ articles.">
     <mkdir dir="${toDir}${file.separator}${context}${file.separator}vol"/>
     <!-- Use XSLT to transform articles using the DHQ table of contents. -->
     <xslt in="toc${file.separator}toc.xml" 
@@ -52,12 +77,13 @@
   </target>
   
   <!-- Create an HTML preview version of a single article. -->
-  <target name="previewArticle">
+  <target name="previewArticle" depends="checkXmlResolver" 
+     description="Create an HTML preview version of a single article.">
     <!-- If the 'article.id' property wasn't already set using the command line, Ant 
       will prompt for it. -->
     <input unless:set="article.id" 
-      message="Please give the ID of the article you want to view:" 
-      addproperty="article.id"/>
+       message="Please type the ID of the article you want to view:" 
+       addproperty="article.id"/>
     <!-- Test the 'article.id' property to make sure it has 6 digits and doesn't 
       start with '9'. -->
     <condition property="article.id.ok" value="${article.id}">
@@ -68,7 +94,7 @@
     <!-- If it doesn't exist yet, create the preview directory specified in 
       build-properties.xml. -->
     <mkdir dir="${previewDir}"/>
-    <!-- Transform the article with XSLT. -->
+    <!-- Transform the article with XSLT, using the Saxon HE processor. -->
     <xslt in="articles${file.separator}${article.id}${file.separator}${article.id}.xml" 
           out="${previewDir}${file.separator}${article.id}.html"
           style="common${file.separator}xslt${file.separator}template_article.xsl"
