@@ -15,7 +15,13 @@
         <xdoc:copyright>Copyright 2008 John A. Walsh</xdoc:copyright>
         <xdoc:short>XSLT stylesheet to transform DHQ static pages to XHTML.</xdoc:short>
     </xdoc:doc>
-    <xsl:param name="fpath"></xsl:param>
+    <xsl:param name="fname"/>
+    <xsl:param name="fdir"/>
+    <xsl:param name="fpath">
+      <xsl:if test="$fname and $fdir">
+        <xsl:value-of select="concat($fdir,$dir-separator,$fname)"/>
+      </xsl:if>
+    </xsl:param>
     
     <xsl:template match="/">
         <xsl:param name="basicurl" select="'http://www.digitalhumanities.org/dhq/'"/>
@@ -35,10 +41,12 @@
                         <!-- This template will copy the rest of the html document as it is after applying template -->
                         <xsl:call-template name="copy_body_text"/>
                         <xsl:call-template name="footer">
-                            <xsl:with-param name="doclink_html"
+                            <!-- 2023-05-05: Ash commented out the parameters set below, 
+                              since footer.xsl doesn't contain them. -->
+                            <!--<xsl:with-param name="doclink_html"
                                 select="concat($basicurl, 'how_to_get_this.html')"/>
                             <xsl:with-param name="doclink_xml"
-                                select="concat($basicurl,'no_xml_for_static_pages.xml')"/>
+                                select="concat($basicurl,'no_xml_for_static_pages.xml')"/>-->
                             <xsl:with-param name="docurl" select="$fpath"/>
                         </xsl:call-template>
                     </div>
