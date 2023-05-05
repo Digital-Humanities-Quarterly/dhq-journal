@@ -13,6 +13,15 @@
     For more information, see https://ant.apache.org/manual/Tasks/xmlproperty.html
   -->
   <xmlproperty file="build-properties.xml" keepRoot="false"/>
+  <property name="toDir.path"
+    value="..${file.separator}${toDir}${file.separator}${context}"/>
+  <!--<mapper id="article.map">
+      <firstmatchmapper>
+        <regexpmapper from="^000654/(.*)$" to="vol/17/1/000654/\1" handledirsep="true"/>
+        <regexpmapper from="^000116/(.*)$" to="vol/7/2/000116/\1" handledirsep="true"/>
+      </firstmatchmapper>
+    
+  </mapper>-->
   
   <!-- Check for the XML Resolver Java class, as it is a dependency for using the 
     Saxon HE processor. From the Saxon documentation on XSLT with Ant:
@@ -46,10 +55,10 @@ is loaded when Ant starts up. Please run Ant again like this:
   <!-- Generate static HTML versions of the DHQ articles. -->
   <target name="generateArticles" depends="checkXmlResolver" 
      description="Generate static HTML versions of the DHQ articles.">
-    <mkdir dir="${toDir}${file.separator}${context}${file.separator}vol"/>
+    <mkdir dir="${toDir.path}${file.separator}vol"/>
     <!-- Use XSLT to transform articles using the DHQ table of contents. -->
     <xslt in="toc${file.separator}toc.xml" 
-          out="${toDir}${file.separator}article-map.xml"
+          out="${toDir.path}${file.separator}article-map.xml"
           style="common${file.separator}xslt${file.separator}generate_static_articles.xsl"
           classpath="${processor.location}"
           force="true"
@@ -63,16 +72,64 @@ is loaded when Ant starts up. Please run Ant again like this:
   </target>
   
   <!-- Generate a static version of the DHQ website. -->
-  <target name="generateSite" depends="generateArticles">
-    <mkdir dir="${toDir}${file.separator}${context}"/>
-    <!-- TODO -->
-    <antcall target="compressStatic"/>
+  <target name="generateSite" depends="checkXmlResolver">
+    <mkdir dir="${toDir.path}"/>
+    <!--<ant antfile="..${file.separator}${toDir}${file.separator}article-mapper.xml" inheritRefs="true">
+      <reference refid="map" torefid="article.map"/>
+    </ant>
+    <copy todir="${toDir.path}">
+      <fileset dir="articles"/>
+      <!-\-<mapper refid="article.map"/>-\->
+    </copy>-->
+    <!-- Copy specific files in the base directory. -->
+    <copy todir="${toDir.path}">
+      <filelist dir=".">
+        <file name="flow.js"/>
+        <file name="robots.txt"/>
+        <!--<file name="sitemap.xmap"/>-->
+        <file name="sruExplain.xml"/>
+      </filelist>
+    </copy>
+    <!-- Copy text files in the submissions directory. -->
+    <copy todir="${toDir.path}${file.separator}submissions">
+      <fileset dir="submissions" includes="*.txt"/>
+    </copy>
+    <!-- Copy web assets. -->
+    <copy todir="${toDir.path}${file.separator}common">
+      <fileset dir="common" excludes="lib/ tests/"/>
+    </copy>
+    <!-- Transform the test file.
+      TODO: is this still necessary? -->
+    <xslt in="common${file.separator}tests${file.separator}starter.xml" 
+          out="${toDir.path}${file.separator}starter.html"
+          style="common${file.separator}tests${file.separator}test2.xsl"
+          classpath="${processor.location}">
+      <factory name="${processor.name}"/>
+      <param name="fpath" expression="starter.html"/>
+    </xslt>
+    <!-- Add headers and footers to static pages. -->
+    <xslt destdir="${toDir.path}"
+          style="common${file.separator}xslt${file.separator}template_static_pages.xsl"
+          filenameparameter="fname"
+          filedirparameter="fdir"
+          classpath="${processor.location}">
+      <factory name="${processor.name}"/>
+      <mapper>
+        <regexpmapper
+          from="^(about|contact|news|people|submissions)/(.+\.html)"
+          to="\1/\2" handledirsep="yes"/>
+      </mapper>
+      <param name="assets-path" expression="..${file.separator}"/>
+      <param name="context" expression="dhq"/>
+      <param name="dir-separator" expression="${file.separator}"/>
+    </xslt>
+    <!--<antcall target="compressStatic"/>-->
   </target>
   
   <!-- Compress the static site's files for backup and transportation. -->
   <target name="compressStatic">
-    <zip destfile="${toDir}${file.separator}${context}.zip">
-      <fileset dir="${toDir}${file.separator}${context}"/>
+    <zip destfile="..${file.separator}${toDir}${file.separator}${context}.zip">
+      <fileset dir="${toDir.path}"/>
     </zip>
   </target>
   
@@ -102,9 +159,9 @@ is loaded when Ant starts up. Please run Ant again like this:
           force="true"
           failOnTransformationError="false">
       <factory name="${processor.name}"/>
+      <param name="assets-path" expression="..${file.separator}"/>
       <param name="context" expression="dhq"/>
       <param name="dir-separator" expression="${file.separator}"/>
-      <param name="assets-path" expression="..${file.separator}"/>
     </xslt>
     <echo message="Created article preview at ${previewDir}${file.separator}${article.id}.html"/>
   </target>
