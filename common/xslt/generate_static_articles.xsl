@@ -60,7 +60,7 @@
       }"/>
   
   
- <!--  IDENTITY TEMPLATES  -->
+ <!--  DEFAULT PROCESSING TEMPLATES  -->
   
   <xsl:template match="*" mode="#all">
     <xsl:apply-templates mode="#current"/>
@@ -72,17 +72,31 @@
  <!--  TEMPLATES, #default mode  -->
   
   <xsl:template match="/">
-    <articleList>
-      <xsl:apply-templates/>
-    </articleList>
+    <!-- “main” output is an ant build file for creating article index
+         pages, bio pages, and copying each articles assets from the
+         repo to the newly created static site. -->
+    <xsl:text>&#x0A;</xsl:text>
+    <project name="dhq_articles">
+      <target name="copyArticleResources">
+	<copy>
+	  <!-- Remember: no @xsl:expand-text for following line! -->
+	  <xsl:attribute name="todir">${toDir.path}</xsl:attribute>
+	  <fileset>
+	    <xsl:attribute name="dir">${basedir}${file.separator}articles</xsl:attribute>
+	  </fileset>
+	  <firstmatchmapper>
+	    <xsl:apply-templates/>
+	  </firstmatchmapper>
+	</copy>
+      </target>
+    </project>
   </xsl:template>
   
   <!-- The editorial section of the TOC is skipped, at least for now. -->
   <xsl:template match="journal[@editorial eq 'true']"/>
   
   <xsl:template match="journal[@vol][@issue]">
-    <xsl:variable name="outDir" select="string-join(($static-dir, 'vol', @vol/data(), 
-      @issue/data()), $dir-separator)"/>
+    <xsl:variable name="outDir" select="string-join(($static-dir, 'vol', @vol/data(), @issue/data()), $dir-separator)"/>
     <!-- TODO: generate author bios, issue TOC -->
     <xsl:apply-templates>
       <xsl:with-param name="vol" select="@vol/data(.)" tunnel="yes"/>
@@ -114,15 +128,12 @@
         <xsl:message select="concat('Could not find an article at ',$srcPath)"/>
       </xsl:otherwise>
     </xsl:choose>
-    <!-- Finally, map the source directory and the output directory, for later use. -->
-    <dir>
-      <src>
-        <xsl:value-of select="replace($srcDir, '^file:', '')"/>
-      </src>
-      <out>
-        <xsl:value-of select="replace($outArticleDir, '^file:', '')"/>
-      </out>
-    </dir>
+    <!-- Finally, map the source directory and the output directory, for later use by ant. -->
+    <regexmapper handledirsep="true">
+      <xsl:variable name="to"    select="translate( $outArticleDir, '\', '/' )"/>
+      <xsl:attribute name="from" select="'^'||$articleId||'/(.*)$'"/>
+      <xsl:attribute name="to"   select="replace( $to, concat('^', $static-dir, '/' ), '' )||'/\1'"/>
+    </regexmapper>
   </xsl:template>
   
   
