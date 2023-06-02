@@ -1,6 +1,6 @@
 <project xmlns:if="ant:if" xmlns:unless="ant:unless" 
    name="dhq"
-   default="previewArticle">
+   default="zipPreviewArticle">
   
   <description>
     Apache Ant buildfile for Digital Humanities Quarterly.
@@ -128,7 +128,7 @@ is loaded when Ant starts up. Please run Ant again like this:
     <!-- If the 'article.id' property wasn't already set using the command line, Ant 
       will prompt for it. -->
     <input unless:set="article.id" 
-       message="Please type the ID of the article you want to view:" 
+       message="Please type the ID of the article you want to preview:" 
        addproperty="article.id"/>
     <!-- Test the 'article.id' property to make sure it has 6 digits and doesn't 
       start with '9'. -->
@@ -137,6 +137,9 @@ is loaded when Ant starts up. Please run Ant again like this:
     </condition>
     <fail unless="article.id.ok"
        message="An article ID must be 6 digits long. It must not start with '9'"/>
+    <!-- Set the assets path if it hasn't already been set. -->
+    <property unless:set="assets.path" name="assets.path" 
+      value="..${file.separator}"/>
     <!-- If it doesn't exist yet, create the preview directory specified in 
       build-properties.xml. -->
     <mkdir dir="${previewDir}"/>
@@ -148,11 +151,33 @@ is loaded when Ant starts up. Please run Ant again like this:
           force="true"
           failOnTransformationError="false">
       <factory name="${processor.name}"/>
-      <param name="assets-path" expression="..${file.separator}"/>
+      <param name="assets-path" expression="${assets.path}"/>
       <param name="context" expression="dhq"/>
       <param name="dir-separator" expression="${file.separator}"/>
     </xslt>
     <echo message="Created article preview at ${previewDir}${file.separator}${article.id}.html"/>
+  </target>
+  
+  <target name="zipPreviewArticle"
+     description="Create a ZIP file which contains the HTML preview for a single article.">
+    <!-- If the 'article.id' property wasn't already set using the command line, Ant 
+      will prompt for it. -->
+    <input unless:set="article.id" 
+       message="Please type the ID of the article you want to preview:" 
+       addproperty="article.id"/>
+    <!-- The "previewArticle" task assumes that the common directory is a sibling of 
+      the current one. For the ZIP, we want the HTML file at the same level as the 
+      common directory. -->
+    <property name="assets.path" value=".${file.separator}"/>
+    <antcall target="previewArticle" inheritall="yes"/>
+    <zip destfile="${previewDir}${file.separator}${article.id}.zip">
+      <fileset dir="." includes="common/css/ common/js/"/>
+      <fileset dir=".${file.separator}articles${file.separator}${article.id}" 
+        excludes="**${file.separator}${article.id}.xml"/>
+      <fileset dir="${previewDir}">
+        <filename name="${article.id}.html"/>
+      </fileset>
+    </zip>
   </target>
   
 </project>
