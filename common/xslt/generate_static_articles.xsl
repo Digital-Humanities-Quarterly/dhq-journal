@@ -81,7 +81,7 @@
       <target name="copyArticleResources">
         <copy>
           <!-- Remember: no @xsl:expand-text for following line! -->
-          <xsl:attribute name="todir">${toDir.path}</xsl:attribute>
+          <xsl:attribute name="todir">${toDir.static}</xsl:attribute>
           <fileset>
             <xsl:attribute name="dir">${basedir}${file.separator}articles</xsl:attribute>
           </fileset>
@@ -136,11 +136,11 @@
       </xsl:otherwise>
     </xsl:choose>
     <!-- Finally, map the source directory and the output directory, for later use by Ant. -->
-    <regexmapper handledirsep="true">
-      <xsl:variable name="to"    select="translate( $outArticleDir, '\', '/' )"/>
+    <regexpmapper handledirsep="true">
+      <xsl:variable  name="to"   select="translate( $outArticleDir, '\', '/' )"/>
       <xsl:attribute name="from" select="'^'||$articleId||'/(.*)$'"/>
       <xsl:attribute name="to"   select="replace( $to, concat('^', $static-dir, '/' ), '' )||'/\1'"/>
-    </regexmapper>
+    </regexpmapper>
   </xsl:template>
   
   
