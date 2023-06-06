@@ -13,8 +13,15 @@
     For more information, see https://ant.apache.org/manual/Tasks/xmlproperty.html
   -->
   <xmlproperty file="build-properties.xml" keepRoot="false"/>
-  <property name="toDir.path"
-    value="..${file.separator}${toDir}${file.separator}${context}"/>
+  
+  <!-- Define the relative path from the DHQ repository (this directory) to the 
+    directory which will hold the directory of generated static site files, as well 
+    as the full compressed site and derived Ant build file. -->
+  <property name="toDir.base" value="..${file.separator}${toDir}"/>
+  
+  <!-- Within ${toDir.base}, individually generated static site files will be 
+    written to the ${context} directory. -->
+  <property name="toDir.static" value="${toDir.base}${file.separator}${context}"/>
   
   <!-- Check for the XML Resolver Java class, as it is a dependency for using the 
     Saxon HE processor. From the Saxon documentation on XSLT with Ant:
@@ -48,10 +55,10 @@ is loaded when Ant starts up. Please run Ant again like this:
   <!-- Generate static HTML versions of the DHQ articles. -->
   <target name="generateArticles" depends="checkXmlResolver" 
      description="Generate static HTML versions of the DHQ articles.">
-    <mkdir dir="${toDir.path}${file.separator}vol"/>
+    <mkdir dir="${toDir.static}${file.separator}vol"/>
     <!-- Use XSLT to transform articles using the DHQ table of contents. -->
     <xslt in="toc${file.separator}toc.xml" 
-          out="..${file.separator}${toDir}${file.separator}article-map.xml"
+          out="${toDir.base}${file.separator}article-map.xml"
           style="common${file.separator}xslt${file.separator}generate_static_articles.xsl"
           classpath="${processor.location}"
           force="true"
@@ -67,12 +74,12 @@ is loaded when Ant starts up. Please run Ant again like this:
   
   <!-- Generate a static version of the DHQ website. -->
   <target name="generateSite" depends="checkXmlResolver">
-    <mkdir dir="${toDir.path}"/>
+    <mkdir dir="${toDir.static}"/>
     <!--<ant 
-       antfile="..${file.separator}${toDir}${file.separator}article-mapper.xml" 
+       antfile="${toDir.base}${file.separator}article-mapper.xml" 
        target="copyArticleResources" inheritRefs="true"/>-->
     <!-- Copy specific files in the base directory. -->
-    <copy todir="${toDir.path}">
+    <copy todir="${toDir.static}">
       <filelist dir=".">
         <file name="flow.js"/>
         <file name="robots.txt"/>
@@ -81,24 +88,24 @@ is loaded when Ant starts up. Please run Ant again like this:
       </filelist>
     </copy>
     <!-- Copy text files in the submissions directory. -->
-    <copy todir="${toDir.path}${file.separator}submissions">
+    <copy todir="${toDir.static}${file.separator}submissions">
       <fileset dir="submissions" includes="*.txt"/>
     </copy>
     <!-- Copy web assets. -->
-    <copy todir="${toDir.path}${file.separator}common">
+    <copy todir="${toDir.static}${file.separator}common">
       <fileset dir="common" excludes="lib/ tests/"/>
     </copy>
     <!-- Transform the test file.
       TODO: is this still necessary? -->
     <xslt in="common${file.separator}tests${file.separator}starter.xml" 
-          out="${toDir.path}${file.separator}starter.html"
+          out="${toDir.static}${file.separator}starter.html"
           style="common${file.separator}tests${file.separator}test2.xsl"
           classpath="${processor.location}">
       <factory name="${processor.name}"/>
       <param name="fpath" expression="starter.html"/>
     </xslt>
     <!-- Add headers and footers to static pages. -->
-    <xslt destdir="${toDir.path}"
+    <xslt destdir="${toDir.static}"
           style="common${file.separator}xslt${file.separator}template_static_pages.xsl"
           filenameparameter="fname"
           filedirparameter="fdir"
@@ -118,8 +125,8 @@ is loaded when Ant starts up. Please run Ant again like this:
   
   <!-- Compress the static site's files for backup and transportation. -->
   <target name="compressStatic">
-    <zip destfile="..${file.separator}${toDir}${file.separator}${context}.zip">
-      <fileset dir="${toDir.path}"/>
+    <zip destfile="${toDir.base}${file.separator}${context}.zip">
+      <fileset dir="${toDir.static}"/>
     </zip>
   </target>
   

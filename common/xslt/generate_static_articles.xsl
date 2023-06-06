@@ -98,6 +98,12 @@
   
   <xsl:template match="journal[@vol][@issue]">
     <xsl:variable name="outDir" select="string-join(($static-dir, 'vol', @vol/data(), @issue/data()), $dir-separator)"/>
+    <xsl:message>
+      <xsl:text>Processing </xsl:text>
+      <xsl:value-of select="@vol"/>
+      <xsl:text>.</xsl:text>
+      <xsl:value-of select="@issue"/>
+    </xsl:message>
     <!-- TODO: generate author bios, issue TOC -->
     <xsl:apply-templates>
       <xsl:with-param name="vol" select="@vol/data(.)" tunnel="yes"/>
