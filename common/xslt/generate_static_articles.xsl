@@ -22,7 +22,7 @@
     And their static site equivalent should be stored in this directory structure:
         vol/6/3/000130/
     
-    Ash Clark
+    Ash Clark and Syd Bauman
     2023
   -->
   
@@ -51,6 +51,7 @@
   
  <!--  GLOBAL VARIABLES  -->
   
+  <!-- Default settings for the transformation of articles from TEI to HTML. -->
   <xsl:variable name="xsl-map-base" as="map(*)" 
     select="map {
         'stylesheet-location':
@@ -72,22 +73,22 @@
  <!--  TEMPLATES, #default mode  -->
   
   <xsl:template match="/">
-    <!-- “main” output is an ant build file for creating article index
-         pages, bio pages, and copying each articles assets from the
+    <!-- “main” output is an Ant build file for creating article index
+         pages, bio pages, and copying each article's assets from the
          repo to the newly created static site. -->
     <xsl:text>&#x0A;</xsl:text>
     <project name="dhq_articles">
       <target name="copyArticleResources">
-	<copy>
-	  <!-- Remember: no @xsl:expand-text for following line! -->
-	  <xsl:attribute name="todir">${toDir.path}</xsl:attribute>
-	  <fileset>
-	    <xsl:attribute name="dir">${basedir}${file.separator}articles</xsl:attribute>
-	  </fileset>
-	  <firstmatchmapper>
-	    <xsl:apply-templates/>
-	  </firstmatchmapper>
-	</copy>
+        <copy>
+          <!-- Remember: no @xsl:expand-text for following line! -->
+          <xsl:attribute name="todir">${toDir.path}</xsl:attribute>
+          <fileset>
+            <xsl:attribute name="dir">${basedir}${file.separator}articles</xsl:attribute>
+          </fileset>
+          <firstmatchmapper>
+            <xsl:apply-templates/>
+          </firstmatchmapper>
+        </copy>
       </target>
     </project>
   </xsl:template>
@@ -128,7 +129,7 @@
         <xsl:message select="concat('Could not find an article at ',$srcPath)"/>
       </xsl:otherwise>
     </xsl:choose>
-    <!-- Finally, map the source directory and the output directory, for later use by ant. -->
+    <!-- Finally, map the source directory and the output directory, for later use by Ant. -->
     <regexmapper handledirsep="true">
       <xsl:variable name="to"    select="translate( $outArticleDir, '\', '/' )"/>
       <xsl:attribute name="from" select="'^'||$articleId||'/(.*)$'"/>
