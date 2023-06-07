@@ -20,17 +20,11 @@
         <xdoc:short>XSLT stylesheet to transform DHQauthor documents to XHTML.</xdoc:short>
     </xdoc:doc>
     <xsl:param name="context"/>
-    <!--<xsl:param name="vol">
-      <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume']"/>
-    </xsl:param>
-    <xsl:param name="issue">
-      <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/>
-    </xsl:param>
-    <xsl:param name="id">
-      <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']"/>
-    </xsl:param>-->
+    <!-- $vol, $issue, and $id are parameters set in dhq2html.xsl . -->
     <xsl:param name="fpath" select="concat('vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
     <xsl:param name="error"/>
+    <!-- When $doProofing is true(), no check is made to ensure that the article exists in the TOC. -->
+    <xsl:param name="doProofing" select="false()"/>
     <xsl:param name="staticPublishingPath">
         <xsl:value-of select="'../../articles/'"/>
     </xsl:param>
@@ -49,7 +43,11 @@
         </xsl:choose>
       </xsl:param>
         <xsl:choose>
-            <xsl:when test="document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes and @issue=$issue and descendant::item/attribute::id=$cleanId and not(@editorial)]">
+            <xsl:when test="$doProofing 
+              or document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes 
+                                                    and @issue=$issue 
+                                                    and descendant::item/attribute::id=$cleanId 
+                                                    and not(@editorial)]">
                 <xsl:apply-templates select="tei:TEI"/>
             </xsl:when>
             <xsl:when test="$error">
