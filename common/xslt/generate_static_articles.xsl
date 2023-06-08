@@ -26,8 +26,7 @@
     2023
   -->
   
-  <xsl:output encoding="UTF-8" indent="yes" method="xhtml" 
-    omit-xml-declaration="no"/>
+  <xsl:output encoding="UTF-8" indent="yes" method="xhtml" omit-xml-declaration="no"/>
   
  <!--  PARAMETERS  -->
   
@@ -98,13 +97,27 @@
   
   <xsl:template match="journal[@vol][@issue]">
     <xsl:variable name="outDir" select="string-join(($static-dir, 'vol', @vol/data(), @issue/data()), $dir-separator)"/>
-    <xsl:message>
-      <xsl:text>Processing </xsl:text>
-      <xsl:value-of select="@vol"/>
-      <xsl:text>.</xsl:text>
-      <xsl:value-of select="@issue"/>
-    </xsl:message>
+    <xsl:variable name="param-map" as="map(*)">
+      <xsl:map>
+        <xsl:map-entry key="QName( (),'vol'  )" select="@vol/data()"/>
+        <xsl:map-entry key="QName( (),'issue')" select="@issue/data()"/>
+        <xsl:map-entry key="QName( (),'fpath')" select="''"/>
+        <xsl:map-entry key="QName( (),'context')" select="$context"/>
+      </xsl:map>
+    </xsl:variable>
+    <xsl:message select="'Processing '||@vol||'.'||@issue||' with map='||serialize( $param-map, map {'method':'json','indent': true() } )"/>
+    <xsl:variable name="issue-index-map" as="map(*)">
+      <xsl:map>
+        <xsl:map-entry key="'stylesheet-location'"
+                       select="string-join( ( $repo-dir, 'common', 'xslt', 'template_toc.xsl' ), $dir-separator )"/>
+        <xsl:map-entry key="'source-node'" select="/"/>
+        <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
+      </xsl:map>
+    </xsl:variable>
     <!-- TODO: generate author bios, issue TOC -->
+    <xsl:result-document href="{$outDir||$dir-separator||'index.html'}">
+      <xsl:sequence select="transform( $issue-index-map )?output"></xsl:sequence>
+    </xsl:result-document>
     <xsl:apply-templates>
       <xsl:with-param name="vol" select="@vol/data(.)" tunnel="yes"/>
       <xsl:with-param name="issue" select="@issue/data(.)" tunnel="yes"/>
