@@ -19,7 +19,7 @@
     site directory. For example, the article 000130 and its associated files are 
     stored at:
         articles/000130/
-    And their static site equivalent should be stored in this directory structure:
+    And their static site equivalent is stored in this directory structure:
         vol/6/3/000130/
     
     Ash Clark and Syd Bauman
@@ -96,12 +96,13 @@
   <xsl:template match="journal[@editorial eq 'true']"/>
   
   <xsl:template match="journal[@vol][@issue]">
-    <xsl:variable name="outDir" select="string-join(($static-dir, 'vol', @vol/data(), @issue/data()), $dir-separator)"/>
+    <xsl:variable name="fpath" select="string-join( ( 'vol', @vol/data(), @issue/data()), '/' )"/>
+    <xsl:variable name="outDir" select="string-join( ( $static-dir, 'vol', @vol/data(), @issue/data() ), $dir-separator)"/>
     <xsl:variable name="param-map" as="map(*)">
       <xsl:map>
         <xsl:map-entry key="QName( (),'vol'  )" select="@vol/data()"/>
         <xsl:map-entry key="QName( (),'issue')" select="@issue/data()"/>
-        <xsl:map-entry key="QName( (),'fpath')" select="''"/>
+        <xsl:map-entry key="QName( (),'fpath')" select="$fpath||'/index.html'"/>
         <xsl:map-entry key="QName( (),'context')" select="$context"/>
       </xsl:map>
     </xsl:variable>
@@ -114,13 +115,24 @@
         <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
       </xsl:map>
     </xsl:variable>
-    <!-- TODO: generate author bios, issue TOC -->
+    <!-- TODO: generate author bios -->
+    <!-- Q: does $dir-separator, below, need to be '/' instead? -->
     <xsl:result-document href="{$outDir||$dir-separator||'index.html'}">
-      <xsl:sequence select="transform( $issue-index-map )?output"></xsl:sequence>
+      <xsl:sequence select="transform( $issue-index-map )?output"/>
     </xsl:result-document>
+    <xsl:if test="@current eq 'true'">
+      <xsl:variable name="new-param-map" select="map:put( $param-map, QName( (),'fpath'), 'index.html')"/>
+      <xsl:variable name="index-index-map" select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
+      <xsl:message select="'Debugging '||@vol||'.'||@issue||' with map='||serialize( $index-index-map, map {'method':'json','indent': true() } )"/>
+      <!-- Q: does $dir-separator, below, need to be '/' instead? -->
+      <xsl:result-document href="{$static-dir||$dir-separator||'index.html'}">
+        <xsl:sequence select="transform( $index-index-map )?output"/>
+      </xsl:result-document>
+    </xsl:if>
     <xsl:apply-templates>
       <xsl:with-param name="vol" select="@vol/data(.)" tunnel="yes"/>
       <xsl:with-param name="issue" select="@issue/data(.)" tunnel="yes"/>
+      <xsl:with-param name="fpath" select="$fpath" tunnel="yes"/>
       <xsl:with-param name="outDir" select="$outDir" tunnel="yes"/>
     </xsl:apply-templates>
   </xsl:template>
@@ -165,6 +177,7 @@
     <xsl:param name="articleId" select="@id/data(.)" as="xs:string"/>
     <xsl:param name="srcDir" as="xs:string"/>
     <xsl:param name="srcPath" as="xs:string"/>
+    <xsl:param name="fpath" as="xs:string" tunnel="yes"/>
     <xsl:param name="outDir" as="xs:string"/>
     <!-- Create the map which will define the article's transformation. -->
     <xsl:variable name="xslMap" as="map(*)">
@@ -188,7 +201,7 @@
                 QName((),'context'): $context,
                 QName((),'vol'): $vol,
                 QName((),'issue'): $issue,
-                QName((),'fpath'): concat($outDir,'/',$articleId,'.html')
+                QName((),'fpath'): concat( $fpath, '/', $articleId, '.html')
               }
           }"/>
       <xsl:sequence select="map:merge(($useStylesheet, $otherEntries))"/>
@@ -201,8 +214,8 @@
     <!-- Attempt to transform the TEI article into XHTML, and save the result to the 
       output directory. -->
     <xsl:try>
-      <xsl:result-document href="{$outDir}/{$articleId}.html"
-         method="xhtml">
+      <!-- Q: does $dir-separator, below, need to be '/' instead? -->
+      <xsl:result-document href="{$outDir}{$dir-separator}{$articleId}.html" method="xhtml">
         <xsl:sequence select="transform($xslMap)?output"/>
       </xsl:result-document>
       <!-- If something went wrong, recover but provide information for debugging 
