@@ -34,6 +34,16 @@ s.parentNode.insertBefore(ga, s);
  })();
 
         </script>
+        <!-- New google analytics 2023-06-19 -->
+        <!-- Google tag (gtag.js) -->
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-F59WMFKXLW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-F59WMFKXLW');
+</script>
 
           <xsl:comment>WTF?</xsl:comment>
             <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><xsl:comment>Gimme some comment!</xsl:comment></script>
