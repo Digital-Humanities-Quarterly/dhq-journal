@@ -11,7 +11,9 @@
     exclude-result-prefixes="xs math"
     version="3.0">
     
-    
+    <!-- TTD
+    	<list rend='bulleted'> should be <list type="unordered">
+    -->
     <xsl:output method="xml" indent="yes"/>
     <xsl:mode on-no-match="shallow-copy"/>
     
@@ -173,6 +175,14 @@
     	<quote rend="inline">
     		<xsl:apply-templates/>
     	</quote>
+    </xsl:template>
+
+    <xsl:template match="hi[@rend eq 'dhq_citation']">
+    	<ptr>
+    		<xsl:attribute name="target">
+    			<xsl:value-of select="."></xsl:value-of>
+    		</xsl:attribute>
+    	</ptr>
     </xsl:template>
 
 

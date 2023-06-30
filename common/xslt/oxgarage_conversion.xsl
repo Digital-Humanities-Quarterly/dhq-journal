@@ -235,16 +235,50 @@
     
     
      
-    <!-- Transformations To Contents of <text> -->
+    <!-- Suppress unwanted attributes and elements -->
     <xsl:template match="p/@* | note/@* | table/@*"/>
     <xsl:template match="anchor"/>
+    <xsl:template match="pb"/>
+    <xsl:template match="lb"/>
     
-    <xsl:template match="graphic">
+    
+   <!-- handling of figures and tables-->
+	
+    <xsl:template match="graphic[not(parent::figure)]">
     	<figure>
     		<head></head>
     		<graphic><xsl:apply-templates select="attribute::url"></xsl:apply-templates></graphic>
     	</figure>
     </xsl:template>
+	
+    <xsl:template match="figure">
+    	<figure>
+    		<head><xsl:value-of select="./head"/></head>
+    		<graphic>
+        		<xsl:attribute name="url">
+        			<xsl:value-of select="./graphic/@url"/>
+        		</xsl:attribute>
+    		</graphic>
+    	</figure>
+    </xsl:template>
+
+	<xsl:template match="p[@rend eq 'dhq_figdesc']">
+		<!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+		<figDesc><xsl:comment>If this figDesc is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/><xsl:apply-templates/></figDesc>
+	</xsl:template>
+
+	<xsl:template match="p[@rend eq 'dhq_caption']">
+		<!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+		<head><xsl:comment>If this head is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/></head>	
+	</xsl:template>
+
+
+	<xsl:template match="p[@rend eq 'dhq_table_label']">
+    	<!-- TTD: it would be ideal if we could move the head to be the first child of <table> -->
+		<head><xsl:comment>If this head is invalid, move it into the nearest table element</xsl:comment><xsl:apply-templates/></head>	
+	</xsl:template>
+
+    
     
     <!-- Replace Zotero's inline citation PIs with DHQ-style <ptr>s. -->
     <xsl:template match="processing-instruction('biblio')[contains(., 'ZOTERO_ITEM CSL_CITATION')]">
@@ -340,7 +374,43 @@
             <xsl:apply-templates select="attribute::target | child::node()"/>
         </xsl:element>
     </xsl:template>
-    
+
+    <!-- handling of phrase-level elements that are marked with DHQ Word styles -->
+    <xsl:template match="hi[@rend eq 'dhq_term']">
+    	<term>
+    		<xsl:apply-templates/>
+    	</term>
+    </xsl:template>
+	
+    <xsl:template match="hi[@rend eq 'dhq_emphasis']">
+    	<emph>
+    		<xsl:apply-templates/>
+    	</emph>
+    </xsl:template>
+	
+    <xsl:template match="hi[@rend eq 'dhq_italic_title']">
+    	<title rend="italic">
+    		<xsl:apply-templates/>
+    	</title>
+    </xsl:template>
+
+    <xsl:template match="hi[@rend eq 'dhq_quote']">
+    	<quote rend="inline">
+    		<xsl:apply-templates/>
+    	</quote>
+    </xsl:template>
+
+    <xsl:template match="hi[@rend eq 'dhq_citation']">
+    	<ptr>
+    		<xsl:attribute name="target">
+    			<xsl:value-of select="."></xsl:value-of>
+    		</xsl:attribute>
+    	</ptr>
+    </xsl:template>
+
+
+
+
     <!-- add transformation for first row to have role="label" -->
     <xsl:template match="row">
         <xsl:element name="row">
