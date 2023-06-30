@@ -10,8 +10,10 @@ import re
 
 ############## CREATE DATAFRAME FROM KEYWORDS CSV AND TADD TAGS
 
+# The directory where the CSV is, and where the outputs will be saved
+dir = r'C:\Users\avery\Desktop\'
 
-df = pd.read_csv(r'C:\Users\avery\Desktop\keywords.csv', dtype = str) #prevents ids from dropping the first set of 0s
+df = pd.read_csv(dir+'keywords.csv', dtype = str) #prevents ids from dropping the first set of 0s
 
 df = df.drop('Volume', axis=1)
 df = df.drop('Authors (2014:v8n4+, only 1st author surname)', axis=1)
@@ -35,11 +37,11 @@ frames = [df["DHQ ID#"], keywords_df]
 tagged_df = pd.concat(frames, ignore_index=True, axis=1)
 tagged_df = tagged_df.assign(endtag = "</keywords>" )
 import numpy as np
-np.savetxt('output.xml', tagged_df.values, fmt = "%s")
+np.savetxt('output.xml', tagged_df.values, fmt = "%s", header = "<all_keywords>", footer = "</all_keywords>")
 
 from bs4 import BeautifulSoup
 
-xml = r'C:\Users\avery\Desktop\taxonomy.xml'
+xml = dir+'taxonomy.xml'
 with open(xml, 'r') as tei:
     soup = BeautifulSoup(tei, 'lxml')
     
@@ -49,5 +51,5 @@ soup.textclass.replaceWith(string_df)
 # soup.textclass
     
 import xml.etree.ElementTree as ET
-tree = ET.parse(r'C:\Users\avery\Desktop\taxonomy.xml')
+tree = ET.parse(dir+'taxonomy.xml')
 root = tree.getroot()
