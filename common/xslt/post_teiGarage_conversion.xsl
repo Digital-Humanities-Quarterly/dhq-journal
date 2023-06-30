@@ -147,14 +147,64 @@
     <!-- Transformations To Contents of <text> -->
     <xsl:template match="p/@* | note/@* | table/@*"/>
     <xsl:template match="anchor"/>
+    <xsl:template match="pb"/>
+    <xsl:template match="lb"/>
     
-    <xsl:template match="graphic">
+    <!-- handling of phrase-level elements that are marked with Word styles -->
+    <xsl:template match="hi[@rend eq 'dhq_term']">
+    	<term>
+    		<xsl:apply-templates/>
+    	</term>
+    </xsl:template>
+	
+    <xsl:template match="hi[@rend eq 'dhq_emphasis']">
+    	<emph>
+    		<xsl:apply-templates/>
+    	</emph>
+    </xsl:template>
+	
+    <xsl:template match="hi[@rend eq 'dhq_italic_title']">
+    	<title rend="italic">
+    		<xsl:apply-templates/>
+    	</title>
+    </xsl:template>
+
+    <xsl:template match="hi[@rend eq 'dhq_quote']">
+    	<quote rend="inline">
+    		<xsl:apply-templates/>
+    	</quote>
+    </xsl:template>
+
+
+    <!-- handling of figures and tables-->
+    <xsl:template match="figure">
     	<figure>
-    		<head></head>
-    		<graphic><xsl:apply-templates select="attribute::url"></xsl:apply-templates></graphic>
+    		<head><xsl:value-of select="./head"/></head>
+    		<graphic>
+        		<xsl:attribute name="url">
+        			<xsl:value-of select="./graphic/@url"/>
+        		</xsl:attribute>
+    		</graphic>
     	</figure>
     </xsl:template>
-    
+
+	<xsl:template match="p[@rend eq 'dhq_figdesc']">
+		<!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+		<figDesc><xsl:comment>If this figDesc is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/><xsl:apply-templates/></figDesc>
+	</xsl:template>
+
+	<xsl:template match="p[@rend eq 'dhq_caption']">
+		<!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+		<head><xsl:comment>If this head is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/></head>	
+	</xsl:template>
+
+
+	<xsl:template match="p[@rend eq 'dhq_table_label']">
+    	<!-- TTD: it would be ideal if we could move the head to be the first child of <table> -->
+		<head><xsl:comment>If this head is invalid, move it into the nearest table element</xsl:comment><xsl:apply-templates/></head>	
+	</xsl:template>
+
+
     <xsl:template match="note/p">
             <xsl:apply-templates select="child::node()"/>
     </xsl:template>
