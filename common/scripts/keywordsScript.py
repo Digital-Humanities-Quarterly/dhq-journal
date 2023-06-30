@@ -38,7 +38,7 @@ frames = [df["DHQ ID#"], keywords_df]
 tagged_df = pd.concat(frames, ignore_index=True, axis=1)
 tagged_df = tagged_df.assign(endtag = "</keywords>" )
 import numpy as np
-np.savetxt('output.xml', tagged_df.values, fmt = "%s", header = "<all_keywords>", footer = "</all_keywords>")
+np.savetxt('output.xml', tagged_df.values, fmt = "%s", header = '<all_keywords xmlns="http://www.tei-c.org/ns/1.0">', footer = "</all_keywords>")
 
 from bs4 import BeautifulSoup
 
