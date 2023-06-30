@@ -400,13 +400,13 @@
     	</quote>
     </xsl:template>
 
-    <xsl:template match="hi[@rend eq 'dhq_citation']">
+   <!-- <xsl:template match="hi[@rend eq 'dhq_citation']">
     	<ptr>
     		<xsl:attribute name="target">
     			<xsl:value-of select="."></xsl:value-of>
     		</xsl:attribute>
     	</ptr>
-    </xsl:template>
+    </xsl:template>-->
 
 
 
