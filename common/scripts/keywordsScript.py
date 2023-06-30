@@ -10,7 +10,8 @@ import re
 
 ############## CREATE DATAFRAME FROM KEYWORDS CSV AND TADD TAGS
 
-# The directory where the CSV is, and where the outputs will be saved
+# The directory where the CSV is, and where the outputs will be saved.
+# End the string with the file separator for your OS (a forward or backward slash).
 dir = r'C:\Users\avery\Desktop\'
 
 df = pd.read_csv(dir+'keywords.csv', dtype = str) #prevents ids from dropping the first set of 0s
