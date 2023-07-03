@@ -12,8 +12,10 @@
   version="3.0">
   
 <!--
-    Use the DHQ table of contents to transform DHQ articles into HTML, and create a 
-    mapping between each source directory and its static equivalent.
+    Use the DHQ table of contents to generate many static webpages: individual 
+    articles, issue indexes, and issue biography pages. These static pages are 
+    produced with fn:transform(), and saved to $static-dir via 
+    <xsl:result-document>.
     
     An article's HTML and TEI files are stored at the expected path in the static 
     site directory. For example, the article 000130 and its associated files are 
@@ -21,6 +23,9 @@
         articles/000130/
     And their static site equivalent is stored in this directory structure:
         vol/6/3/000130/
+    
+    In addition, this stylesheet produces an Ant build file which maps between each 
+    source article directory and its static equivalent.
     
     Ash Clark and Syd Bauman
     2023
@@ -115,11 +120,10 @@
         <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
       </xsl:map>
     </xsl:variable>
-    <!-- The issue-index map is just the template plus a stylesheet-location entry. -->
-    <xsl:variable name="issue-index-map" as="map(*)">
-      <xsl:sequence select="map:merge(($issue-template-map, dhq:stylesheet-path-entry('template_toc.xsl')))"/>
-    </xsl:variable>
-    <!-- The issue-bios map is also just the template plus a (different) stylesheet-location entry.  -->
+    <!-- The issue-index map is just the template plus a 'stylesheet-location' entry. -->
+    <xsl:variable name="issue-index-map" as="map(*)"
+      select="map:merge(($issue-template-map, dhq:stylesheet-path-entry('template_toc.xsl')))"/>
+    <!-- The issue-bios map is also just the template plus a (different) 'stylesheet-location' entry.  -->
     <xsl:variable name="issue-bios-map" as="map(*)" 
       select="map:merge(($issue-template-map, dhq:stylesheet-path-entry('template_bios.xsl')))"/>
     <!-- The issue-bios-sort map is a bit more complicated, because its source node is the result of
@@ -140,15 +144,20 @@
       <xsl:sequence select="transform( $issue-index-map )?output"/>
     </xsl:result-document>
     <!-- Q: does $dir-separator, in result-documents above, need to be '/' instead? -->
+    <!-- If this is the current issue, run the transformation again for the DHQ home 
+      page. The result will be identical to the issue index, but the URL at the 
+      bottom will be http://www.digitalhumanities.org/dhq/index.html -->
     <xsl:if test="@current eq 'true'">
-      <xsl:variable name="new-param-map" select="map:put( $param-map, QName( (),'fpath'), 'index.html')"/>
-      <xsl:variable name="index-index-map" select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
-      <!-- xsl:message select="'Debugging '||@vol||'.'||@issue||' with map='||serialize( $index-index-map, map {'method':'json','indent': true() } )"/ -->
+      <xsl:variable name="new-param-map" 
+        select="map:put( $param-map, QName( (),'fpath'), 'index.html')"/>
+      <xsl:variable name="index-index-map" 
+        select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
       <!-- Q: does $dir-separator, below, need to be '/' instead? -->
       <xsl:result-document href="{$static-dir||$dir-separator||'index.html'}">
         <xsl:sequence select="transform( $index-index-map )?output"/>
       </xsl:result-document>
     </xsl:if>
+    <!-- Proceed to transform the contents of the issue (articles). -->
     <xsl:apply-templates>
       <xsl:with-param name="vol" select="@vol/data(.)" tunnel="yes"/>
       <xsl:with-param name="issue" select="@issue/data(.)" tunnel="yes"/>
@@ -161,7 +170,7 @@
     <xsl:param name="outDir" as="xs:string" tunnel="yes"/>
     <xsl:variable name="articleId" select="@id/data(.)"/>
     <xsl:variable name="srcDir" 
-      select="string-join(($repo-dir,'articles',$articleId),$dir-separator)"/>
+      select="string-join(($repo-dir,'articles',$articleId), $dir-separator)"/>
     <xsl:variable name="srcPath" 
       select="concat($srcDir,$dir-separator,$articleId,'.xml')"/>
     <xsl:variable name="outArticleDir" 
@@ -257,9 +266,11 @@
   
  <!--  FUNCTIONS  -->
   
+  <!-- Generate a map entry with a stylesheet location, for use in fn:transform(). -->
   <xsl:function name="dhq:stylesheet-path-entry" as="map(*)">
-    <xsl:param name="fn"/>
-    <xsl:map-entry key="'stylesheet-location'" select="string-join( ( $repo-dir, 'common', 'xslt', $fn ), $dir-separator )"/>
+    <xsl:param name="fn" as="xs:string"/>
+    <xsl:map-entry key="'stylesheet-location'" 
+      select="string-join( ( $repo-dir, 'common', 'xslt', $fn ), $dir-separator )"/>
   </xsl:function>  
 
 </xsl:stylesheet>
