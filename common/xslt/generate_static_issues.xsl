@@ -98,6 +98,8 @@
   <xsl:template match="journal[@vol][@issue]">
     <xsl:variable name="fpath" select="string-join( ( 'vol', @vol/data(), @issue/data()), '/' )"/>
     <xsl:variable name="outDir" select="string-join( ( $static-dir, 'vol', @vol/data(), @issue/data() ), $dir-separator)"/>
+    <xsl:message select="'Processing '||@vol||'.'||@issue||' …'"/>
+    <!-- Establish a set of parameters to be handed into XSLT programs we are about to run. -->
     <xsl:variable name="param-map" as="map(*)">
       <xsl:map>
         <xsl:map-entry key="QName( (),'vol'  )" select="@vol/data()"/>
@@ -106,36 +108,38 @@
         <xsl:map-entry key="QName( (),'context')" select="$context"/>
       </xsl:map>
     </xsl:variable>
-    <xsl:message select="'Processing '||@vol||'.'||@issue||' …'"/>
+    <!-- A base map which will be used to generate the index-map, bios-map, and bios-sort-map. -->
     <xsl:variable name="issue-template-map" as="map(*)">
       <xsl:map>
         <xsl:map-entry key="'source-node'" select="/"/>
         <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
       </xsl:map>
     </xsl:variable>
+    <!-- The issue-index map is just the template plus a stylesheet-location entry. -->
     <xsl:variable name="issue-index-map" as="map(*)">
-      <xsl:sequence select="map:merge(($issue-template-map, map { 'stylesheet-location': string-join( ( $repo-dir, 'common', 'xslt', 'template_toc.xsl' ), $dir-separator ) }))"/>
+      <xsl:sequence select="map:merge(($issue-template-map, dhq:stylesheet-path-entry('template_toc.xsl')))"/>
     </xsl:variable>
-    <xsl:variable name="issue-bios-map" as="map(*)">
-      <xsl:map-entry key="'stylesheet-location'"
-        select="string-join( ( $repo-dir, 'common', 'xslt', 'template_bios.xsl' ), $dir-separator )"/>
-    </xsl:variable>
+    <!-- The issue-bios map is also just the template plus a (different) stylesheet-location entry.  -->
+    <xsl:variable name="issue-bios-map" as="map(*)" 
+      select="map:merge(($issue-template-map, dhq:stylesheet-path-entry('template_bios.xsl')))"/>
+    <!-- The issue-bios-sort map is a bit more complicated, because its source node is the result of
+         a transform based on the issue-bios map. -->
     <xsl:variable name="issue-bios-sort-map" as="map(*)">
       <xsl:map>
-        <xsl:map-entry key="'stylesheet-location'"
-          select="string-join( ( $repo-dir, 'common', 'xslt', 'bios_sort.xsl' ), $dir-separator )"/>
-        <xsl:map-entry key="'source-node'" 
-          select="map:merge(($issue-template-map, $issue-bios-map)) => transform() => map:get('output')"/>
+        <xsl:sequence select="dhq:stylesheet-path-entry('bios_sort.xsl')"/>
+        <xsl:map-entry key="'source-node'" select="transform( $issue-bios-map )?output"/>
         <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
       </xsl:map>
     </xsl:variable>
-    <!-- Q: does $dir-separator, in result-documents below, need to be '/' instead? -->
+    <!-- Generate this issue’s bios based on the issue-bios-sort map -->
     <xsl:result-document href="{$outDir||$dir-separator||'bios.html'}">
       <xsl:sequence select="transform( $issue-bios-sort-map )?output"/>
     </xsl:result-document>
+    <!-- Generate this issue’s main page on the issue-index map -->
     <xsl:result-document href="{$outDir||$dir-separator||'index.html'}">
       <xsl:sequence select="transform( $issue-index-map )?output"/>
     </xsl:result-document>
+    <!-- Q: does $dir-separator, in result-documents above, need to be '/' instead? -->
     <xsl:if test="@current eq 'true'">
       <xsl:variable name="new-param-map" select="map:put( $param-map, QName( (),'fpath'), 'index.html')"/>
       <xsl:variable name="index-index-map" select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
@@ -253,4 +257,9 @@
   
  <!--  FUNCTIONS  -->
   
+  <xsl:function name="dhq:stylesheet-path-entry" as="map(*)">
+    <xsl:param name="fn"/>
+    <xsl:map-entry key="'stylesheet-location'" select="string-join( ( $repo-dir, 'common', 'xslt', $fn ), $dir-separator )"/>
+  </xsl:function>  
+
 </xsl:stylesheet>
