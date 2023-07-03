@@ -36,12 +36,13 @@
  <!--  PARAMETERS  -->
   
   <!-- The character used to separate directories on this filesystem. -->
+  <!-- TODO: Figure out if <xsl:result-document>s should always use '/' instead. -->
   <xsl:param name="dir-separator" select="'/'" as="xs:string"/>
   
   <!-- An absolute path to the DHQ repository. -->
   <xsl:param name="repo-dir" as="xs:string">
     <xsl:variable name="thisXsl" select="concat($dir-separator,
-      string-join(('common', 'xslt', 'generate_static_issues.xsl'), $dir-separator),
+      dhq:set-filesystem-path(('common', 'xslt', 'generate_static_issues.xsl')),
       '$')"/>
     <xsl:sequence select="replace(static-base-uri(), $thisXsl, '')"/>
   </xsl:param>
@@ -59,8 +60,7 @@
   <xsl:variable name="xsl-map-base" as="map(*)" 
     select="map {
         'stylesheet-location':
-          string-join(($repo-dir, 'common', 'xslt', 'template_article.xsl'), 
-            $dir-separator),
+          dhq:set-filesystem-path(($repo-dir, 'common', 'xslt', 'template_article.xsl')),
         'cache': true()
       }"/>
   
@@ -102,7 +102,8 @@
   
   <xsl:template match="journal[@vol][@issue]">
     <xsl:variable name="fpath" select="string-join( ( 'vol', @vol/data(), @issue/data()), '/' )"/>
-    <xsl:variable name="outDir" select="string-join( ( $static-dir, 'vol', @vol/data(), @issue/data() ), $dir-separator)"/>
+    <xsl:variable name="outDir" 
+      select="dhq:set-filesystem-path(( $static-dir, 'vol', @vol/data(), @issue/data() ))"/>
     <xsl:message select="'Processing '||@vol||'.'||@issue||' …'"/>
     <!-- Establish a set of parameters to be handed into XSLT programs we are about to run. -->
     <xsl:variable name="param-map" as="map(*)">
@@ -170,11 +171,11 @@
     <xsl:param name="outDir" as="xs:string" tunnel="yes"/>
     <xsl:variable name="articleId" select="@id/data(.)"/>
     <xsl:variable name="srcDir" 
-      select="string-join(($repo-dir,'articles',$articleId), $dir-separator)"/>
+      select="dhq:set-filesystem-path(($repo-dir, 'articles', $articleId))"/>
     <xsl:variable name="srcPath" 
-      select="concat($srcDir,$dir-separator,$articleId,'.xml')"/>
+      select="dhq:set-filesystem-path(($srcDir, concat($articleId,'.xml')))"/>
     <xsl:variable name="outArticleDir" 
-      select="concat($outDir,$dir-separator,$articleId)"/>
+      select="dhq:set-filesystem-path(($outDir, $articleId))"/>
     <!-- Make sure that the TEI article exists before proceeding to transform it. -->
     <xsl:choose>
       <xsl:when test="doc-available($srcPath)">
@@ -266,11 +267,17 @@
   
  <!--  FUNCTIONS  -->
   
+  <!-- Create a path to some resource on the filesystem, using $dir-separator. -->
+  <xsl:function name="dhq:set-filesystem-path" as="xs:string">
+    <xsl:param name="path-parts" as="xs:string*"/>
+    <xsl:sequence select="string-join($path-parts, $dir-separator)"/>
+  </xsl:function>
+  
   <!-- Generate a map entry with a stylesheet location, for use in fn:transform(). -->
   <xsl:function name="dhq:stylesheet-path-entry" as="map(*)">
     <xsl:param name="fn" as="xs:string"/>
     <xsl:map-entry key="'stylesheet-location'" 
-      select="string-join( ( $repo-dir, 'common', 'xslt', $fn ), $dir-separator )"/>
-  </xsl:function>  
-
+      select="dhq:set-filesystem-path(( $repo-dir, 'common', 'xslt', $fn ))"/>
+  </xsl:function>
+  
 </xsl:stylesheet>
