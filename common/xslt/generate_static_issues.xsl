@@ -107,27 +107,25 @@
       </xsl:map>
     </xsl:variable>
     <xsl:message select="'Processing '||@vol||'.'||@issue||' …'"/>
-    <xsl:variable name="issue-index-map" as="map(*)">
+    <xsl:variable name="issue-template-map" as="map(*)">
       <xsl:map>
-        <xsl:map-entry key="'stylesheet-location'"
-                       select="string-join( ( $repo-dir, 'common', 'xslt', 'template_toc.xsl' ), $dir-separator )"/>
         <xsl:map-entry key="'source-node'" select="/"/>
         <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
       </xsl:map>
     </xsl:variable>
+    <xsl:variable name="issue-index-map" as="map(*)">
+      <xsl:sequence select="map:merge(($issue-template-map, map { 'stylesheet-location': string-join( ( $repo-dir, 'common', 'xslt', 'template_toc.xsl' ), $dir-separator ) }))"/>
+    </xsl:variable>
     <xsl:variable name="issue-bios-map" as="map(*)">
-      <xsl:map>
-        <xsl:map-entry key="'stylesheet-location'"
-          select="string-join( ( $repo-dir, 'common', 'xslt', 'template_bios.xsl' ), $dir-separator )"/>
-        <xsl:map-entry key="'source-node'" select="/"/>
-        <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
-      </xsl:map>
+      <xsl:map-entry key="'stylesheet-location'"
+        select="string-join( ( $repo-dir, 'common', 'xslt', 'template_bios.xsl' ), $dir-separator )"/>
     </xsl:variable>
     <xsl:variable name="issue-bios-sort-map" as="map(*)">
       <xsl:map>
         <xsl:map-entry key="'stylesheet-location'"
           select="string-join( ( $repo-dir, 'common', 'xslt', 'bios_sort.xsl' ), $dir-separator )"/>
-        <xsl:map-entry key="'source-node'" select="transform( $issue-bios-map )?output"/>
+        <xsl:map-entry key="'source-node'" 
+          select="map:merge(($issue-template-map, $issue-bios-map)) => transform() => map:get('output')"/>
         <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
       </xsl:map>
     </xsl:variable>
