@@ -115,8 +115,26 @@
         <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
       </xsl:map>
     </xsl:variable>
-    <!-- TODO: generate author bios -->
-    <!-- Q: does $dir-separator, below, need to be '/' instead? -->
+    <xsl:variable name="issue-bios-map" as="map(*)">
+      <xsl:map>
+        <xsl:map-entry key="'stylesheet-location'"
+          select="string-join( ( $repo-dir, 'common', 'xslt', 'template_bios.xsl' ), $dir-separator )"/>
+        <xsl:map-entry key="'source-node'" select="/"/>
+        <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
+      </xsl:map>
+    </xsl:variable>
+    <xsl:variable name="issue-bios-sort-map" as="map(*)">
+      <xsl:map>
+        <xsl:map-entry key="'stylesheet-location'"
+          select="string-join( ( $repo-dir, 'common', 'xslt', 'bios_sort.xsl' ), $dir-separator )"/>
+        <xsl:map-entry key="'source-node'" select="transform( $issue-bios-map )?output"/>
+        <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
+      </xsl:map>
+    </xsl:variable>
+    <!-- Q: does $dir-separator, in result-documents below, need to be '/' instead? -->
+    <xsl:result-document href="{$outDir||$dir-separator||'bios.html'}">
+      <xsl:sequence select="transform( $issue-bios-sort-map )?output"/>
+    </xsl:result-document>
     <xsl:result-document href="{$outDir||$dir-separator||'index.html'}">
       <xsl:sequence select="transform( $issue-index-map )?output"/>
     </xsl:result-document>
