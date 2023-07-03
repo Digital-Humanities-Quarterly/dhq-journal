@@ -36,7 +36,7 @@
   <!-- An absolute path to the DHQ repository. -->
   <xsl:param name="repo-dir" as="xs:string">
     <xsl:variable name="thisXsl" select="concat($dir-separator,
-      string-join(('common', 'xslt', 'generate_static_articles.xsl'), $dir-separator),
+      string-join(('common', 'xslt', 'generate_static_issues.xsl'), $dir-separator),
       '$')"/>
     <xsl:sequence select="replace(static-base-uri(), $thisXsl, '')"/>
   </xsl:param>
@@ -106,7 +106,7 @@
         <xsl:map-entry key="QName( (),'context')" select="$context"/>
       </xsl:map>
     </xsl:variable>
-    <xsl:message select="'Processing '||@vol||'.'||@issue||' with map='||serialize( $param-map, map {'method':'json','indent': true() } )"/>
+    <xsl:message select="'Processing '||@vol||'.'||@issue||' …'"/>
     <xsl:variable name="issue-index-map" as="map(*)">
       <xsl:map>
         <xsl:map-entry key="'stylesheet-location'"
@@ -123,7 +123,7 @@
     <xsl:if test="@current eq 'true'">
       <xsl:variable name="new-param-map" select="map:put( $param-map, QName( (),'fpath'), 'index.html')"/>
       <xsl:variable name="index-index-map" select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
-      <xsl:message select="'Debugging '||@vol||'.'||@issue||' with map='||serialize( $index-index-map, map {'method':'json','indent': true() } )"/>
+      <!-- xsl:message select="'Debugging '||@vol||'.'||@issue||' with map='||serialize( $index-index-map, map {'method':'json','indent': true() } )"/ -->
       <!-- Q: does $dir-separator, below, need to be '/' instead? -->
       <xsl:result-document href="{$static-dir||$dir-separator||'index.html'}">
         <xsl:sequence select="transform( $index-index-map )?output"/>
