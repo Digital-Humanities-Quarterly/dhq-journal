@@ -56,6 +56,16 @@
   
  <!--  GLOBAL VARIABLES  -->
   
+  <!-- Find any articles that appear in two different issues. These will need to be 
+    handled separately in the Ant build file. -->
+  <xsl:variable name="duplicated-articles" as="xs:string*">
+    <xsl:for-each-group select="//item[@id]" group-by="@id/data(.)">
+      <xsl:if test="count( current-group() ) gt 1">
+        <xsl:sequence select="current-grouping-key()"/>
+      </xsl:if>
+    </xsl:for-each-group>
+  </xsl:variable>
+  
   <!-- Default settings for the transformation of articles from TEI to HTML. -->
   <xsl:variable name="xsl-map-base" as="map(*)" 
     select="map {
@@ -83,15 +93,26 @@
     <xsl:text>&#x0A;</xsl:text>
     <project name="dhq_articles">
       <target name="copyArticleResources">
-        <copy>
+        <copy enablemultiplemappings="true">
           <!-- Remember: no @xsl:expand-text for following line! -->
           <xsl:attribute name="todir">${toDir.static}</xsl:attribute>
           <fileset>
             <xsl:attribute name="dir">${basedir}${file.separator}articles</xsl:attribute>
           </fileset>
-          <firstmatchmapper>
-            <xsl:apply-templates/>
-          </firstmatchmapper>
+          <compositemapper>
+            <!-- Generate regex mappers for any article that appears in more than 
+              one issue. (As of 2023-06, there is only one: 000109 is included in 
+              both 5.3 and 6.2.) -->
+            <xsl:apply-templates select="//item[@id = $duplicated-articles]" mode="dupe-article"/>
+            <!-- A majority of articles only appear once throughout DHQ. Resource 
+              mappers for these articles can appear inside <firstmatchmapper>. -->
+            <firstmatchmapper>
+              <!-- Run all transformations for all issues and articles. If an 
+                article is known to be duplicated across issues, the file mapper 
+                output is suppressed. -->
+              <xsl:apply-templates/>
+            </firstmatchmapper>
+          </compositemapper>
         </copy>
       </target>
     </project>
@@ -190,16 +211,44 @@
         <xsl:message select="concat('Could not find an article at ',$srcPath)"/>
       </xsl:otherwise>
     </xsl:choose>
-    <!-- Finally, map the source directory and the output directory, for later use by Ant. -->
-    <regexpmapper handledirsep="true">
-      <xsl:variable  name="to"   select="translate( $outArticleDir, '\', '/' )"/>
-      <xsl:attribute name="from" select="'^'||$articleId||'/(.*)$'"/>
-      <xsl:attribute name="to"   select="replace( $to, concat('^', $static-dir, '/' ), '' )||'/\1'"/>
-    </regexpmapper>
+    <!-- Finally, map the source directory and the output directory, for later use 
+      by Ant. If this article appears in a different issue, nothing happens. -->
+    <xsl:if test="not($articleId = $duplicated-articles)">
+      <xsl:call-template name="make-ant-file-mapper">
+        <xsl:with-param name="article-id" select="$articleId"/>
+        <xsl:with-param name="static-article-dir" select="$outArticleDir"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:template>
+  
+  
+ <!--  TEMPLATES, dupe-article mode  -->
+  
+  <xsl:template match="*" mode="dupe-article"/>
+  
+  <xsl:template match="item[@id = $duplicated-articles]" mode="dupe-article">
+    <xsl:variable name="articleId" select="@id/data(.)"/>
+    <xsl:variable name="journEl" select="ancestor::journal[1]"/>
+    <xsl:variable name="outDir" 
+      select="dhq:set-filesystem-path(($static-dir, 'vol', $journEl/@vol/data(), $journEl/@issue/data(), $articleId))"/>
+    <xsl:call-template name="make-ant-file-mapper">
+      <xsl:with-param name="article-id" select="$articleId"/>
+      <xsl:with-param name="static-article-dir" select="$outDir"/>
+    </xsl:call-template>
   </xsl:template>
   
   
  <!--  NAMED TEMPLATES  -->
+  
+  <xsl:template name="make-ant-file-mapper">
+    <xsl:param name="article-id" as="xs:string"/>
+    <xsl:param name="static-article-dir" as="xs:string"/>
+    <xsl:variable name="toVal" select="translate($static-article-dir, '\', '/' )"/>
+    <regexpmapper handledirsep="true">
+      <xsl:attribute name="from" select="'^'||$article-id||'/(.*)$'"/>
+      <xsl:attribute name="to"   select="replace( $toVal, concat('^', $static-dir, '/' ), '' )||'/\1'"/>
+    </regexpmapper>
+  </xsl:template>
   
   <xsl:template name="transform-article">
     <xsl:param name="vol" tunnel="yes"/>
@@ -236,11 +285,6 @@
           }"/>
       <xsl:sequence select="map:merge(($useStylesheet, $otherEntries))"/>
     </xsl:variable>
-    <!-- Copy the TEI source to the output directory. -->
-    <xsl:result-document href="{$outDir}/{$articleId}.xml"
-       method="xml" indent="false">
-      <xsl:sequence select="doc($srcPath)"/>
-    </xsl:result-document>
     <!-- Attempt to transform the TEI article into XHTML, and save the result to the 
       output directory. -->
     <xsl:try>
