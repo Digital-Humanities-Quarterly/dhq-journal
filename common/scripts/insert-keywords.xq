@@ -44,7 +44,11 @@ return
     return
       if ( $hasExistingKeywords ) then
         insert nodes ( $moddedKeywords, 
-          comment { " Keywords below were retained for proofing. " } ) 
+          text { "
+          " },
+          comment { " Keywords below were retained for proofing. " },
+          text { "
+          " } ) 
           before $oldKeywordGroup
       else if ( exists($oldKeywordGroup) ) then
         replace node $oldKeywordGroup with $moddedKeywords
