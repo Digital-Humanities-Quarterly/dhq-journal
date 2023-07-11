@@ -26,31 +26,35 @@ xquery version "3.1";
 
 (:  MAIN QUERY  :)
 
-for $newKeywordGroup in $keywords//keywords[term]
+for $newKeywordGroup in $keywords//keywords[term][4]
 let $articleFilename := $newKeywordGroup/@corresp/data(.)
 let $articleId := substring-before($articleFilename, '.xml')
 (: Strip off the @corresp. :)
 let $moddedKeywords :=
-  <keywords xmlns="http://www.tei-c.org/ns/1.0" scheme="#dhq_keywords">
-    { $newKeywordGroup/node() }
-  </keywords>
+  <keywords scheme="#dhq_keywords">{ $newKeywordGroup/node() }</keywords>
 let $articleDocPath := concat($article-path,$articleId,'/',$articleFilename)
 return
-  if ( doc-available($articleDocPath) ) then
+  (: Skip articles with CDATA! :)
+  if ( contains(unparsed-text($articleDoc), '![CDATA[') ) then ()
+  else if ( doc-available($articleDocPath) ) then
     let $articleDoc := doc($articleDocPath)
     let $oldKeywordGroup := $articleDoc//keywords[@scheme eq '#dhq_keywords']
     let $hasExistingKeywords :=
       exists($oldKeywordGroup//item[normalize-space() ne ''])
     return
       if ( $hasExistingKeywords ) then
-        insert nodes ($moddedKeywords, comment { " Keywords below were retained for proofing. " }) 
+        insert nodes ( $moddedKeywords, 
+          comment { " Keywords below were retained for proofing. " } ) 
           before $oldKeywordGroup
       else if ( exists($oldKeywordGroup) ) then
         replace node $oldKeywordGroup with $moddedKeywords
       else if ( exists($articleDoc//textClass) ) then
         insert node $moddedKeywords as first into $articleDoc//textClass
       else if ( exists($articleDoc//profileDesc) ) then
-        insert node <textClass>{ $moddedKeywords }</textClass> 
+        insert node
+      <textClass>
+          { $moddedKeywords }
+      </textClass> 
           as last into $articleDoc//profileDesc
       else error()
   else error((), "File "||$articleId||" is missing")
