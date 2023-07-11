@@ -26,7 +26,7 @@ xquery version "3.1";
 
 (:  MAIN QUERY  :)
 
-for $newKeywordGroup in $keywords//keywords[term][4]
+for $newKeywordGroup in $keywords//keywords[term]
 let $articleFilename := $newKeywordGroup/@corresp/data(.)
 let $articleId := substring-before($articleFilename, '.xml')
 (: Strip off the @corresp. :)
@@ -35,7 +35,7 @@ let $moddedKeywords :=
 let $articleDocPath := concat($article-path,$articleId,'/',$articleFilename)
 return
   (: Skip articles with CDATA! :)
-  if ( contains(unparsed-text($articleDoc), '![CDATA[') ) then ()
+  if ( contains(unparsed-text($articleDocPath), '![CDATA[') ) then ()
   else if ( doc-available($articleDocPath) ) then
     let $articleDoc := doc($articleDocPath)
     let $oldKeywordGroup := $articleDoc//keywords[@scheme eq '#dhq_keywords']
