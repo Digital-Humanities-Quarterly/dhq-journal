@@ -60,5 +60,5 @@ return
           { $moddedKeywords }
       </textClass> 
           as last into $articleDoc//profileDesc
-      else error()
+      else error((), "Missing XML structure for "||$articleId)
   else error((), "File "||$articleId||" is missing")
