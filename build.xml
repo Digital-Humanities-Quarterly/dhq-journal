@@ -35,7 +35,7 @@
   <available classname="org.xmlresolver.Resolver" property="has.xmlresolver"/>
   
   
-<!-- 
+  <!-- 
     ANT TASKS
   -->
   
@@ -52,6 +52,57 @@ is loaded when Ant starts up. Please run Ant again like this:
     <echo level="info">OK</echo>
   </target>
   
+  <target name="help">
+    <echo>** DHQ static site generation build process **</echo>
+    <echo></echo>
+    <echo>General format:</echo>
+    <echo>  ant [-lib common${file.separator}lib] [-Dprop=val ...] [target ...]</echo>
+    <echo>Where:</echo>
+    <echo>-lib common${file.separator}lib</echo>
+    <echo>  is required if the chosen target performs XSL transformations, but is optional otherwise.</echo>
+    <echo>-Dprop=val</echo>
+    <echo>  is how you send parameters (which ant calls “properties”) to the process; typically</echo>
+    <echo>  used to say which specific article file to work on, e.g. “-Darticle.id=000370”.</echo>
+    <echo>  (The “...” just means that you can use multiple -Dprop=val, as needed.)</echo>
+    <echo>target</echo>
+    <echo>  indicates what you want done. For a list of possible targets with short descriptions,</echo>
+    <echo>  issue `ant -projecthelp`. For longer descriptions, read on.</echo>
+    <echo/>
+    <echo>Targets:</echo>
+    <echo>       (Note that the “...” above means you can execute multiple targets at once;</echo>
+    <echo>        however, this should rarely be necessary or even particularly helpful in</echo>
+    <echo>        the DHQ case.)</echo>
+    <echo>help</echo>
+    <echo>  What you are reading now.</echo>
+    <echo>previewArticle                            (this is the default target)</echo>
+    <echo>  transform one article XML file (specified via its 6-digit number with</echo>
+    <echo>  -Darticle.id=, or via a prompt) into HTML. The output file is placed</echo>
+    <echo>  in the ${previewDir}${file.separator} subdirectory. It has relative links to assets in</echo>
+    <echo>  this main directory (not the subdirectory), and thus should be suit-</echo>
+    <echo>  able for viewing on your local machine. (And may not be suitable for</echo>
+    <echo>  use on the server.)</echo>
+    <echo>zipPreviewArticle</echo>
+    <echo>  similar to 'previewArticle', but: a) The output HTML file *and* its</echo>
+    <echo>  assets are archived together into a single ZIP file. b) The output</echo>
+    <echo>  HTML file uses relative links to the assets in the same directory,</echo>
+    <echo>  as would happen when the ZIP file is unzipped. Both the HTML file</echo>
+    <echo>  and the ZIP file are put in the ${previewDir}${file.separator} subdirectory, overwrit-</echo>
+    <echo>  ing any previous version there.</echo>
+    <echo>generateIssues</echo>
+    <echo>  generates the entire static site — index pages and HTML for each issue</echo>
+    <echo>  listed in the toc${file.separator}toc.xml file, including the article itself, the author</echo>
+    <echo>  biographies, and the “landing” page. The output is placed in the</echo>
+    <echo>  ${toDir.static}/ directory, i.e. in a sibling to this directory, over-</echo>
+    <echo>  writing any previous version. (Some temporary files are also placed in</echo>
+    <echo>  ${toDir.base}/.) The output is designed to be viewed from a server, as</echo>
+    <echo>  it uses absolute filepaths to its assets. Thus it will not work properly</echo>
+    <echo>  (and will look ugly) if viewed on your local machine.</echo>
+    <echo>generateSite</echo>
+    <echo>  As above, but also ZIPs up the entire ${toDir.static}/ directory to make</echo>
+    <echo>  it easy to transfer (e.g., to a server). The output file can be found at</echo>
+    <echo>  ${toDir.base}${file.separator}${context}.zip.</echo>
+  </target>
+
   <!-- Generate static HTML versions of the DHQ issues (articles, bios, & indices). -->
   <target name="generateIssues" depends="checkXmlResolver" 
      description="Generate static HTML versions of the DHQ issues.">
@@ -131,9 +182,18 @@ is loaded when Ant starts up. Please run Ant again like this:
       <fileset dir="${toDir.static}"/>
     </zip>
   </target>
+
+  <target name="defaultnotice">
+    <echo>#</echo>
+    <echo># Generting single article preview.</echo>
+    <echo>#</echo>
+    <echo># For usage information issue `ant help`.</echo>
+    <echo># For target list issue `ant -projecthelp`.</echo>
+    <echo>#</echo>
+  </target>
   
   <!-- Create an HTML preview version of a single article. -->
-  <target name="previewArticle" depends="checkXmlResolver" 
+  <target name="previewArticle" depends="defaultnotice,checkXmlResolver" 
      description="Create an HTML preview version of a single article.">
     <!-- If the 'article.id' property wasn't already set using the command line, Ant 
       will prompt for it. -->
