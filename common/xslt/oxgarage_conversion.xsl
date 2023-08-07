@@ -154,9 +154,9 @@
                 <textClass>
                     <keywords scheme="#dhq_keywords">
                         <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
-                        <list type="simple">
-                            <item></item>
-                        </list>
+                    	
+                    	<xsl:comment>Enter keywords below preceeded by a "#". Create a new term element for each</xsl:comment>
+                        <term corresp=""/>
                     </keywords>
                     <keywords scheme="#authorial_keywords">
                         <xsl:comment>Authors may include one or more keywords of their choice</xsl:comment>
