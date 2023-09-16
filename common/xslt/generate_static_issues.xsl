@@ -158,11 +158,11 @@
       </xsl:map>
     </xsl:variable>
     <!-- Generate this issue’s bios based on the issue-bios-sort map -->
-    <xsl:result-document href="{$outDir||$dir-separator||'bios.html'}">
+    <xsl:result-document href="{$outDir||'/'||'bios.html'}">
       <xsl:sequence select="transform( $issue-bios-sort-map )?output"/>
     </xsl:result-document>
     <!-- Generate this issue’s main page on the issue-index map -->
-    <xsl:result-document href="{$outDir||$dir-separator||'index.html'}">
+    <xsl:result-document href="{$outDir||'/index.html'}">
       <xsl:sequence select="transform( $issue-index-map )?output"/>
     </xsl:result-document>
     <!-- Q: does $dir-separator, in result-documents above, need to be '/' instead? -->
@@ -175,7 +175,7 @@
       <xsl:variable name="index-index-map" 
         select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
       <!-- Q: does $dir-separator, below, need to be '/' instead? -->
-      <xsl:result-document href="{$static-dir||$dir-separator||'index.html'}">
+      <xsl:result-document href="{$static-dir||'/index.html'}">
         <xsl:sequence select="transform( $index-index-map )?output"/>
       </xsl:result-document>
     </xsl:if>
@@ -286,24 +286,20 @@
       <xsl:sequence select="map:merge(($useStylesheet, $otherEntries))"/>
     </xsl:variable>
     <!-- Attempt to transform the TEI article into XHTML, and save the result to the 
-      output directory. -->
+         output directory. -->
     <xsl:try>
-      <!-- Q: does $dir-separator, below, need to be '/' instead? -->
-      <xsl:result-document href="{$outDir}{$dir-separator}{$articleId}.html" method="xhtml">
+      <xsl:result-document href="{$outDir}/{$articleId}.html" method="xhtml">
         <xsl:sequence select="transform($xslMap)?output"/>
       </xsl:result-document>
       <!-- If something went wrong, recover but provide information for debugging 
-        the error. -->
+           the error. -->
       <xsl:catch>
-        <xsl:message>
-          <xsl:text>Something went wrong in transforming article </xsl:text>
-          <xsl:value-of select="$articleId"/>
-        </xsl:message>
+        <xsl:message select="'Something went wrong in transforming article '||$articleId"/>
         <xsl:message select="$err:module"/>
         <xsl:message select="$err:description"/>
         <!-- When things go wrong, they're likely to go wrong en masse. Each 
-          article's error message is separated with a delimiter. -->
-        <xsl:message>******</xsl:message>
+             article's error message is separated with a delimiter. -->
+        <xsl:message>*********</xsl:message>
       </xsl:catch>
     </xsl:try>
   </xsl:template>
