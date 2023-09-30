@@ -86,14 +86,16 @@
         <value-of select="name(..)"/>/<name/> has no text content</assert>
     </rule>
     
-    <rule context="tei:teiHeader//tei:date">
-      <assert test="@when castable as xs:date"><value-of select="name(..)"
-        />/<name/>/@when is not an ISO date</assert>
-      <let name="date-str" value="@when/format-date(.,'[D] [MNn] [Y]')"/>
-      <assert test=". = $date-str">date value is not @when in 'D Month YYYY'
-        format (expecting '<value-of select="$date-str"/>')</assert>
+    <rule context="tei:teiHeader//tei:date[ @when eq ''  or  not( @when ) ]">
+      <assert test="@when">Publication date is missing its @when attribute</assert>
+      <assert test="not(@when)">Publication date is missing its @when attribute value</assert>
     </rule>
-
+    <rule context="tei:teiHeader//tei:date[ @when  and  @when ne '']">
+      <assert test="@when castable as xs:date"><value-of select="name(..)"/><name/>/@when is not an ISO date</assert>
+      <let name="date-str" value="@when/format-date(.,'[D] [MNn] [Y]')"/>
+      <assert test=". eq $date-str">date value is not @when in 'D Month YYYY' format (expecting '<value-of select="$date-str"/>')</assert>
+    </rule>
+    
     <rule context="tei:classDecl">
       <assert test="exists(tei:taxonomy[@xml:id='dhq_keywords'])"><name/> is
         missing a 'dhq_keywords' taxonomy declaration</assert>
