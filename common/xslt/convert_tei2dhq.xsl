@@ -512,7 +512,12 @@
   <xsl:template name="parse-bibliographic-json" as="map(*)">
     <xsl:param name="citation-map" as="map(*)"/>
     <xsl:variable name="bibData" select="$citation-map?itemData"/>
-    <xsl:variable name="citeKey" select="$bibData?citation-key"/>
+    <!-- If the Zotero data includes a "citation key", use that as an identifier. Otherwise, fall back 
+      on Zotero's ID, which at least will be unique and consistent across appearances. -->
+    <xsl:variable name="citeKey" select="
+      if ( map:contains($bibData, 'citation-key') ) then
+        $bibData?citation-key
+      else $bibData?id"/>
     <xsl:map>
       <xsl:map-entry key="'itemId'" select="$bibData?id"/>
       <xsl:map-entry key="'citationKey'" select="$citeKey"/>
