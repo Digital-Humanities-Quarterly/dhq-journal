@@ -623,6 +623,7 @@
               <date>
                 <xsl:variable name="dateParts" select="$bibData?issued?date-parts"/>
                 <xsl:choose>
+                  <xsl:when test="empty($dateParts)"/>
                   <xsl:when test="array:size($dateParts) gt 1">
                     <xsl:variable name="parts" as="xs:string*">
                       <xsl:for-each select="$dateParts?*">
