@@ -21,7 +21,7 @@
     <xsl:param name="show-zotero-json" select="false()" as="xs:boolean"/>
     
     <!-- Before doing anything else, check for Zotero inline citations (processing instructions which contain 
-      JSON). The bibliographic data is compiled here so that it can be used elsewhere in the document.s -->
+      JSON). The bibliographic data is compiled here so that it can be used elsewhere in the document. -->
     <xsl:template match="/">
       <xsl:variable name="zoteroCitationPIs" as="item()*">
         <!-- Try to generate maps from the JSON contents of Zotero "CSL citation" processing instructions. -->
@@ -36,7 +36,7 @@
             <xsl:for-each select="$zoteroCitationPIs">
               <xsl:map-entry key="?citationID">
                 <xsl:for-each select="?citationItems?*">
-                  <xsl:variable name="idref" select="?itemData?citation-key"/>
+                  <xsl:variable name="idref" select="dhq:set-bibliography-entry-id(?itemData)"/>
                   <ptr target="#{$idref}">
                     <xsl:if test="map:contains(., 'locator')">
                       <xsl:attribute name="loc" select="?locator"/>
@@ -514,10 +514,7 @@
     <xsl:variable name="bibData" select="$citation-map?itemData"/>
     <!-- If the Zotero data includes a "citation key", use that as an identifier. Otherwise, fall back 
       on Zotero's ID, which at least will be unique and consistent across appearances. -->
-    <xsl:variable name="citeKey" select="
-      if ( map:contains($bibData, 'citation-key') ) then
-        $bibData?citation-key
-      else $bibData?id"/>
+    <xsl:variable name="citeKey" select="dhq:set-bibliography-entry-id($bibData)"/>
     <xsl:map>
       <xsl:map-entry key="'itemId'" select="$bibData?id"/>
       <xsl:map-entry key="'citationKey'" select="$citeKey"/>
@@ -525,163 +522,303 @@
       <xsl:map-entry key="'jsonStr'" select="serialize($citation-map, map { 'method': 'json', 'indent': true() })"/>
       <!-- Generate a <biblStruct> that can be used in the bibliography instead of a <p> or plain <bibl>. -->
       <xsl:map-entry key="'teiBibEntry'">
-        <xsl:variable name="bibType" as="xs:string?">
-          <xsl:variable name="typeStr">
-            <xsl:analyze-string select="$bibData?type" regex="-(\w)">
-              <xsl:matching-substring>
-                <xsl:value-of select="upper-case(regex-group(1))"/>
-              </xsl:matching-substring>
-              <xsl:non-matching-substring>
-                <xsl:value-of select="."/>
-              </xsl:non-matching-substring>
-            </xsl:analyze-string>
-          </xsl:variable>
-          <xsl:value-of select="string-join($typeStr,'')"/>
-        </xsl:variable>
-        <xsl:variable name="hasContainer" select="map:contains($bibData, 'container-title')"/>
-        <xsl:variable name="langAttr" as="attribute()?">
-          <xsl:if test="map:contains($bibData, 'language') 
-                        and not(lower-case($bibData?language) = ('en', 'eng', 'english', ''))">
-            <xsl:attribute name="xml:lang" select="$bibData?language"/>
-          </xsl:if>
-        </xsl:variable>
-        <xsl:variable name="basicInfo">
-          <title>
-            <xsl:attribute name="level" select="if ( $hasContainer ) then 'a' else 'm'"/>
-            <xsl:copy-of select="$langAttr"/>
-            <xsl:value-of select="$bibData?title"/>
-          </title>
-          <xsl:for-each select="$bibData?author?*">
-            <author>
-              <xsl:call-template name="name-bibliography-contributor">
-                <xsl:with-param name="person-map" select="."/>
-              </xsl:call-template>
-            </author>
-          </xsl:for-each>
-        </xsl:variable>
-        <biblStruct xml:id="{$citeKey}" type="{$bibType}" 
-           corresp="{$citation-map?uris?1}">
-          <xsl:if test="$hasContainer">
-            <analytic>
-              <xsl:sequence select="$basicInfo"/>
-            </analytic>
-          </xsl:if>
-          <monogr>
-            <xsl:choose>
-              <xsl:when test="$hasContainer">
-                <title>
-                  <xsl:attribute name="level" 
-                    select="if ( $bibType eq 'journalArticle' ) then 'j' else 'm'"/>
-                  <xsl:copy-of select="$langAttr"/>
-                  <xsl:value-of select="$bibData?container-title"/>
-                </title>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:sequence select="$basicInfo"/>
-              </xsl:otherwise>
-            </xsl:choose>
-            <xsl:if test="map:contains($bibData, 'editor')">
-              <xsl:for-each select="$bibData?editor?*">
-                <editor>
-                  <xsl:call-template name="name-bibliography-contributor">
-                    <xsl:with-param name="person-map" select="."/>
-                  </xsl:call-template>
-                </editor>
-              </xsl:for-each>
-            </xsl:if>
-            <xsl:if test="map:contains($bibData, 'DOI')">
-              <idno type="DOI">
-                <xsl:value-of select="$bibData?DOI"/>
-              </idno>
-            </xsl:if>
-            <xsl:if test="map:contains($bibData, 'ISBN')">
-              <idno type="ISBN">
-                <xsl:value-of select="$bibData?ISBN"/>
-              </idno>
-            </xsl:if>
-            <imprint>
-              <xsl:if test="map:contains($bibData, 'volume')">
-                <biblScope unit="volume">
-                  <xsl:value-of select="$bibData?volume"/>
-                </biblScope>
-              </xsl:if>
-              <xsl:if test="map:contains($bibData, 'issue')">
-                <biblScope unit="issue">
-                  <xsl:value-of select="$bibData?issue"/>
-                </biblScope>
-              </xsl:if>
-              <xsl:if test="map:contains($bibData, 'page')">
-                <biblScope unit="page">
-                  <xsl:value-of select="$bibData?page"/>
-                </biblScope>
-              </xsl:if>
-              <xsl:if test="map:contains($bibData, 'publisher')">
-                <publisher>
-                  <xsl:value-of select="$bibData?publisher"/>
-                </publisher>
-              </xsl:if>
-              <xsl:if test="map:contains($bibData,'publisher-place')">
-                <pubPlace>
-                  <xsl:value-of select="$bibData?publisher-place"/>
-                </pubPlace>
-              </xsl:if>
-              <date>
-                <xsl:variable name="dateParts" select="$bibData?issued?date-parts"/>
-                <xsl:choose>
-                  <xsl:when test="empty($dateParts)"/>
-                  <xsl:when test="array:size($dateParts) gt 1">
-                    <xsl:variable name="parts" as="xs:string*">
-                      <xsl:for-each select="$dateParts?*">
-                        <xsl:value-of select="string-join(.?*, '-')"/>
-                      </xsl:for-each>
-                    </xsl:variable>
-                    <xsl:attribute name="from" select="$parts[1]"/>
-                    <xsl:attribute name="to" select="$parts[2]"/>
-                    <xsl:value-of select="string-join($parts, ', ')"/>
-                  </xsl:when>
-                  <xsl:when test="array:size($dateParts?*) le 3">
-                    <xsl:variable name="dateW3C">
-                      <xsl:value-of select="string-join($dateParts?*?*, '-')"/>
-                    </xsl:variable>
-                    <xsl:attribute name="when" select="$dateW3C"/>
-                    <xsl:value-of select="$dateW3C"/>
-                  </xsl:when>
-                  <xsl:otherwise>
-                    <xsl:value-of select="string-join($dateParts?*?*, '-')"/>
-                  </xsl:otherwise>
-                </xsl:choose>
-              </date>
-              <xsl:if test="map:contains($bibData,'URL')">
-                <note type="url">
-                  <xsl:value-of select="$bibData?URL"/>
-                </note>
-              </xsl:if>
-            </imprint>
-          </monogr>
-          <xsl:if test="map:contains($bibData, 'collection-title')">
-            <series>
-              <title level="s">
-                <xsl:value-of select="$bibData?collection-title"/>
-              </title>
-            </series>
-          </xsl:if>
-        </biblStruct>
+        <xsl:call-template name="make-biblStruct-from-zotero-data">
+          <xsl:with-param name="zotero-item-map" select="$bibData"/>
+          <xsl:with-param name="zotero-item-uri" select="$citation-map?uris?1"/>
+        </xsl:call-template>
       </xsl:map-entry>
     </xsl:map>
   </xsl:template>
   
+  <!-- 
+    Use Zotero JSON data to generate a <tei:biblStruct>.
+    -->
+  <xsl:template name="make-biblStruct-from-zotero-data">
+    <xsl:param name="zotero-item-map" as="map(*)"/>
+    <xsl:param name="zotero-item-uri" as="xs:string"/>
+    <!-- If the Zotero data includes a "citation key", use that as an identifier. Otherwise, fall back 
+      on Zotero's ID, which at least will be unique and consistent across appearances. -->
+    <xsl:variable name="citeKey" select="dhq:set-bibliography-entry-id($zotero-item-map)"/>
+    <!-- Get this entry's Zotero item type (Zotero's label for what the work is, e.g. "Conference Paper"
+      or "Book"). https://www.zotero.org/support/kb/item_types_and_fields -->
+    <xsl:variable name="bibType" as="xs:string?">
+      <xsl:variable name="typeStr">
+        <xsl:analyze-string select="$zotero-item-map?type" regex="-(\w)">
+          <xsl:matching-substring>
+            <xsl:value-of select="upper-case(regex-group(1))"/>
+          </xsl:matching-substring>
+          <xsl:non-matching-substring>
+            <xsl:value-of select="."/>
+          </xsl:non-matching-substring>
+        </xsl:analyze-string>
+      </xsl:variable>
+      <xsl:value-of select="string-join($typeStr,'')"/>
+    </xsl:variable>
+    <!-- Determine if this entry is part of a larger work. If so, we'll need to create an <analytic>. -->
+    <xsl:variable name="hasContainer" select="map:contains($zotero-item-map, 'container-title')"/>
+    <xsl:variable name="langAttr" as="attribute()?">
+      <xsl:if test="map:contains($zotero-item-map, 'language') 
+                    and not(lower-case($zotero-item-map?language) = ('en', 'eng', 'english', ''))">
+        <xsl:attribute name="xml:lang" select="$zotero-item-map?language"/>
+      </xsl:if>
+    </xsl:variable>
+    <!-- Create the base <title> and <author> for this entry. Where it goes in the <biblStruct> depends 
+      on the value of $hasContainer . -->
+    <xsl:variable name="basicInfo">
+      <title>
+        <xsl:attribute name="level" select="if ( $hasContainer ) then 'a' else 'm'"/>
+        <xsl:copy-of select="$langAttr"/>
+        <xsl:value-of select="$zotero-item-map?title"/>
+      </title>
+      <xsl:for-each select="$zotero-item-map?author?*">
+        <author>
+          <xsl:call-template name="name-bibliography-contributor">
+            <xsl:with-param name="person-map" select="."/>
+          </xsl:call-template>
+        </author>
+      </xsl:for-each>
+    </xsl:variable>
+    <!-- Set up the <biblStruct>. -->
+    <biblStruct xml:id="{$citeKey}" type="{$bibType}" corresp="{$zotero-item-uri}">
+      <!-- If this entry is part of a larger work, it is represented as an <analytic>. -->
+      <xsl:if test="$hasContainer">
+        <analytic>
+          <xsl:sequence select="$basicInfo"/>
+        </analytic>
+      </xsl:if>
+      <monogr>
+        <xsl:choose>
+          <!-- If this entry is part of a larger work, the <monogr> describes the container work, such 
+            as the journal or book title. -->
+          <xsl:when test="$hasContainer">
+            <title>
+              <!-- Journal titles get a @level="j", all others are "m" (monograph-level title). -->
+              <xsl:attribute name="level" 
+                select="if ( $bibType eq 'journalArticle' ) then 'j' else 'm'"/>
+              <xsl:copy-of select="$langAttr"/>
+              <xsl:value-of select="$zotero-item-map?container-title"/>
+            </title>
+          </xsl:when>
+          <!-- If this entry is the whole of the work, the title and authorship info can be placed here. -->
+          <xsl:otherwise>
+            <xsl:sequence select="$basicInfo"/>
+          </xsl:otherwise>
+        </xsl:choose>
+        <!-- Describe any editors for this entry. -->
+        <xsl:if test="map:contains($zotero-item-map, 'editor')">
+          <xsl:for-each select="$zotero-item-map?editor?*">
+            <editor>
+              <xsl:call-template name="name-bibliography-contributor">
+                <xsl:with-param name="person-map" select="."/>
+              </xsl:call-template>
+            </editor>
+          </xsl:for-each>
+        </xsl:if>
+        <!-- Include the DOI and ISBN, if they are present in the Zotero data. -->
+        <xsl:if test="map:contains($zotero-item-map, 'DOI')">
+          <idno type="DOI">
+            <xsl:value-of select="$zotero-item-map?DOI"/>
+          </idno>
+        </xsl:if>
+        <xsl:if test="map:contains($zotero-item-map, 'ISBN')">
+          <idno type="ISBN">
+            <xsl:value-of select="$zotero-item-map?ISBN"/>
+          </idno>
+        </xsl:if>
+        <!-- Set up the <imprint>. -->
+        <imprint>
+          <!-- Describe the entry's volume, issue, and page numbers, if they are present in the Zotero 
+            data. -->
+          <xsl:if test="map:contains($zotero-item-map, 'volume')">
+            <biblScope unit="volume">
+              <xsl:value-of select="$zotero-item-map?volume"/>
+            </biblScope>
+          </xsl:if>
+          <xsl:if test="map:contains($zotero-item-map, 'issue')">
+            <biblScope unit="issue">
+              <xsl:value-of select="$zotero-item-map?issue"/>
+            </biblScope>
+          </xsl:if>
+          <xsl:if test="map:contains($zotero-item-map, 'page')">
+            <biblScope unit="page">
+              <xsl:value-of select="$zotero-item-map?page"/>
+            </biblScope>
+          </xsl:if>
+          <!-- Include the publisher name and publication location, if they are present in the Zotero data. -->
+          <xsl:if test="map:contains($zotero-item-map, 'publisher')">
+            <publisher>
+              <xsl:value-of select="$zotero-item-map?publisher"/>
+            </publisher>
+          </xsl:if>
+          <xsl:if test="map:contains($zotero-item-map,'publisher-place')">
+            <pubPlace>
+              <xsl:value-of select="$zotero-item-map?publisher-place"/>
+            </pubPlace>
+          </xsl:if>
+          <!-- Try to include a publication date. Zotero describes these as an array of dates, which 
+            themselves are arrays of "date parts". For example:
+              [ 
+                [ "2007", 3, 20 ]
+              ]
+            The array above contains only one date, 2007-03-20, which has been represented as an array 
+            containing the year (as a string), the month and the day (as numbers).
+          -->
+          <xsl:variable name="arrayOfDates" select="$zotero-item-map?issued?date-parts"/>
+          <xsl:if test="not(empty($arrayOfDates)) and array:size($arrayOfDates) gt 0">
+            <date>
+              <xsl:choose>
+                <!-- If $arrayOfDates has more than one date inside it, use the first two date arrays as 
+                  @from and @to. -->
+                <xsl:when test="array:size($arrayOfDates) gt 1">
+                  <xsl:variable name="parts" as="xs:string*">
+                    <xsl:for-each select="$arrayOfDates?*">
+                      <xsl:value-of select="dhq:date-array-to-string(.)"/>
+                    </xsl:for-each>
+                  </xsl:variable>
+                  <xsl:attribute name="from" select="$parts[1]"/>
+                  <xsl:attribute name="to" select="$parts[2]"/>
+                  <xsl:value-of select="string-join($parts, ', ')"/>
+                </xsl:when>
+                <!-- If $arrayOfDates has only one date, it may have a @when attribute but should always 
+                  have text content. -->
+                <xsl:otherwise>
+                  <xsl:variable name="singularDate" select="$arrayOfDates?*"/>
+                  <xsl:variable name="singularDateStr" select="dhq:date-array-to-string($singularDate)"/>
+                  <!-- If the date matches one of three formats (YYYY-MM-DD, YYYY-MM, or YYYY), it can 
+                    be used in a @when attribute. -->
+                  <xsl:if test="$singularDateStr castable as xs:date 
+                             or $singularDateStr castable as xs:gYearMonth 
+                             or $singularDateStr castable as xs:gYear">
+                    <xsl:attribute name="when" select="$singularDateStr"/>
+                  </xsl:if>
+                  <xsl:value-of select="$singularDateStr"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </date>
+          </xsl:if>
+          <xsl:if test="map:contains($zotero-item-map,'URL')">
+            <note type="url">
+              <xsl:value-of select="$zotero-item-map?URL"/>
+            </note>
+          </xsl:if>
+        </imprint>
+      </monogr>
+      <!-- If this entry occurred as part of a conference or collection, that information is described 
+        in <series>. -->
+      <xsl:if test="map:contains($zotero-item-map, 'collection-title')">
+        <series>
+          <title level="s">
+            <xsl:value-of select="$zotero-item-map?collection-title"/>
+          </title>
+        </series>
+      </xsl:if>
+    </biblStruct>
+  </xsl:template>
+  
   <xsl:template name="name-bibliography-contributor">
     <xsl:param name="person-map" as="map(*)?"/>
-    <xsl:if test="exists($person-map)">
-      <persName>
-        <forename>
-          <xsl:value-of select="$person-map?given"/>
-        </forename>
-        <surname>
-          <xsl:value-of select="$person-map?family"/>
-        </surname>
-      </persName>
-    </xsl:if>
+    <xsl:variable name="mapKeys" select="map:keys($person-map)"/>
+    <xsl:choose>
+      <xsl:when test="empty($person-map)">
+        <name><xsl:comment> No authorship information found in Zotero data </xsl:comment></name>
+      </xsl:when>
+      <xsl:when test="$mapKeys = ('given', 'family')">
+        <persName>
+          <forename>
+            <xsl:value-of select="$person-map?given"/>
+          </forename>
+          <surname>
+            <xsl:value-of select="$person-map?family"/>
+          </surname>
+        </persName>
+      </xsl:when>
+      <xsl:when test="$mapKeys = 'literal'">
+        <orgName>
+          <xsl:value-of select="$person-map?literal"/>
+        </orgName>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:comment select="serialize($person-map)"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
+  
+  <!-- 
+      Given an array of date components, create a string representing that date.
+    -->
+  <xsl:function name="dhq:date-array-to-string" as="xs:string?">
+    <xsl:param name="date-array" as="array(*)?"/>
+    <xsl:variable name="numDateParts" 
+      select="if ( empty($date-array) ) then () else array:size($date-array)"/>
+    <xsl:choose>
+      <!-- If there are no usable date components, do nothing. -->
+      <xsl:when test="empty($date-array) or $numDateParts eq 0"/>
+      <!-- If the array contains 1–3 date components, join them up with "-" separators, W3C-style. -->
+      <xsl:when test="$numDateParts gt 0 and $numDateParts le 3">
+        <xsl:variable name="year" select="$date-array?(1)"/>
+        <xsl:variable name="month" as="xs:string?">
+          <xsl:if test="$numDateParts ge 2">
+            <xsl:variable name="monthNum" select="$date-array?(2)"/>
+            <xsl:value-of select="format-number($monthNum, '00')"/>
+          </xsl:if>
+        </xsl:variable>
+        <xsl:variable name="day" as="xs:string?">
+          <xsl:if test="$numDateParts ge 3">
+            <xsl:variable name="dayNum" select="$date-array?(3)"/>
+            <xsl:value-of select="format-number($dayNum, '00')"/>
+          </xsl:if>
+        </xsl:variable>
+        <xsl:value-of select="string-join(($year, $month, $day), '-')"/>
+      </xsl:when>
+      <!-- If the array contains more than 3 components, print them without too much munging. -->
+      <xsl:otherwise>
+        <xsl:variable name="dateParts">
+          <xsl:for-each select="$date-array?*">
+            <xsl:variable name="this-part" select="."/>
+            <xsl:choose>
+              <xsl:when test="$this-part instance of xs:integer and $this-part lt 100">
+                <xsl:value-of select="format-number($this-part, '00')"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="$this-part"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each>
+        </xsl:variable>
+        <xsl:value-of select="string-join($dateParts, ', ')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
+  <!--
+      Given a map of bibliographic data, find or create an identifier for this entry.
+    -->
+  <xsl:function name="dhq:set-bibliography-entry-id">
+    <xsl:param name="zotero-item-map" as="map(*)"/>
+    <xsl:choose>
+      <!-- The standard DHQ bibliography entry ID is the first-listed author's surname, followed by the 
+        publication year. If those two components are present, we can create this kind of ID. (We might 
+        be able to recover from a missing date or surname, but uniqueness would not be guaranteed. This 
+        function needs to be able to work independently from the collection of bibliography entries.) -->
+      <xsl:when test="exists($zotero-item-map?author?*[map:contains(., 'family')]) 
+                  and exists($zotero-item-map?issued[map:contains(., 'date-parts') 
+                  and array:size(?date-parts) gt 0])">
+        <xsl:variable name="surname1">
+          <xsl:variable name="firstStr" select="($zotero-item-map?author?*[?family]?family)[1]"/>
+          <xsl:value-of select="replace(lower-case($firstStr), '[^\w-]', '')"/>
+        </xsl:variable>
+        <xsl:variable name="date" select="$zotero-item-map?issued?date-parts?(1)?(1)"/>
+        <xsl:value-of select="concat($surname1,$date)"/>
+      </xsl:when>
+      <!-- Some Zotero data may contain the "citation key" field, which we can use as an identifier. -->
+      <xsl:when test="map:contains($zotero-item-map, 'citation-key')">
+        <xsl:value-of select="replace($zotero-item-map?citation-key, '[^\w-]', '')"/>
+      </xsl:when>
+      <!-- If all else fails, use the word "zotero" followed by the Zotero identifier for this entry. -->
+      <xsl:otherwise>
+        <xsl:value-of select="concat('zotero',$zotero-item-map?id)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
     
 </xsl:stylesheet>
