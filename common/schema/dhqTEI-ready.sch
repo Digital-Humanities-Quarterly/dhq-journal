@@ -50,7 +50,6 @@
   <pattern id="header-check">
     <p>Content checks in header</p>
     
-    
     <rule
       context="tei:availability |
                    cc:License |
@@ -60,19 +59,43 @@
       >
       <!-- matching these to create exceptions for the next rules --> </rule>
 
+    <rule context="tei:publicationStmt/tei:idno[@type = ('volume','issue')][. castable as xs:integer]">
+      <let name="me" value="normalize-space(.)"/>
+      <assert test="$me eq .">There should be no spaces in the <value-of select="@type"/> number</assert>
+      <assert test="$me castable as xs:positiveInteger">The <value-of select="@type"/> number should be a positive integer</assert>
+      <let name="min" value="1"/>
+      <let name="max" value="if (@type eq 'issue') then 4 else 899"/> <!-- rule only works for ~900 years -->
+      <assert test="$max ge xs:integer($me)  and  xs:integer($me) ge $min">The <value-of select="@type"/> number is out of range</assert>
+      <assert test="if (@type eq 'volume') then string-length($me) eq 3 else true()">The volume number should be 3 digits long (with leading zeroes as needed)</assert>
+      <assert test="if (@type eq 'issue') then string-length($me) eq 1 else true()">The issue number should be only 1 digit long (no leading zeroes allowed)</assert>
+    </rule>
+    <!--
+      Yes, the preceding and following rules are very similar, but are separate because comparing the
+      content as a number will cause a run-time crash if the value is not castable to a number.
+    -->
+    <rule context="tei:publicationStmt/tei:idno[@type = ('volume','issue')][not( . castable as xs:integer )]">
+      <let name="me" value="normalize-space(.)"/>
+      <assert test="false()">The <value-of select="@type"/> number should be a positive integer</assert>
+      <assert test="$me eq .">There should be no spaces in the <value-of select="@type"/> number</assert>
+      <assert test="if (@type eq 'volume') then string-length($me) eq 3 else true()">The volume number should be 3 digits long (with leading zeroes as needed)</assert>
+      <assert test="if (@type eq 'issue') then string-length($me) eq 1 else true()">The issue number should be only 1 digit long (no leading zeroes allowed)</assert>
+    </rule>
+    
     <rule context="tei:teiHeader//*">
       <assert test="normalize-space(.)">
         <value-of select="name(..)"/>/<name/> has no text content</assert>
     </rule>
     
-    <rule context="tei:teiHeader//tei:date">
-      <assert test="@when castable as xs:date"><value-of select="name(..)"
-        />/<name/>/@when is not an ISO date</assert>
-      <let name="date-str" value="@when/format-date(.,'[D] [MNn] [Y]')"/>
-      <assert test=". = $date-str">date value is not @when in 'D Month YYYY'
-        format (expecting '<value-of select="$date-str"/>')</assert>
+    <rule context="tei:teiHeader//tei:date[ @when eq ''  or  not( @when ) ]">
+      <assert test="@when">Publication date is missing its @when attribute</assert>
+      <assert test="not(@when)">Publication date is missing its @when attribute value</assert>
     </rule>
-
+    <rule context="tei:teiHeader//tei:date[ @when  and  @when ne '']">
+      <assert test="@when castable as xs:date"><value-of select="name(..)"/><name/>/@when is not an ISO date</assert>
+      <let name="date-str" value="@when/format-date(.,'[D] [MNn] [Y]')"/>
+      <assert test=". eq $date-str">date value is not @when in 'D Month YYYY' format (expecting '<value-of select="$date-str"/>')</assert>
+    </rule>
+    
     <rule context="tei:classDecl">
       <assert test="exists(tei:taxonomy[@xml:id='dhq_keywords'])"><name/> is
         missing a 'dhq_keywords' taxonomy declaration</assert>
@@ -93,7 +116,7 @@
     <rule context="tei:classDecl/*">
       <report test="true()"><name/> unexpected here</report>
     </rule>
-    
+
     <rule context="tei:front//dhq:*">
       <assert test="normalize-space(.)"><name/> is empty</assert>
     </rule>
