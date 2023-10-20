@@ -25,6 +25,9 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+    	<change when="2023-10-20" when-custom="#jhf">
+    		Allow <gi>biblStruct</gi> inside <gi>listBibl</gi> to accommodate Zotero-generated bibliographies
+    	</change>
       <change when="2023-09-25" who="#sdb">
         <list>
           <item>TEI bug #154 (see https://github.com/TEIC/Stylesheets/issues/154) has been fixed, so change <gi>rng:value</gi>s to a <gi>valList</gi>.</item>
@@ -268,13 +271,14 @@ email (should only have an email address)
         <!-- Modules for DHQ: TEI modules, the DHQ module, and MathML (in that order) -->
 
         <moduleRef key="core"
-          except="abbr add addrLine analytic biblStruct binaryObject cb choice corr del distinct divGen expan gap gloss headItem headLabel imprint index measure measureGrp mentioned milestone monogr num orig pb postBox postCode reg relatedItem resp respStmt rs sic street teiCorpus time unclear"/>
+          except="abbr add addrLine binaryObject cb choice corr del distinct divGen expan gap gloss headItem headLabel index measure measureGrp mentioned milestone num orig pb postBox postCode reg relatedItem resp respStmt rs sic street teiCorpus time unclear"/>
         <moduleRef key="tei"/>
         <moduleRef key="header"
           except="abstract appInfo application authority biblFull catDesc catRef category classCode correction distributor edition editionStmt editorialDecl extent funder geoDecl handNote hyphenation interpretation namespace normalization notesStmt principal projectDesc quotation refState refsDecl rendition samplingDecl segmentation seriesStmt stdVals styleDefDecl tagUsage tagsDecl"/>
         <moduleRef key="textstructure"
           except="argument byline closer div1 div2 div3 div4 div5 div6 div7 docAuthor docDate docEdition docImprint docTitle imprimatur opener titlePage titlePart"/>
         <moduleRef key="figures"/>
+      	<moduleRef key="namesdates" include="persName orgName placeName surname forename"/>
         <moduleRef key="tagdocs" include="gi att val code eg"/>
         <moduleRef key="linking" except="alt altGrp join joinGrp link linkGrp timeline when"/>
         <moduleSpec mode="add" ident="dhq">
@@ -995,7 +999,20 @@ email (should only have an email address)
       <!-- Add @type to <title> to distinguish between article and issue titles -->
       <elementSpec ident="title" mode="change" module="core">
         <attList>
-          <attDef ident="type" mode="add">
+          <attDef ident="level" mode="add">
+          	<desc>Identifies the level of a title (monographic, analytic, series)</desc>
+          	<datatype>
+          		<dataRef key="teidata.enumerated"/>
+          	</datatype>
+          	<valList type="closed">
+          		<valItem ident="a"/>
+          		<valItem ident="m"/>
+          		<valItem ident="j"/>
+          		<valItem ident="s"/>
+          		<valItem ident="u"/>
+          	</valList>
+          </attDef>
+        	<attDef ident="type" mode="add">
             <desc>The <att>type</att> attribute is to be used in the header to designate and
             distinguish the article and issue titles.</desc>
             <datatype>
@@ -1045,6 +1062,8 @@ email (should only have an email address)
               <valItem ident="volume"><desc>used for the volume number</desc></valItem>
               <valItem ident="issue"><desc>used for the issue number</desc></valItem>
               <valItem ident="ORCID"><desc>used for author ORCID IDs</desc></valItem>
+              <valItem ident="ISBN"><desc>used for bibliographic items</desc></valItem>
+              <valItem ident="DOI"><desc>used for bibliographic items</desc></valItem>
             </valList>
           </attDef>
         </attList>
@@ -1707,9 +1726,17 @@ email (should only have an email address)
       <elementSpec ident="note" mode="change" module="core">
         <classes mode="change">
           <memberOf key="model.common" mode="add"/>
+          <memberOf key="model.imprintPart" mode="add"/>
         </classes>
         <attList>
-          <attDef ident="type" mode="delete"/>
+          <attDef ident="type" mode="replace">
+          	<datatype>
+          		<dataRef key="teidata.enumerated"/>
+          	</datatype>
+          	<valList type="closed">
+          		<valItem ident="url"><desc>used for notes in bibliographic items, exported from Zotero</desc></valItem>
+          	</valList>
+          </attDef>
           <attDef ident="resp" mode="delete"/>
           <attDef ident="anchored" mode="delete"/>
           <attDef ident="target" mode="delete"/>
@@ -1862,6 +1889,30 @@ email (should only have an email address)
           </attDef>
         </attList>
       </elementSpec>
+
+	<elementSpec ident="biblStruct" mode="change" module="core">
+		<attList>
+			<attDef ident="corresp" mode="add">
+				<desc>Provides a link to a related record</desc>
+				<datatype>
+					<dataRef key="teidata.pointer"/>
+				</datatype>
+			</attDef>
+          <attDef ident="xml:id" mode="add">
+            <desc>Provides a unique identifier for the bibliographic item</desc>
+            <datatype>
+              <dataRef name="ID"/>
+            </datatype>
+          </attDef>
+			<attDef ident="type" mode="add">
+				<desc>Provides a classification of the bibliographic item</desc>
+				<datatype>
+					<dataRef key="teidata.enumerated"/>
+				</datatype>
+			</attDef>
+			
+		</attList>
+	</elementSpec>
 
       <elementSpec ident="bibl" mode="change" module="core">
         <classes mode="change">
