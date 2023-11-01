@@ -89,6 +89,7 @@
  <!--  TEMPLATES, #default mode  -->
   
   <xsl:template match="/">
+    <xsl:message select="'Base repository path: '||$repo-dir"/>
     <!-- “main” output is an Ant build file for creating article index
          pages, bio pages, and copying each article's assets from the
          repo to the newly created static site. -->
