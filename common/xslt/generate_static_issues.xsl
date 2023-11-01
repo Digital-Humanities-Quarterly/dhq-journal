@@ -41,6 +41,8 @@
   
   <!-- An absolute path to the DHQ repository. -->
   <xsl:param name="repo-dir" as="xs:string">
+    <xsl:variable name="useDirSeparator" 
+      select="if ( $dir-separator eq '\' ) then '\\' else $dir-separator"/>
     <xsl:variable name="thisXsl" select="concat($dir-separator,
       dhq:set-filesystem-path(('common', 'xslt', 'generate_static_issues.xsl')),
       '$')"/>
