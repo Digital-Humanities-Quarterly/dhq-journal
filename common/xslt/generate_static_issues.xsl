@@ -41,11 +41,11 @@
   
   <!-- An absolute path to the DHQ repository. -->
   <xsl:param name="repo-dir" as="xs:string">
-    <xsl:variable name="useDirSeparator" 
-      select="if ( $dir-separator eq '\' ) then '\\' else $dir-separator"/>
     <xsl:variable name="thisXsl" select="concat($dir-separator,
       dhq:set-filesystem-path(('common', 'xslt', 'generate_static_issues.xsl')),
       '$')"/>
+    <!-- Escape any backslashes so a Windows filepath can be processed with regex. -->
+    <xsl:variable name="thisXsl" select="replace($thisXsl, '(\\)', '\\$1')"/>
     <xsl:sequence select="replace(static-base-uri(), $thisXsl, '')"/>
   </xsl:param>
   
