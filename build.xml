@@ -116,7 +116,6 @@ is loaded when Ant starts up. Please run Ant again like this:
           failonerror="false">
       <factory name="${processor.name}"/>
       <param name="context" expression="${context}"/>
-      <!--<param name="dir-separator" expression="${file.separator}"/>-->
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
         the output file's directory, ${toDir}. -->
       <param name="static-dir" expression="${context}"/>
@@ -157,21 +156,36 @@ is loaded when Ant starts up. Please run Ant again like this:
       <factory name="${processor.name}"/>
       <param name="fpath" expression="starter.html"/>
     </xslt>
+    <!-- Download a copy of the W3C XHTML 1.0 Strict DTD, and its supporting character entity files.
+      If these are already present in the dhq-static directory, nothing is downloaded. -->
+    <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
+         dest="${toDir.base}" skipexisting="true"/>
+    <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent"
+         dest="${toDir.base}" skipexisting="true"/>
+    <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent"
+         dest="${toDir.base}" skipexisting="true"/>
+    <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent"
+         dest="${toDir.base}" skipexisting="true"/>
     <!-- Add headers and footers to static pages. -->
     <xslt destdir="${toDir.static}"
           style="common${file.separator}xslt${file.separator}template_static_pages.xsl"
           filenameparameter="fname"
           filedirparameter="fdir"
           classpath="${processor.location}">
-      <factory name="${processor.name}"/>
+      <!-- To prevent Ant/Saxon from hitting the W3C servers too hard with requests for the XHTML DTD, 
+        we use a catalog entry to map the ID to the local copy of the DTD. -->
+      <xmlcatalog>
+        <dtd publicId="-//W3C//DTD XHTML 1.0 Strict//EN"
+             location="${toDir.base}${file.separator}xhtml1-strict.dtd"/>
+      </xmlcatalog>
       <mapper>
         <regexpmapper
           from="^(about|contact|news|people|submissions)/(.+\.html)"
           to="\1/\2" handledirsep="yes"/>
       </mapper>
+      <factory name="${processor.name}"/>
       <param name="assets-path" expression="..${file.separator}"/>
       <param name="context" expression="dhq"/>
-      <!--<param name="dir-separator" expression="${file.separator}"/>-->
     </xslt>
     <antcall target="compressStatic"/>
   </target>
@@ -185,7 +199,7 @@ is loaded when Ant starts up. Please run Ant again like this:
 
   <target name="defaultnotice">
     <echo>#</echo>
-    <echo># Generting single article preview.</echo>
+    <echo># Generating single article preview.</echo>
     <echo>#</echo>
     <echo># For usage information issue `ant help`.</echo>
     <echo># For target list issue `ant -projecthelp`.</echo>
