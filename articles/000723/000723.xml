@@ -22,7 +22,7 @@
                   <p>František Válek is a religious studies researcher and Assyriologist with a focus on the religions of the ancient 
                      Near East, especially Late Bronze Age Syria. He is an assistant at the Department of Philosophy and Religious Studies 
                      at the University of Pardubice and participates as a researcher in the project <title rend="quotes">Archaeology of 
-                        Texts</title> at the Institute of Ancient Near Eastern Studies at Charles University. In recent years, he has taken 
+                     Texts</title> at the Institute of Ancient Near Eastern Studies at Charles University. In recent years, he has taken 
                      an interest in the methods of digital humanities thanks to participation in DH projects of the National Library of 
                      the Czech Republic.</p>
                </dhq:bio>
@@ -81,22 +81,22 @@
             <language ident="en" extent="original"/>
          </langUsage>
          <textClass>
-            <keywords scheme="#dhq_keywords"><!--Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors--><!--Enter keywords below preceeded by a "#". Create a new term element for each-->
+            <keywords scheme="#dhq_keywords">
                <term corresp="#machine_learning"/>
                <term corresp="#literary_studies"/>
             </keywords>
-            <keywords scheme="#authorial_keywords"><!--Authors may include one or more keywords of their choice-->
-               <list type="simple">
-                  <item/>
-               </list>
-            </keywords>
-            <keywords scheme="#project_keywords">
+            <keywords scheme="#authorial_keywords">
                <list type="simple">
                   <item>authorship attribution</item>
                   <item>dataset design</item>
                   <item>Czech</item>
                   <item>experiment design</item>
                   <item>delexicalization</item>
+               </list>
+            </keywords>
+            <keywords scheme="#project_keywords">
+               <list type="simple">
+                  <item/>
                </list>
             </keywords>
          </textClass>
@@ -118,7 +118,7 @@
                to train and test data segments across books. Second, the same task is performed on a dataset where individual books 
                are used wholly either for training or testing. Expectedly, this leads to poorer results. In the third step, we do not 
                attribute book segments to authors but to books themselves. This step reveals that there is a general tendency towards 
-               attributing to a specific book rather than to different books of the same author. The results indicate that the authors 
+               attributing to a specific book rather than to different books of the same author. The results indicate that authors 
                who show a higher inner confusion among their works tend to perform better in the task of attribution of an unseen book.</p>
          </dhq:abstract>
          <dhq:teaser>
@@ -126,199 +126,123 @@
          </dhq:teaser>
       </front>
       <body>
-         <div>
-            <head>Introduction</head>
-            <p>Authorship attribution using machine learning is a fertile area of digital
-                    literary scholarship<note> See e.g., [Savoy 2020], [Swain et al. 2017], [Grzybek 2014], [Grieve 2005], or [Holmes 1998] for general studies following the development of the area. For literary oriented studies that cover more or less a random selection of works we have consulted during our research, see e.g., [Zhao and Zobel 2007],
-                                [Kusakci 2012], [Segarra, Eisen and Ribeiro 2013], [Ramezani,
-                                Sheydaei and Kahani 2013], [Pinho, Pratas and Ferreira 2016],
-                                [Nutanong et al. 2016], [Marinho, Hirst and Amancio 2016], [Benotto
-                                2021], or [Gorman 2022]. We have also organized a workshop
-                                “Authorial style, its analysis, and limits of automatic recognition”
-                                at the National Library of the Czech Republic in 2022, which has
-                                brought together researches approaching the topic from diverse
-                                perspectives, demonstrating the rich and complex problematics of
-                                authorial style detection. See
-                            <ref target="https://digilab.nkp.cz/?page_id=55">https://digilab.nkp.cz/?page_id=55</ref> [ref. 5th April 2023].</note>
-                    to such an extent that it has its own software package within the R programming
-                    language ecosystem.<note>
-                            Stylo: Stylometric Multivariate Analyses, see <ref target="https://cran.r-project.org/package=stylo">https://cran.r-project.org/package=stylo</ref> [ref. 5th April 2023].</note>
-                    Feature design is the most interesting sub-problem in terms of classification
-                    performance; very recently, [Gorman 2022] has
-                    achieved impressive results with morphosyntactic instead of lexical features,
-                    also for very short segments. However, we explore a different aspect of the
-                    problem: that of experiment design and, by implication, dataset design. Issues
-                    of dataset imbalance, genre consistency and dataset sizes (both in terms of the
-                    total number of tokens and texts, as well as the number of authors) have been
-                    discussed, for instance, in [Stamatatos 2009] and
-                        [Luyckx 2011], but what has received
-                    comparatively little attention is stylistic variation among works of a single
-                    author.</p>
-            <p>In this article, we show that in the domain of long-form literary works,
-                    stylistic variation between individual works of the same author is a significant
-                    factor that should be reflected in the dataset and experiment design. Assuming
-                    that we are interested in capturing features of authorial styles that transcend
-                    the boundaries of their known works (especially to attribute texts with unclear
-                    authorship, such as in the seminal study of the Federalist Papers study by [Mosteller and Wallace 1964]), a test set that
-                    includes segments of the same works that had other segments used during training
-                    will significantly over-estimate the system’s accuracy on unseen texts and
-                    therefore over-estimates the system’s ability to characterise authorial style,
-                    as opposed to the styles of individual works. The extent of this overestimation
-                    differs significantly among individual authors: some have a more consistent
-                    style than others.</p>
-            <p>Our findings are applicable when we are interested in attributing texts to
-                    authors <hi rend="italic">despite</hi> their stylistic inconsistencies. This may
-                    not always be the case – an authorship attribution system might be used for
-                    other purposes, such as to find which observable linguistic features are
-                    responsible for stylistic distinctions, where the classification task is merely
-                    a proxy for the true goal (which would then be achieved through feature
-                    selection). Note also that our findings only apply to classifying texts that are
-                    long enough to be processed by segments. This is often the case with
-                    applications in the study of literature, less so in attributing authorship of
-                    short texts such as emails or tweets. </p>
-            <p>The contribution of our article can be summarised thus: the stylistic variation
-                    between individual books of an author is significant enough to affect
-                    state-of-the-art authorship classification system performance. Thus, to credibly
-                    claim a certain level of ability to classify the style of an <hi rend="italic">author</hi> as opposed to the style of individual <hi rend="italic">books</hi>, the evaluation set should contain whole books not seen during
-                    training. We believe these findings are useful, first of all, to authorship
-                    attribution system designers, as we quantify the extent to which stylistic
-                    variation among books matters to the classifier. Thus, we provide a guideline
-                    for evaluation design so that system performance is not overestimated. Second,
-                    we believe our findings are useful to the literary scholar selecting a
-                    classification system to inform judgments about the authorship of unattributed
-                    texts: systems that do not test on unseen books cannot be trusted to perform as
-                    well as their evaluation results indicate.</p>
-            <p>It should be noted that we did <hi rend="italic">not</hi> aim to maximise the
-                    classification accuracy beyond a reasonable fraction of the state-of-the-art [Tyo, Dhingra and Lipton 2022]. We used the
-                    standard state-of-the-art Support Vector Machine (SVM) classifier and performed
-                    a brief hyperparameter search over possible settings.</p>
-            <p>Crucially, as in [Gorman 2022], we perform <hi rend="italic">delexicalisation</hi>. This is a step that replaces words
-                    (primarily autosemantic words: nouns, adjectives, verbs, and adverbs) with just
-                    their morphosyntactic properties so that the topics and contents of individual
-                    books do not artificially inflate the <hi rend="italic">stylistic</hi>
-                    differences between individual books. Imagine that the same author wrote one
-                    novel from a 19th-century farm environment and one from a Great War factory:
-                    while the style in terms of linguistic choices in both books may be very
-                    similar, the vastly different content and, therefore, vocabulary would make it
-                    difficult to identify the factory book to be written by the same author as the
-                    farm book. The process of delexicalisation filters out such content-related
-                    confounding factors when focusing on author style detection: names of characters
-                    and places, characteristic objects (such as the presence of automobiles or
-                    wireless communication), genres (such as realist or anarchist focus on social
-                    conditions vs. detective stories or “gothic” fiction) or environments (urban vs.
-                    rural, wartime vs. peacetime conditions) and helps to avoid confusion of authors
-                    dealing with the same topics or writing about the same geographical area. On the
-                    other hand, one must be aware that delexicalisation implicitly restricts the
-                    definition of “authorial style” by excluding vocabulary choices (of autosemantic
-                    words) and some elements of register (informality can be expressed in Czech by
-                    orthography of word endings). Some aspects of the author style are therefore
-                    lost in delexicalisation. However, we consider removing confounding factors that
-                    can identify specific books (and therefore authors) which can hardly be
-                    considered elements of author style more important: especially as we are
-                    attempting to explore the extent to which author style varies between books, we
-                    want to avoid leveraging trivial sources of this variation.</p>
-            <p>It should be noted that the use of non-lexical features is by no means rare in
-                    computational stylometry [Swain 2017]. We use the
-                    UDPipe morphosyntactic feature extractor [Nivre
-                        2015] to extract morphological features. (Notably, while [Gorman 2022] uses UDpipe features as well, they
-                    combine them in a more sophisticated manner and achieve better absolute
-                    accuracies, especially for shorter segments.)</p>
-            <p>In the rest of the article, we first introduce our dataset and specify
-                    pre-processing and hyperparameter search procedures and results. Then, we
-                    demonstrate our findings in three experimental steps. First, we establish the
-                    baseline accuracies for a system that does not distinguish between training and
-                    test books. Next, we show how results change once specific books are set aside
-                    for testing. Finally, we show how the tension between author and book style is
-                    distributed across the dataset.</p>
-            <p>The following visualisation summarises our findings. The columns show results for
-                    different segmentation lengths (in tokens, see below). The first part shows the
-                    results of our classifiers when each of the books is split into train and test
-                    segments. Here, a different selection of test segments does not significantly
-                    influence the performance. The following rows show the results when the
-                    train-test split is not done across all books, but one book for each author is
-                    left out of training and used for testing. With a random selection, five runs
-                    were performed. The performance correlates significantly with segment lengths
-                    and is also greatly influenced by the test-book selection.</p>
-            <p>Caption: &lt;Summary table of results.&gt;</p>
+        <div>
+          <head>Introduction</head>
+            <p>Authorship attribution using machine learning is a fertile area of digital literary scholarship<note>See, for example, 
+               <ptr target="#savoy2020"/>, <ptr target="#swain_mishra_sindhu2017"/>, <ptr target="#grzybek2014"/>, 
+               <ptr target="#grieve2005"/>, and <ptr target="#holmes1998"/> for general studies following the development of the area. 
+               For literary oriented studies that cover a more or less random selection of works we have consulted during our research, 
+               see <ptr target="#zhao_zobel2007"/>, <ptr target="#kusakci2012"/>, <ptr target="#segarra_eisen_ribeiro2013"/>, 
+               <ptr target="#ramezani_sheydaei_kahani2013"/>, <ptr target="#pinho_pratas_ferreira2016"/>, <ptr target="#nutanong_et_al2016"/>,
+               <ptr target="#marinho_hirst_amancio2016"/>, <ptr target="#benotto2021"/>, and <ptr target="#gorman2022"/>. We also 
+               organized a workshop, <title rend="quotes">Authorial style, its analysis, and limits of automatic recognition</title>,
+               at the National Library of the Czech Republic in 2022, which brought together research approaching the topic from diverse
+               perspectives, demonstrating the rich and complex problematics of authorial style detection. See
+               <ref target="https://digilab.nkp.cz/?page_id=55">https://digilab.nkp.cz/?page_id=55</ref> (accessed 5 April 2023).</note> 
+               to such an extent that it has its own software package within the R programming language ecosystem.<note>Stylo: 
+               Stylometric Multivariate Analyses, available at <ref target="https://cran.r-project.org/package=stylo">
+               https://cran.r-project.org/package=stylo</ref> (accessed 5 April 2023).</note> Feature design is the most interesting 
+               sub-problem in terms of classification performance; very recently, <ptr target="#gorman2022"/> has achieved impressive 
+               results with morphosyntactic instead of lexical features, also for very short segments. However, we explore a different 
+               aspect of the problem: that of experiment design and, by implication, dataset design. Issues of dataset imbalance, genre 
+               consistency and dataset sizes (both in terms of the total number of tokens and texts, as well as the number of authors) 
+               have been discussed, for instance, in <ptr target="#stamatatos2009"/> and <ptr target="#luyckx2011"/>, but what has received 
+               comparatively little attention is stylistic variation among the works of a single author.
+            </p>
+            <p>In this article, we show that in the domain of long-form literary works, stylistic variation between individual works 
+               of the same author is a significant factor that should be reflected in the dataset and experiment design. Assuming that we 
+               are interested in capturing features of authorial styles that transcend the boundaries of their known works (especially 
+               to attribute texts with unclear authorship, such as in the seminal study of <title rend="italic">The Federalist Papers</title> 
+               by <ptr target="#mosteller_wallace1964"/>), a test set that includes different segments of works that have been previously 
+               used during training will significantly overestimate the system's accuracy for unseen texts and therefore overestimate 
+               the system's ability to characterise authorial style, as opposed to the styles of individual works. The extent of this 
+               overestimation differs significantly among individual authors; some have a more consistent style than others.
+            </p>
+            <p>Our findings are applicable when we are interested in attributing texts to authors <emph>despite</emph> their stylistic 
+               inconsistencies. This may not always be the case – an authorship attribution system might be used for other purposes, such 
+               as to find which observable linguistic features are responsible for stylistic distinctions, where the classification task 
+               is merely a proxy for the true goal (which would then be achieved through feature selection). Note also that our findings 
+               only apply to classifying texts that are long enough to be processed by segments. This is often the case with
+               applications in the study of literature, less so in attributing authorship of short texts such as emails or tweets.
+            </p>
+            <p>The contribution of our article can be summarised thus: the stylistic variation between individual books of an author 
+               is significant enough to affect state-of-the-art authorship classification system performance. Thus, to credibly
+               claim a certain level of ability to classify the style of an <emph>author</emph> as opposed to the style of 
+               individual <emph>books</emph>, the evaluation set should contain whole books not seen during training. We believe these 
+               findings are useful, first of all, to authorship attribution system designers, as we quantify the extent to which stylistic
+               variation among books matters to the classifier. Thus, we provide a guideline for evaluation design so that system 
+               performance is not overestimated. Second, we believe our findings are useful to the literary scholar selecting a
+               classification system to inform judgments about the authorship of unattributed texts, as our findings show that 
+               systems that do not test on unseen books cannot be trusted to perform as well as their evaluation results indicate.
+            </p>
+            <p>It should be noted that we did <emph>not</emph> aim to maximise the classification accuracy beyond a reasonable fraction 
+               of the state-of-the-art <ptr target="#tyo_dhingra_lipton2022"/>. We used the standard, state-of-the-art Support Vector 
+               Machine (SVM) classifier and performed a brief hyperparameter search over possible settings.
+            </p>
+            <p>Crucially, as in <ptr target="#gorman2022"/>, we perform <term>delexicalisation</term>. This is a step that replaces words 
+               (primarily autosemantic words, such as nouns, adjectives, verbs, and adverbs) with just their morphosyntactic properties 
+               so that the topics and contents of individual books do not artificially inflate the stylistic differences between 
+               individual books. Imagine that the same author wrote one novel from a 19th-century farm environment and one from a 
+               Great War factory. While the style in terms of linguistic choices in both books may be very similar, the vastly different 
+               content and, therefore, vocabulary would make it difficult to identify the factory book as being written by the same 
+               author as the farm book. The process of delexicalisation filters out such content-related confounding factors when 
+               focusing on author style detection: names of characters and places, characteristic objects (such as the presence of 
+               automobiles or wireless communication), genres (such as realist or anarchist perspectives on social conditions vs. 
+               detective stories or gothic fiction), and environments (urban vs. rural, wartime vs. peacetime conditions) and helps 
+               to avoid confusion of authors dealing with the same topics or writing about the same geographical areas. On the 
+               other hand, one must be aware that delexicalisation implicitly restricts the definition of <q>authorial style</q> by 
+               excluding vocabulary choices (of autosemantic words) and some elements of register (such as informality expressed in 
+               Czech by orthography of word endings). Some aspects of the author style are therefore lost in delexicalisation. However, 
+               we consider it more important to remove confounding factors that can identify specific books (and therefore authors), 
+               which can hardly be considered elements of author style. Given that we are attempting to explore the extent to which 
+               author style varies between books, we want to avoid leveraging trivial sources of this variation.
+            </p>
+            <p>It should be noted that the use of non-lexical features is by no means rare in computational stylometry 
+               <ptr target="#swain_mishra_sindhu2017"/>. We use the UDPipe morphosyntactic feature extractor <ptr target="#nivre2015"/> 
+               to extract morphological features. (Notably, while <ptr target="#gorman2022"/> uses UDpipe features as well, they
+               combine them in a more sophisticated manner and achieve better absolute accuracies, especially for shorter segments.)
+            </p>
+            <p>In the rest of the article, we first introduce our dataset and specify pre-processing and hyperparameter search procedures 
+               and results. Then, we demonstrate our findings in three experimental steps. First, we establish the baseline accuracies for 
+               a system that does not distinguish between training and test books. Next, we show how results change once specific books 
+               are set aside for testing. Finally, we show how the tension between author and book style is distributed across the dataset.
+            </p>
+            <p>The following visualisation summarises our findings. The columns show results for different segmentation lengths 
+               (in tokens, see below). The first part shows the results of our classifiers when each of the books is split into train 
+               and test segments. Here, a different selection of test segments does not significantly influence the performance. The 
+               following rows show the results when the train-test split is not done across all books, but one book for each author is
+               left out of training and used for testing. With a random selection, five runs were performed. The performance correlates 
+               significantly with segment lengths and is also greatly influenced by the test-book selection.
+            </p>
             <table>
-               <row role="data">
-                  <cell>Train and test across all books of the
-                                dataset (experiments: step 1)</cell>
-               </row>
-               <row role="data">
-                  <cell>Segment length</cell>
-                  <cell>s-1000</cell>
-                  <cell>s-500</cell>
-                  <cell>s-200</cell>
-                  <cell>s-100</cell>
-                  <cell>s-50</cell>
-               </row>
-               <row role="data">
-                  <cell>Full
-                                dataset</cell>
+              <head>Summary Table of Results</head> 
+                <row role="label">
+                  <cell role="label" cols="6"><hi rend="italic">Train and test across all books of the dataset</hi> (Experiments: Step 1)</cell>
+                </row>
+                <row>
+                  <cell role="label"><hi rend="italic">Segment length</hi></cell> 
+                  <cell role="label">s-1000</cell>
+                  <cell role="label">s-500</cell>
+                  <cell role="label">s-200</cell>
+                  <cell role="label">s-100</cell>
+                  <cell role="label">s-50</cell>
+                </row>
+                <row>
+                  <cell role="label">Full dataset</cell> 
                   <cell>0.96</cell>
                   <cell>0.90</cell>
                   <cell>0.73</cell>
                   <cell>0.58</cell>
                   <cell>0.42</cell>
-               </row>
-               <row role="data">
-                  <cell>Validation</cell>
+                </row>
+                <row>
+                  <cell role="label">Validation</cell> 
                   <cell>0.96</cell>
                   <cell>0.91</cell>
                   <cell>0.74</cell>
                   <cell>0.58</cell>
                   <cell>0.42</cell>
-               </row>
-               <row role="data">
-                  <cell>Train books vs test
-                            books (experiments: step 2)</cell>
-               </row>
-               <row role="data">
-                  <cell>Set
-                                1</cell>
-                  <cell>0.86</cell>
-                  <cell>0.80</cell>
-                  <cell>0.62</cell>
-                  <cell>0.44</cell>
-                  <cell>0.29</cell>
-               </row>
-               <row role="data">
-                  <cell>Set
-                                2</cell>
-                  <cell>0.86</cell>
-                  <cell>0.78</cell>
-                  <cell>0.58</cell>
-                  <cell>0.38</cell>
-                  <cell>0.23</cell>
-               </row>
-               <row role="data">
-                  <cell>Set
-                                3</cell>
-                  <cell>0.90</cell>
-                  <cell>0.82</cell>
-                  <cell>0.63</cell>
-                  <cell>0.42</cell>
-                  <cell>0.26</cell>
-               </row>
-               <row role="data">
-                  <cell>Set
-                                4</cell>
-                  <cell>0.77</cell>
-                  <cell>0.69</cell>
-                  <cell>0.51</cell>
-                  <cell>0.35</cell>
-                  <cell>0.23</cell>
-               </row>
-               <row role="data">
-                  <cell>Set
-                                5</cell>
-                  <cell>0.92</cell>
-                  <cell>0.85</cell>
-                  <cell>0.66</cell>
-                  <cell>0.47</cell>
-                  <cell>0.33</cell>
-               </row>
+                </row>
             </table>
          </div>
          <div>
@@ -2122,6 +2046,12 @@
                     proxy for similarity in author style. A careful suggestion may be made to
                     include such an experiment in the classifiers’ development stage. Further
                     research can also focus on measuring this effect across languages.</p>
+         </div>
+         <div>
+            <head>Acknowledgements</head>
+            <p>Realised with the support of institutional research of the National Library of the Czech Republic, 
+               funded by the Ministry of Culture of the Czech Republic as part of the framework of long-term conception 
+               developement of scientific organisation.</p>
          </div>
          <div type="appendix">
             <head>Appendix: list of works in dataset</head>
