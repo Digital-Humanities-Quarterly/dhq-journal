@@ -237,10 +237,24 @@
   
  <!--  NAMED TEMPLATES  -->
   
+  <!-- Create an Ant file mapper to copy XML and article assets into the right static directory. -->
   <xsl:template name="make-ant-file-mapper">
     <xsl:param name="article-id" as="xs:string"/>
     <xsl:param name="static-article-dir" as="xs:string"/>
     <xsl:variable name="toVal" select="translate($static-article-dir, '\', '/' )"/>
+    <!-- 2023-11-21: DHQ currently serves out article XML from the issue directory, not from the article 
+      directory. Since most articles are handled by wrapping <regexpmapper> in <firstmatchmapper>, the 
+      rule to place article XML in the issue directory must appear before the generic rule for all other 
+      article resources. Duplicate articles will have their XML placed in *both* the issue directory and 
+      the article directory.
+      
+      If DHQ eventually decides to place article XML next to the HTML, delete the <regexpmapper> below. 
+      The second file mapper will place the XML in the article directory. -->
+    <regexpmapper handledirsep="true">
+      <xsl:attribute name="from" select="'^'||$article-id||'/'||$article-id||'\.xml$'"/>
+      <xsl:attribute name="to"   select="replace( $toVal, concat('^', $static-dir, '/' ), '' )||'.xml'"/>
+    </regexpmapper>
+    <!-- Map all (remaining) resources in the article folder to the static article folder. -->
     <regexpmapper handledirsep="true">
       <xsl:attribute name="from" select="'^'||$article-id||'/(.*)$'"/>
       <xsl:attribute name="to"   select="replace( $toVal, concat('^', $static-dir, '/' ), '' )||'/\1'"/>
