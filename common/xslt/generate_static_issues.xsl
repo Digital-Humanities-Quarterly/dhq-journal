@@ -35,13 +35,9 @@
   
  <!--  PARAMETERS  -->
   
-  <!-- The character used to separate directories on this filesystem. -->
-  <!-- TODO: Figure out if <xsl:result-document>s should always use '/' instead. -->
-  <xsl:param name="dir-separator" select="'/'" as="xs:string"/>
-  
   <!-- An absolute path to the DHQ repository. -->
   <xsl:param name="repo-dir" as="xs:string">
-    <xsl:variable name="thisXsl" select="concat($dir-separator,
+    <xsl:variable name="thisXsl" select="concat('/',
       dhq:set-filesystem-path(('common', 'xslt', 'generate_static_issues.xsl')),
       '$')"/>
     <!-- Escape any backslashes so a Windows filepath can be processed with regex. -->
@@ -161,14 +157,13 @@
       </xsl:map>
     </xsl:variable>
     <!-- Generate this issue’s bios based on the issue-bios-sort map -->
-    <xsl:result-document href="{$outDir||'/'||'bios.html'}">
+    <xsl:result-document href="{$outDir||'/bios.html'}">
       <xsl:sequence select="transform( $issue-bios-sort-map )?output"/>
     </xsl:result-document>
     <!-- Generate this issue’s main page on the issue-index map -->
     <xsl:result-document href="{$outDir||'/index.html'}">
       <xsl:sequence select="transform( $issue-index-map )?output"/>
     </xsl:result-document>
-    <!-- Q: does $dir-separator, in result-documents above, need to be '/' instead? -->
     <!-- If this is the current issue, run the transformation again for the DHQ home 
       page. The result will be identical to the issue index, but the URL at the 
       bottom will be http://www.digitalhumanities.org/dhq/index.html -->
@@ -177,7 +172,6 @@
         select="map:put( $param-map, QName( (),'fpath'), 'index.html')"/>
       <xsl:variable name="index-index-map" 
         select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
-      <!-- Q: does $dir-separator, below, need to be '/' instead? -->
       <xsl:result-document href="{$static-dir||'/index.html'}">
         <xsl:sequence select="transform( $index-index-map )?output"/>
       </xsl:result-document>
@@ -268,8 +262,7 @@
         instead of the generic DHQ article stylesheet. Since the special-case 
         XSLTs are only used once, we signal that they shouldn't be cached. -->
       <xsl:variable name="altXslPath" 
-        select="string-join(($srcDir, 'resources', 'xslt', concat($articleId,'.xsl')), 
-          $dir-separator)"/>
+        select="dhq:set-filesystem-path( ($srcDir, 'resources', 'xslt', $articleId||'.xsl') )"/>
       <xsl:variable name="useStylesheet" 
         select="if ( doc-available($altXslPath) ) then map {
                     'stylesheet-location': $altXslPath,
@@ -310,10 +303,10 @@
   
  <!--  FUNCTIONS  -->
   
-  <!-- Create a path to some resource on the filesystem, using $dir-separator. -->
+  <!-- Create a path to some resource on the filesystem. -->
   <xsl:function name="dhq:set-filesystem-path" as="xs:string">
     <xsl:param name="path-parts" as="xs:string*"/>
-    <xsl:sequence select="string-join($path-parts, $dir-separator)"/>
+    <xsl:sequence select="string-join($path-parts, '/')"/>
   </xsl:function>
   
   <!-- Generate a map entry with a stylesheet location, for use in fn:transform(). -->
