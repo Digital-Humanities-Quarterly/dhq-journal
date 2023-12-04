@@ -368,12 +368,21 @@
         <xsl:copy>
             <xsl:apply-templates select="attribute::rend | child::node()"/>
         </xsl:copy>
-    </xsl:template>-->
+    </xsl:template>
+    -->
+	<!--Created code below for cases where a converted file has extensive highlighting that needs to be retained; commented out because in most cases this is more trouble than it is worth (since there's a lot of extraneous <hi> coming from TEIGarage). Longer term, we want to be able to parse the @style attribute on <hi> and pass through more actionable information to the final version.
+    <xsl:template match="hi">
+        <xsl:copy>
+            <xsl:apply-templates select="attribute::style | child::node()"/>
+        </xsl:copy>
+    </xsl:template>
+-->    
     <xsl:template match="hi">
         <xsl:apply-templates/>
     </xsl:template>
-    
-    <xsl:template name="replace" match="text()">
+
+	
+	<xsl:template name="replace" match="text()">
         <xsl:variable name="double_hyphen" select="replace( ., '--', '—')"/>
         <xsl:variable name="space_around" select="replace( $double_hyphen, '(\S)—(\S)', '$1 — $2')"/>
         <xsl:variable name="end_dash" select="replace($space_around, '(\S)—(\s)', '$1 —$2')"/>
