@@ -64,6 +64,10 @@
     </xsl:for-each-group>
   </xsl:variable>
   
+  <!-- The document node of this TOC file is retained here for use in 
+    dhq:set-up-issue-transformation(). -->
+  <xsl:variable name="toc-source" select="/"/>
+  
   <!-- Default settings for the transformation of articles from TEI to HTML. -->
   <xsl:variable name="xsl-map-base" as="map(*)" 
     select="map {
@@ -120,56 +124,45 @@
   <!-- The editorial section of the TOC is skipped, at least for now. -->
   <xsl:template match="journal[@editorial eq 'true']"/>
   
+  <!-- For each DHQ issue, we first produce an index page and the contributors' 
+    biographies page. If this issue is the current one, we also produce the DHQ home 
+    page index. Then, the XSLT proceeds to work on each article in the issue. -->
   <xsl:template match="journal[@vol][@issue]">
     <xsl:variable name="fpath" select="string-join( ( 'vol', @vol/data(), @issue/data()), '/' )"/>
     <xsl:variable name="outDir" 
       select="dhq:set-filesystem-path(( $static-dir, 'vol', @vol/data(), @issue/data() ))"/>
     <xsl:message select="'Processing '||@vol||'.'||@issue||' …'"/>
-    <!-- Establish a set of parameters to be handed into XSLT programs we are about to run. -->
-    <xsl:variable name="param-map" as="map(*)">
-      <xsl:map>
-        <xsl:map-entry key="QName( (),'vol'  )" select="@vol/data()"/>
-        <xsl:map-entry key="QName( (),'issue')" select="@issue/data()"/>
-        <xsl:map-entry key="QName( (),'fpath')" select="$fpath||'/index.html'"/>
-        <xsl:map-entry key="QName( (),'context')" select="$context"/>
-      </xsl:map>
-    </xsl:variable>
-    <!-- A base map which will be used to generate the index-map, bios-map, and bios-sort-map. -->
-    <xsl:variable name="issue-template-map" as="map(*)">
-      <xsl:map>
-        <xsl:map-entry key="'source-node'" select="/"/>
-        <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
-      </xsl:map>
-    </xsl:variable>
-    <!-- The issue-index map is just the template plus a 'stylesheet-location' entry. -->
+    <!-- Define the transformation of the TOC into the index for this issue. Most of 
+      the heavy lifting is done by dhq:set-up-issue-transformation(). -->
     <xsl:variable name="issue-index-map" as="map(*)"
-      select="map:merge(($issue-template-map, dhq:stylesheet-path-entry('template_toc.xsl')))"/>
-    <!-- The issue-bios map is also just the template plus a (different) 'stylesheet-location' entry.  -->
+      select="dhq:set-up-issue-transformation(., 'template_toc.xsl', $fpath||'/index.html')"/>
+    <!-- Generate this issue’s main page using $issue-index-map -->
+    <xsl:result-document href="{$outDir||'/index.html'}">
+      <xsl:sequence select="transform( $issue-index-map )?output"/>
+    </xsl:result-document>
+    <!-- Define the transformation of the TOC into the biographies page for this 
+      issue. -->
     <xsl:variable name="issue-bios-map" as="map(*)" 
-      select="map:merge(($issue-template-map, dhq:stylesheet-path-entry('template_bios.xsl')))"/>
-    <!-- The issue-bios-sort map is a bit more complicated, because its source node is the result of
-         a transform based on the issue-bios map. -->
+      select="dhq:set-up-issue-transformation(., 'template_bios.xsl', $fpath||'/bios.html')"/>
+    <!-- The issue-bios-sort map is a bit more complicated, because its source node 
+      is the result of a transform based on the issue-bios map. -->
     <xsl:variable name="issue-bios-sort-map" as="map(*)">
       <xsl:map>
         <xsl:sequence select="dhq:stylesheet-path-entry('bios_sort.xsl')"/>
         <xsl:map-entry key="'source-node'" select="transform( $issue-bios-map )?output"/>
-        <xsl:map-entry key="'stylesheet-params'" select="$param-map"/>
+        <xsl:map-entry key="'stylesheet-params'" select="$issue-bios-map?stylesheet-params"/>
       </xsl:map>
     </xsl:variable>
     <!-- Generate this issue’s bios based on the issue-bios-sort map -->
     <xsl:result-document href="{$outDir||'/bios.html'}">
       <xsl:sequence select="transform( $issue-bios-sort-map )?output"/>
     </xsl:result-document>
-    <!-- Generate this issue’s main page on the issue-index map -->
-    <xsl:result-document href="{$outDir||'/index.html'}">
-      <xsl:sequence select="transform( $issue-index-map )?output"/>
-    </xsl:result-document>
     <!-- If this is the current issue, run the transformation again for the DHQ home 
       page. The result will be identical to the issue index, but the URL at the 
       bottom will be http://www.digitalhumanities.org/dhq/index.html -->
     <xsl:if test="@current eq 'true'">
       <xsl:variable name="new-param-map" 
-        select="map:put( $param-map, QName( (),'fpath'), 'index.html')"/>
+        select="map:put( $issue-index-map?stylesheet-params, QName( (),'fpath'), 'index.html')"/>
       <xsl:variable name="index-index-map" 
         select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
       <xsl:result-document href="{$static-dir||'/index.html'}">
@@ -185,6 +178,9 @@
     </xsl:apply-templates>
   </xsl:template>
   
+  <!-- An article listed for an issue is transformed into HTML. Then, an Ant file 
+    mapper entry is created, so that this article's XML and other resources can be 
+    copied to the static directory later. -->
   <xsl:template match="journal[@vol][@issue]//item[@id]">
     <xsl:param name="outDir" as="xs:string" tunnel="yes"/>
     <xsl:variable name="articleId" select="@id/data(.)"/>
@@ -254,13 +250,16 @@
       <xsl:attribute name="from" select="'^'||$article-id||'/'||$article-id||'\.xml$'"/>
       <xsl:attribute name="to"   select="replace( $toVal, concat('^', $static-dir, '/' ), '' )||'.xml'"/>
     </regexpmapper>
-    <!-- Map all (remaining) resources in the article folder to the static article folder. -->
+    <!-- Map all (remaining) resources in the article folder to the static article 
+      folder. -->
     <regexpmapper handledirsep="true">
       <xsl:attribute name="from" select="'^'||$article-id||'/(.*)$'"/>
       <xsl:attribute name="to"   select="replace( $toVal, concat('^', $static-dir, '/' ), '' )||'/\1'"/>
     </regexpmapper>
   </xsl:template>
   
+  <!-- Transform an article from XML into HTML, and store it in the static site 
+    directory $outDir. -->
   <xsl:template name="transform-article">
     <xsl:param name="vol" tunnel="yes"/>
     <xsl:param name="issue" tunnel="yes"/>
@@ -321,6 +320,26 @@
   <xsl:function name="dhq:set-filesystem-path" as="xs:string">
     <xsl:param name="path-parts" as="xs:string*"/>
     <xsl:sequence select="string-join($path-parts, '/')"/>
+  </xsl:function>
+  
+  <!-- Create a map defining a transformation at the issue level. The map is used to 
+    produce an issue index page and a list of contributors. -->
+  <xsl:function name="dhq:set-up-issue-transformation" as="map(*)">
+    <xsl:param name="journal-node" as="node()"/>
+    <xsl:param name="xsl-filename" as="xs:string"/>
+    <xsl:param name="web-filepath" as="xs:string"/>
+    <xsl:map>
+      <xsl:map-entry key="'source-node'" select="$toc-source"/>
+      <xsl:sequence select="dhq:stylesheet-path-entry($xsl-filename)"/>
+      <xsl:map-entry key="'stylesheet-params'">
+        <xsl:map>
+          <xsl:map-entry key="QName( (),'vol'  )" select="$journal-node/@vol/data()"/>
+          <xsl:map-entry key="QName( (),'issue')" select="$journal-node/@issue/data()"/>
+          <xsl:map-entry key="QName( (),'fpath')" select="$web-filepath"/>
+          <xsl:map-entry key="QName( (),'context')" select="$context"/>
+        </xsl:map>
+      </xsl:map-entry>
+    </xsl:map>
   </xsl:function>
   
   <!-- Generate a map entry with a stylesheet location, for use in fn:transform(). -->
