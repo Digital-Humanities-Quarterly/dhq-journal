@@ -376,7 +376,7 @@
                    choices are fixed, the selected model is trained on a combination of the training and development sets, and the test 
                    set is used to estimate the expected system performance on unseen data. If one used the test set rather than the 
                    development set for hyperparameter optimization, the final evaluation result would be artificially inflated by 
-                   information leakage from the test set into the hyperparameter design—hence the use of a development set.</note> 
+                   information leakage from the test set into the hyperparameter design — hence the use of a development set.</note> 
                    However, as we have not made any attempts at optimising the classifiers and instead used their default settings (see below), 
                    unless stated otherwise, the <q>training</q> set for all our experiments consists of both the <q>train</q> and 
                    <q>development</q> subsets of the dataset.
@@ -481,1009 +481,967 @@
                    <cell role="label">s-50</cell>
                 </row>
                 <row>
-                   <cell role="label">Full dataset</cell> 
-                   <cell>0.96</cell>
-                   <cell>0.90</cell>
-                   <cell>0.73</cell>
-                   <cell>0.58</cell>
-                   <cell>0.42</cell>
+                  <cell role="label">r-04</cell> 
+                  <cell>0.99</cell>
+                  <cell>0.99</cell>
+                  <cell>0.97</cell>
+                  <cell>0.94</cell>
+                  <cell>0.87</cell>
                 </row>
                 <row>
-                   <cell role="label">Validation</cell> 
+                  <cell role="label">r-05</cell> 
+                  <cell>1.00</cell>
+                  <cell>0.99</cell>
+                  <cell>0.97</cell>
+                  <cell>0.94</cell>
+                  <cell>0.87</cell>
+                </row>
+                <row>
+                  <cell role="label">r-06</cell> 
+                  <cell>0.95</cell>
+                  <cell>0.91</cell>
+                  <cell>0.79</cell>
+                  <cell>0.69</cell>
+                  <cell>0.60</cell>
+                </row>
+                <row>
+                  <cell role="label">r-07</cell> 
+                  <cell>0.97</cell>
+                  <cell>0.96</cell>
+                  <cell>0.90</cell>
+                  <cell>0.83</cell>
+                  <cell>0.71</cell>
+                </row>
+                <row>
+                  <cell role="label">r-08</cell> 
+                  <cell>0.96</cell>
+                  <cell>0.95</cell>
+                  <cell>0.86</cell>
+                  <cell>0.77</cell>
+                  <cell>0.62</cell>
+                </row>
+                <row>
+                  <cell role="label">r-09</cell> 
+                  <cell>0.97</cell>
+                  <cell>0.96</cell>
+                  <cell>0.89</cell>
+                  <cell>0.82</cell>
+                  <cell>0.70</cell>
+                </row>
+                <row>
+                  <cell role="label">r-10</cell> 
+                  <cell>0.99</cell>
+                  <cell>0.98</cell>
+                  <cell>0.96</cell>
+                  <cell>0.93</cell>
+                  <cell>0.86</cell>
+                </row>
+                <row>
+                  <cell role="label">r-11</cell> 
+                  <cell>1.00</cell>
+                  <cell>0.98</cell>
+                  <cell>0.97</cell>
+                  <cell>0.93</cell>
+                  <cell>0.86</cell>
+                </row>
+                <row>
+                  <cell role="label">r-12</cell> 
+                  <cell>0.97</cell>
+                  <cell>0.95</cell>
+                  <cell>0.88</cell>
+                  <cell>0.78</cell>
+                  <cell>0.64</cell>
+                </row>
+                <row>
+                  <cell role="label">r-13</cell> 
+                  <cell>0.98</cell>
+                  <cell>0.95</cell>
+                  <cell>0.89</cell>
+                  <cell>0.83</cell>
+                  <cell>0.71</cell>
+                </row>
+             </table>
+             <p>These initial experiments have shown a performance dependency on different levels of delexicalisation. In addition, it 
+                has became clear that different classifiers react differently across varying levels of delexicalisation. This also shows us
+                that we are not recognising the author style <emph>per se</emph>, but rather that we are constantly flattening the 
+                problem to how the author style is reflected in specific conditions using specific features. Quite unsurprisingly, the
+                performance is highly dependent on segment lengths.
+             </p>
+             <p>Of all the classifiers we experimented with, support vector machines worked best. Therefore, we have decided to use 
+                LinearSVC for the rest of the experiments, using the pre-processing r-08. Even though the pre-processing r-08 did not lead to
+                the best performance, it represents a simple and straightforward yet very strong level of delexicalisation that significantly 
+                reduces the number of features and conceals content.
+             </p>
+         </div>
+         <div>
+           <head>Experiments and Results</head>
+             <p>Using the pre-processing/classification pipeline described above, we performed three experimental steps to illustrate 
+                the relationship between author and book style in authorship classification:
+                      <list type="ordered">
+                        <item>The full dataset (see above; 23 authors, 210 books) was used for a task of authorship attribution with 
+                           <emph>each book</emph> divided into <q>train</q> (80%) and <q>test</q> (20%) passages. We reported performance 
+                           across different lengths of passages. This is an <q>easy</q> setting for the classifier.
+                        </item>
+                        <item>Next, we performed the experiment with the same settings, but this time we built the <q>test</q> set by 
+                           choosing <emph>one book from each author</emph> and adding <emph>all its segments</emph> into the test set. All 
+                           other books of each author were used in their entirety for training. In this <q>harder</q> setting, performance 
+                           dropped significantly, which is the main point of this paper. Furthermore, classification performance seemed 
+                           to depend on the selection of the testing books.
+                        </item>
+                        <item>Finally, we performed the same experiment as outlined in #1, but instead of classifying by author, we classified 
+                           segments into individual books. With this experiment, it is possible to discuss further why the test-book 
+                           selection in Experiment #2 is so influential, as well as to show that some authors are more consistent in their 
+                           style (as expressed by the selected features) than others.
+                        </item>
+                      </list>
+             </p>
+             <p>We again emphasise that our purpose here is not to reach the best possible classification accuracy but rather to explore the 
+                influence of authorial style variation between individual works on the classification accuracy of a <q>decent</q> pipeline. 
+                Our pre-processing steps, classification models, and final scores are not the focus of our findings. Rather, we are interested 
+                in exploring how classification metrics change across different experiments.
+             </p>
+         <div>
+           <head>Step 1. Train and Test Across All Books of the dataset</head>
+             <p>Having selected the pre-processing and classification pipeline (delexicalisation r-08, using part-of-speech tags instead 
+                of autosemantic words and lemmas for functional words, and the LinearSVC classifier), we measured the baseline results 
+                when <q>train</q> and <q>test</q> sets were drawn randomly from all books of each author.
+             </p>
+             <p>In addition to measuring performance on the <q>train+devel versus test</q> split, we also tried an alternative 
+                <q>train+test vs. devel</q> split (which, because we never used the development set for model selection, is essentially just a 
+                different partition for cross-validation). The results were almost identical, so we did not consider it necessary to carry 
+                out full cross-validation.
+             </p>
+             <p>The following table shows the accuracies of the two experiment runs in comparison with the same setting on a smaller dataset.
+             </p>
+             <table>
+               <head>Step 1 Results Table</head>
+                 <row role="label">
+                   <cell role="label"><hi rend="italic">Across Books</hi></cell>
+                   <cell role="label">s-1000</cell>
+                   <cell role="label">s-500</cell>
+                   <cell role="label">s-200</cell>
+                   <cell role="label">s-100</cell>
+                   <cell role="label">s-50</cell>
+                 </row>
+                 <row>
+                   <cell role="label">Full dataset</cell>
                    <cell>0.96</cell>
                    <cell>0.91</cell>
                    <cell>0.74</cell>
                    <cell>0.58</cell>
                    <cell>0.42</cell>
-                </row>
-                <row role="label">
-                   <cell role="label" cols="6"><hi rend="italic">Train books vs. test books</hi> (Experiments: Step 2)</cell>
-                </row>
-                <row>
-                   <cell role="label">Set 1</cell> 
-                   <cell>0.86</cell>
-                   <cell>0.80</cell>
-                   <cell>0.62</cell>
-                   <cell>0.44</cell>
-                   <cell>0.29</cell>
-                </row>
-                <row>
-                   <cell role="label">Set 2</cell> 
-                   <cell>0.86</cell>
-                   <cell>0.78</cell>
+                 </row>
+                 <row>
+                   <cell role="label">Full Dataset, Validation</cell>
+                   <cell>0.96</cell>
+                   <cell>0.9</cell>
+                   <cell>0.73</cell>
                    <cell>0.58</cell>
-                   <cell>0.38</cell>
-                   <cell>0.23</cell>
-                </row>
-                <row>
-                   <cell role="label">Set 3</cell> 
-                   <cell>0.90</cell>
-                   <cell>0.82</cell>
-                   <cell>0.63</cell>
                    <cell>0.42</cell>
-                   <cell>0.26</cell>
-                </row>
-                <row>
-                   <cell role="label">Set 4</cell> 
+                 </row>
+                 <row>
+                   <cell role="label">Small Dataset (5 Authors)</cell>
+                   <cell>0.96</cell>
+                   <cell>0.95</cell>
+                   <cell>0.86</cell>
                    <cell>0.77</cell>
-                   <cell>0.69</cell>
-                   <cell>0.51</cell>
-                   <cell>0.35</cell>
-                   <cell>0.23</cell>
-                </row>
-                <row>
-                   <cell role="label">Set 5</cell> 
-                   <cell>0.92</cell>
-                   <cell>0.85</cell>
-                   <cell>0.66</cell>
-                   <cell>0.47</cell>
-                   <cell>0.33</cell>
-                </row>
-             </table>
-             
-             
-            <p>These initial experiments have shown a performance dependency on different levels
-                    of delexicalisation. In addition, it became clear that different classifiers
-                    react differently across varying levels of delexicalisation. This also shows us
-                    that we do not recognise “the author style” <hi rend="italic">per se</hi>, but
-                    we are constantly flattening the problem to how the style is reflected in
-                    specific conditions using specific features. Quite unsurprisingly, the
-                    performance is highly dependent on segment lengths.</p>
-            <p>Of all the classifiers we experimented with, Support Vector Machines worked best.
-                    Therefore, we have decided to use LinearSVC for the rest of the experiments,
-                    using pre-processing r-08. Even though the pre-processing r-08 did not lead to
-                    the best performance, it represents a simple and straightforward yet very strong
-                    level of delexicalisation that significantly reduces the number of features and
-                    conceals content.</p>
-         </div>
-         <div>
-            <head>Experiments and Results</head>
-            <p>Using the pre-processing/classification pipeline described above, we perform
-                    three experimental steps to illustrate the relationship between author and book
-                    style in authorship classification:</p>
-            <list rend="numbered">
-               <item>The full dataset (see above; 23 authors, 210 books) was used for a task of
-                        authorship attribution when <hi rend="italic">each book</hi> is divided into
-                        the “train” (80%) and “test” (20%) passages. We report performance across
-                        different lengths of passages. This is an “easy” setting for the
-                        classifier.</item>
-               <item>Next, we perform the experiment with the same settings, but this time we
-                        build the “test” set by choosing <hi rend="italic">one book from each
-                            author</hi> and adding
-                        <hi rend="italic">all its segments </hi>into the test
-                        set. All other books of each author are used in their entirety for training.
-                        We show that in this “harder” setting, performance drops significantly,
-                        which is the main point of this paper. Furthermore, classification
-                        performance seems to depend on the selection of the testing books.</item>
-               <item>Finally, we perform the same experiment as (1), but instead of classifying
-                        by author, we classify segments into individual books. With this experiment,
-                        it is possible to discuss further why the test-book selection in the
-                        experiment (2) is so influential, as well as to show that some authors are
-                        more consistent in their style (as expressed by the selected features) than
-                        others.</item>
-            </list>
-            <p>We again emphasise that our purpose here is not to reach the best possible
-                    classification accuracy but rather to explore the influence of authorial style
-                    variation between individual works on the classification accuracy of a “decent”
-                    pipeline. Our pre-processing steps, classification models, and final scores are
-                    not what leads to our findings – rather, how classification metrics change
-                    between different experiments does.</p>
-            <div>
-               <head>Step 1. Train and test across all
-                        books of the dataset</head>
-               <p>Having selected the pre-processing and classification pipeline
-                        (delexicalisation r-08 – using part-of-speech tags instead of autosemantic
-                        words and lemmas for functional words, and the LinearSVC classifier), we
-                        measure the baseline results when “train” and “test” sets are drawn randomly
-                        from all books of each author.</p>
-               <p>In addition to measuring performance on the “train+devel versus test” split,
-                        we also tried an alternative “train+test vs. devel” split (which, because we
-                        never used the development set for model selection, is essentially just a
-                        different partition for cross-validation). The results were almost
-                        identical, so we did not consider it necessary to carry out full
-                        cross-validation.</p>
-               <p>The following table shows the accuracies of the two experiment runs in
-                        comparison with the same setting on a smaller dataset.</p>
-               <p>Caption: &lt;Step 1 results table.&gt;</p>
-               <table>
-                  <row role="data">
-                     <cell>Across Books</cell>
-                     <cell>s-1000</cell>
-                     <cell>s-500</cell>
-                     <cell>s-200</cell>
-                     <cell>s-100</cell>
-                     <cell>s-50</cell>
-                  </row>
-                  <row role="data">
-                     <cell>Full dataset</cell>
-                     <cell>0.96</cell>
-                     <cell>0.91</cell>
-                     <cell>0.74</cell>
-                     <cell>0.58</cell>
-                     <cell>0.42</cell>
-                  </row>
-                  <row role="data">
-                     <cell>Full dataset, validation</cell>
-                     <cell>0.96</cell>
-                     <cell>0.9</cell>
-                     <cell>0.73</cell>
-                     <cell>0.58</cell>
-                     <cell>0.42</cell>
-                  </row>
-                  <row role="data">
-                     <cell>Small dataset (5 authors)</cell>
-                     <cell>0.96</cell>
-                     <cell>0.95</cell>
-                     <cell>0.86</cell>
-                     <cell>0.77</cell>
-                     <cell>0.62</cell>
-                  </row>
+                   <cell>0.62</cell>
+                 </row>
                </table>
-               <p>The selection of individual segments as testing seems to have only limited
-                        influence on the results. The best results were achieved, predictably, using
-                        the longest segments of 1000 tokens (96.1/96.4 %). Shorter segments
-                        significantly lower the performance.<note> There is clearly space for improving classification accuracy here: the features in [Gorman
-                                2022] reported little such decrease in a comparable experiment. While 42,0/42,3% accuracy with segments of ca. 50 tokens is still above the 23-class baseline (4,35%), in order to provide useful results outside of long-form texts, the classification pipeline would need significant improvement. Again, we emphasize we are not trying to reach the highest possible accuracy, we use classification experiments to illustrate variation within an author’s style.</note>
+               <p>The selection of individual segments as testing seems to have only limited influence on the results. The best results 
+                  were achieved, predictably, using the longest segments of 1000 tokens (96.1/96.4%). Shorter segments significantly lowered 
+                  the performance.<note>There is clearly space for improving classification accuracy here; the features in 
+                  <ptr target="#gorman2022"/> reported little such decrease in a comparable experiment. While 42/42.3% accuracy with 
+                  segments of approximately 50 tokens is still above the 23-class baseline (4.35%), in order to provide useful results 
+                  outside of long-form texts, the classification pipeline would need significant improvement. Again, we emphasize we are not 
+                  trying to reach the highest possible accuracy. Rather, we use classification experiments to illustrate variation within 
+                  an author's style.</note>
                </p>
-               <p>Interestingly, when using the segments of 1000 tokens, the accuracy of the
-                        classifier is consistently around the same 96% for both the small 5-author
-                        dataset used for hyperparameter selection and for the full dataset of 23
-                        authors. However, when shortening the segments, the performance on the
-                        larger dataset radically drops.<note> For the effect of author set size and data size in authorship attribution, see [Luyckx and
-                                    Daelemans 2011].</note>
+               <p>Interestingly, when using the segments of 1000 tokens, the accuracy of the classifier was consistently around the same 
+                  96% for both the small, five author dataset used for hyperparameter selection and for the full dataset of 23 authors. 
+                  However, when shortening the segments, the performance on the larger dataset radically dropped.<note>For the effect of 
+                  author set size and data size in authorship attribution, see <ptr target="#luyckx_daelemans2011"/>.</note>
                </p>
-               <p>The results of this first experiment serve as a baseline for the second,
-                        where we show how setting aside specific books changes the results.</p>
-            </div>
-            <div>
-               <head>Step 2. “Train” books versus “test”
-                        books</head>
-               <p>We believe that the above-mentioned experiments are relatively simple
-                        ML-based author attribution tasks. In our opinion, the experimental settings
-                        that use the same books for training and testing, such as [Gorman 2022] or [Benotto 2021], are biased in their reported performance. After
-                        all, the capability to recognise the author of an unseen and unattributed
-                        text is one of the main research objectives within the field of authorship
-                        attribution (while definitely not being the only goal [Swain et al. 2017]).</p>
-               <p>Therefore, we have further expanded the experimental scenario into a more
-                        real-life problem – recognising a book (or rather its parts) that has never
-                        been seen in the system building process (see the appendix for detailed
-                        information). The experiments discussed below reveal that selecting a test
-                        book from the available corpus heavily influences the reported performance
-                        of the classifier.</p>
-               <p>We randomly select five sets of testing books such that each set contains one
-                        book from each author and no book is in two testing sets, except for <hi rend="italic">Svědomí Lidových novin, čili, Jak bylo po léta v českém
-                            tisku štváno lživě proti mně</hi> (a-08.b-03) in sets 1 and 5, because
-                        the dataset contains only four books by Č. Slepánek. We run the same
-                        classification experiment and report results across segment sizes. The
-                        results are reported in the following table.</p>
-               <p>Caption: &lt;Step 2 results table.&gt;</p>
+               <p>The results of this first experiment serve as a baseline for the second, where we show how setting aside specific 
+                  books changes the results.
+               </p>
+           </div>
+           <div>
+             <head>Step 2. <q>Train</q> Books Versus <q>Test</q> Books</head>
+               <p>We believe that the above-mentioned experiments are relatively simple ML-based author attribution tasks. In our opinion, 
+                  the experimental settings that use the same books for training and testing, such as <ptr target="#gorman2022"/> or 
+                  <ptr target="#benotto2021"/>, are biased in their reported performance. After all, the capability to recognise the author 
+                  of an unseen and unattributed text is one of the main research objectives within the field of authorship attribution 
+                  (while certainly not being the only goal <ptr target="#swain_mishra_sindhu2017"/>).
+               </p>
+               <p>Therefore, we have further expanded the experimental scenario to address real-life problem: recognising a book (or rather 
+                  its parts) that has never been seen in the system building process (see the appendix for detailed information). The 
+                  experiments discussed below reveal that selecting a test book from the available corpus heavily influences the reported 
+                  performance of the classifier.
+               </p>
+               <p>We randomly selected five sets of testing books such that each set contained one book from each author and no book was in 
+                  two testing sets, except for <title rend="italic">Svědomí Lidových novin, čili, Jak bylo po léta v českém tisku štváno 
+                  lživě proti mně</title> (a-08.b-03) in sets 1 and 5, because the dataset contains only four books by Č. Slepánek. We ran 
+                  the same classification experiment and reported results across segment sizes. The results are reported in the following table.
+               </p>
                <table>
-                  <row role="data">
-                     <cell>Book-Based</cell>
-                     <cell>s-1000</cell>
-                     <cell>s-500</cell>
-                     <cell>s-200</cell>
-                     <cell>s-100</cell>
-                     <cell>s-50</cell>
-                  </row>
-                  <row role="data">
-                     <cell>Set 1</cell>
+                 <head>Step 2 Results Table</head>
+                   <row role="label">
+                     <cell role="label"><hi rend="italic">Book-Based</hi></cell>
+                     <cell role="label">s-1000</cell>
+                     <cell role="label">s-500</cell>
+                     <cell role="label">s-200</cell>
+                     <cell role="label">s-100</cell>
+                     <cell role="label">s-50</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Set 1</cell>
                      <cell>0.86</cell>
                      <cell>0.80</cell>
                      <cell>0.62</cell>
                      <cell>0.44</cell>
                      <cell>0.29</cell>
-                  </row>
-                  <row role="data">
-                     <cell>Set 2</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Set 2</cell>
                      <cell>0.86</cell>
                      <cell>0.78</cell>
                      <cell>0.58</cell>
                      <cell>0.38</cell>
                      <cell>0.22</cell>
-                  </row>
-                  <row role="data">
-                     <cell>Set 3</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Set 3</cell>
                      <cell>0.90</cell>
                      <cell>0.82</cell>
                      <cell>0.63</cell>
                      <cell>0.42</cell>
                      <cell>0.26</cell>
-                  </row>
-                  <row role="data">
-                     <cell>Set 4</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Set 4</cell>
                      <cell>0.77</cell>
                      <cell>0.69</cell>
                      <cell>0.51</cell>
                      <cell>0.35</cell>
                      <cell>0.23</cell>
-                  </row>
-                  <row role="data">
-                     <cell>Set 5</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Set 5</cell>
                      <cell>0.92</cell>
                      <cell>0.85</cell>
                      <cell>0.66</cell>
                      <cell>0.47</cell>
                      <cell>0.22</cell>
-                  </row>
-                  <row role="data">
-                     <cell>Average</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Average</cell>
                      <cell>0.86</cell>
                      <cell>0.79</cell>
                      <cell>0.60</cell>
                      <cell>0.41</cell>
                      <cell>0.24</cell>
-                  </row>
-                  <row role="data">
-                     <cell>Cf. step 1 (across books)</cell>
+                   </row>
+                   <row>
+                     <cell role="label"><hi rend="italic">Cf. Step 1 (Across Books)</hi></cell>
                      <cell>0.96</cell>
                      <cell>0.91</cell>
-                     <cell>
-                        <hi rend="italic">0.74</hi>
-                     </cell>
-                     <cell>
-                        <hi rend="italic">0.58</hi>
-                     </cell>
-                     <cell>
-                        <hi rend="italic">0.42</hi>
-                     </cell>
-                  </row>
+                     <cell>0.74</cell>
+                     <cell>0.58</cell>
+                     <cell>0.42</cell>
+                   </row>
                </table>
-               <p>The results show a drop of 0.04 to 0.23, with 0.10 being the average
-                        deterioration of classification accuracy. In the case of the easiest s-1000
-                        and s-500 settings, this means more than a three-fold increase in error.
-                        Furthermore, set 4 shows that a random selection of testing books can make
-                        this difference much larger.</p>
-               <p>We note that performing five-fold cross-validation with 23-book test sets
-                        rather than 210-fold leave-one-out cross-validation on individual books has
-                        little bearing on these results while being significantly more expedient
-                        despite the classifier performance on each testing book being further
-                        influenced by the choice of the other 22 testing books in each fold. We
-                        chose five worst-performing outliers and five high-performing books and
-                        performed leave-one-out experiments with these, and the leave-one-out
-                        results are, in fact, worse by 0.5 % on average (when disregarding 3 books
-                        that had their authors classified perfectly in the 5-fold and leave-one-out
-                        settings both), ranging from leave-one-out accuracy being 7.6 % higher (a-03
-                        test book from Set 4) to 7 % lower (a-15 test book from Set 1). The effect
-                        of removing books potentially helpful for discriminating an author from the
-                        training set, compared to the leave-one-out-setting, is roughly cancelled by
-                        the effect of introducing potentially confounding books to the training set,
-                        so while the estimates for individual books do likely have a somewhat higher
-                        variance, our main finding that accuracy has overall dropped significantly
-                        in this setting is not affected. Furthermore, the items of highest
-                        significance for further analysis – outliers in both directions – seem to
-                        have their accuracies affected by less than 10 %, which does not materially
-                        affect the selection of books that are significantly harder or easier to
-                        classify by author than the average, and thus our analytical attention is
-                        directed to the same items that a leave-one-out experiment design would
-                        point towards.<note> Specifically, the 11 test books where we compared the 5-fold and leave-one-out accuracies were: a-03 Set 4, with a change from 0.20 to 0.276 (+7.6 %), a-15 Set 1: 0.24 → 0.214 (-2.6 %), a-02 Set 2: 0.53→0.516 (-1.4 %), a-07 Set 3: 0.7→0.63 (-7.0 %), a-17 Set 4 (drama): 0.75→0.75 (0.0 %), a-08 Set 3: 0.67→0.667 % (-0.3 %), a-09 Set 3: 0.91→0.85 (-6.0 %), a-13 Set 4: 1.0→1.0 (0.0 %), a-22 Set 2: 1.0→1.0 (0.0 %), a-11 Set 3: 1.0→1.0 (0.0 %), a-21 Set 4 (poetry): 0.65→0.706 (+5.6 %). The average difference when discarding the three books with perfect accuracies was that in the leave-one-out setting, classification was 0.3 % worse; without these three books taken into account (because they may be so easy to classify that possibly even a very flawed methodology pipeline would obtain perfect accuracy), leave-one-out classification performed 0.5 % worse than the five-fold setting. (We give the books here as author-set pairs rather than author-books, so that their outlier-ness is easy to find in the tables in this section. To find which book these are, refer to Appendix: List of works in the dataset.)</note>
-                        These experiments show that there is little to be gained by performing the
-                        remaining 199 leave-one-out experiments over the 5-fold scheme. We attribute
-                        this consistency between the lower-variance leave-one-out setting and the
-                        5-fold setting to the size of the dataset: at these scales, leave-one-out
-                        cross-validation schemes no longer provide a less biased estimate of
-                        aggregate statistics, and the effect of inclusion of individual items into
-                        the training set is not as pronounced. Note also that although in our 5-fold
-                        cross-validation the folds differ by 46/210 books, the results for each book
-                        within a fold are computed on a perfectly identical training set and thus
-                        perfectly comparable, while in the leave-one-out setting, no two training
-                        sets are the same.</p>
-               <p>A possible systematic confounding factor for the drop in average performance
-                        can be the irregularity of training set sizes introduced by setting aside
-                        random entire books for testing, as book lengths vary greatly. As opposed to
-                        the “Across Books” setting from Step 1, here we thus do not have the same
-                        “train”:“test” token ratio. The obvious question then arises: is the model
-                        performance dependent on the “train”:“test” ratio, “test” or “train” token
-                        absolute count, both, or neither? The following table shows data from
-                        experiments (for s-1000 segments). The indicated “test ratio” is the ratio
-                        of “test” tokens to all tokens. Coloured cells show the experiments where
-                        drama or poetry was used as a test book (drama = green; poetry = blue).</p>
-               <p>Caption: &lt;Step 2 results table for individual
-                            authors: test ratio and accuracy across the five test book sets. Genre
-                            indication: drama in green, poetry in blue.&gt;</p>
+               <p>The results show a drop of 0.04 to 0.23, with 0.10 being the average deterioration of classification accuracy. In the 
+                  case of the easiest s-1000 and s-500 settings, this means more than a three-fold increase in error. Furthermore, Set 4 
+                  shows that a random selection of testing books can make this difference much larger.
+               </p>
+               <p>We note that performing five-fold, cross-validation with 23-book test sets rather than 210-fold, leave-one-out, 
+                  cross-validation on individual books had little bearing on these results while being significantly more expedient 
+                  despite the classifier performance on each testing book being further influenced by the choice of the other 22 testing 
+                  books in each fold. We chose the five worst performing outliers and five high-performing books and performed leave-one-out 
+                  experiments with these. We found that the leave-one-out results were, in fact, worse by 0.5% on average 
+                  (when disregarding 3 books that had their authors classified perfectly in the 5-fold and leave-one-out settings both), 
+                  with the leave-one-out accuracy ranging from 7.6% higher (a-03 test book from Set 4) to 7% lower (a-15 test book from 
+                  Set 1).
+               </p>
+               <p>Compared to the leave-one-out setting, the effect of removing books potentially helpful for identifying an author from the
+                  training set was roughly cancelled out by the effect of introducing potentially confounding books to the training set. As a
+                  result, while the estimates for individual books did likely have a somewhat higher variance, our main finding that accuracy 
+                  dropped significantly overall in this setting was not affected. Furthermore, the accuracies of items of the highest 
+                  significance for further analysis — outliers in both directions — seem to have been affected by less than 10%, which does 
+                  not materially affect the selection of books that are significantly harder or easier to classify by author than the average. 
+                  Thus, our analytical attention is directed to the same items that a leave-one-out experiment design would point towards.
+                  <note>Specifically, the 11 test books where we compared the 5-fold and leave-one-out accuracies were: a-03 Set 4, with a 
+                  change from 0.20 to 0.276 (+7.6%); a-15 Set 1: 0.24 → 0.214 (-2.6%); a-02 Set 2: 0.53→0.516 (-1.4%); a-07 Set 3: 0.7→0.63 
+                  (-7.0%); a-17 Set 4 (drama): 0.75→0.75 (0.0%); a-08 Set 3: 0.67→0.667% (-0.3%); a-09 Set 3: 0.91→0.85 (-6.0%); 
+                  a-13 Set 4: 1.0→1.0 (0.0%); a-22 Set 2: 1.0→1.0 (0.0%); a-11 Set 3: 1.0→1.0 (0.0%); a-21 Set 4 (poetry): 0.65→0.706 (+5.6%). 
+                  The average difference when discarding the three books with perfect accuracies was that in the leave-one-out setting, 
+                  classification was 0.3% worse. Without these three books taken into account (because they may be so easy to classify 
+                  that even a very flawed methodology pipeline would obtain perfect accuracy), leave-one-out classification performed 0.5% 
+                  worse than the five-fold setting. (We give the books here as author-set pairs rather than author-books, so that their 
+                  <q>outlier-ness</q> is easy to find in the tables in this section. To find which book these are, refer to Appendix: 
+                  List of Works in the Dataset.)</note>
+               </p>
+               <p>These experiments show that there is little to be gained by performing the remaining 199 leave-one-out experiments over 
+                  the 5-fold scheme. We attribute this consistency between the lower-variance, leave-one-out setting and the 5-fold setting 
+                  to the size of the dataset: at these scales, leave-one-out cross-validation schemes no longer provide a less biased 
+                  estimate of aggregate statistics, and the effect of inclusion of individual items into the training set is not as pronounced. 
+                  Note also that although in our 5-fold cross-validation the folds differed by 46/210 books, the results for each book 
+                  within a fold were computed on a perfectly identical training set and thus are perfectly comparable, while in the 
+                  leave-one-out setting, no two training sets are the same.
+               </p>
+               <p>A possible systematic confounding factor for the drop in average performance could be the irregularity of training set 
+                  sizes introduced by setting aside random entire books for testing, as book lengths vary greatly. As opposed to the 
+                  <q>Across Books</q> setting from Step 1, here we do not have the same <q>train</q>:<q>test</q> token ratio. The obvious 
+                  question then arises: is the model performance dependent on the <q>train</q>:<q>test</q> ratio, <q>test</q> or 
+                  <q>train</q> token absolute count, both, or neither? The following table shows data from experiments (for s-1000 segments). 
+                  The indicated <q>test ratio</q> is the ratio of <q>test</q> tokens to all tokens. Asterisks indicate the experiments where 
+                  drama or poetry were used as the test book (* = drama; ** = poetry).
+               </p>
                <table>
-                  <row role="data">
+                 <head>Step 2 results table for individual authors, showing test ratio and accuracy across the five test book sets. 
+                    * = drama; ** = poetry.</head>
+                   <row role="label">
                      <cell/>
-                     <cell>all tokens</cell>
+                     <cell role="label">All Tokens</cell>
+                     <cell role="label">Set 1 Rest Ratio Accuracy</cell>
+                     <cell role="label">Set 2</cell>
+                     <cell role="label">Set 3</cell>
+                     <cell role="label">Set 4</cell>
+                     <cell role="label">Set 5</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-01</cell>
+                     <cell>1,044,186</cell>
                      <cell>
-                        <p>Set 1</p>
-                        <p>test ratio</p>
-                        <p>accuracy</p>
-                     </cell>
-                     <cell>Set 2</cell>
-                     <cell>Set 3</cell>
-                     <cell>Set 4</cell>
-                     <cell>Set 5</cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-01</cell>
-                     <cell>1 044
-                                186</cell>
-                     <cell>
-                        <p>7.76 %</p>
+                        <p>7.76%</p>
                         <p>0.97</p>
                      </cell>
                      <cell>
-                        <p>13.50 %</p>
+                        <p>13.50%</p>
                         <p>0.91</p>
                      </cell>
                      <cell>
-                        <p>6.38 %</p>
+                        <p>6.38%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>8.81 %</p>
+                        <p>8.81%</p>
                         <p>0.97</p>
                      </cell>
                      <cell>
-                        <p>8.79 %</p>
+                        <p>8.79%</p>
                         <p>0.82</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-02</cell>
-                     <cell>364
-                                582</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-02</cell>
+                     <cell>364,582</cell>
                      <cell>
-                        <p>4.05 %</p>
+                        <p>4.05%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>17.00 %</p>
+                        <p>17.00%</p>
                         <p>0.53</p>
                      </cell>
                      <cell>
-                        <p>21.00 %</p>
+                        <p>21.00%</p>
                         <p>0.94</p>
                      </cell>
                      <cell>
-                        <p>24.43 %</p>
+                        <p>24.43%</p>
                         <p>0.88</p>
                      </cell>
                      <cell>
-                        <p>33.51 %</p>
+                        <p>33.51%</p>
                         <p>0.83</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-03</cell>
-                     <cell>1 197
-                                470</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-03</cell>
+                     <cell>1,197,470</cell>
                      <cell>
-                        <p>6.10 %</p>
+                        <p>6.10%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>3.34 %</p>
+                        <p>3.34%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>7.43 %</p>
+                        <p>7.43%</p>
                         <p>0.93</p>
                      </cell>
                      <cell>
-                        <p>13.62 %</p>
+                        <p>13.62%</p>
                         <p>0.20</p>
                      </cell>
                      <cell>
-                        <p>10.44 %</p>
+                        <p>10.44%</p>
                         <p>0.99</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-04</cell>
-                     <cell>371
-                                909</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-04</cell>
+                     <cell>371,909</cell>
                      <cell>
-                        <p>25.74 %</p>
+                        <p>25.74%</p>
                         <p>0.83</p>
                      </cell>
                      <cell>
-                        <p>27.00 %</p>
+                        <p>27.00%</p>
                         <p>0.90</p>
                      </cell>
                      <cell>
-                        <p>23.46 %</p>
+                        <p>23.46%</p>
                         <p>0.91</p>
                      </cell>
                      <cell>
-                        <p>4.94 %</p>
+                        <p>4.94%</p>
                         <p>0.67</p>
                      </cell>
                      <cell>
-                        <p>18.86 %</p>
+                        <p>18.86%</p>
                         <p>0.97</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-05</cell>
-                     <cell>285
-                                386</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-05</cell>
+                     <cell>285,386</cell>
                      <cell>
-                        <p>22.12 %</p>
+                        <p>22.12%</p>
                         <p>0.95</p>
                      </cell>
                      <cell>
-                        <p>39.89 %</p>
+                        <p>39.89%</p>
                         <p>0.81</p>
                      </cell>
                      <cell>
-                        <p>28.83 %</p>
+                        <p>28.83%</p>
                         <p>0.85</p>
                      </cell>
                      <cell>
-                        <p>3.55 %</p>
+                        <p>3.55%</p>
                         <p>0.90</p>
                      </cell>
                      <cell>
-                        <p>5.90 %</p>
+                        <p>5.90%</p>
                         <p>0.94</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-06</cell>
-                     <cell>299
-                                530</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-06</cell>
+                     <cell>299,530</cell>
                      <cell>
-                        <p>63.53 %</p>
+                        <p>63.53%</p>
                         <p>0.64</p>
                      </cell>
                      <cell>
-                        <p>8.56 %</p>
+                        <p>8.56%</p>
                         <p>0.96</p>
                      </cell>
                      <cell>
-                        <p>3.89 %</p>
+                        <p>3.89%</p>
                         <p>0.83</p>
                      </cell>
                      <cell>
-                        <p>2.93 %</p>
+                        <p>2.93%</p>
                         <p>0.78</p>
                      </cell>
                      <cell>
-                        <p>21.09 %</p>
+                        <p>21.09%</p>
                         <p>0.83</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-07</cell>
-                     <cell>1 512
-                                167</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-07</cell>
+                     <cell>1,512,167</cell>
                      <cell>
-                        <p>14.22 %</p>
+                        <p>14.22%</p>
                         <p>0.98</p>
                      </cell>
                      <cell>
-                        <p>4.96 %</p>
+                        <p>4.96%</p>
                         <p>0.91</p>
                      </cell>
                      <cell>
-                        <p>1.79 %</p>
+                        <p>1.79%</p>
                         <p>0.70</p>
                      </cell>
                      <cell>
-                        <p>11.90 %</p>
+                        <p>11.90%</p>
                         <p>0.99</p>
                      </cell>
                      <cell>
-                        <p>9.66 %</p>
+                        <p>9.66%</p>
                         <p>0.99</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-08</cell>
-                     <cell>174
-                                115</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-08</cell>
+                     <cell>174,115</cell>
                      <cell>
-                        <p>3.45 %</p>
+                        <p>3.45%</p>
                         <p>0.00</p>
                      </cell>
                      <cell>
-                        <p>63.19 %</p>
+                        <p>63.19%</p>
                         <p>0.13</p>
                      </cell>
                      <cell>
-                        <p>10.37 %</p>
+                        <p>10.37%</p>
                         <p>0.67</p>
                      </cell>
                      <cell>
-                        <p>22.99 %</p>
+                        <p>22.99%</p>
                         <p>0.10</p>
                      </cell>
                      <cell>
-                        <p>3.45 %</p>
+                        <p>3.45%</p>
                         <p>0.00</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-09</cell>
-                     <cell>374
-                                104</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-09</cell>
+                     <cell>374,104</cell>
                      <cell>
-                        <p>10.69 %</p>
+                        <p>10.69%</p>
                         <p>0.45</p>
                      </cell>
                      <cell>
-                        <p>3.21 %</p>
-                        <p>0.42</p>
+                        <p>*3.21%</p>
+                        <p>*0.42</p>
                      </cell>
                      <cell>
-                        <p>12.57 %</p>
+                        <p>12.57%</p>
                         <p>0.91</p>
                      </cell>
                      <cell>
-                        <p>19.79 %</p>
+                        <p>19.79%</p>
                         <p>0.24</p>
                      </cell>
                      <cell>
-                        <p>24.06 %</p>
+                        <p>24.06%</p>
                         <p>0.80</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-10</cell>
-                     <cell>514
-                                131</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-10</cell>
+                     <cell>514,131</cell>
                      <cell>
-                        <p>19.26 %</p>
+                        <p>19.26%</p>
                         <p>0.97</p>
                      </cell>
                      <cell>
-                        <p>14.20 %</p>
+                        <p>14.20%</p>
                         <p>0.79</p>
                      </cell>
                      <cell>
-                        <p>13.42 %</p>
+                        <p>13.42%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>3.70 %</p>
+                        <p>3.70%</p>
                         <p>0.53</p>
                      </cell>
                      <cell>
-                        <p>13.81 %</p>
+                        <p>13.81%</p>
                         <p>0.93</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-11</cell>
-                     <cell>715
-                                093</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-11</cell>
+                     <cell>715,093</cell>
                      <cell>
-                        <p>11.33 %</p>
+                        <p>11.33%</p>
                         <p>0.86</p>
                      </cell>
                      <cell>
-                        <p>5.73 %</p>
+                        <p>5.73%</p>
                         <p>0.78</p>
                      </cell>
                      <cell>
-                        <p>6.43 %</p>
+                        <p>6.43%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>16.36 %</p>
+                        <p>16.36%</p>
                         <p>0.74</p>
                      </cell>
                      <cell>
-                        <p>9.93 %</p>
+                        <p>9.93%</p>
                         <p>0.93</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-12</cell>
-                     <cell>241
-                                111</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-12</cell>
+                     <cell>241,111</cell>
                      <cell>
-                        <p>14.52 %</p>
+                        <p>14.52%</p>
                         <p>0.66</p>
                      </cell>
                      <cell>
-                        <p>8.71 %</p>
-                        <p>0.86</p>
+                        <p>*8.71%</p>
+                        <p>*0.86</p>
                      </cell>
                      <cell>
-                        <p>6.23 %</p>
-                        <p>0.53</p>
+                        <p>*6.23%</p>
+                        <p>*0.53</p>
                      </cell>
                      <cell>
-                        <p>14.53 %</p>
-                        <p>0.89</p>
+                        <p>*14.53%</p>
+                        <p>*0.89</p>
                      </cell>
                      <cell>
-                        <p>10.39 %</p>
+                        <p>10.39%</p>
                         <p>0.32</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-13</cell>
-                     <cell>417
-                                080</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-13</cell>
+                     <cell>417,080</cell>
                      <cell>
-                        <p>8.16 %</p>
+                        <p>8.16%</p>
                         <p>0.62</p>
                      </cell>
                      <cell>
-                        <p>16.78 %</p>
+                        <p>16.78%</p>
                         <p>0.89</p>
                      </cell>
                      <cell>
-                        <p>14.15 %</p>
+                        <p>14.15%</p>
                         <p>0.90</p>
                      </cell>
                      <cell>
-                        <p>16.54 %</p>
+                        <p>16.54%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>14.39 %</p>
+                        <p>14.39%</p>
                         <p>0.92</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-14</cell>
-                     <cell>731
-                                207</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-14</cell>
+                     <cell>731,207</cell>
                      <cell>
-                        <p>5.88 %</p>
+                        <p>5.88%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>4.10 %</p>
+                        <p>4.10%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>12.45 %</p>
+                        <p>12.45%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>15.73 %</p>
+                        <p>15.73%</p>
                         <p>0.96</p>
                      </cell>
                      <cell>
-                        <p>7.80 %</p>
+                        <p>7.80%</p>
                         <p>1.00</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-15</cell>
-                     <cell>785
-                                198</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-15</cell>
+                     <cell>785,198</cell>
                      <cell>
-                        <p>5.35 %</p>
+                        <p>5.35%</p>
                         <p>0.24</p>
                      </cell>
                      <cell>
-                        <p>3.06 %</p>
-                        <p>0.96</p>
+                        <p>*3.06%</p>
+                        <p>*0.96</p>
                      </cell>
                      <cell>
-                        <p>10.57 %</p>
+                        <p>10.57%</p>
                         <p>0.84</p>
                      </cell>
                      <cell>
-                        <p>2.93 %</p>
-                        <p>0.83</p>
+                        <p>*2.93%</p>
+                        <p>*0.83</p>
                      </cell>
                      <cell>
-                        <p>3.18 %</p>
-                        <p>0.84</p>
+                        <p>*3.18%</p>
+                        <p>*0.84</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-16</cell>
-                     <cell>1 099
-                                103</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-16</cell>
+                     <cell>1,099,103</cell>
                      <cell>
-                        <p>12.46 %</p>
+                        <p>12.46%</p>
                         <p>0.90</p>
                      </cell>
                      <cell>
-                        <p>27.30 %</p>
+                        <p>27.30%</p>
                         <p>0.96</p>
                      </cell>
                      <cell>
-                        <p>7.01 %</p>
+                        <p>7.01%</p>
                         <p>0.99</p>
                      </cell>
                      <cell>
-                        <p>4.00 %</p>
+                        <p>4.00%</p>
                         <p>0.93</p>
                      </cell>
                      <cell>
-                        <p>11.46 %</p>
+                        <p>11.46%</p>
                         <p>0.95</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-17</cell>
-                     <cell>614
-                                032</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-17</cell>
+                     <cell>614,032</cell>
                      <cell>
-                        <p>4.40 %</p>
+                        <p>4.40%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>23.45 %</p>
+                        <p>23.45%</p>
                         <p>0.86</p>
                      </cell>
                      <cell>
-                        <p>37.46 %</p>
+                        <p>37.46%</p>
                         <p>0.96</p>
                      </cell>
                      <cell>
-                        <p>3.26 %</p>
-                        <p>0.75</p>
+                        <p>*3.26%</p>
+                        <p>*0.75</p>
                      </cell>
                      <cell>
-                        <p>17.43 %</p>
+                        <p>17.43%</p>
                         <p>1.00</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-18</cell>
-                     <cell>819
-                                145</cell>
+                   </row>
+                   <row role="data">
+                     <cell role="label">a-18</cell>
+                     <cell>819,145</cell>
                      <cell>
-                        <p>10.74 %</p>
+                        <p>10.74%</p>
                         <p>0.98</p>
                      </cell>
                      <cell>
-                        <p>5.98 %</p>
+                        <p>5.98%</p>
                         <p>0.98</p>
                      </cell>
                      <cell>
-                        <p>15.14 %</p>
+                        <p>15.14%</p>
                         <p>0.96</p>
                      </cell>
                      <cell>
-                        <p>7.33 %</p>
+                        <p>7.33%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>15.63 %</p>
+                        <p>15.63%</p>
                         <p>0.95</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-19</cell>
-                     <cell>765
-                                197</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-19</cell>
+                     <cell>765,197</cell>
                      <cell>
-                        <p>2.75 %</p>
+                        <p>2.75%</p>
                         <p>0.86</p>
                      </cell>
                      <cell>
-                        <p>12.81 %</p>
+                        <p>12.81%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>9.42 %</p>
+                        <p>9.42%</p>
                         <p>0.99</p>
                      </cell>
                      <cell>
-                        <p>9.15 %</p>
+                        <p>9.15%</p>
                         <p>0.89</p>
                      </cell>
                      <cell>
-                        <p>8.49 %</p>
+                        <p>8.49%</p>
                         <p>0.97</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-20</cell>
-                     <cell>1 137
-                                133</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-20</cell>
+                     <cell>1,137,133</cell>
                      <cell>
-                        <p>3.52 %</p>
+                        <p>3.52%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>6.16 %</p>
+                        <p>6.16%</p>
                         <p>0.84</p>
                      </cell>
                      <cell>
-                        <p>4.13 %</p>
+                        <p>4.13%</p>
                         <p>0.98</p>
                      </cell>
                      <cell>
-                        <p>2.11 %</p>
+                        <p>2.11%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>15.04 %</p>
+                        <p>15.04%</p>
                         <p>0.99</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-21</cell>
-                     <cell>703
-                                121</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-21</cell>
+                     <cell>703,121</cell>
                      <cell>
-                        <p>5.41 %</p>
+                        <p>5.41%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>12.38 %</p>
+                        <p>12.38%</p>
                         <p>0.93</p>
                      </cell>
                      <cell>
-                        <p>24.18 %</p>
+                        <p>24.18%</p>
                         <p>0.55</p>
                      </cell>
                      <cell>
-                        <p>2.42 %</p>
-                        <p>0.65</p>
+                        <p>**2.42%</p>
+                        <p>**0.65</p>
                      </cell>
                      <cell>
-                        <p>8.25 %</p>
+                        <p>8.25%</p>
                         <p>0.98</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-22</cell>
-                     <cell>618
-                                089</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-22</cell>
+                     <cell>618,089</cell>
                      <cell>
-                        <p>6.15 %</p>
+                        <p>6.15%</p>
                         <p>0.79</p>
                      </cell>
                      <cell>
-                        <p>5.50 %</p>
+                        <p>5.50%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>5.34 %</p>
+                        <p>5.34%</p>
                         <p>0.94</p>
                      </cell>
                      <cell>
-                        <p>2.91 %</p>
+                        <p>2.91%</p>
                         <p>0.56</p>
                      </cell>
                      <cell>
-                        <p>17.64 %</p>
+                        <p>17.64%</p>
                         <p>0.88</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>a-23</cell>
-                     <cell>683
-                                108</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-23</cell>
+                     <cell>683,108</cell>
                      <cell>
-                        <p>9.66 %</p>
+                        <p>9.66%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>25.92 %</p>
+                        <p>25.92%</p>
                         <p>0.98</p>
                      </cell>
                      <cell>
-                        <p>9.37 %</p>
+                        <p>9.37%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>16.84 %</p>
+                        <p>16.84%</p>
                         <p>1.00</p>
                      </cell>
                      <cell>
-                        <p>9.08 %</p>
+                        <p>9.08%</p>
                         <p>0.98</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>average (per author)</cell>
-                     <cell>672
-                                443</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Average (Per Author)</cell>
+                     <cell>672,443</cell>
                      <cell>
-                        <p>12.05 %</p>
+                        <p>12.05%</p>
                         <p>0.81</p>
                      </cell>
                      <cell>
-                        <p>15.32 %</p>
+                        <p>15.32%</p>
                         <p>0.84</p>
                      </cell>
                      <cell>
-                        <p>12.65 %</p>
+                        <p>12.65%</p>
                         <p>0.89</p>
                      </cell>
                      <cell>
-                        <p>10.03 %</p>
+                        <p>10.03%</p>
                         <p>0.76</p>
                      </cell>
                      <cell>
-                        <p>12.97 %</p>
+                        <p>12.97%</p>
                         <p>0.86</p>
                      </cell>
-                  </row>
-                  <row role="data">
-                     <cell>full performance</cell>
-                     <cell>
-                        <hi rend="italic">672 443</hi>
-                     </cell>
-                     <cell>
-                        <hi rend="italic">0.86</hi>
-                     </cell>
-                     <cell>
-                        <hi rend="italic">0.86</hi>
-                     </cell>
-                     <cell>
-                        <hi rend="italic">0.90</hi>
-                     </cell>
-                     <cell>
-                        <hi rend="italic">0.77</hi>
-                     </cell>
-                     <cell>
-                        <hi rend="italic">0.92</hi>
-                     </cell>
-                  </row>
+                   </row>
+                   <row>
+                     <cell><hi rend="italic">Full Performance</hi></cell>
+                     <cell>672,443</cell>
+                     <cell>0.86</cell>
+                     <cell>0.86</cell>
+                     <cell>0.90</cell>
+                     <cell>0.77</cell>
+                     <cell>0.92</cell>
+                   </row>
                </table>
-               <p>The following table shows the correlation coefficients of the authors’
-                        accuracies to the “train”:“test” ratio, full token count, “test” token
-                        count, and “train” token count:</p>
-               <p>Caption: &lt;Correlation coefficients of the
-                            authors’ accuracies to the train:test ratio; full token count; test
-                            token count; and train token count.&gt;</p>
+               <p>The following table shows the correlation coefficients of the authors' accuracies to the <q>train</q>:<q>test</q> 
+                  ratio, full token count, <q>test</q> token count, and <q>train</q> token count:
+               </p>
                <table>
-                  <row role="data">
+                 <head>Correlation coefficients of the authors' accuracies to the <q>train</q>:<q>test</q> ration, full token count, 
+                   <q>test</q> token count, and <q>train</q> token count.</head>
+                   <row role="label">
                      <cell/>
-                     <cell>Set 1</cell>
-                     <cell>Set 2</cell>
-                     <cell>Set 3</cell>
-                     <cell>Set 4</cell>
-                     <cell>Set 5</cell>
-                  </row>
-                  <row role="data">
-                     <cell>train ratio</cell>
+                     <cell role="label">Set 1</cell>
+                     <cell role="label">Set 2</cell>
+                     <cell role="label">Set 3</cell>
+                     <cell role="label">Set 4</cell>
+                     <cell role="label">Set 5</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Train Ratio</cell>
                      <cell>-0.19474</cell>
                      <cell>-0.01766</cell>
                      <cell>-0.01495</cell>
                      <cell>-0.18115</cell>
                      <cell>0.176758</cell>
-                  </row>
-                  <row role="data">
-                     <cell>full token count</cell>
+                   </row>
+                   <row>
+                     <cell>Full Token Count</cell>
                      <cell>0.356384</cell>
                      <cell>0.390591</cell>
                      <cell>0.234502</cell>
                      <cell>0.259228</cell>
                      <cell>0.502111</cell>
-                  </row>
-                  <row role="data">
-                     <cell>test token count </cell>
+                   </row>
+                   <row>
+                     <cell>Test Token Count </cell>
                      <cell>0.091817</cell>
                      <cell>0.217205</cell>
                      <cell>0.126774</cell>
                      <cell>0.099459</cell>
                      <cell>0.510302</cell>
-                  </row>
-                  <row role="data">
-                     <cell>train token count</cell>
+                   </row>
+                   <row>
+                     <cell>Train Token Count</cell>
                      <cell>0.358298</cell>
                      <cell>0.361026</cell>
                      <cell>0.217488</cell>
                      <cell>0.268124</cell>
                      <cell>0.477041</cell>
-                  </row>
+                   </row>
                </table>
                <p>These data show that while there are some tendencies in the correlations, in
                         general, these correlations are unstable, and the most significant feature
@@ -1495,7 +1453,8 @@
                         perform worse. There is likely not enough data to be trained on, and at the
                         same time, there are only a few test passages (only 3 in the case of sets 1
                         and 5), so the model has few chances to accurately predict his authorship of
-                        a segment, further increasing the variance of the result.</p>
+                        a segment, further increasing the variance of the result.
+               </p>
                <p>On the other end of the data size spectrum, K. Sabina (a-07), who has the
                         highest number of tokens, performs very well but not the best, and his
                         worst-performing test book is the shortest of the 5 – the one with the
@@ -1509,7 +1468,8 @@
                         (short) novels, this book is one of the outcomes of his journalism career. A
                         similar influence may be observed in the case of V. Hálek (a-21) in set 3:
                         the work <hi rend="italic">Fejetony</hi> used for testing is also
-                        journalistic.</p>
+                        journalistic.
+               </p>
                <p>This further opens the question of the influence of genres on the performance
                         of the models. In general, there are journalistic works counted among the
                         prose, and we may also point to several cases of drama or poetry. The works
@@ -1519,33 +1479,38 @@
                         The influence of genre is not that significant for K. Čapek (a-15, sets 2,
                         4, 5) or J. Vrchlický (a-12, sets 2, 3, 4), probably because, in their
                         cases, there are several books of drama that provide a sufficient base for
-                        testing.</p>
+                        testing.
+               </p>
                <p>On the other hand, for V. Hálek (a-21, set 4) or K. Sabina (a-17, set 4), the
                         deviance in genre results in a significant drop in performance, probably
                         because there is no training data for support. However, even though the
                         performance has significantly dropped in these cases, it is still much
                         higher than a random baseline, and some other authors who write consistently
-                        in one genre perform much worse.</p>
+                        in one genre perform much worse.
+               </p>
                <p>There are several other cases where the influence of the selected test book
                         can be well explained. For example, V. Hálek (a-21) shows a 1.00 accuracy in
                         set 1. A simple look at the dataset does not explain such a success.
                         However, the work <hi rend="italic">Na statku a v chaloupce</hi> (a-21.b-09)
                         is a short story that is also included in <hi rend="italic">Kresby křídou i
                             tuší</hi> (a-21.b-10) that has been used for training. Such overlaps in
-                        datasets are easily created when based on real-life library scenarios.</p>
+                        datasets are easily created when based on real-life library scenarios.
+               </p>
                <p>We believe that the data and discussion presented here clearly illustrate the
                         problem and influence of the test-book selection. In addition, we can see
                         that reporting the overall statistics of authorship classification
                         performance can cover up significant specific high-variance issues that come
-                        up in more detailed analysis.</p>
-            </div>
-            <div>
-               <head>Step 3. Books as targets</head>
+                        up in more detailed analysis.
+               </p>
+           </div>
+           <div>
+             <head>Step 3. Books as targets</head>
                <p>Our third experiment aims to discover the structure of stylistic similarity
                         within individual authors. As hinted by the large differences between
                         cross-validation runs, the stylistic differences among individual books of
                         an author vary significantly. We are interested in the characteristics of
-                        these dissimilarities.</p>
+                        these dissimilarities.
+               </p>
                <p>To expose these characteristics, we run the classification pipeline with the
                         210 individual books as output classes (instead of the 23 authors) and
                         observe misclassification patterns. If an author’s style is highly
@@ -1556,7 +1521,7 @@
                         of possible results for the classification of a segment: (a) the correct
                         book, (b) the wrong book by the same author, and (c) a book by a different
                         author. If we assume that misclassification is a good proxy for similarity
-                        (which we examine later), then we can define the following: </p>
+                        (which we examine later), then we can define the following:
                <list rend="bulleted">
                   <item>The greater the ratio of b / (a + b), the more consistent an author’s
                             style is. </item>
@@ -1565,6 +1530,7 @@
                   <item>The greater the ratio of (a + b) / (a + b + c), the more distinctive
                             an author is.</item>
                </list>
+               </p>
                <p>We have split each book into 80 % of training and 20 % of test segments (see
                         above). In this step, two sets of experiments were run. In the first, only
                         books with over 20,000 tokens were used to ensure decent model training
