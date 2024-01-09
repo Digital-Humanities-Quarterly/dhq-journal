@@ -4,8 +4,8 @@
   
   <!--<sch:let name="toc-article-group-types" value="('editorials', 'articles', 'reviews', 'case_studies', 'frontmatter', 'issues', 'posters')"/>-->
   
- <!-- <sch:pattern>
-    <sch:rule context="list">
+  <sch:pattern>
+    <!-- <sch:rule context="list">
       <sch:assert test="@id = $toc-article-group-types">list/@id is not one of 
         <sch:value-of select="string-join(for $t in ($toc-article-group-types) return concat('''',$t,''''), ', ')"/></sch:assert>
       <sch:report test="@id = preceding-sibling::*/@id">list/@id '<sch:value-of select="@id"/>' already appears
