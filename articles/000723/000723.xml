@@ -91,7 +91,7 @@
                   <item>dataset design</item>
                   <item>Czech</item>
                   <item>experiment design</item>
-                  <item>delexicalization</item>
+                  <item>delexicalisation</item>
                </list>
             </keywords>
             <keywords scheme="#project_keywords">
@@ -119,7 +119,8 @@
                are used wholly either for training or testing. Expectedly, this leads to poorer results. In the third step, we do not 
                attribute book segments to authors but to books themselves. This step reveals that there is a general tendency towards 
                attributing to a specific book rather than to different books of the same author. The results indicate that authors 
-               who show a higher inner confusion among their works tend to perform better in the task of attribution of an unseen book.</p>
+               who show a higher inner confusion among their works (i.e., the model attributes their works to other works of theirs) 
+               tend to perform better in the task of attribution of an unseen book.</p>
          </dhq:abstract>
          <dhq:teaser>
             <p>Do machine learning algorithms recognise author style, or rather a specific book an author has written?</p>
@@ -313,7 +314,7 @@
                some authors are more consistent across their work, allowing us to accurately attribute to them a book which has never 
                been seen within the training process, while other authors vary their style to such an extent that attributing an unseen book 
                to them is almost impossible. In these cases, when trained and tested across the dataset, we are actually attributing 
-               individual books and not the author.
+               the style of texts to individual books rather than the authors.
             </p>
             <p>Second, the books we have chosen vary greatly in length. <ptr target="#gorman2022"/> has chosen works that include at 
                least 20,000 tokens. In our dataset, we have 17 books that do not reach this limit, but we compensate for this by 
@@ -345,7 +346,8 @@
                    imprints, tables of contents, forewords, afterwords, and endnotes. Finally, hyphenated words were restored across 
                    line boundaries and page boundaries. For the sake of keeping the pipeline simple, we did not fix OCR errors; they 
                    could, however, be mitigated using, for example, the LINDAT Korektor service.<note>Available at:  
-                   <ref target="http://lindat.mff.cuni.cz/services/korektor/">http://lindat.mff.cuni.cz/services/korektor/</ref>.</note>
+                   <ref target="http://lindat.mff.cuni.cz/services/korektor/">http://lindat.mff.cuni.cz/services/korektor/</ref>, 
+                   accessed 5 April 2023.</note>
                </p>
             </div>
             <div>
@@ -387,7 +389,8 @@
                 <p>As stated above, we have delexicalised the dataset using the publicly available Application Programming Interface (API) 
                    of UDPipe at LINDAT/CLARIAH.<note>Available at: 
                    <ref target="https://lindat.mff.cuni.cz/services/udpipe/api-reference.php">
-                   https://lindat.mff.cuni.cz/services/udpipe/api-reference.php</ref>; see <ptr target="#straka2018"/>.</note> The
+                   https://lindat.mff.cuni.cz/services/udpipe/api-reference.php</ref>, accessed 5 April 2023; see 
+                   <ptr target="#straka2018"/>.</note> The
                    UDPipe service performs canonical tokenisation and outputs a set of extracted features for each token. For the purpose 
                    of this article, we have applied delexicalisation that replaces all of the autosemantic words<note>Autosemantic words, 
                    as recognized by UDPipe, are: nouns (NOUN), proper nouns (PROPN), adjectives (ADJ), verbs (VERB), adverbs (ADV), 
@@ -402,8 +405,8 @@
                   while not being the state-of-the-art approach, using POS and lemmatisation is well established in the authorship 
                   attribution field <ptr target="#swain_mishra_sindhu2017"/>.
                </p>
-               <p>In addition to using the above mentioned form of delexicalisation, we have performed a variety of delexicalizations 
-                  for a smaller subset of 6 authors (30 books) to explore the effects of different levels of delexicalization on the 
+               <p>In addition to using the above mentioned form of delexicalisation, we have performed a variety of delexicalisations 
+                  for a smaller subset of 6 authors (30 books) to explore the effects of different levels of delexicalisation on the 
                   performance of various classifiers (see below). Still, these forms of delexicalisation do not reach the complexity of 
                   the approach utilized by <ptr target="#gorman2022"/>.</p>
             </div>
@@ -424,7 +427,7 @@
                  been segmented in the same way as the larger dataset used for the rest of the experiments (1000, 500, 200, 100, and 50 tokens). 
               </p>
               <p>The different modes of delexicalisation were abbreviated as <q>r-codes</q>, from r-04 to r-13.<note>Codes r-01, r-02, and 
-                 r-03 were used in preparation for further delexicalization; therefore, we start with r-04.</note> The baseline where no 
+                 r-03 were used in preparation for further delexicalisation; therefore, we start with r-04.</note> The baseline where no 
                  delexicalisation was applied is r-04. Delexicalisations based on UDPipe are applied in r-05 through r-09.<note>Aside from 
                  the word form for non-delexicalised baselines, we have used the lemma, the full morphological tag according to the Universal 
                  Dependencies specification, and at the coarsest level of granuality, the universal part-of-speech tag. See 
@@ -462,16 +465,18 @@
                      <item>Decision Tree (sklearn.tree.DecisionTreeClassifier)</item>
                    </list>
               </p>
-              <p>We used the same feature extraction settings for each. The only adjusted setting was word n-gram size, set to unigrams, 
-                 bigrams, and trigrams. The training was performed using only the <q>train</q> passages, and the evaluation using only 
-                 the <q>test</q> passages. Because we used the default settings, the <q>devel</q> passages were unnecessarily ignored 
-                 during this phase. We performed multiple runs of trainings and evaluations across the classifiers and pre-processing.
+              <p>We used the same feature extraction settings for each (sklearn.feature_extraction.text.CountVectorizer). The only adjusted 
+                 setting was word n-gram size, set to unigrams, bigrams, and trigrams 
+                 (vectorizer = CountVectorizer(ngram_range=(n_min, n_max))). The training was performed using only the <q>train</q> passages, 
+                 and the evaluation using only the <q>test</q> passages. Because we used the default settings, the <q>devel</q> passages were 
+                 unnecessarily ignored during this phase. We performed multiple runs of trainings and evaluations across the classifiers 
+                 and pre-processing.
               </p>
               <p>As an example, we provide here a table of results representing the accuracy scores of the LinearSVC classifier run 
                  across all books with different pre-processing.
               </p>
               <table>
-                <head>Table of results using varying levels of delexicalization. The higher the number, the better the classification performance.</head> 
+                <head>Table of results using varying levels of delexicalisation. The higher the number, the better the classification performance.</head> 
                 <row>
                    <cell role="label"><hi rend="italic">Segment Length</hi></cell> 
                    <cell role="label">s-1000</cell>
@@ -585,8 +590,8 @@
                         <item>Next, we performed the experiment with the same settings, but this time we built the <q>test</q> set by 
                            choosing <emph>one book from each author</emph> and adding <emph>all its segments</emph> into the test set. All 
                            other books of each author were used in their entirety for training. In this <q>harder</q> setting, performance 
-                           dropped significantly, which is the main point of this paper. Furthermore, classification performance seemed 
-                           to depend on the selection of the testing books.
+                           dropped significantly, which is the main point of this paper. Furthermore, classification performance was 
+                           influenced by the selection of the testing books.
                         </item>
                         <item>Finally, we performed the same experiment as outlined in #1, but instead of classifying by author, we classified 
                            segments into individual books. With this experiment, it is possible to discuss further why the test-book 
@@ -1155,7 +1160,7 @@
                <figure>
                   <head>Results of classification of books by individual authors, in numbers of segments attributed to the correct book 
                      (blue), other books of the same author (yellow), and books of a different author (red); created using Flourish 
-                     (<ref target="https://flourish.studio/">https://flourish.studio/</ref>)</head>
+                     (<ref target="https://flourish.studio/">https://flourish.studio/</ref>, accessed 5 April 2023)</head>
                   <graphic url="resources/fig01.png"/>
                </figure>
                <p>These results may be compared with the experiments performed in Step 2. The author a-20 (<name>S. K. Neumann</name>) can 
@@ -1171,7 +1176,7 @@
                </p>
                <figure>
                   <head>Heatmaps of intra-author classification for a-20 and a-06; created using Flourish 
-                     (<ref target="https://flourish.studio/">https://flourish.studio/</ref>)</head>
+                     (<ref target="https://flourish.studio/">https://flourish.studio/</ref>, accessed 5 April 2023)</head>
                   <graphic url="resources/fig02.png"/>
                </figure>
                <p>These experiments show that, albeit delexicalised, most books tend to be recognised as themselves, meaning that most 
@@ -1593,9 +1598,9 @@
          </div>
          <div>
            <head>Acknowledgements</head>
-             <p>Realised with the support of institutional research of the <name>National Library of the Czech Republic</name>, 
-               funded by the <name>Ministry of Culture</name> of the Czech Republic as part of the framework of long-term conception 
-               developement of scientific organisation.
+             <p>Realised with the support of <title rend="italic">Institutional Research</title> of the <name>National Library of the Czech Republic</name>, 
+               funded by the <name>Ministry of Culture</name> of the Czech Republic as part of the framework of <title rend="italic">Long-Term Conception 
+               Developement of Scientific Organisation</title>.
              </p>
          </div>
          <div type="appendix">
