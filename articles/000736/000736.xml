@@ -350,370 +350,252 @@
                    <ptr target="#strobel_et_al_2022"/>.
                 </p>
                 <p>We used a statistical language model of character trigrams, following work on authorship analysis 
-                   <ptr target="#pavlopoulos_konstantinidou_2023"/>, using text from our transcriptions to train the model. The transcribed text comprises 1,707 lines that add up to 81,965 character tokens and 135 unique characters. Then, we used the language model
+                   <ptr target="#pavlopoulos_konstantinidou_2023"/>, using text from our transcriptions to train the model. The transcribed text 
+                   comprises 1,707 lines that add up to 81,965 character tokens and 135 unique characters. Then, we used the language model 
+                   <formula rend="inline" notation="tex">\(M\)</formula> that was trained on transcribed text to compute the average cross-entropy of 
+                   the <formula rend="inline" notation="tex">\(N\)</formula> starting characters from each of our recognised texts, where
+                   <formula rend="inline" notation="tex">\(N = 500\)</formula>. Also known as Bits Per Character (BPC), this is the average negative 
+                   base two log probability that <formula rend="inline" notation="tex">\(M\)</formula> will generate character 
+                   <formula rend="inline" notation="tex">\(c_{t+1}\)</formula> if the preceding characters were 
+                   <formula rend="inline" notation="tex">\(c_{1}...c_{t}\)</formula>. More formally, BPC can be defined as: 
+                   <formula rend="block" notation="tex">$$BPC = -\frac{1}{N}\sum_{t=1}^{N}log_{2}P(c_{t+1}; M; c_{1}...c_{t})$$</formula>
                 </p>
                   <figure>
-                    <head/>
-                      <graphic url="media/image3.png"/>
+                    <head>Histogram of BPC scores for the beginnings of the recognised texts.</head>
+                      <graphic url="media/fig03.png"/>
                   </figure>
-                <p>We used BPC as a quality
-                            indicator, with lower values indicating recognition of high quality. As
-                            can be seen in Figure 3, the score is normally distributed around 4.2
-                            (st.d.
-                            0.78) with outliers on the right side. These are mainly texts with many
-                            recognition errors, which occur across our corpus (Figure 4) and are
-                            meaningless to the rest of our study. Hence, we discarded any text with
-                            a BPC that was greater than two units of the standard deviation above
-                            the mean, resulting in 3010 texts that we used for information
-                            extraction and analysis. To the best of our knowledge, language
-                            modelling has not been used before in published studies to filter out
-                            low-quality recognition, but our study shows that this could be a
-                            promising direction.
+                <p>We used BPC as a quality indicator, with lower values indicating recognition of high quality. As can be seen in Figure 3, the score 
+                   is normally distributed around 4.2 (st.d. 0.78) with outliers on the right side. These are mainly texts with many recognition errors, 
+                   which occur across our corpus (Figure 4) and are meaningless to the rest of our study. Hence, we discarded any text with a BPC that 
+                   was greater than two units of the standard deviation above the mean, resulting in 3,010 texts that we used for information extraction 
+                   and analysis. To the best of our knowledge, language modelling has not been used before in published studies to filter out 
+                   low-quality recognition, but our study shows that this could be a promising direction.
                 </p>
                   <figure>
-                    <head/>
-                      <graphic url="media/image4.png"/>
+                    <head>BPC achieved per recognised text. The text's index is shown horizontally and lower scores indicate better quality.</head>
+                      <graphic url="media/fig04.png"/>
                   </figure>
             </div>
         </div>
         <div>
           <head>5 Information Extraction</head>
-            <p>To extract historical information from the corpus resulting from the recognition, we should be able to detect occurrences of dates and names. This is a Named Entity Recognition (NER) problem that is often addressed with supervised learning. Existing solutions, however, are not trained on noisy text and do not perform well. For instance, spaCy<note> https://spacy.io/.</note> found no dates, while names were returned with many false positives. Therefore, we opted for recognising names and dates using regular expressions.</p>
-            <p>An exploration of the
-                        proceedings revealed patterns capturing named entities of speakers,
-                        applause, and dates. For instance, when a speaker started speaking, their
-                        name was printed with spaces between the characters, to indicate the
-                        beginning of a new speech and to highlight the name. Sittings of the
-                        parliament were identified by an enumeration, followed by the date.
-                        Furthermore, an annotation (χειροκροτήματα / applause, παρατεταμένα χειροκροτήματα /
-                        extended applause) reflected the listeners’ approval, enthusiasm, or
-                        positive feedback on a subject or opinion. This annotation can be found at
-                        the end of every sentence that was applauded. We encoded these observations
-                        into the regular expressions presented in Table 2, which we applied to each
-                        text of our corpus.</p>
+            <p>To extract historical information from the corpus resulting from the recognition, we should be able to detect occurrences of dates and 
+               names. This is a Named Entity Recognition (NER) problem that is often addressed with supervised learning. Existing solutions, however, 
+               are not trained on noisy text and do not perform well. For instance, spaCy<note>See 
+               <ref target="https://spacy.io/">https://spacy.io/</ref>.</note> found no dates, while names were returned with many false positives. 
+               Therefore, we opted for recognising names and dates using regular expressions.
+            </p>
+            <p>An exploration of the proceedings revealed patterns capturing named entities of speakers, applause, and dates. For instance, when a 
+               speaker started speaking, their name was printed with spaces between the characters, to indicate the beginning of a new speech and to 
+               highlight the name. Sittings of the parliament were identified by an enumeration, followed by the date. Furthermore, an annotation 
+               (<q xml:lang="gre">χειροκροτήματα</q> / <q>applause</q>, <q xml:lang="gre">παρατεταμένα χειροκροτήματα</q> / <q>extended applause</q>) 
+               reflected the listeners' approval, enthusiasm, or positive feedback on a subject or opinion. This annotation can be found at the end of 
+               every sentence that was applauded. We encoded these observations into the regular expressions presented in Table 2, which we applied to 
+               each text of our corpus.
+            </p>
             <table>
-               <row role="data">
-                  <cell>Type</cell>
-                  <cell>Named
-                                Entity</cell>
-                  <cell>Regular Expression</cell>
-               </row>
-               <row role="data">
-                  <cell>APPLAUSE</cell>
+               <head>Regular expressions capturing named entities of applause, speakers, and dates. Example entities captured by the respective expression 
+                     presented in the middle.</head>
+                <row role="label">
+                  <cell role="label">Type</cell>
+                  <cell role="label">Named Entity</cell>
+                  <cell role="label">Regular Expression</cell>
+                </row>
+                <row>
+                  <cell role="label">APPLAUSE</cell>
                   <cell>χἰροκροτήματα</cell>
                   <cell>.(\(*(κροτ)\)*).</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>SPEAKER</p>
-                  </cell>
-                  <cell>Θ ε ο τ ό κ
-                                η</cell>
+                </row>
+                <row>
+                  <cell role="label">SPEAKER</cell>
+                  <cell>Θ ε ο τ ό κ η</cell>
                   <cell>[\s]̇*([Α-ΩἈἉἊἘἙἚἸἹἺὈὉὊ’ΥὙὛὨὩὫ]\s([α-ωάᾶὰἆέὲύϋῦὺὖὒίϊῖὶἶόὸώῶὼὦὢ]{1,3}\s){1,8})[\s]̇*</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>DATE</p>
-                  </cell>
-                  <cell>Πέμπτη 16 Μαΐου
-                            1946</cell>
+                </row>
+                <row>
+                  <cell role="label">DATE</cell>
+                  <cell>Πέμπτη 16 Μαΐου 1946</cell>
                   <cell>([Α-ΩΆΈΎΊΌΏἈἘἸὈὨᾺῈῪῚῸῺἊἚἺὊὪα-ωάέύίήόὶὺὰὲὸὴῖῦᾶῆ]+\s+[0-9]+\s+[Α-ΩΆΈΎΊΌΏἈἘἸὈὨῈῪῚῸῺἊἚἺὊὪα-ωάέύίήώόὶὺὰὲὼὸῖῦᾶῆϊϋΐΰ]+\s+[0-9]+*̇)</cell>
-               </row>
+                </row>
             </table>
-            <p>Table
-                    2. Regular expressions capturing named entities of applause, speakers, and dates. Example entities captured by the respective expression presented in the middle.</p>
-            <p>To verify that the found
-                        named entities are valid, we performed a manual investigation of the
-                        results. During this investigation, we removed 52 date entities and 36
-                        applause entities that were mistakenly detected. These mistakes were mainly
-                        due to OCR mistakes, leading to words that were falsely recognized. For
-                        example, “<hi rend="italic">'</hi>
-               <hi rend="italic">τοῦ ἀπὸ 13
-                        Μψρόυ 132ῇ'</hi>” matches our regular expression
-                        for the date but it is actually a noisy string (see Subsection: Quality
-                        Assessment above). Another frequent mistake type, regarding dates, stems
-                        from law codes. Laws are often written in the form of a year followed by a
-                        left parenthesis and then a number, yielding terms that can be matched by
-                        our date regular expression, especially if OCR mistakes alter the text
-                        further. Mistaken detection of applause concerned mainly words comprising
-                        “<hi rend="italic">κροτ</hi>”. On the other hand, we expect to have missed named entities, for example in cases of spelling errors, such as in the following text (Page ID: main22_2): <hi rend="italic">“Δν πρέπει νὰ λγηντειαὐτά εἰς παραμονὰς
-                        ἒκλογον καὶ ἀπο εκενους ες τοῦς ὁποίους εἶχεν ἀνατεθῇ ἡ δακυβίρνησῃ τῆς ὑρας
-                        (χεροκροήματα)”</hi>. The translation is: “Those
-                        words shouldn’t be said in the eve of elections and from the those tasked
-                        with governing the country (applause)”. The text in Greek has many spelling
-                        errors, including “χειροκροτήματα”, which has been recognised as
-                        “χεροκροήματα”. With “τ” missing from the word, regular expressions would
-                        not capture it.</p>
-         </div>
-         <div>
-            <head>6 Historical Analysis</head>
-            <p>The extracted information
-                        can unlock historical analysis of the political status quo of Greece in the
-                        studied period. The topics that were more often applauded, as these were
-                        identified by manual inspection by a historian that was part of the team,
-                        revolved around anticommunist speech and comments (Figure 5). These mainly
-                        refer to the left-wing organisations of the National Liberation Front
-                        (E.A.M.), a diverse alliance that fought to liberate Greece from the Axis
-                        Occupation, and its military branch, the Greek People’s Liberation Army
-                        (E.L.A.S.). It had been created by the Communist Party of Greece (K.K.E.)
-                        and at the time they were fighting against the official Greek state in the
-                        Civil War. During this war, as well as for the following decades,
-                        representatives of the communist party were not present in the
-                        parliament.<note> There were
-                                no representatives of the official Communist Party (being illegal)
-                                until 1974. Nevertheless, K.K.E had created the United Democratic
-                                Left (E.D.A.), which was its legal representative in the parliament.
-                                In the elections of 1958 E.D.A. became the leading
-                                oppositionparty.</note> This situation not only facilitated anticommunist discourse but also embraced the idea that Communism was something hostile to Greece that should be fought. For instance, the MP T. Tourkovasilis was applauded after stating that “The enemies of Greece should know, that our Motherland was the grave of Hitlerism, it was the grave of Mussolinism, our motherland will also be the grave of Communism without doubt”.<note> Page ID: main1367_2.</note>
+            <p>To verify that the found named entities are valid, we performed a manual investigation of the results. During this investigation, we 
+               removed 52 date entities and 36 applause entities that were mistakenly detected. These mistakes were mainly due to OCR mistakes, leading 
+               to words that were falsely recognized. For example, <q xml:lang="gre">τοῦ ἀπὸ 13 Μψρόυ 132ῇ'</q> matches our regular expression for the 
+               date but it is actually a noisy string (see Subsection: Quality Assessment above). Another frequent mistake type, regarding dates, stems 
+               from law codes. Laws are often written in the form of a year followed by a left parenthesis and then a number, yielding terms that can be 
+               matched by our date regular expression, especially if OCR mistakes alter the text further. Mistaken detection of applause concerned 
+               mainly words comprising <q xml:lang="gre">κροτ</q>. On the other hand, we expect to have missed named entities, for example in cases of 
+               spelling errors, such as in the following text (Page ID: main22_2): <q xml:lang="gre">Δν πρέπει νὰ λγηντειαὐτά εἰς παραμονὰς ἒκλογον καὶ 
+               ἀπο εκενους ες τοῦς ὁποίους εἶχεν ἀνατεθῇ ἡ δακυβίρνησῃ τῆς ὑρας (χεροκροήματα)</q>. The translation is: <quote rend="inline">Those 
+               words shouldn't be said in the eve of elections and from the those tasked with governing the country (applause)</quote>. The text in 
+               Greek has many spelling errors, including <q xml:lang="gre">χειροκροτήματα</q>, which has been recognised as 
+               <q xml:lang="gre">χεροκροήματα</q>. With <q xml:lang="gre">τ</q> missing from the word, regular expressions would not capture it.
+            </p>
+        </div>
+        <div>
+          <head>6 Historical Analysis</head>
+            <p>The extracted information can unlock historical analysis of the political status quo of Greece in the studied period. The topics that 
+               were more often applauded, as these were identified by manual inspection by a historian that was part of the team, revolved around 
+               anticommunist speech and comments (Figure 5). These mainly refer to the left-wing organisations of the 
+               <name>National Liberation Front</name> (<name>E.A.M.</name>), a diverse alliance that fought to liberate Greece from the 
+               <name>Axis Occupation</name>, and its military branch, the <name>Greek People's Liberation Army</name> (<name>E.L.A.S.</name>). It had 
+               been created by the <name>Communist Party of Greece</name> (<name>K.K.E.</name>) and at the time they were fighting against the 
+               official Greek state in the Civil War. During this war, as well as for the following decades, representatives of the communist party were 
+               not present in the parliament.<note>There were no representatives of the official Communist Party (being illegal) until 1974. 
+               Nevertheless, <name>K.K.E.</name> had created the <name>United Democratic Left</name> (<name>E.D.A.</name>), which was its legal 
+               representative in the parliament. In the elections of 1958 <name>E.D.A.</name> became the leading opposition party.</note> This situation 
+               not only facilitated anticommunist discourse but also embraced the idea that communism was something hostile to Greece that should be 
+               fought. For instance, the MP <name>T. Tourkovasilis</name> was applauded after stating that <quote rend="inline">The enemies of Greece 
+               should know, that our Motherland was the grave of Hitlerism, it was the grave of Mussolinism, our motherland will also be the grave of 
+               Communism without doubt</quote>.<note>Page ID: main1367_2.</note>
             </p>
             <figure>
-               <head/>
-               <graphic url="media/image5.png"/>
+              <head>Five most applauded topics in a sample of 50 pages.</head>
+                <graphic url="media/fig05.png"/>
             </figure>
-            <p>Figure
-                    5. Five most applauded topics in a sample of 50 pages.</p>
-            <p>The Greek state at that
-                        period had a democratic government, but a flimsy one. Mainly due to the
-                        Civil War, the state excluded part of its population from political life
-                        (i.e., the ones who were believed to be communists were persecuted by the
-                        state) and the country was characterised by a climate of White and Red
-                        Terror,<note> The “White Terror” and “Red Terror” were political purges that took place in Greece after WWII. The “White Terror” targeted left-wing groups and the “Red Terror” targeted right-wing groups, leading to a brutal period of violence and repression.</note> which inflamed the political and social status quo (Hatzis, 2016). When a referendum was held in September 1946 for the return of king George II, political and social divisions peaked. K.K.E. abstained from the referendum and the royal right won. The return of the king symbolised the ideological victory of the latter (Gallant, 2016), which can be supported by parliamentary speeches concerning this topic. For example, N. Zervas<note> Ν. Zervas was an important figure
-                                for Greece at that period. Before starting his political
-                                career, he was the general of the National Republican Greek
-                                League (E.D.E.S.), which was the largest right-wing resistance
-                                organisation during the Nazi occupation of
-                        Greece.</note> received extended
-                        applause after stating that the return of George II with the referendum
-                        would show that the Greek people were against the communists.<note> Page ID: main139_2</note>
+            <p>The Greek state at that period had a democratic government, but a flimsy one. Mainly due to the Civil War, the state excluded part of 
+               its population from political life (i.e., the ones who were believed to be communists were persecuted by the state) and the country was 
+               characterised by a climate of White and Red Terror,<note> The <q>White Terror</q> and <q>Red Terror</q> were political purges that took 
+               place in Greece after WWII. The <q>White Terror</q> targeted left-wing groups and the <q>Red Terror</q> targeted right-wing groups, 
+               leading to a brutal period of violence and repression.</note> which inflamed the political and social status quo 
+               <ptr target="#hatzis_2019"/>. When a referendum was held in September 1946 for the return of king George II, political and social 
+               divisions peaked. <name>K.K.E.</name> abstained from the referendum and the royal right won. The return of the king symbolised the 
+               ideological victory of the latter <ptr target="#gallant_2017"/>, which can be supported by parliamentary speeches concerning this topic. 
+               For example, <name>N. Zervas</name><note><name>Ν. Zervas</name> was an important figure for Greece at that period. Before starting his 
+               political career, he was the general of the <name>National Republican Greek League</name> (<name>E.D.E.S.</name>), which was the largest 
+               right-wing resistance organisation during the Nazi occupation of Greece.</note> received extended applause after stating that the return 
+               of George II with the referendum would show that the Greek people were against the communists.<note>Page ID: main139_2.</note>
             </p>
             <table>
-               <row role="data">
-                  <cell>Date</cell>
-                  <cell>Speaker</cell>
-                  <cell>Topic</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Σάββατο 18 Μαΐου 1946</p>
-                     <p>(Saturday 18
-                                    May 1946)</p>
-                  </cell>
+              <head>A sample of the topics that were applauded, extracted by a historian that was part of our team, along with information about the 
+                    speaker and the date.</head>
+                <row role="label">
+                  <cell role="label">Date</cell>
+                  <cell role="label">Speaker</cell>
+                  <cell role="label">Topic</cell>
+                </row>
+                <row>
+                  <cell>Σάββατο 18 Μαΐου 1946<lb/>(Saturday 18 May 1946)</cell>
                   <cell>_</cell>
-                  <cell>Applause after a
-                                letter from the Association ofpeople of Northern Epirus was
-                                read. In the letter, the Association asked the parliament to
-                                fightfor the union of Northern Epirus with the rest
-                                ofGreece.</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Τρίτη 5 Νοεμβρίου 1946</p>
-                     <p>(Tuesday 5
-                                    November 1946)</p>
-                  </cell>
-                  <cell>Δ. Σαρρής
-                                (D.Sarris)</cell>
-                  <cell>Sarris suggested
-                                that a government departmentshould be installed in the
-                                Macedonia region inorder to enforce the law</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Πέμπτη 15 Οκτωβρίου 1947</p>
-                     <p>(Thursday 15
-                                    October 1947)</p>
-                  </cell>
-                  <cell>
-                     <p>Π. Ροζάκης</p>
-                     <p>(P.
-                                    Rozakis)</p>
-                  </cell>
-                  <cell>Rozakis stated
-                                that Greeks would always claim the revival of Eastern Rumelia, a
-                                region belonging to Bulgaria.</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Τρίτη 18 Νοεμβρίου 1946</p>
-                     <p>(Tuesday 18
-                                    November 1946)</p>
-                  </cell>
-                  <cell>
-                     <p>Κ. Τσαλδάρης</p>
-                     <p>(K.
-                                    Tsaldaris)</p>
-                  </cell>
-                  <cell>Tsaldaris tried
-                                to clear up a misunderstanding between himself and a member of the
-                                opposition, P.Kanellopoulos.</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Σάββατο 18 Μαΐου 1946</p>
-                     <p>(Saturday 18
-                                    May 1946)</p>
-                  </cell>
-                  <cell>
-                     <p>Γ. Παπανδρέου</p>
-                     <p>(G.
-                                    Papandreou)</p>
-                  </cell>
-                  <cell>Papandreou stated
-                                that the Greek nation is furious with Bulgaria’s claims on Western
-                                Thrace.</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Πέμπτη 23 Μαΐου 1946</p>
-                     <p>(Thursday 23
-                                    May 1946)</p>
-                  </cell>
-                  <cell>
-                     <p>Η. Μπάτζιος</p>
-                     <p>(I.
-                                    Mpatzios)</p>
-                  </cell>
-                  <cell>Mpatzios proposed
-                                that the Greeks should ask for the Great Powers’ compassion for
-                                their Greek brothers in Northern Epirus.</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Δευτέρα 19 Μαίου 1947</p>
-                     <p>(Monday 19 May
-                                    1947)</p>
-                  </cell>
-                  <cell>
-                     <p>Α. Δημητράτος</p>
-                     <p>(A.
-                                    Dimitratos)</p>
-                  </cell>
-                  <cell>Dimitratos
-                                suggested that there is a need for an organized attempt of all the
-                                parties of the parliament in order to improve the life and the
-                                purchasing power of the Greek people, mainly the working
-                            class.</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Παρασκευή 17 Μαΐου 1946</p>
-                     <p>(Friday 18 May
-                                    1946)</p>
-                  </cell>
-                  <cell>
-                     <p>Κ. Τσαλδάρης</p>
-                     <p>(K.
-                                    Tsaldaris)</p>
-                  </cell>
-                  <cell>Tsaldaris stated
-                                that the communists would be fought by the state if they acted like
-                                terrorists, meaning their plan of a revolution in
-                            Greece.</cell>
-               </row>
-               <row role="data">
-                  <cell>Παρασκευή 28
-                                Ιουνίου 1946 (Friday 28 June 1946)
-                        </cell>
-                  <cell>Π.
-                                Κανελλόπουλος(P. Kanellopoulos)</cell>
-                  <cell>Kanellopoulos
-                                stated that the Greeks could claim the revival of Eastern Rumelia in
-                                the peace treaty that they were about to sign.</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Πέμπτη 27 Ιουνίου 1946</p>
-                     <p>(Thursday 27
-                                    June 1946)</p>
-                  </cell>
-                  <cell>Δ.
-                                Μαντούβαλος(D. Mantouvalos)</cell>
-                  <cell>Mantouvalos
-                                falsely predicted that the region of Northern Epirus would unite
-                                with Greece.</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Παρασκευή 13 Ιουνίου 1947</p>
-                     <p>(Friday 13 June
-                                    1947)</p>
-                  </cell>
-                  <cell>Η.
-                                Λαγάκος(I. Lagakos)</cell>
-                  <cell>Lagakos stated
-                                that the parliament should show interest and “affection” to the
-                                working class and the workers’ unions since the Communist Party of
-                                Greece (K.K.E.) had tried to influence them yet they remained on the
-                                state’s side.</cell>
-               </row>
-               <row role="data">
-                  <cell>
-                     <p>Πέμπτη 20 Ιουνίου 1946</p>
-                     <p>(Thursday 20
-                                    June 1946)</p>
-                  </cell>
-                  <cell>Ν. Ζέρβας(N.
-                                Zervas)</cell>
-                  <cell>Zervas stated
-                                that the referendum for the return of king George II would show to
-                                the Communists that the people of Greece are against them (if the
-                                royalists won).</cell>
-               </row>
+                  <cell>Applause after a letter from the <name>Association of People of Northern Epirus</name> was read. In the letter, the 
+                     <name>Association</name> asked the parliament to fight for the union of Northern Epirus with the rest of Greece.</cell>
+                </row>
+                <row>
+                  <cell>Τρίτη 5 Νοεμβρίου 1946<lb/>(Tuesday 5 November 1946)</cell>
+                  <cell><name>Δ. Σαρρής</name><lb/>(<name>D. Sarris</name>)</cell>
+                  <cell><name>Sarris</name> suggested that a government department should be installed in the Macedonia region inorder to enforce the 
+                     law.</cell>
+                </row>
+                <row>
+                  <cell>Πέμπτη 15 Οκτωβρίου 1947<lb/>(Thursday 15 October 1947)</cell>
+                  <cell><name>Π. Ροζάκης</name><lb/>(<name>P. Rozakis</name>)</cell>
+                  <cell><name>Rozakis</name> stated that Greeks would always claim the revival of Eastern Rumelia, a region belonging to Bulgaria.</cell>
+                </row>
+                <row>
+                  <cell>Τρίτη 18 Νοεμβρίου 1946<lb/>(Tuesday 18 November 1946)</cell>
+                  <cell><name>Κ. Τσαλδάρης</name><lb/>(<name>K. Tsaldaris</name>)</cell>
+                  <cell><name>Tsaldaris</name> tried to clear up a misunderstanding between himself and a member of the opposition, 
+                     <name>P. Kanellopoulos</name>.</cell>
+                </row>
+                <row role="data">
+                  <cell>Σάββατο 18 Μαΐου 1946<lb/>(Saturday 18 May 1946)</cell>
+                  <cell><name>Γ. Παπανδρέου</name><lb/>(<name>G. Papandreou</name>)</cell>
+                  <cell><name>Papandreou</name> stated that the Greek nation is furious with Bulgaria's claims on Western Thrace.</cell>
+                </row>
+                <row>
+                  <cell>Πέμπτη 23 Μαΐου 1946<lb/>(Thursday 23 May 1946)</cell>
+                  <cell><name>Η. Μπάτζιος</name><lb/>(<name>I. Mpatzios</name>)</cell>
+                  <cell><name>Mpatzios</name> proposed that the Greeks should ask for the Great Powers' compassion for their Greek brothers in 
+                     Northern Epirus.</cell>
+                </row>
+                <row>
+                  <cell>Δευτέρα 19 Μαίου 1947<lb/>(Monday 19 May 1947)</cell>
+                  <cell><name>Α. Δημητράτος</name><lb/>(<name>A. Dimitratos</name>)</cell>
+                  <cell><name>Dimitratos</name> suggested that there is a need for an organized attempt of all the parties of the parliament in order 
+                     to improve the life and the purchasing power of the Greek people, mainly the working class.</cell>
+                </row>
+                <row>
+                  <cell>Παρασκευή 17 Μαΐου 1946<lb/>(Friday 18 May 1946)</cell>
+                  <cell><name>Κ. Τσαλδάρης</name><lb/>(<name>K. Tsaldaris</name>)</cell>
+                  <cell><name>Tsaldaris</name> stated that the communists would be fought by the state if they acted like terrorists, meaning their 
+                     plan of a revolution in Greece.</cell>
+                </row>
+                <row>
+                  <cell>Παρασκευή 28 Ιουνίου 1946<lb/>(Friday 28 June 1946)</cell>
+                  <cell><name>Π. Κανελλόπουλος</name><lb/>(<name>P. Kanellopoulos</name>)</cell>
+                  <cell><name>Kanellopoulos</name> stated that the Greeks could claim the revival of Eastern Rumelia in the peace treaty that they were 
+                     about to sign.</cell>
+                </row>
+                <row>
+                  <cell>Πέμπτη 27 Ιουνίου 1946<lb/>(Thursday 27 June 1946)</cell>
+                  <cell><name>Δ. Μαντούβαλος</name><lb/>(<name>D. Mantouvalos</name>)</cell>
+                  <cell><name>Mantouvalos</name> falsely predicted that the region of Northern Epirus would unite with Greece.</cell>
+                </row>
+                <row>
+                  <cell>Παρασκευή 13 Ιουνίου 1947<lb/>(Friday 13 June 1947)</cell>
+                  <cell><name>Η. Λαγάκος</name><lb/>(<name>I. Lagakos</name>)</cell>
+                  <cell><name>Lagakos</name> stated that the parliament should show interest and <quote rend="inline">affection</quote> to the working 
+                     class and the workers' unions since the <name>Communist Party of Greece</name> (<name>K.K.E.</name>) had tried to influence them 
+                     yet they remained on the state's side.</cell>
+                </row>
+                <row>
+                  <cell>Πέμπτη 20 Ιουνίου 1946<lb/>(Thursday 20 June 1946)</cell>
+                  <cell><name>Ν. Ζέρβας</name><lb/>(<name>N. Zervas</name>)</cell>
+                  <cell><name>Zervas</name> stated that the referendum for the return of <name>King George II</name> would show to the communists that 
+                     the people of Greece are against them (if the royalists won).</cell>
+                </row>
             </table>
-            <p>Table
-                    3. A sample of the topics that were applauded, extracted by a historian that was part of our team, along with information about the speaker and the date.
-                </p>
-            <p>The above-mentioned
-                        referendum was a powerful ideological tool for the Greek government. Its
-                        outcome would not only be useful for resolving the local political
-                        situation, but also for the image of the country abroad. During the Civil
-                        War, Greece participated in the Paris Peace Conference (1946). The king’s
-                        return showed that Greece had resolved internal issues and was, therefore,
-                        ready to lay claims for reparations and for land that Greeks thought
-                        rightfully theirs. Greece’s claims, in terms of its borders, mainly referred
-                        to four regions: Northern Epirus, Macedonia, Western Thrace, and Cyprus.
-                        These four regions, which contained Greek populations, were either part of
-                        another country (e.g., Northern Epirus, Cyprus, Macedonia) or were occupied
-                        by Bulgaria (i.e., Western Thrace; Bulgaria was allied to Germany) during
-                        the war, after the defeat of Greece.</p>
-            <p>At the Paris Peace
-                        Conference, the Greek delegation claimed that the borders of Greece should
-                        expand to include Northern Epirus, which had a Greek population and had been
-                        liberated by the Greek army from the Italian invading army during the
-                        Greek-Italian war that brought Greece in WWII (Χριστίδης [Christidis],
-                        2007).<note> This claim was later withdrawn.</note> Such claims, then, were deeply integrated into the irredentist speech of Greek politicians. I. Mpatzios’s emotional speech was extensively applauded,<note> Page ID: main5_2.</note> after stating that even the stones of Northern Epirus are willing to rise and say “we are and we will be Greek”. A few pages later,<note> Page ID: main41_1</note> the same MP was once more applauded after suggesting that they should ask for the Great Powers’ compassion for the brothers in Northern Epirus. The speakers were even more passionate after the islands of the Dodecanese were united with Greece.<note> The Dodecanese islands were under
-                                Ottoman rule until 1912, when they were occupied by Italy. Italy
-                                retained control until the end of WWII, when the islands became a
-                                British protectorateand then officially united with Greece in
-                                1947.</note> D. Mantouvalos was applauded after (falsely) predicting that since these islands got what they deserved and what they were fighting for (i.e., their unification with Greece), the time would soon come for Northern Epirus that was full of bones and blood of Greek heroes to do the same.<note> Page ID: main180_1.</note>
+            <p>The above-mentioned referendum was a powerful ideological tool for the Greek government. Its outcome would not only be useful for 
+               resolving the local political situation, but also for the image of the country abroad. During the Civil War, Greece participated in the 
+               Paris Peace Conference (1946). The king's return showed that Greece had resolved internal issues and was, therefore, ready to lay claims 
+               for reparations and for land that Greeks thought rightfully theirs. Greece's claims, in terms of its borders, mainly referred to four 
+               regions: Northern Epirus, Macedonia, Western Thrace, and Cyprus. These four regions, which contained Greek populations, were either part 
+               of another country (e.g., Northern Epirus, Cyprus, Macedonia) or were occupied by Bulgaria (i.e., Western Thrace; Bulgaria was allied to 
+               Germany) during the war, after the defeat of Greece.
             </p>
-            <p>Greece also had territorial disputes with Bulgaria. The two states had a history of war based on border issues (Second Balkan War of 1913, Greek-Bulgarian War of 1925). This time, it was the region of Thrace that was the bone of contention. During the Paris Peace Conference, Bulgaria, supported by the USSR, claimed Western Thrace mainly based on ethnological and historical arguments, but also for economic reasons (Χριστίδης [Christidis], 2007). This infuriated Greece. G. Papandreou was extensively applauded after stating that <hi rend="italic">“Since the shameless leaders of
-                        Bulgaria [...] claim Western Thrace, the whole (Greek) Nation revolts and
-                        demands from the Allies to bring justice”.</hi>
-               <note> Page ID: main14_2.</note> In the irredentist (and nationalistic) crescendo of his speech, P. Kanellopoulos was applauded after stating that the current claims of Greece (Western Thrace) are just a small part of what it could claim: the revival of Eastern Rumelia.<note> Eastern Rumelia was a
-                                semi-autonomous province of the Ottoman Empire, with many
-                                Greekinhabitants. It was located in the region of today’s
-                                Southern Bulgaria, and it covered the areaamong the Balkan
-                                Mountains, the Rhodope Mountain and Northern
-                        Thrace.</note>,<note> Page ID: main20_1.</note> This idea continued to be relevant even when the discussion in the parliament was about the validation of the Peace Treaty with Bulgaria. P. Rozakis gave a speech in order to propose the validation of the Treaty, but he was applauded only after he said that they should take an oath: Never to resign from their claims in Eastern Rumelia.<note> Page ID: main1245_2.</note>
+            <p>At the Paris Peace Conference, the Greek delegation claimed that the borders of Greece should expand to include Northern Epirus, which had 
+               a Greek population and had been liberated by the Greek army from the Italian invading army during the Greek-Italian war that brought 
+               Greece in WWII <ptr target="#christidis_2007"/>.<note>This claim was later withdrawn.</note> Such claims, then, were deeply integrated 
+               into the irredentist speech of Greek politicians. <name>I. Mpatzios</name>'s emotional speech was extensively applauded,<note>
+               Page ID: main5_2.</note> after stating that even the stones of Northern Epirus are willing to rise and say <quote rend="inline">we are 
+               and we will be Greek</quote>. A few pages later,<note>Page ID: main41_1.</note> the same MP was once more applauded after suggesting that 
+               they should ask for the Great Powers' compassion for the brothers in Northern Epirus. The speakers were even more passionate after the 
+               islands of the Dodecanese were united with Greece.<note> The Dodecanese islands were under Ottoman rule until 1912, when they were 
+               occupied by Italy. Italy retained control until the end of WWII, when the islands became a British protectorateand then officially united 
+               with Greece in 1947.</note><name>D. Mantouvalos</name> was applauded after (falsely) predicting that since these islands got what they 
+               deserved and what they were fighting for (i.e., their unification with Greece), the time would soon come for Northern Epirus that was 
+               full of bones and blood of Greek heroes to do the same.<note>Page ID: main180_1.</note>
             </p>
-         </div>
-         <div>
-            <head>7 Conclusions</head>
-            <p> This study proposed a method for recognising and exploiting text from a challenging corpus, that is based on text recognition, language modeling-based filtering, and information extraction. We then applied this method to the proceedings of the Greek Parliament after World War II. We used Transkribus to train a text recognition model, which we used to recognise the text from 3,178 scanned double-column pages. We used language modeling to discard records with low-quality recognition and information extraction annotate the speakers’ names, dates, and indicators of applause. Using the latter, we used a sample of 50 pages to analyse the topics that were positively received by the house.
-                </p>
-            <p>Since the period of interest
-                        was marked by the Greek Civil War and a referendum regarding the nature of
-                        the political system (i.e., return of the exiled king versus a republic),
-                        this information can be of great importance for any historian who wants to
-                        put into test the dominant historical narrative for these politically
-                        complex years. Our analysis led to a quantitative estimation of the topics
-                        applauded, which has not been presented before, to the best of the authors’
-                        knowledge. The most applauded topic was anti-communist comments, followed by
-                        comments on the government's policies, territorial integrity and comments on
-                        Bulgaria’s policies. Without the application of the proposed this would have
-                        required an exhaustive manual investigation of thousands of images.
-                </p>
+            <p>Greece also had territorial disputes with Bulgaria. The two states had a history of war based on border issues (Second Balkan War of 
+               1913, Greek-Bulgarian War of 1925). This time, it was the region of Thrace that was the bone of contention. During the Paris Peace 
+               Conference, Bulgaria, supported by the USSR, claimed Western Thrace mainly based on ethnological and historical arguments, but also for 
+               economic reasons <ptr target="#christidis_2007"/>. This infuriated Greece. <name>G. Papandreou</name> was extensively applauded after 
+               stating, <quote rend="inline">Since the shameless leaders of Bulgaria [...] claim Western Thrace, the whole [Greek] Nation revolts and 
+               demands from the Allies to bring justice.</quote><note>Page ID: main14_2.</note> In the irredentist (and nationalistic) crescendo of his 
+               speech, <name>P. Kanellopoulos</name> was applauded after stating that the current claims of Greece (Western Thrace) are just a small part 
+               of what it could claim: the revival of Eastern Rumelia.<note>Eastern Rumelia was a semi-autonomous province of the Ottoman Empire, with 
+               many Greek inhabitants. It was located in the region of today's Southern Bulgaria, and it covered the areaamong the Balkan Mountains, the 
+               Rhodope Mountain and Northern Thrace.</note><note>Page ID: main20_1.</note> This idea continued to be relevant even when the discussion in 
+               the parliament was about the validation of the Peace Treaty with Bulgaria. <name>P. Rozakis</name> gave a speech in order to propose the 
+               validation of the Treaty, but he was applauded only after he said that they should take an oath never to resign from their claims in 
+               Eastern Rumelia.<note>Page ID: main1245_2.</note>
+            </p>
+        </div>
+        <div>
+          <head>7 Conclusions</head>
+            <p> This study proposed a method for recognising and exploiting text from a challenging corpus that is based on text recognition, language 
+               modeling-based filtering, and information extraction. We then applied this method to the proceedings of the <name>Greek Parliament</name> 
+               after World War II. We used Transkribus to train a text recognition model, which we used to recognise the text from 3,178 scanned 
+               double-column pages. We used language modeling to discard records with low-quality recognition and information extraction annotate the 
+               speakers' names, dates, and indicators of applause. Using the latter, we used a sample of 50 pages to analyse the topics that were 
+               positively received by the house.
+            </p>
+            <p>Since the period of interest was marked by the Greek Civil War and a referendum regarding the nature of the political system (i.e., return 
+               of the exiled king versus a republic), this information can be of great importance for any historian who wants to put into test the 
+               dominant historical narrative for these politically complex years. Our analysis led to a quantitative estimation of the topics applauded, 
+               which has not been presented before, to the best of the authors' knowledge. The most applauded topic was anti-communist comments, followed 
+               by comments on the government's policies, territorial integrity and comments on Bulgaria's policies. Without the application of the 
+               proposed this would have required an exhaustive manual investigation of thousands of images.
+            </p>
         </div>
       </body>
       <back>
