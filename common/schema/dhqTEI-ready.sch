@@ -176,9 +176,9 @@
     </rule>
   	
   	<!--checks to see when @target begins with a '#' AND does not point to an @xml:id-->
-  	<rule context="tei:ref[starts-with(@target,'#')]">
-  		<assert role="warning" test="replace(@target,'^#','') = //*/@xml:id">
-  			<name/> does not reference an @xml:id in this document</assert>
+  	<rule context="tei:ref[starts-with(normalize-space(@target),'#')]">
+  		<assert role="warning" test="substring(normalize-space(@target), 2) = //@xml:id">
+  			The @target of <name/> does not reference an @xml:id in this document</assert>
   	</rule>
 
     <rule context="tei:ptr[starts-with(@target,'#')]">
