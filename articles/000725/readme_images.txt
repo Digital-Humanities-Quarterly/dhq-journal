@@ -1,0 +1,1 @@
+For figures 3-8, the SVG images are the primary version. PNG versions are provided as possible fallbacks if necessary.

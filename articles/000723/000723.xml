@@ -1,0 +1,3485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
+<?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0"
+     xmlns:array="http://www.w3.org/2005/xpath-functions/array"
+     xmlns:cc="http://web.resource.org/cc/"
+     xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+     xmlns:map="http://www.w3.org/2005/xpath-functions/map"
+     xmlns:mml="http://www.w3.org/1998/Math/MathML"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <teiHeader>
+      <fileDesc>
+         <titleStmt>
+            <title type="article" xml:lang="en">Problems of Authorship Classification: Recognising the Author Style or a Book?</title>
+            <dhq:authorInfo>
+               <dhq:author_name>František <dhq:family>Válek</dhq:family></dhq:author_name>
+               <idno type="ORCID">https://orcid.org/0000-0003-1449-004X</idno>
+               <dhq:affiliation>National Library of the Czech Republic; Department of Philosophy and Religious Studies, University of 
+                  Pardubice; Institute of Ancient Near Eastern Studies, Charles University</dhq:affiliation>
+               <email>frantisek.valek@upce.cz</email>
+               <dhq:bio>
+                  <p>František Válek is a religious studies researcher and Assyriologist with a focus on the religions of the ancient 
+                     Near East, especially Late Bronze Age Syria. He is an assistant at the Department of Philosophy and Religious Studies 
+                     at the University of Pardubice and participates as a researcher in the project <title rend="quotes">Archaeology of 
+                     Texts</title> at the Institute of Ancient Near Eastern Studies at Charles University. In recent years, he has taken 
+                     an interest in the methods of digital humanities thanks to participation in DH projects of the National Library of 
+                     the Czech Republic.</p>
+               </dhq:bio>
+            </dhq:authorInfo>
+            <dhq:authorInfo>
+               <dhq:author_name>Jan <dhq:family>Hajič</dhq:family>, Jr.</dhq:author_name>
+               <idno type="ORCID">https://orcid.org/0000-0002-9207-567X</idno>
+               <dhq:affiliation>National Library of the Czech Republic; Masaryk Institute and Archive, 
+                  Czech Academy of Sciences; Institute of Formal and Applied Linguistics, Charles University</dhq:affiliation>
+               <email>hajicj@ufal.mff.cuni.cz</email>
+               <dhq:bio>
+                  <p>Jan Hajič, Jr. is a digital humanities, music, and machine learning researcher and a harpsichordist. He heads two 
+                     research projects: one at Charles University, focused on optical music Rrcognition using deep learning, and one 
+                     at the Masaryk Institute and Archives, applying bioinformatics to trace the development of Gregorian Chant melodies. 
+                     He earned his PhD in computer science in 2019 at the Charles University in Prague. At the same time, he manages a 
+                     second career as a musician. In 2023 he obtained his Master of Arts in harpsichord summa cum laude at the Janáček 
+                     Academy in Brno. He performed with the Czech Ensemble Baroque and Andreas Scholl at Prague in spring 2023, and his 
+                     ensembles Vox Clamans and Rosa Mystica have played in Czech early music festivals (e.g., Musica ad Confluentem, 
+                     Haydn Musical Festivities), as well as in Germany.</p>
+               </dhq:bio>
+            </dhq:authorInfo>
+         </titleStmt>
+         <publicationStmt>
+            <publisher>Alliance of Digital Humanities Organizations</publisher>
+            <publisher>Association for Computers and the Humanities</publisher>
+            <idno type="DHQarticle-id">000723</idno>
+            <idno type="volume">017</idno>
+            <idno type="issue">4</idno>
+            <date when="2024-01-12">12 January 2024</date>
+            <dhq:articleType>article</dhq:articleType>
+            <availability status="CC-BY-ND">
+               <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>
+            </availability>
+         </publicationStmt>
+         <sourceDesc>
+            <p>This is the source</p>
+         </sourceDesc>
+      </fileDesc>
+      <encodingDesc>
+         <classDecl>
+            <taxonomy xml:id="dhq_keywords">
+               <bibl>DHQ classification scheme; full list available at <ref target="http://www.digitalhumanities.org/dhq/taxonomy.xml">http://www.digitalhumanities.org/dhq/taxonomy.xml</ref>
+               </bibl>
+            </taxonomy>
+            <taxonomy xml:id="authorial_keywords">
+               <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+            </taxonomy>
+            <taxonomy xml:id="project_keywords">
+               <bibl>DHQ project registry; full list available at <ref target="http://www.digitalhumanities.org/dhq/projects.xml">http://www.digitalhumanities.org/dhq/projects.xml</ref>
+               </bibl>
+            </taxonomy>
+         </classDecl>
+      </encodingDesc>
+      <profileDesc>
+         <langUsage>
+            <language ident="en" extent="original"/>
+         </langUsage>
+         <textClass>
+            <keywords scheme="#dhq_keywords">
+               <term corresp="#machine_learning"/>
+               <term corresp="#literary_studies"/>
+            </keywords>
+            <keywords scheme="#authorial_keywords">
+               <list type="simple">
+                  <item>authorship attribution</item>
+                  <item>dataset design</item>
+                  <item>Czech</item>
+                  <item>experiment design</item>
+                  <item>delexicalisation</item>
+               </list>
+            </keywords>
+            <keywords scheme="#project_keywords">
+               <list type="simple">
+                  <item/>
+               </list>
+            </keywords>
+         </textClass>
+      </profileDesc>
+      <revisionDesc>
+         <change>The version history for this file can be found on <ref target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/000723000723.xml">GitHub
+        	   </ref>
+         </change>
+      </revisionDesc>
+   </teiHeader>
+   <text xml:lang="en" type="original">
+      <front>
+         <dhq:abstract>
+            <p>The presented article proposes that one of the problems regarding authorship attribution tasks is the attribution of a 
+               specific book rather than the author. This often leads to overestimated reported performance. This problem is in general 
+               connected to the dataset construction and more specifically to the train-test data split. Using a heavily delexicalized 
+               and diverse dataset of Czech authors and basic LinearSVC classifiers, we designed a three-step experiment setting to 
+               explore book versus author attribution effects. First, the authorship attribution task is performed on a dataset split 
+               to train and test data segments across books. Second, the same task is performed on a dataset where individual books 
+               are used wholly either for training or testing. Expectedly, this leads to poorer results. In the third step, we do not 
+               attribute book segments to authors but to books themselves. This step reveals that there is a general tendency towards 
+               attributing to a specific book rather than to different books of the same author. The results indicate that authors 
+               who show a higher inner confusion among their works (i.e., the model attributes their works to other works of theirs) 
+               tend to perform better in the task of attribution of an unseen book.</p>
+         </dhq:abstract>
+         <dhq:teaser>
+            <p>Do machine learning algorithms recognise author style, or rather a specific book an author has written?</p>
+         </dhq:teaser>
+      </front>
+      <body>
+        <div>
+          <head>Introduction</head>
+            <p>Authorship attribution using machine learning is a fertile area of digital literary scholarship<note>See, for example, 
+               <ptr target="#savoy2020"/>, <ptr target="#swain_mishra_sindhu2017"/>, <ptr target="#grzybek2014"/>, 
+               <ptr target="#grieve2005"/>, and <ptr target="#holmes1998"/> for general studies following the development of the area. 
+               For literary oriented studies that cover a more or less random selection of works we have consulted during our research, 
+               see <ptr target="#zhao_zobel2007"/>, <ptr target="#kusakci2012"/>, <ptr target="#segarra_eisen_ribeiro2013"/>, 
+               <ptr target="#ramezani_sheydaei_kahani2013"/>, <ptr target="#pinho_pratas_ferreira2016"/>, <ptr target="#nutanong_et_al2016"/>,
+               <ptr target="#marinho_hirst_amancio2016"/>, <ptr target="#benotto2021"/>, and <ptr target="#gorman2022"/>. We also 
+               organized a workshop, <title rend="quotes">Authorial style, its analysis, and limits of automatic recognition</title>,
+               at the <name>National Library of the Czech Republic</name> in 2022, which brought together research approaching the topic 
+               from diverse perspectives, demonstrating the rich and complex problematics of authorial style detection. See
+               <ref target="https://digilab.nkp.cz/?page_id=55">https://digilab.nkp.cz/?page_id=55</ref> (accessed 5 April 2023).</note> 
+               to such an extent that it has its own software package within the R programming language ecosystem.<note>Stylo: 
+               Stylometric Multivariate Analyses, available at <ref target="https://cran.r-project.org/package=stylo">
+               https://cran.r-project.org/package=stylo</ref> (accessed 5 April 2023).</note> Feature design is the most interesting 
+               sub-problem in terms of classification performance; very recently, <name>Robert Gorman</name> has achieved impressive results with 
+               morphosyntactic instead of lexical features, also for very short segments <ptr target="#gorman2022"/>. However, we explore 
+               a different aspect of the problem: that of experiment design and, by implication, dataset design. Issues of dataset imbalance, 
+               genre consistency and dataset sizes (both in terms of the total number of tokens and texts, as well as the number of authors) 
+               have been discussed, for instance, in the works of <name>Efstathios Stamatatos</name> and <name>Kim Luyckx</name>, but what 
+               has received comparatively little attention is stylistic variation among the works of a single author 
+               <ptr target="#stamatatos2009"/> <ptr target="#luyckx2011"/>.
+            </p>
+            <p>In this article, we show that in the domain of long-form literary works, stylistic variation between individual works 
+               of the same author is a significant factor that should be reflected in the dataset and experiment design. Assuming that we 
+               are interested in capturing features of authorial styles that transcend the boundaries of their known works (especially 
+               to attribute texts with unclear authorship, such as in the seminal study of <title rend="italic">The Federalist Papers</title> 
+               by <name>Frederick Mosteller</name> and <name>David L. Wallace</name>), a test set that includes different segments of 
+               works that have been previously used during training will significantly overestimate the system's accuracy for unseen texts 
+               and therefore overestimate the system's ability to characterise authorial style, as opposed to the styles of individual works 
+               <ptr target="#mosteller_wallace1964"/>. The extent of this overestimation differs significantly among individual authors; 
+               some have a more consistent style than others.
+            </p>
+            <p>Our findings are applicable when we are interested in attributing texts to authors <emph>despite</emph> their stylistic 
+               inconsistencies. This may not always be the case – an authorship attribution system might be used for other purposes, such 
+               as to find which observable linguistic features are responsible for stylistic distinctions, where the classification task 
+               is merely a proxy for the true goal (which would then be achieved through feature selection). Note also that our findings 
+               only apply to classifying texts that are long enough to be processed by segments. This is often the case with
+               applications in the study of literature, less so in attributing authorship of short texts such as emails or tweets.
+            </p>
+            <p>The contribution of our article can be summarised thus: the stylistic variation between individual books of an author 
+               is significant enough to affect state-of-the-art authorship classification system performance. Thus, to credibly
+               claim a certain level of ability to classify the style of an <emph>author</emph> as opposed to the style of 
+               individual <emph>books</emph>, the evaluation set should contain whole books not seen during training. We believe these 
+               findings are useful, first of all, to authorship attribution system designers, as we quantify the extent to which stylistic
+               variation among books matters to the classifier. Thus, we provide a guideline for evaluation design so that system 
+               performance is not overestimated. Second, we believe our findings are useful to the literary scholar selecting a
+               classification system to inform judgments about the authorship of unattributed texts, as our findings show that 
+               systems that do not test on unseen books cannot be trusted to perform as well as their evaluation results indicate.
+            </p>
+            <p>It should be noted that we did <emph>not</emph> aim to maximise the classification accuracy beyond a reasonable fraction 
+               of the state-of-the-art <ptr target="#tyo_dhingra_lipton2022"/>. We used the standard, state-of-the-art Support Vector 
+               Machine (SVM) classifier and performed a brief hyperparameter search over possible settings.
+            </p>
+            <p>Crucially, as in <ptr target="#gorman2022"/>, we perform <term>delexicalisation</term>. This is a step that replaces words 
+               (primarily autosemantic words, such as nouns, adjectives, verbs, and adverbs) with just their morphosyntactic properties 
+               so that the topics and contents of individual books do not artificially inflate the stylistic differences between 
+               individual books. Imagine that the same author wrote one novel from a 19th-century farm environment and one from a 
+               Great War factory. While the style in terms of linguistic choices in both books may be very similar, the vastly different 
+               content and, therefore, vocabulary would make it difficult to identify the factory book as being written by the same 
+               author as the farm book. The process of delexicalisation filters out such content-related confounding factors when 
+               focusing on author style detection: names of characters and places, characteristic objects (such as the presence of 
+               automobiles or wireless communication), genres (such as realist or anarchist perspectives on social conditions vs. 
+               detective stories or gothic fiction), and environments (urban vs. rural, wartime vs. peacetime conditions) and helps 
+               to avoid confusion of authors dealing with the same topics or writing about the same geographical areas. On the 
+               other hand, one must be aware that delexicalisation implicitly restricts the definition of <q>authorial style</q> by 
+               excluding vocabulary choices (of autosemantic words) and some elements of register (such as informality expressed in 
+               Czech by orthography of word endings). Some aspects of the author style are therefore lost in delexicalisation. However, 
+               we consider it more important to remove confounding factors that can identify specific books (and therefore authors), 
+               which can hardly be considered elements of author style. Given that we are attempting to explore the extent to which 
+               author style varies between books, we want to avoid leveraging trivial sources of this variation.
+            </p>
+            <p>It should be noted that the use of non-lexical features is by no means rare in computational stylometry 
+               <ptr target="#swain_mishra_sindhu2017"/>. We use the UDPipe morphosyntactic feature extractor to extract morphological 
+               features <ptr target="#nivre2015"/>. (Notably, while <ptr target="#gorman2022"/> uses UDpipe features as well, they
+               combine them in a more sophisticated manner and achieve better absolute accuracies, especially for shorter segments.)
+            </p>
+            <p>In the rest of the article, we first introduce our dataset and specify pre-processing and hyperparameter search procedures 
+               and results. Then, we demonstrate our findings in three experimental steps. First, we establish the baseline accuracies for 
+               a system that does not distinguish between training and test books. Next, we show how results change once specific books 
+               are set aside for testing. Finally, we show how the tension between author and book style is distributed across the dataset.
+            </p>
+            <p>The following visualisation summarises our findings. The columns show results for different segmentation lengths 
+               (in tokens, see below). The first part shows the results of our classifiers when each of the books is split into train 
+               and test segments. Here, a different selection of test segments does not significantly influence the performance. The 
+               following rows show the results when the train-test split is not done across all books, but one book for each author is
+               left out of training and used for testing. With a random selection, five runs were performed. The performance correlates 
+               significantly with segment lengths and is also greatly influenced by the test-book selection.
+            </p>
+            <table>
+              <head>Summary table of results.</head> 
+                <row role="label">
+                  <cell role="label" cols="6"><hi rend="italic">Train and Test Across All Books of the Dataset</hi> (Experiments: Step 1)</cell>
+                </row>
+                <row>
+                  <cell role="label"><hi rend="italic">Segment Length</hi></cell> 
+                  <cell role="label">s-1000</cell>
+                  <cell role="label">s-500</cell>
+                  <cell role="label">s-200</cell>
+                  <cell role="label">s-100</cell>
+                  <cell role="label">s-50</cell>
+                </row>
+                <row>
+                  <cell role="label">Full Dataset</cell> 
+                  <cell>0.96</cell>
+                  <cell>0.90</cell>
+                  <cell>0.73</cell>
+                  <cell>0.58</cell>
+                  <cell>0.42</cell>
+                </row>
+                <row>
+                  <cell role="label">Validation</cell> 
+                  <cell>0.96</cell>
+                  <cell>0.91</cell>
+                  <cell>0.74</cell>
+                  <cell>0.58</cell>
+                  <cell>0.42</cell>
+                </row>
+                <row role="label">
+                  <cell role="label" cols="6"><hi rend="italic">Train Books vs. Test Books</hi> (Experiments: Step 2)</cell>
+                </row>
+                <row>
+                  <cell role="label">Set 1</cell> 
+                  <cell>0.86</cell>
+                  <cell>0.80</cell>
+                  <cell>0.62</cell>
+                  <cell>0.44</cell>
+                  <cell>0.29</cell>
+                </row>
+                <row>
+                  <cell role="label">Set 2</cell> 
+                  <cell>0.86</cell>
+                  <cell>0.78</cell>
+                  <cell>0.58</cell>
+                  <cell>0.38</cell>
+                  <cell>0.23</cell>
+                </row>
+                <row>
+                  <cell role="label">Set 3</cell> 
+                  <cell>0.90</cell>
+                  <cell>0.82</cell>
+                  <cell>0.63</cell>
+                  <cell>0.42</cell>
+                  <cell>0.26</cell>
+                </row>
+                <row>
+                  <cell role="label">Set 4</cell> 
+                  <cell>0.77</cell>
+                  <cell>0.69</cell>
+                  <cell>0.51</cell>
+                  <cell>0.35</cell>
+                  <cell>0.23</cell>
+                </row>
+                <row>
+                  <cell role="label">Set 5</cell> 
+                  <cell>0.92</cell>
+                  <cell>0.85</cell>
+                  <cell>0.66</cell>
+                  <cell>0.47</cell>
+                  <cell>0.33</cell>
+                </row>
+            </table>
+        </div>
+        <div>
+          <head>Dataset</head>
+            <p>Our dataset consists of 210 books (written in Czech) by 23 authors (for a full overview, see the table in the appendix). 
+               The authors were chosen from the late 19th and early 20th centuries to avoid differences in the written form of the Czech 
+               language due to chronological development in standardisation. This limited timeframe reduces differences in style stemming
+               from the varied periods of origin. The dataset is far from being balanced: for each author, we have chosen a different 
+               number of books (ranging from 4 books by <name>Č. Slepánek</name> to 18 books by <name>K. Čapek</name>) of varying lengths 
+               (the shortest book consists of only 6,004 tokens while the longest contains 300,021 tokens). In addition, even though novels 
+               dominantly prevail, the genres vary across the dataset. See the appendix for a detailed overview of the dataset.
+            </p>
+            <p>Such a diverse and unbalanced nature dataset may not be ideal for machine learning (ML) experiments, but it reflects the 
+               reality of library collections and the issues with authorship attribution. There are several features of our dataset that can be
+               contrasted with the dataset of <ptr target="#gorman2022"/> and show that what Gorman presents as a difficult problem must be 
+               problematised even further.<note>Compare also with <ptr target="#luyckx_daelemans2011"/>, who focus on the effect of author set 
+               size and data size in authorship attribution, taking into consideration a variety of genres and topics. <name>Luyckx</name> and 
+               <name>Daelemans</name>' use cases focus on much shorter texts than this article does or <name>Gorman</name>, thus posing
+               a different issue.</note>
+            </p>
+            <p>First, we have included several books by each of the authors. Therefore, our dataset has the potential to demonstrate 
+               whether different authors change their style across their works. As is discussed below, our experiments have shown that
+               some authors are more consistent across their work, allowing us to accurately attribute to them a book which has never 
+               been seen within the training process, while other authors vary their style to such an extent that attributing an unseen book 
+               to them is almost impossible. In these cases, when trained and tested across the dataset, we are actually attributing 
+               the style of texts to individual books rather than the authors.
+            </p>
+            <p>Second, the books we have chosen vary greatly in length. <ptr target="#gorman2022"/> has chosen works that include at 
+               least 20,000 tokens. In our dataset, we have 17 books that do not reach this limit, but we compensate for this by 
+               including more books for each of the authors, so there are significantly more than 20,000 tokens for each author, ranging 
+               from 174,115 tokens for <name>Č. Slepánek</name>) to 1,512,167 tokens for <name>A. Jirásek</name>.
+            </p>
+            <p>Finally, our dataset includes mainly prose (mostly literary, but also journalistic and scholarly), a few works of drama, 
+               and one item of poetry. This further complicates the problem mentioned in the previous paragraph. While 
+               <ptr target="#gorman2022"/> is right that varying genres may lead to the confounding of genres with author styles, we 
+               believe that we can learn something interesting from including such data. In the end, our experiments have shown that 
+               author style remains partially preserved across genres. Expanding the dataset with works of drama and poetry may be fruitful in 
+               the future, but this must be done hand-in-hand with an expansion of author selection (as the selected authors are 
+               predominantly novelists).
+            </p>
+        </div>
+        <div>
+          <head>Data Preparation</head>
+            <div>
+              <head>Data Cleaning</head>
+                <p>The raw data we have at our disposal are scanned books that have been processed with optical character recognition 
+                   (OCR).<note>We have used the digital collections of the <name>National Library of the Czech Republic</name> 
+                   (<ref target="https://ndk.cz/">https://ndk.cz/</ref>, accessed April 5, 2023) as the source of our data. 
+                   Unfortunately, these data are not publicly accessible, which creates issues regarding the repeatability of our 
+                   experiments.</note>Therefore, some cleaning was necessary. Basic automatised data cleaning was performed<note>The raw 
+                   data consisted of individual pages as .txt files with inconsistent encoding. Firstly, the encoding was unified to 
+                   UTF-8. From these files we attempted to remove non-content data such as headers, page numbers, footnotes, etc. 
+                   This process was automatized and therefore may include some imperfections. After this initial cleaning, we merged 
+                   the individual pages into a single .txt file per book.</note>, followed by a manual clearing of junk data such as 
+                   imprints, tables of contents, forewords, afterwords, and endnotes. Finally, hyphenated words were restored across 
+                   line boundaries and page boundaries. For the sake of keeping the pipeline simple, we did not fix OCR errors; they 
+                   could, however, be mitigated using, for example, the LINDAT Korektor service.<note>Available at:  
+                   <ref target="http://lindat.mff.cuni.cz/services/korektor/">http://lindat.mff.cuni.cz/services/korektor/</ref>, 
+                   accessed 5 April 2023.</note>
+               </p>
+            </div>
+            <div>
+              <head>Segments and Train-Test Split</head>
+                <p>For training and testing authorship detection, we must split the books into shorter segments. For testing, we 
+                   need a sufficient number of test samples to provide meaningful accuracy estimates. For training, this is necessary to
+                   provide a sufficient number of data points while keeping the segments long enough to provide meaningful estimates of 
+                   the relationship between feature distributions and segment authors.
+                </p>
+                <p>We split the dataset into segments of 1000, 500, 200, 100, and 50 tokens as data points for classification 
+                   experiments, denoted s-1000, s-500, and so on. Because we want the dataset to allow us to investigate how authorial 
+                   style is expressed through other than lexical choices, including potentially syntactic features (although we do not 
+                   use those in this work), we decided only to draw segment boundaries at the sentence level. Thus, these segment
+                   lengths represent the <emph>average</emph> segment lengths because sentences occur in lengths that do not sum 
+                   exactly to the desired multiple of 50. We discarded end-of-book segments if they were shorter than half the target 
+                   segment length. To maintain a consistent training and test set so that results are directly comparable between 
+                   segment lengths, we first built the s-1000 segmentation, assigned these segments to training and test sets, and then 
+                   obtained the shorter segmentations by splitting the s-1000 segments, rather than re-segmenting the entire books. This 
+                   ensures that each test segment in the shorter segmentations is a subset of a test segment in s-1000, and each training 
+                   segment in shorter segmentations is a subset of a training segment in s-1000, maintaining the same content of the
+                   test and training sets across different segment lengths. (Note that this is a dataset design choice, not an experiment 
+                   design, with the primary aim of enabling a direct comparison to the results presented in Experiment and Results, Step 1.)
+                </p>
+                <p>Specifically, we have pre-split the data into <q>train</q> (60%), <q>development</q> (20%), and <q>test</q> (20%) segments 
+                   in order to make future direct comparisons to our results with this dataset straightforward.<note>In machine learning 
+                   experiments, the development set is used to evaluate different hyperparameter settings (such as regularization strength 
+                   or internal dimension of the model) and models in order to select the best model and its setting. Once all these 
+                   choices are fixed, the selected model is trained on a combination of the training and development sets, and the test 
+                   set is used to estimate the expected system performance on unseen data. If one used the test set rather than the 
+                   development set for hyperparameter optimization, the final evaluation result would be artificially inflated by 
+                   information leakage from the test set into the hyperparameter design — hence the use of a development set.</note> 
+                   However, as we have not made any attempts at optimising the classifiers and instead used their default settings (see below), 
+                   unless stated otherwise, the <q>training</q> set for all our experiments consists of both the <q>train</q> and 
+                   <q>development</q> subsets of the dataset.
+                </p>
+            </div>
+            <div>
+              <head>Delexicalisation</head>
+                <p>As stated above, we have delexicalised the dataset using the publicly available Application Programming Interface (API) 
+                   of UDPipe at LINDAT/CLARIAH.<note>Available at: 
+                   <ref target="https://lindat.mff.cuni.cz/services/udpipe/api-reference.php">
+                   https://lindat.mff.cuni.cz/services/udpipe/api-reference.php</ref>, accessed 5 April 2023; see 
+                   <ptr target="#straka2018"/>.</note> The
+                   UDPipe service performs canonical tokenisation and outputs a set of extracted features for each token. For the purpose 
+                   of this article, we have applied delexicalisation that replaces all of the autosemantic words<note>Autosemantic words, 
+                   as recognized by UDPipe, are: nouns (NOUN), proper nouns (PROPN), adjectives (ADJ), verbs (VERB), adverbs (ADV), 
+                   and numbers (NUM).</note> by their part-of-speech tag<note> See 
+                   <ref target="http://universaldependencies.org/docs/u/pos/index.html">
+                   http://universaldependencies.org/docs/u/pos/index.html</ref>, accessed April 5, 2023.</note> and all other words by 
+                   their lemmas.
+                </p>
+               <p>In contrast, <ptr target="#gorman2022"/> has provided a more nuanced and sophisticated approach to delexicalisation 
+                  that indeed seems much more fruitful. In the future, combining the variety of experiments presented in this paper and 
+                  enhanced classifiers using more sophisticated forms of delexicalisation may yield more significant results. Nonetheless, 
+                  while not being the state-of-the-art approach, using POS and lemmatisation is well established in the authorship 
+                  attribution field <ptr target="#swain_mishra_sindhu2017"/>.
+               </p>
+               <p>In addition to using the above mentioned form of delexicalisation, we have performed a variety of delexicalisations 
+                  for a smaller subset of 6 authors (30 books) to explore the effects of different levels of delexicalisation on the 
+                  performance of various classifiers (see below). Still, these forms of delexicalisation do not reach the complexity of 
+                  the approach utilized by <ptr target="#gorman2022"/>.</p>
+            </div>
+          </div>
+          <div>
+            <head>Hyperparameter Search: Authorship Classification at Varying Levels of Delexicalisation</head>
+              <p>To set reasonable parameters for the pipeline, we conducted a series of experiments, working as a kind of grid search, 
+                 to explore the results of different classifiers in relation to different levels of delexicalisation. This is a
+                 <q>lightweight</q> hyperparameter search that helps us find a model and pre-processing settings such that we do not work 
+                 with an unnecessarily underperforming setup, rather than finding an optimal setup for the dataset.
+              </p>
+              <p>Because these experiments are essentially a grid search, we have selected only a subset of our data, consisting of 
+                 six authors (5 books per each, 30 in total): <name>A. Stašek</name>, <name>J. Neruda</name>, <name>J. Arbes</name>, 
+                 <name>K. Klostermann</name>, <name>F. X. Šalda</name>, and <name>T. G. Masaryk</name>.<note>These are the books 
+                 designated as b-01 to b-05 for each of the authors in the list of works in the appendix.</note>
+              </p>
+              <p>For these experiments, we chose one of 10 different levels of delexicalisation. All of these pre-processings have 
+                 been segmented in the same way as the larger dataset used for the rest of the experiments (1000, 500, 200, 100, and 50 tokens). 
+              </p>
+              <p>The different modes of delexicalisation were abbreviated as <q>r-codes</q>, from r-04 to r-13.<note>Codes r-01, r-02, and 
+                 r-03 were used in preparation for further delexicalisation; therefore, we start with r-04.</note> The baseline where no 
+                 delexicalisation was applied is r-04. Delexicalisations based on UDPipe are applied in r-05 through r-09.<note>Aside from 
+                 the word form for non-delexicalised baselines, we have used the lemma, the full morphological tag according to the Universal 
+                 Dependencies specification, and at the coarsest level of granuality, the universal part-of-speech tag. See 
+                 <ref target="http://universaldependencies.org/docs/u/pos/index.html">http://universaldependencies.org/docs/u/pos/index.html</ref>, 
+                 accessed April 5, 2023.</note> We also applied NameTag 2 <ptr target="#strakova_straka_hajic2019"/> to replace named entities 
+                 with tags specifying only the type of the named entity in r-10 through r-13.<note>The types of named entities are persons 
+                 (first names and surnames), locations, organizations (including brands), and miscellaneous named entities such as 
+                 religions, sports leagues, and wars. For a detailed list, see 
+                 <ref target="https://www.cnts.ua.ac.be/conll2003/ner/annotation.txt">
+                 https://www.cnts.ua.ac.be/conll2003/ner/annotation.txt</ref>, accessed September 15, 2023.</note> The full list of 
+                 delexicalisation settings we explored is as follows:
+                   <list type="unordered">
+                     <item>r-04: No delexicalisation (baseline) — original word forms are used</item>
+                     <item>r-05: Lemmatisation — lemmas used instead of word forms</item>
+                     <item>r-06: Part-of-speech tags for all words</item>
+                     <item>r-07: Morphological tags for all words </item>
+                     <item>r-08: Part-of-speech tags for autosemantic words, others lemmatised</item>
+                     <item>r-09: Morphological tags for autosemantic words, others lemmatised</item>
+                     <item>r-10: NameTag tags for recognised named entities, others with original word forms</item>
+                     <item>r-11: NameTag tags for recognised named entities, others lemmatised</item>
+                     <item>r-12: NameTag tags for recognised named entities, part-of-speech tags for autosemantic words, others lemmatised</item>
+                     <item>r-13 NameTag tags for recognised named entities, morphological tags for autosemantic words, others lemmatised</item>
+                   </list>
+              </p>
+              <p>We then conducted a series of experiments across all of these levels of delexicalisation as well as across different 
+                 segmentations. We have trained the following standard classifiers used in authorship classification 
+                 <ptr target="#savoy2020" loc="chap. 6"/>, using the default implementations and hyperparameter settings in the 
+                 scikit-learn library (https://scikit-learn.org/) <ptr target="#pedregosa_et_al2011"/>:
+                   <list type="unordered">
+                     <item>Naive Bayes (sklearn.naive_bayes.MultinomialNB)</item>
+                     <item>C-Support Vector Classification (sklearn.svm.SVC)</item>
+                     <item>Linear Support Vector Classification (sklearn.svm.LinearSVC)</item>
+                     <item>K-Nearest Neighbours (sklearn.neighbors.KNeighborsClassifier)</item>
+                     <item>Stochastic Gradient Descent (sklearn.linear_model.SGDClassifier)</item>
+                     <item>Decision Tree (sklearn.tree.DecisionTreeClassifier)</item>
+                   </list>
+              </p>
+              <p>We used the same feature extraction settings for each (sklearn.feature_extraction.text.CountVectorizer). The only adjusted 
+                 setting was word n-gram size, set to unigrams, bigrams, and trigrams 
+                 (vectorizer = CountVectorizer(ngram_range=(n_min, n_max))). The training was performed using only the <q>train</q> passages, 
+                 and the evaluation using only the <q>test</q> passages. Because we used the default settings, the <q>devel</q> passages were 
+                 unnecessarily ignored during this phase. We performed multiple runs of trainings and evaluations across the classifiers 
+                 and pre-processing.
+              </p>
+              <p>As an example, we provide here a table of results representing the accuracy scores of the LinearSVC classifier run 
+                 across all books with different pre-processing.
+              </p>
+              <table>
+                <head>Table of results using varying levels of delexicalisation. The higher the number, the better the classification performance.</head> 
+                <row>
+                   <cell role="label"><hi rend="italic">Segment Length</hi></cell> 
+                   <cell role="label">s-1000</cell>
+                   <cell role="label">s-500</cell>
+                   <cell role="label">s-200</cell>
+                   <cell role="label">s-100</cell>
+                   <cell role="label">s-50</cell>
+                </row>
+                <row>
+                  <cell role="label">r-04</cell> 
+                  <cell>0.99</cell>
+                  <cell>0.99</cell>
+                  <cell>0.97</cell>
+                  <cell>0.94</cell>
+                  <cell>0.87</cell>
+                </row>
+                <row>
+                  <cell role="label">r-05</cell> 
+                  <cell>1.00</cell>
+                  <cell>0.99</cell>
+                  <cell>0.97</cell>
+                  <cell>0.94</cell>
+                  <cell>0.87</cell>
+                </row>
+                <row>
+                  <cell role="label">r-06</cell> 
+                  <cell>0.95</cell>
+                  <cell>0.91</cell>
+                  <cell>0.79</cell>
+                  <cell>0.69</cell>
+                  <cell>0.60</cell>
+                </row>
+                <row>
+                  <cell role="label">r-07</cell> 
+                  <cell>0.97</cell>
+                  <cell>0.96</cell>
+                  <cell>0.90</cell>
+                  <cell>0.83</cell>
+                  <cell>0.71</cell>
+                </row>
+                <row>
+                  <cell role="label">r-08</cell> 
+                  <cell>0.96</cell>
+                  <cell>0.95</cell>
+                  <cell>0.86</cell>
+                  <cell>0.77</cell>
+                  <cell>0.62</cell>
+                </row>
+                <row>
+                  <cell role="label">r-09</cell> 
+                  <cell>0.97</cell>
+                  <cell>0.96</cell>
+                  <cell>0.89</cell>
+                  <cell>0.82</cell>
+                  <cell>0.70</cell>
+                </row>
+                <row>
+                  <cell role="label">r-10</cell> 
+                  <cell>0.99</cell>
+                  <cell>0.98</cell>
+                  <cell>0.96</cell>
+                  <cell>0.93</cell>
+                  <cell>0.86</cell>
+                </row>
+                <row>
+                  <cell role="label">r-11</cell> 
+                  <cell>1.00</cell>
+                  <cell>0.98</cell>
+                  <cell>0.97</cell>
+                  <cell>0.93</cell>
+                  <cell>0.86</cell>
+                </row>
+                <row>
+                  <cell role="label">r-12</cell> 
+                  <cell>0.97</cell>
+                  <cell>0.95</cell>
+                  <cell>0.88</cell>
+                  <cell>0.78</cell>
+                  <cell>0.64</cell>
+                </row>
+                <row>
+                  <cell role="label">r-13</cell> 
+                  <cell>0.98</cell>
+                  <cell>0.95</cell>
+                  <cell>0.89</cell>
+                  <cell>0.83</cell>
+                  <cell>0.71</cell>
+                </row>
+             </table>
+             <p>These initial experiments have shown a performance dependency on different levels of delexicalisation. In addition, it 
+                has became clear that different classifiers react differently across varying levels of delexicalisation. This also shows us
+                that we are not recognising the author style <emph>per se</emph>, but rather that we are constantly flattening the 
+                problem to how the author style is reflected in specific conditions using specific features. Quite unsurprisingly, the
+                performance is highly dependent on segment lengths.
+             </p>
+             <p>Of all the classifiers we experimented with, support vector machines worked best. Therefore, we have decided to use 
+                LinearSVC for the rest of the experiments, using the pre-processing r-08. Even though the pre-processing r-08 did not lead to
+                the best performance, it represents a simple and straightforward yet very strong level of delexicalisation that significantly 
+                reduces the number of features and conceals content.
+             </p>
+         </div>
+         <div>
+           <head>Experiments and Results</head>
+             <p>Using the pre-processing/classification pipeline described above, we performed three experimental steps to illustrate 
+                the relationship between author and book style in authorship classification:
+                      <list type="ordered">
+                        <item>The full dataset (see above; 23 authors, 210 books) was used for a task of authorship attribution with 
+                           <emph>each book</emph> divided into <q>train</q> (80%) and <q>test</q> (20%) passages. We reported performance 
+                           across different lengths of passages. This is an <q>easy</q> setting for the classifier.
+                        </item>
+                        <item>Next, we performed the experiment with the same settings, but this time we built the <q>test</q> set by 
+                           choosing <emph>one book from each author</emph> and adding <emph>all its segments</emph> into the test set. All 
+                           other books of each author were used in their entirety for training. In this <q>harder</q> setting, performance 
+                           dropped significantly, which is the main point of this paper. Furthermore, classification performance was 
+                           influenced by the selection of the testing books.
+                        </item>
+                        <item>Finally, we performed the same experiment as outlined in #1, but instead of classifying by author, we classified 
+                           segments into individual books. With this experiment, it is possible to discuss further why the test-book 
+                           selection in Experiment #2 is so influential, as well as to show that some authors are more consistent in their 
+                           style (as expressed by the selected features) than others.
+                        </item>
+                      </list>
+             </p>
+             <p>We again emphasise that our purpose here is not to reach the best possible classification accuracy but rather to explore the 
+                influence of authorial style variation between individual works on the classification accuracy of a <q>decent</q> pipeline. 
+                Our pre-processing steps, classification models, and final scores are not the focus of our findings. Rather, we are interested 
+                in exploring how classification metrics change across different experiments.
+             </p>
+         <div>
+           <head>Step 1. Train and Test Across All Books of the dataset</head>
+             <p>Having selected the pre-processing and classification pipeline (delexicalisation r-08, using part-of-speech tags instead 
+                of autosemantic words and lemmas for functional words, and the LinearSVC classifier), we measured the baseline results 
+                when <q>train</q> and <q>test</q> sets were drawn randomly from all books of each author.
+             </p>
+             <p>In addition to measuring performance on the <q>train+devel versus test</q> split, we also tried an alternative 
+                <q>train+test vs. devel</q> split (which, because we never used the development set for model selection, is essentially just a 
+                different partition for cross-validation). The results were almost identical, so we did not consider it necessary to carry 
+                out full cross-validation.
+             </p>
+             <p>The following table shows the accuracies of the two experiment runs in comparison with the same setting on a smaller dataset.
+             </p>
+             <table>
+               <head>Step 1 results table.</head>
+                 <row role="label">
+                   <cell role="label"><hi rend="italic">Across Books</hi></cell>
+                   <cell role="label">s-1000</cell>
+                   <cell role="label">s-500</cell>
+                   <cell role="label">s-200</cell>
+                   <cell role="label">s-100</cell>
+                   <cell role="label">s-50</cell>
+                 </row>
+                 <row>
+                   <cell role="label">Full Dataset</cell>
+                   <cell>0.96</cell>
+                   <cell>0.91</cell>
+                   <cell>0.74</cell>
+                   <cell>0.58</cell>
+                   <cell>0.42</cell>
+                 </row>
+                 <row>
+                   <cell role="label">Full Dataset, Validation</cell>
+                   <cell>0.96</cell>
+                   <cell>0.9</cell>
+                   <cell>0.73</cell>
+                   <cell>0.58</cell>
+                   <cell>0.42</cell>
+                 </row>
+                 <row>
+                   <cell role="label">Small Dataset (6 Authors)</cell>
+                   <cell>0.96</cell>
+                   <cell>0.95</cell>
+                   <cell>0.86</cell>
+                   <cell>0.77</cell>
+                   <cell>0.62</cell>
+                 </row>
+               </table>
+               <p>The selection of individual segments as testing seems to have only limited influence on the results. The best results 
+                  were achieved, predictably, using the longest segments of 1000 tokens (96.1/96.4%). Shorter segments significantly lowered 
+                  the performance.<note>There is clearly space for improving classification accuracy here; the features in 
+                  <ptr target="#gorman2022"/> reported little such decrease in a comparable experiment. While 42/42.3% accuracy with 
+                  segments of approximately 50 tokens is still above the 23-class baseline (4.35%), in order to provide useful results 
+                  outside of long-form texts, the classification pipeline would need significant improvement. Again, we emphasize we are not 
+                  trying to reach the highest possible accuracy. Rather, we use classification experiments to illustrate variation within 
+                  an author's style.</note>
+               </p>
+               <p>Interestingly, when using the segments of 1000 tokens, the accuracy of the classifier was consistently around the same 
+                  96% for both the small, six author dataset used for hyperparameter selection and for the full dataset of 23 authors. 
+                  However, when shortening the segments, the performance on the larger dataset radically dropped.<note>For the effect of 
+                  author set size and data size in authorship attribution, see <ptr target="#luyckx_daelemans2011"/>.</note>
+               </p>
+               <p>The results of this first experiment serve as a baseline for the second, where we show how setting aside specific 
+                  books changes the results.
+               </p>
+           </div>
+           <div>
+             <head>Step 2. <q>Train</q> Books Versus <q>Test</q> Books</head>
+               <p>We believe that the above-mentioned experiments are relatively simple ML-based author attribution tasks. In our opinion, 
+                  the experimental settings that use the same books for training and testing, such as <ptr target="#gorman2022"/> or 
+                  <ptr target="#benotto2021"/>, are biased in their reported performance. After all, the capability to recognise the author 
+                  of an unseen and unattributed text is one of the main research objectives within the field of authorship attribution 
+                  (while certainly not being the only goal <ptr target="#swain_mishra_sindhu2017"/>).
+               </p>
+               <p>Therefore, we have further expanded the experimental scenario to address real-life problem: recognising a book (or rather 
+                  its parts) that has never been seen in the system building process (see the appendix for detailed information). The 
+                  experiments discussed below reveal that selecting a test book from the available corpus heavily influences the reported 
+                  performance of the classifier.
+               </p>
+               <p>We randomly selected five sets of testing books such that each set contained one book from each author and no book was in 
+                  two testing sets, except for <title rend="italic">Svědomí Lidových novin, čili, Jak bylo po léta v českém tisku štváno 
+                  lživě proti mně</title> (a-08.b-03) in sets 1 and 5, because the dataset contains only four books by <name>Č. Slepánek</name>. We ran 
+                  the same classification experiment and reported results across segment sizes. The results are reported in the following table.
+               </p>
+               <table>
+                 <head>Step 2 results table.</head>
+                   <row role="label">
+                     <cell role="label"><hi rend="italic">Book-Based</hi></cell>
+                     <cell role="label">s-1000</cell>
+                     <cell role="label">s-500</cell>
+                     <cell role="label">s-200</cell>
+                     <cell role="label">s-100</cell>
+                     <cell role="label">s-50</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Set 1</cell>
+                     <cell>0.86</cell>
+                     <cell>0.80</cell>
+                     <cell>0.62</cell>
+                     <cell>0.44</cell>
+                     <cell>0.29</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Set 2</cell>
+                     <cell>0.86</cell>
+                     <cell>0.78</cell>
+                     <cell>0.58</cell>
+                     <cell>0.38</cell>
+                     <cell>0.22</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Set 3</cell>
+                     <cell>0.90</cell>
+                     <cell>0.82</cell>
+                     <cell>0.63</cell>
+                     <cell>0.42</cell>
+                     <cell>0.26</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Set 4</cell>
+                     <cell>0.77</cell>
+                     <cell>0.69</cell>
+                     <cell>0.51</cell>
+                     <cell>0.35</cell>
+                     <cell>0.23</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Set 5</cell>
+                     <cell>0.92</cell>
+                     <cell>0.85</cell>
+                     <cell>0.66</cell>
+                     <cell>0.47</cell>
+                     <cell>0.22</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Average</cell>
+                     <cell>0.86</cell>
+                     <cell>0.79</cell>
+                     <cell>0.60</cell>
+                     <cell>0.41</cell>
+                     <cell>0.24</cell>
+                   </row>
+                   <row>
+                     <cell role="label"><hi rend="italic">Cf. Step 1 (Across Books)</hi></cell>
+                     <cell>0.96</cell>
+                     <cell>0.91</cell>
+                     <cell>0.74</cell>
+                     <cell>0.58</cell>
+                     <cell>0.42</cell>
+                   </row>
+               </table>
+               <p>The results show a drop of 0.04 to 0.23, with 0.10 being the average deterioration of classification accuracy. In the 
+                  case of the easiest s-1000 and s-500 settings, this means more than a three-fold increase in error. Furthermore, Set 4 
+                  shows that a random selection of testing books can make this difference much larger.
+               </p>
+               <p>We note that performing five-fold, cross-validation with 23-book test sets rather than 210-fold, leave-one-out, 
+                  cross-validation on individual books had little bearing on these results while being significantly more expedient 
+                  despite the classifier performance on each testing book being further influenced by the choice of the other 22 testing 
+                  books in each fold. We chose the five worst performing outliers and five high-performing books and performed leave-one-out 
+                  experiments with these. We found that the leave-one-out results were, in fact, worse by 0.5% on average 
+                  (when disregarding 3 books that had their authors classified perfectly in the 5-fold and leave-one-out settings both), 
+                  with the leave-one-out accuracy ranging from 7.6% higher (a-03 test book from Set 4) to 7% lower (a-15 test book from 
+                  Set 1).
+               </p>
+               <p>Compared to the leave-one-out setting, the effect of removing books potentially helpful for identifying an author from the
+                  training set was roughly cancelled out by the effect of introducing potentially confounding books to the training set. As a
+                  result, while the estimates for individual books did likely have a somewhat higher variance, our main finding that accuracy 
+                  dropped significantly overall in this setting was not affected. Furthermore, the accuracies of items of the highest 
+                  significance for further analysis — outliers in both directions — seem to have been affected by less than 10%, which does 
+                  not materially affect the selection of books that are significantly harder or easier to classify by author than the average. 
+                  Thus, our analytical attention is directed to the same items that a leave-one-out experiment design would point towards.
+                  <note>Specifically, the 11 test books where we compared the 5-fold and leave-one-out accuracies were: a-03 Set 4, with a 
+                  change from 0.20 to 0.276 (+7.6%); a-15 Set 1: 0.24 → 0.214 (-2.6%); a-02 Set 2: 0.53→0.516 (-1.4%); a-07 Set 3: 0.7→0.63 
+                  (-7.0%); a-17 Set 4 (drama): 0.75→0.75 (0.0%); a-08 Set 3: 0.67→0.667% (-0.3%); a-09 Set 3: 0.91→0.85 (-6.0%); 
+                  a-13 Set 4: 1.0→1.0 (0.0%); a-22 Set 2: 1.0→1.0 (0.0%); a-11 Set 3: 1.0→1.0 (0.0%); a-21 Set 4 (poetry): 0.65→0.706 (+5.6%). 
+                  The average difference when discarding the three books with perfect accuracies was that in the leave-one-out setting, 
+                  classification was 0.3% worse. Without these three books taken into account (because they may be so easy to classify 
+                  that even a very flawed methodology pipeline would obtain perfect accuracy), leave-one-out classification performed 0.5% 
+                  worse than the five-fold setting. (We give the books here as author-set pairs rather than author-books, so that their 
+                  <q>outlier-ness</q> is easy to find in the tables in this section. To find which book these are, refer to Appendix: 
+                  List of Works in the Dataset.)</note>
+               </p>
+               <p>These experiments show that there is little to be gained by performing the remaining 199 leave-one-out experiments over 
+                  the 5-fold scheme. We attribute this consistency between the lower-variance, leave-one-out setting and the 5-fold setting 
+                  to the size of the dataset: at these scales, leave-one-out cross-validation schemes no longer provide a less biased 
+                  estimate of aggregate statistics, and the effect of inclusion of individual items into the training set is not as pronounced. 
+                  Note also that although in our 5-fold cross-validation the folds differed by 46/210 books, the results for each book 
+                  within a fold were computed on a perfectly identical training set and thus are perfectly comparable, while in the 
+                  leave-one-out setting, no two training sets are the same.
+               </p>
+               <p>A possible systematic confounding factor for the drop in average performance could be the irregularity of training set 
+                  sizes introduced by setting aside random entire books for testing, as book lengths vary greatly. As opposed to the 
+                  <q>Across Books</q> setting from Step 1, here we do not have the same <q>train</q>:<q>test</q> token ratio. The obvious 
+                  question then arises: is the model performance dependent on the <q>train</q>:<q>test</q> ratio, <q>test</q> or 
+                  <q>train</q> token absolute count, both, or neither? The following table shows data from experiments (for s-1000 segments). 
+                  The indicated <q>test ratio</q> is the ratio of <q>test</q> tokens to all tokens. Asterisks indicate the experiments where 
+                  drama or poetry were used as the test book (* = drama; ** = poetry).
+               </p>
+               <table>
+                 <head>Step 2 results table for individual authors, showing test ratio and accuracy across the five test book sets. 
+                    * = drama; ** = poetry.</head>
+                   <row role="label">
+                     <cell/>
+                     <cell role="label">All Tokens</cell>
+                     <cell role="label">Set 1<lb/>Rest Ratio<lb/>Accuracy</cell>
+                     <cell role="label">Set 2</cell>
+                     <cell role="label">Set 3</cell>
+                     <cell role="label">Set 4</cell>
+                     <cell role="label">Set 5</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-01</cell>
+                     <cell>1,044,186</cell>
+                     <cell>7.76%<lb/>0.97</cell>
+                     <cell>13.50%<lb/>0.91</cell>
+                     <cell>6.38%<lb/>1.00</cell>
+                     <cell>8.81%<lb/>0.97</cell>
+                     <cell>8.79%<lb/>0.82</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-02</cell>
+                     <cell>364,582</cell>
+                     <cell>4.05%<lb/>1.00</cell>
+                     <cell>17.00%<lb/>0.53</cell>
+                     <cell>21.00%<lb/>0.94</cell>
+                     <cell>24.43%<lb/>0.88</cell>
+                     <cell>33.51%<lb/>0.83</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-03</cell>
+                     <cell>1,197,470</cell>
+                     <cell>6.10%<lb/>1.00</cell>
+                     <cell>3.34%<lb/>1.00</cell>
+                     <cell>7.43%<lb/>0.93</cell>
+                     <cell>13.62%<lb/>0.20</cell>
+                     <cell>10.44%<lb/>0.99</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-04</cell>
+                     <cell>371,909</cell>
+                     <cell>25.74%<lb/>0.83</cell>
+                     <cell>27.00%<lb/>0.90</cell>
+                     <cell>23.46%<lb/>0.91</cell>
+                     <cell>4.94%<lb/>0.67</cell>
+                     <cell>18.86%<lb/>0.97</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-05</cell>
+                     <cell>285,386</cell>
+                     <cell>22.12%<lb/>0.95</cell>
+                     <cell>39.89%<lb/>0.81</cell>
+                     <cell>28.83%<lb/>0.85</cell>
+                     <cell>3.55%<lb/>0.90</cell>
+                     <cell>5.90%<lb/>0.94</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-06</cell>
+                     <cell>299,530</cell>
+                     <cell>63.53%<lb/>0.64</cell>
+                     <cell>8.56%<lb/>0.96</cell>
+                     <cell>3.89%<lb/>0.83</cell>
+                     <cell>2.93%<lb/>0.78</cell>
+                     <cell>21.09%<lb/>0.83</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-07</cell>
+                     <cell>1,512,167</cell>
+                     <cell>14.22%<lb/>0.98</cell>
+                     <cell>4.96%<lb/>0.91</cell>
+                     <cell>1.79%<lb/>0.70</cell>
+                     <cell>11.90%<lb/>0.99</cell>
+                     <cell>9.66%<lb/>0.99</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-08</cell>
+                     <cell>174,115</cell>
+                     <cell>3.45%<lb/>0.00</cell>
+                     <cell>63.19%<lb/>0.13</cell>
+                     <cell>10.37%<lb/>0.67</cell>
+                     <cell>22.99%<lb/>0.10</cell>
+                     <cell>3.45%<lb/>0.00</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-09</cell>
+                     <cell>374,104</cell>
+                     <cell>10.69%<lb/>0.45</cell>
+                     <cell>*3.21%<lb/>*0.42</cell>
+                     <cell>12.57%<lb/>0.91</cell>
+                     <cell>19.79%<lb/>0.24</cell>
+                     <cell>24.06%<lb/>0.80</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-10</cell>
+                     <cell>514,131</cell>
+                     <cell>19.26%<lb/>0.97</cell>
+                     <cell>14.20%<lb/>0.79</cell>
+                     <cell>13.42%<lb/>1.00</cell>
+                     <cell>3.70%<lb/>0.53</cell>
+                     <cell>13.81%<lb/>0.93</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-11</cell>
+                     <cell>715,093</cell>
+                      <cell>11.33%<lb/>0.86</cell>
+                      <cell>5.73%<lb/>0.78</cell>
+                      <cell>6.43%<lb/>1.00</cell>
+                      <cell>16.36%<lb/>0.74</cell>
+                      <cell>9.93%<lb/>0.93</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-12</cell>
+                     <cell>241,111</cell>
+                      <cell>14.52%<lb/>0.66</cell>
+                      <cell>*8.71%<lb/>*0.86</cell>
+                      <cell>*6.23%<lb/>*0.53</cell>
+                      <cell>*14.53%<lb/>*0.89</cell>
+                      <cell>10.39%<lb/>0.32</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-13</cell>
+                     <cell>417,080</cell>
+                      <cell>8.16%<lb/>0.62</cell>
+                      <cell>16.78%<lb/>0.89</cell>
+                      <cell>14.15%<lb/>0.90</cell>
+                      <cell>16.54%<lb/>1.00</cell>
+                      <cell>14.39%<lb/>0.92</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-14</cell>
+                     <cell>731,207</cell>
+                      <cell>5.88%<lb/>1.00</cell>
+                      <cell>4.10%<lb/>1.00</cell>
+                      <cell>12.45%<lb/>1.00</cell>
+                      <cell>15.73%<lb/>0.96</cell>
+                      <cell>7.80%<lb/>1.00</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-15</cell>
+                     <cell>785,198</cell>
+                      <cell>5.35%<lb/>0.24</cell>
+                      <cell>*3.06%<lb/>*0.96</cell>
+                      <cell>10.57%<lb/>0.84</cell>
+                      <cell>*2.93%<lb/>*0.83</cell>
+                      <cell>*3.18%<lb/>*0.84</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-16</cell>
+                     <cell>1,099,103</cell>
+                      <cell>12.46%<lb/>0.90</cell>
+                      <cell>27.30%<lb/>0.96</cell>
+                      <cell>7.01%<lb/>0.99</cell>
+                      <cell>4.00%<lb/>0.93</cell>
+                      <cell>11.46%<lb/>0.95</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-17</cell>
+                     <cell>614,032</cell>
+                      <cell>4.40%<lb/>1.00</cell>
+                      <cell>23.45%<lb/>0.86</cell>
+                      <cell>37.46%<lb/>0.96</cell>
+                      <cell>*3.26%<lb/>*0.75</cell>
+                      <cell>17.43%<lb/>1.00</cell>
+                   </row>
+                   <row role="data">
+                     <cell role="label">a-18</cell>
+                     <cell>819,145</cell>
+                      <cell>10.74%<lb/>0.98</cell>
+                      <cell>5.98%<lb/>0.98</cell>
+                      <cell>15.14%<lb/>0.96</cell>
+                      <cell>7.33%<lb/>1.00</cell>
+                      <cell>15.63%<lb/>0.95</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-19</cell>
+                     <cell>765,197</cell>
+                      <cell>2.75%<lb/>0.86</cell>
+                      <cell>12.81%<lb/>1.00</cell>
+                      <cell>9.42%<lb/>0.99</cell>
+                      <cell>9.15%<lb/>0.89</cell>
+                      <cell>8.49%<lb/>0.97</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-20</cell>
+                     <cell>1,137,133</cell>
+                      <cell>3.52%<lb/>1.00</cell>
+                      <cell>6.16%<lb/>0.84</cell>
+                      <cell>4.13%<lb/>0.98</cell>
+                      <cell>2.11%<lb/>1.00</cell>
+                      <cell>15.04%<lb/>0.99</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-21</cell>
+                     <cell>703,121</cell>
+                      <cell>5.41%<lb/>1.00</cell>
+                      <cell>12.38%<lb/>0.93</cell>
+                      <cell>24.18%<lb/>0.55</cell>
+                      <cell>**2.42%<lb/>**0.65</cell>
+                      <cell>8.25%<lb/>0.98</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-22</cell>
+                     <cell>618,089</cell>
+                      <cell>6.15%<lb/>0.79</cell>
+                      <cell>5.50%<lb/>1.00</cell>
+                      <cell>5.34%<lb/>0.94</cell>
+                      <cell>2.91%<lb/>0.56</cell>
+                      <cell>17.64%<lb/>0.88</cell>
+                   </row>
+                   <row>
+                     <cell role="label">a-23</cell>
+                     <cell>683,108</cell>
+                      <cell>9.66%<lb/>1.00</cell>
+                      <cell>25.92%<lb/>0.98</cell>
+                      <cell>9.37%<lb/>1.00</cell>
+                      <cell>16.84%<lb/>1.00</cell>
+                      <cell>9.08%<lb/>0.98</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Average (Per Author)</cell>
+                     <cell>672,443</cell>
+                      <cell>12.05%<lb/>0.81</cell>
+                      <cell>15.32%<lb/>0.84</cell>
+                      <cell>12.65%<lb/>0.89</cell>
+                      <cell>10.03%<lb/>0.76</cell>
+                      <cell>12.97%<lb/>0.86</cell>
+                   </row>
+                   <row>
+                     <cell role="label"><hi rend="italic">Full Performance</hi></cell>
+                     <cell>672,443</cell>
+                     <cell>0.86</cell>
+                     <cell>0.86</cell>
+                     <cell>0.90</cell>
+                     <cell>0.77</cell>
+                     <cell>0.92</cell>
+                   </row>
+               </table>
+               <p>The following table shows the correlation coefficients of the authors' accuracies to the <q>train</q>:<q>test</q> 
+                  ratio, full token count, <q>test</q> token count, and <q>train</q> token count:
+               </p>
+               <table>
+                 <head>Correlation coefficients of the authors' accuracies to the <q>train</q>:<q>test</q> ration, full token count, 
+                   <q>test</q> token count, and <q>train</q> token count.</head>
+                   <row role="label">
+                     <cell/>
+                     <cell role="label">Set 1</cell>
+                     <cell role="label">Set 2</cell>
+                     <cell role="label">Set 3</cell>
+                     <cell role="label">Set 4</cell>
+                     <cell role="label">Set 5</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Train Ratio</cell>
+                     <cell>-0.19474</cell>
+                     <cell>-0.01766</cell>
+                     <cell>-0.01495</cell>
+                     <cell>-0.18115</cell>
+                     <cell>0.176758</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Full Token Count</cell>
+                     <cell>0.356384</cell>
+                     <cell>0.390591</cell>
+                     <cell>0.234502</cell>
+                     <cell>0.259228</cell>
+                     <cell>0.502111</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Test Token Count </cell>
+                     <cell>0.091817</cell>
+                     <cell>0.217205</cell>
+                     <cell>0.126774</cell>
+                     <cell>0.099459</cell>
+                     <cell>0.510302</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Train Token Count</cell>
+                     <cell>0.358298</cell>
+                     <cell>0.361026</cell>
+                     <cell>0.217488</cell>
+                     <cell>0.268124</cell>
+                     <cell>0.477041</cell>
+                   </row>
+               </table>
+               <p>These data show that while there are some tendencies in the correlations, in general, these correlations are unstable, 
+                  and the most significant feature that influences classification accuracy is the selection of the test books. At the same 
+                  time, there does seem to be a minimum number of tokens necessary in order for the model to perform well. This is visible 
+                  with <name>Č. Slepánek</name> (a-08). He has the lowest number of tokens, as well as books, and usually performs the worst, 
+                  except for set 3, where two other authors (a-12 and a-21) perform worse. There is likely not enough data to be trained on, 
+                  and at the same time, there are only a few test passages (only 3 in the case of sets 1 and 5), so the model has few chances 
+                  to accurately predict his authorship of a segment, further increasing the variance of the result.
+               </p>
+               <p>On the other end of the data size spectrum, <name>K. Sabina</name> (a-07), who has the highest number of tokens, performs 
+                  very well but not the best, and his worst performing test book is the shortest of the five — the one with the smallest 
+                  impact on training data size. A high number of training tokens by itself apparently does not ensure stable performance. 
+                  Another example may be given in Set 4, a-03 (<name>J. Arbes</name>). Even though the token count is very high, the 
+                  performance is only 0.20. This deviation is, however, easily explained once the test book is consulted and compared to 
+                  the rest of his works. In this case, a-03.b-04 (<title rend="italic">Persekuce lidu českého v letech 1869-1873</title>) 
+                  has been used for testing. In contrast to <name>Arbes</name>' more typical short novels, this book is a work of his 
+                  journalism career. A similar influence may be observed in the case of <name>V. Hálek</name> (a-21) in Set 3, as the work
+                  used for testing (<title rend="italic">Fejetony</title>) is also journalistic.
+               </p>
+               <p>This further opens the question of the influence of genres on the performance of the models. In general, there are 
+                  journalistic works counted among the prose, and we may also point to several cases of drama or poetry. The works 
+                  of drama were used for testing in the case of four authors on eight instances<note><name>E. Krásnohorská</name> (a-09) 
+                  in Set 2; <name>J. Vrchlický</name> (a-12) in sets 2, 3, 4; <name>K. Čapek</name> (a-15) in sets 2, 4, 5; 
+                  <name>K. Sabina</name> (a-17) in Set 4; see appendix.</note> and a work of poetry in one case<note><name>V. Hálek</name> 
+                  (a-21) in Set 4; see appendix.</note>. The influence of genre is not that significant for <name>K. Čapek</name> (a-15, sets 2, 
+                  4, 5) or <name>J. Vrchlický</name> (a-12, sets 2, 3, 4), likely because, in their cases, there are several books of drama 
+                  that provide a sufficient base for testing.
+               </p>
+               <p>On the other hand, for <name>V. Hálek</name> (a-21, Set 4) and <name>K. Sabina</name> (a-17, Set 4), the deviance in genre 
+                  resulted in a significant drop in performance, probably because there is no training data for support. However, even though 
+                  the performance significantly dropped in these cases, it was still much higher than a random baseline. Furthermore, other 
+                  authors who write consistently in one genre performed much worse.
+               </p>
+               <p>There are several other cases where the influence of the selected test book can be well explained. For example, 
+                  <name>V. Hálek</name> (a-21) shows a 1.00 accuracy in Set 1. A simple look at the dataset does not explain such a success. 
+                  However, the work <title rend="italic">Na statku a v chaloupce</title> (a-21.b-09) is a short story that is also included 
+                  in <title rend="italic">Kresby křídou i tuší</title> (a-21.b-10), which was used for training. Such overlaps in 
+                  datasets are easily created when based on real-life library scenarios.
+               </p>
+               <p>We believe that the data and discussion presented here clearly illustrate the problem and influence of the test-book 
+                  selection. In addition, we can see that reporting the overall statistics of authorship classification performance can cover 
+                  up significant specific high-variance issues that come up in more detailed analysis.
+               </p>
+           </div>
+           <div>
+             <head>Step 3. Books as Targets</head>
+               <p>Our third experiment aimed to discover the structure of stylistic similarity within individual authors. As hinted by the 
+                  large differences between cross-validation runs, the stylistic differences among individual books of an author vary 
+                  significantly. We are interested in the characteristics of these dissimilarities.
+               </p>
+               <p>To expose these characteristics, we ran the classification pipeline with the 210 individual books (instead of the 23 authors) 
+                  as output classes and observed misclassification patterns. If an author's style is highly consistent, we would expect 
+                  (thanks to delexicalisation) that segments from one of their books would be easily misclassified as segments from their other 
+                  books, especially in the <q>easy</q> s-1000 segmentation setting where the confusion between authors was minimal. More 
+                  generally, we have three kinds of possible results for the classification of a segment: (a) the correct book, (b) a wrong 
+                  book by the correct author, or (c) a book by a different author. If we assume that misclassification is a good proxy for 
+                  similarity (which we examine later), then we can define the following:
+                  <list type="unordered">
+                    <item>The greater the ratio of b / (a + b), the more consistent an author's style is.</item>
+                    <item>The greater the ratio of a / (b + c), the more inconsistent an author's style.</item>
+                    <item>The greater the ratio of (a + b) / (a + b + c), the more distinctive an author is.</item>
+                  </list>
+               </p>
+               <p>We have split each book into 80% of training and 20% of test segments (see above). In this step, two sets of experiments 
+                  were run. In the first, only books with over 20,000 tokens were used to ensure decent model training (see, for example,  
+                  <ptr target="#gorman2022"/>). In the second, we included all of the books. Here, we report and discuss only the results 
+                  of s-1000 segments. The following charts show general results for individual authors. The numbers stated are the numbers of 
+                  segments which have been attributed to the correct book (blue), other books of the same author (yellow), and books of a 
+                  different author (red).
+               </p>
+               <figure>
+                  <head>Results of classification of books by individual authors, in numbers of segments attributed to the correct book 
+                     (blue), other books of the same author (yellow), and books of a different author (red); created using Flourish 
+                     (<ref target="https://flourish.studio/">https://flourish.studio/</ref>, accessed 5 April 2023)</head>
+                  <graphic url="resources/fig01.png"/>
+               </figure>
+               <p>These results may be compared with the experiments performed in Step 2. The author a-20 (<name>S. K. Neumann</name>) can 
+                  be taken as an author whose style seems consistent across books, whereas author a-06 (<name>T. G. Masaryk</name>) is one 
+                  whose style seems more book related. In Step 2, a-20 performed better than average, except for Set 2, where the results 
+                  were slightly below-average (0.84). In that case, the test book was a-20.b-14. This book consists of 70 passages, meaning 
+                  it has 14 test passages. Ten passages were attributed to the same book, two to other books of the same author, and two to 
+                  incorrect authors. Author a-06 seems to be more consistent within individual books, but these are only rarely confused with 
+                  each other. In the experiments of Step 2, a-06 performed best in Set 2 (0.96). The test book selected for this set 
+                  (a-06.b-05) is the only one that gets confused with the author's other books. Even though there are only 5 test passages in 
+                  this short work, the results of steps 2 and 3 seem to correlate. The following chart shows the heatmaps of confusion 
+                  matrices of a-20 and a-06. These show the confusion within the works of the selected author.
+               </p>
+               <figure>
+                  <head>Heatmaps of intra-author classification for a-20 and a-06; created using Flourish 
+                     (<ref target="https://flourish.studio/">https://flourish.studio/</ref>, accessed 5 April 2023)</head>
+                  <graphic url="resources/fig02.png"/>
+               </figure>
+               <p>These experiments show that, albeit delexicalised, most books tend to be recognised as themselves, meaning that most 
+                  authors do write individual books differently, even when the differences in the lexicon are suppressed. At the same time, 
+                  the results of Step 2 conclusively demonstrate that most authors are still recognisable when tested on an unseen book.
+               </p>
+               <p>Some interesting phenomena revealed by this experiment may be noted. The results show that accuracy scores are not strongly 
+                  dependent on the books' lengths (the correlation coefficient is ca. 0.27). However, the books under 20,000 tokens (17 books 
+                  in our dataset) lead to poorer results on average. The accuracy score was only 0.54 (21 of 39 test segments attributed 
+                  correctly), and six of these books were not recognised at all. In comparison, the accuracy scores of the full model were 
+                  0.65 (all books) and 0.66 (only books over 20,000 tokens). At the same time, even some of the longer books performed very 
+                  badly. For example, of 20 test segments from a-23.b-04, only one was attributed correctly. However, this book scored very 
+                  well (0.9) in attribution to the correct author (including the one correctly attributed segment) in both experiments. The 
+                  explanation for this may become clear when the nature of the book is considered — it is a collection of short stories.
+               </p>
+               <p>From this, one may assume that collections of short stories are good candidates for high levels of intra-author confusion. 
+                  However, some examples contradict this assumption. For example, a-15.b-02, 03, 04, and 06 are collections of short stories 
+                  by <name>K. Čapek</name>. In contrast to a-23.b-04, these perform quite well in the correct book attribution (0.56 for the 
+                  experiment with all books, 0.61 for the experiment with over 20,000 token books). But the performance for correct author 
+                  attribution was not especially high (0.71 in both experiments). Further exploration of features and their weights may 
+                  help us to understand these differences better.
+               </p>
+               <p>Another interesting example is a high level of confusion among books a-20.b-06, 07, and 08 (see the image above). These 
+                  three books form a trilogy together (<title rend="italic">Francouzská revoluce</title>), and confusion was, therefore, to 
+                  be expected.
+               </p>
+               <p>Comparison of steps 2 and 3 may help us to further explore the deviations in the performances of different authors. The 
+                  following table shows correlations of authors' accuracy scores from Step 2 (using all books irrespective of their 
+                  token length) to different data obtained from Step 3 related to the authors' test books: (a) proportion of segments 
+                  attributed to the same book, (b) proportion of segments attributed to other books by the same author, (c) proportion of 
+                  segments attributed to other authors, and (d) proportion of segments attributed to the correct author (both correct and 
+                  incorrect books).
+               </p>
+               <table>
+                 <head>Correlation coefficients of authors' accuracy scores (Step 2) to different results of experiments from Step 3 of the
+                       test books attribution.</head>
+                   <row role="label">
+                     <cell/>
+                     <cell role="label">Set 1</cell>
+                     <cell role="label">Set 2</cell>
+                     <cell role="label">Set 3</cell>
+                     <cell role="label">Set 4</cell>
+                     <cell role="label">Set 5</cell>
+                   </row>
+                   <row>
+                     <cell role="label">Attribution to Correct Book</cell>
+                     <cell>0.183381</cell>
+                     <cell>-0.23135</cell>
+                     <cell>-0.51682</cell>
+                     <cell>-0.26735</cell>
+                     <cell>0.523796</cell>
+                   </row>
+                   <row>
+                     <cell role="label">To Correct Author // Incorrect Book</cell>
+                     <cell>0.486218</cell>
+                     <cell>0.443661</cell>
+                     <cell>0.441649</cell>
+                     <cell>0.416486</cell>
+                     <cell>0.413774</cell>
+                   </row>
+                   <row>
+                     <cell role="label">To Incorrect Author</cell>
+                     <cell>-0.87451</cell>
+                     <cell>-0.15772</cell>
+                     <cell>0.286852</cell>
+                     <cell>-0.27283</cell>
+                     <cell>-0.88701</cell>
+                   </row>
+                   <row>
+                     <cell role="label">To Correct Author</cell>
+                     <cell>0.872354</cell>
+                     <cell>0.154229</cell>
+                     <cell>-0.293</cell>
+                     <cell>0.270222</cell>
+                     <cell>0.885652</cell>
+                   </row>
+               </table>
+               <p>The correlations shown in this table seem to support our initial assumption that misclassification is a good proxy for 
+                  similarity. The following table presents the data for a detailed exploration of these correlations. Variations among 
+                  individual authors are still significant. Other criteria must always be considered.
+               </p>
+               <table>
+                 <head>Correct author // incorrect book attribution of test books (Step 3) and authors' performance.</head>
+                  <row role="label">
+                     <cell cols="1"></cell>
+                     <cell role="label" cols="5">Proportion of the Test Book Segments Attributed<lb/>to the Correct Author but an Incorrect Book (Step 3)</cell>
+                     <cell role="label" cols="5">Author's Performance (Step 2)</cell>
+                  </row>
+                  <row role="label">
+                     <cell/>
+                     <cell role="label">Set 1</cell>
+                     <cell role="label">Set 2</cell>
+                     <cell role="label">Set 3</cell>
+                     <cell role="label">Set 4</cell>
+                     <cell role="label">Set 5</cell>
+                     <cell role="label">Set 1</cell>
+                     <cell role="label">Set 2</cell>
+                     <cell role="label">Set 3</cell>
+                     <cell role="label">Set 4</cell>
+                     <cell role="label">Set 5</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-01</cell>
+                     <cell>0.54</cell>
+                     <cell>0.03</cell>
+                     <cell>0.17</cell>
+                     <cell>0.00</cell>
+                     <cell>0.17</cell>
+                     <cell>0.98</cell>
+                     <cell>0.91</cell>
+                     <cell>1.00</cell>
+                     <cell>0.97</cell>
+                     <cell>0.82</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-02</cell>
+                     <cell>0.00</cell>
+                     <cell>0.50</cell>
+                     <cell>0.33</cell>
+                     <cell>0.33</cell>
+                     <cell>0.05</cell>
+                     <cell>1.00</cell>
+                     <cell>0.53</cell>
+                     <cell>0.94</cell>
+                     <cell>0.88</cell>
+                     <cell>0.83</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-03</cell>
+                     <cell>1.00</cell>
+                     <cell>0.06</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>0.27</cell>
+                     <cell>1.00</cell>
+                     <cell>1.00</cell>
+                     <cell>0.93</cell>
+                     <cell>0.20</cell>
+                     <cell>0.99</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-04</cell>
+                     <cell>0.38</cell>
+                     <cell>0.14</cell>
+                     <cell>0.89</cell>
+                     <cell>0.25</cell>
+                     <cell>0.47</cell>
+                     <cell>0.83</cell>
+                     <cell>0.90</cell>
+                     <cell>0.91</cell>
+                     <cell>0.67</cell>
+                     <cell>0.97</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-05</cell>
+                     <cell>0.00</cell>
+                     <cell>0.16</cell>
+                     <cell>0.14</cell>
+                     <cell>0.50</cell>
+                     <cell>0.38</cell>
+                     <cell>0.95</cell>
+                     <cell>0.81</cell>
+                     <cell>0.85</cell>
+                     <cell>0.90</cell>
+                     <cell>0.94</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-06</cell>
+                     <cell>0.12</cell>
+                     <cell>0.44</cell>
+                     <cell>0.08</cell>
+                     <cell>0.67</cell>
+                     <cell>0.36</cell>
+                     <cell>0.64</cell>
+                     <cell>0.96</cell>
+                     <cell>0.83</cell>
+                     <cell>0.78</cell>
+                     <cell>0.83</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-07</cell>
+                     <cell>0.80</cell>
+                     <cell>0.11</cell>
+                     <cell>0.02</cell>
+                     <cell>0.50</cell>
+                     <cell>0.10</cell>
+                     <cell>0.98</cell>
+                     <cell>0.91</cell>
+                     <cell>0.70</cell>
+                     <cell>0.99</cell>
+                     <cell>0.99</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-08</cell>
+                     <cell>0.15</cell>
+                     <cell>0.10</cell>
+                     <cell>0.47</cell>
+                     <cell>0.25</cell>
+                     <cell>0.32</cell>
+                     <cell>0.00</cell>
+                     <cell>0.13</cell>
+                     <cell>0.67</cell>
+                     <cell>0.10</cell>
+                     <cell>0.00</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-09</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>0.12</cell>
+                     <cell>0.25</cell>
+                     <cell>0.40</cell>
+                     <cell>0.45</cell>
+                     <cell>0.42</cell>
+                     <cell>0.91</cell>
+                     <cell>0.24</cell>
+                     <cell>0.80</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-10</cell>
+                     <cell>0.25</cell>
+                     <cell>0,33</cell>
+                     <cell>0,33</cell>
+                     <cell>0,00</cell>
+                     <cell>0,09</cell>
+                     <cell>0,97</cell>
+                     <cell>0,79</cell>
+                     <cell>1,00</cell>
+                     <cell>0,53</cell>
+                     <cell>0,93</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-11</cell>
+                     <cell>0.17</cell>
+                     <cell>0.21</cell>
+                     <cell>0.18</cell>
+                     <cell>0.23</cell>
+                     <cell>0.50</cell>
+                     <cell>0.86</cell>
+                     <cell>0.78</cell>
+                     <cell>1.00</cell>
+                     <cell>0.74</cell>
+                     <cell>0.93</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-12</cell>
+                     <cell>0.43</cell>
+                     <cell>0.25</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>0.66</cell>
+                     <cell>0.86</cell>
+                     <cell>0.53</cell>
+                     <cell>0.89</cell>
+                     <cell>0.32</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-13</cell>
+                     <cell>0.31</cell>
+                     <cell>0.38</cell>
+                     <cell>1.00</cell>
+                     <cell>0.17</cell>
+                     <cell>0.64</cell>
+                     <cell>0.62</cell>
+                     <cell>0.89</cell>
+                     <cell>0.90</cell>
+                     <cell>1.00</cell>
+                     <cell>0.92</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-14</cell>
+                     <cell>0.16</cell>
+                     <cell>0.21</cell>
+                     <cell>0.08</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>1.00</cell>
+                     <cell>1.00</cell>
+                     <cell>1.00</cell>
+                     <cell>0.96</cell>
+                     <cell>1.00</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-15</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>0.11</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>0.24</cell>
+                     <cell>0.96</cell>
+                     <cell>0.84</cell>
+                     <cell>0.83</cell>
+                     <cell>0.84</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-16</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>0.33</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>0.90</cell>
+                     <cell>0.96</cell>
+                     <cell>0.99</cell>
+                     <cell>0.93</cell>
+                     <cell>0.95</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-17</cell>
+                     <cell>0.23</cell>
+                     <cell>0.26</cell>
+                     <cell>0.00</cell>
+                     <cell>0.47</cell>
+                     <cell>0.51</cell>
+                     <cell>1.00</cell>
+                     <cell>0.86</cell>
+                     <cell>0.96</cell>
+                     <cell>0.75</cell>
+                     <cell>1.00</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-18</cell>
+                     <cell>0.00</cell>
+                     <cell>0.40</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>0.00</cell>
+                     <cell>0.98</cell>
+                     <cell>0.98</cell>
+                     <cell>0.96</cell>
+                     <cell>1.00</cell>
+                     <cell>0.95</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-19</cell>
+                     <cell>0.17</cell>
+                     <cell>0.00</cell>
+                     <cell>0.06</cell>
+                     <cell>1.00</cell>
+                     <cell>0.33</cell>
+                     <cell>0.86</cell>
+                     <cell>1.00</cell>
+                     <cell>0.99</cell>
+                     <cell>0.89</cell>
+                     <cell>0.97</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-20</cell>
+                     <cell>0.11</cell>
+                     <cell>0.05</cell>
+                     <cell>0.06</cell>
+                     <cell>0.00</cell>
+                     <cell>0.14</cell>
+                     <cell>1.00</cell>
+                     <cell>0.84</cell>
+                     <cell>0.98</cell>
+                     <cell>1.00</cell>
+                     <cell>0.99</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-21</cell>
+                     <cell>0.43</cell>
+                     <cell>0.63</cell>
+                     <cell>0.53</cell>
+                     <cell>0.06</cell>
+                     <cell>0.12</cell>
+                     <cell>1.00</cell>
+                     <cell>0.93</cell>
+                     <cell>0.55</cell>
+                     <cell>0.65</cell>
+                     <cell>0.98</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-22</cell>
+                     <cell>1.00</cell>
+                     <cell>0.08</cell>
+                     <cell>0.33</cell>
+                     <cell>0.06</cell>
+                     <cell>0.17</cell>
+                     <cell>0.79</cell>
+                     <cell>1.00</cell>
+                     <cell>0.94</cell>
+                     <cell>0.56</cell>
+                     <cell>0.88</cell>
+                  </row>
+                  <row>
+                     <cell role="label">a-23</cell>
+                     <cell>0.13</cell>
+                     <cell>0.21</cell>
+                     <cell>0.69</cell>
+                     <cell>0.67</cell>
+                     <cell>0.17</cell>
+                     <cell>1.00</cell>
+                     <cell>0.98</cell>
+                     <cell>1.00</cell>
+                     <cell>1.00</cell>
+                     <cell>0.98</cell>
+                  </row>
+               </table>
+           </div>
+         </div>
+         <div>
+           <head>Conclusion</head>
+             <p>We do not claim to have studied the issue of book versus authorial style exhaustively. What we have done is build a pipeline 
+                to show that this issue is worth taking into account in developing and evaluating authorship classification systems. It is 
+                clear that the performance drops significantly when an unseen book is used for testing instead of unseen segments of books 
+                seen during the training process. On the one hand, this is not a catastrophic problem, as performances only drop by 10-20% 
+                on average. On the other hand, however, this makes an important difference for applications since it results in a significant 
+                rise in the number of errors.
+             </p>
+             <p>The results of our experiments focused on attributing individual books instead of authors have revealed that models 
+                trained and tested on the segments from the same book perform well despite a relatively high level of delexicalisation. These 
+                experiments have also shown that misclassification of a book but correct classification of an author is a good proxy for 
+                similarity in author style. Thus, we may recommend such an experiment in the classifiers' development stage. Further 
+                research might also focus on measuring this effect across languages.
+             </p>
+         </div>
+         <div>
+           <head>Acknowledgements</head>
+             <p>Realised with the support of <title rend="italic">Institutional Research</title> of the <name>National Library of the Czech Republic</name>, 
+               funded by the <name>Ministry of Culture</name> of the Czech Republic as part of the framework of <title rend="italic">Long-Term Conception 
+               Developement of Scientific Organisation</title>.
+             </p>
+         </div>
+         <div type="appendix">
+           <head>Appendix</head>
+             <table>
+               <head>List of works in dataset.</head>
+                 <row role="label">
+                   <cell role="label">Author</cell>
+                   <cell role="label">Title</cell>
+                   <cell role="label">Genre</cell>
+                   <cell role="label">Book ID in Dataset</cell>
+                   <cell role="label">Token Count</cell>
+                   <cell role="label">Set in Which Used<lb/>as Test Book<lb/>(Experiment Step 2)</cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">Nedokončený obraz</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-01</cell>
+                   <cell>91,746</cell>
+                   <cell>Set 5</cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">Otřelá kolečka</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-02</cell>
+                   <cell>83,978</cell>
+                   <cell></cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">Vzpomínky</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-03</cell>
+                   <cell>155,266</cell>
+                   <cell></cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">Bohatství</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-04</cell>
+                   <cell>54,474</cell>
+                   <cell></cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">Bratři</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-05</cell>
+                   <cell>66,637</cell>
+                   <cell>Set 3</cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">Blouznivci našich hor</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-07</cell>
+                   <cell>141,011</cell>
+                   <cell>Set 2</cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">O ševci Matoušovi a jeho přátelích</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-08</cell>
+                   <cell>83,005</cell>
+                   <cell></cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">Na rozhraní</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-09</cell>
+                   <cell>106,018</cell>
+                   <cell></cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">V temných vírech (1)</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-11</cell>
+                   <cell>89,013</cell>
+                   <cell></cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">V temných vírech (3)</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-12</cell>
+                   <cell>92,030</cell>
+                   <cell>Set 4</cell>
+                 </row>
+                 <row>
+                   <cell><name>A. Stašek</name></cell>
+                   <cell><title rend="italic">Stíny minulosti</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-01.b-13</cell>
+                   <cell>81,008</cell>
+                   <cell>Set 1</cell>
+                 </row>
+                 <row>
+                   <cell cols="6" role="label"><name>A. Stašek</name> Full Tokens Count: 1,044,186</cell>
+                 </row>
+                 <row>
+                   <cell><name>J. Neruda</name></cell>
+                   <cell><title rend="italic">Arabesky</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-02.b-01</cell>
+                   <cell>69,981</cell>
+                   <cell>Set 2</cell>
+                 </row>
+                 <row>
+                   <cell><name>J. Neruda</name></cell>
+                   <cell><title rend="italic">Trhani</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-02.b-02</cell>
+                   <cell>14,772</cell>
+                   <cell>Set 1</cell>
+                 </row>
+                 <row>
+                   <cell><name>J. Neruda</name></cell>
+                   <cell><title rend="italic">Menší cesty</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-02.b-03</cell>
+                   <cell>76,567</cell>
+                   <cell>Set 3</cell>
+                 </row>
+                 <row>
+                   <cell><name>J. Neruda</name></cell>
+                   <cell><title rend="italic">Povídky malostranské</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-02.b-04</cell>
+                   <cell>89,079</cell>
+                   <cell>Set 4</cell>
+                 </row>
+                 <row>
+                   <cell><name>J. Neruda</name></cell>
+                   <cell><title rend="italic">Studie, krátké a kratší</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-02.b-05</cell>
+                   <cell>122,183</cell>
+                   <cell>Set 5</cell>
+                 </row>
+                 <row>
+                   <cell cols="6" role="label"><name>J. Neruda</name> Full Tokens Count: 364,582</cell>
+                 </row>
+                 <row>
+                   <cell><name>J. Arbes</name></cell>
+                   <cell><title rend="italic">Ethiopská lilie</title></cell>
+                   <cell>Prose</cell>
+                   <cell>a-03.b-01</cell>
+                   <cell>79,873</cell>
+                   <cell></cell>
+                 </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Kandidáti existence</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-02</cell>
+                 <cell>81,821</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Poslední dnové lidstva</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-03</cell>
+                 <cell>88,181</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Persekuce lidu českého v letech 1869-1873</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-04</cell>
+                 <cell>163,125</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Svatý Xaverius</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-05</cell>
+                 <cell>28,370</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Elegie a idyly</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-06</cell>
+                 <cell>159,003</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Moderní upíři</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-09</cell>
+                 <cell>93,009</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Anděl míru</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-10</cell>
+                 <cell>106,028</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Sivooký démon</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-11</cell>
+                 <cell>89,031</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Štrajchpudlíci</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-12</cell>
+                 <cell>125,003</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Akrobati</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-13</cell>
+                 <cell>40,001</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Divotvorci tónů</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-15</cell>
+                 <cell>73,023</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>J. Arbes</name></cell>
+                 <cell><title rend="italic">Z víru života</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-03.b-16</cell>
+                 <cell>71,002</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>J. Arbes</name> Full Tokens Count: 1,197,470</cell>
+               </row>
+               <row>
+                 <cell><name>K. Klostermann</name></cell>
+                 <cell><title rend="italic">Ze světa lesních samot</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-04.b-01</cell>
+                 <cell>87,234</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>K. Klostermann</name></cell>
+                 <cell><title rend="italic">Za štěstím</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-04.b-02</cell>
+                 <cell>95,745</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>K. Klostermann</name></cell>
+                 <cell><title rend="italic">Domek v Polední ulici</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-04.b-03</cell>
+                 <cell>100,419</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>K. Klostermann</name></cell>
+                 <cell><title rend="italic">Vypovězen</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-04.b-04</cell>
+                 <cell>70,129</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>K. Klostermann</name></cell>
+                 <cell><title rend="italic">Kulturní naléhavost</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-04.b-05</cell>
+                 <cell>18,382</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>K. Klostermann</name> Full Tokens Count: 371,909</cell>
+               </row>
+               <row>
+                 <cell><name>F. X. Šalda</name></cell>
+                 <cell><title rend="italic">Boje o zítřek</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-05.b-01</cell>
+                 <cell>63,141</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>F. X. Šalda</name></cell>
+                 <cell><title rend="italic">Moderní literatura česká</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-05.b-02</cell>
+                 <cell>16,843</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>F. X. Šalda</name></cell>
+                 <cell><title rend="italic">Duše a dílo</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-05.b-03</cell>
+                 <cell>82,283</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>F. X. Šalda</name></cell>
+                 <cell><title rend="italic">Umění a náboženství</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-05.b-04</cell>
+                 <cell>10,141</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>F. X. Šalda</name></cell>
+                 <cell><title rend="italic">Juvenilie: stati, články a recense z let 1891-1899 (1)</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-05.b-05</cell>
+                 <cell>112,978</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>F. X. Šalda</name> Full Tokens Count: 285,386</cell>
+               </row>
+               <row>
+                 <cell><name>T. G. Masaryk</name></cell>
+                 <cell><title rend="italic">Blaise Pascal, jeho život a filosofie</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-06.b-01</cell>
+                 <cell>11,662</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>T. G. Masaryk</name></cell>
+                 <cell><title rend="italic">O studiu děl básnických</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-06.b-02</cell>
+                 <cell>8,786</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>T. G. Masaryk</name></cell>
+                 <cell><title rend="italic">Česká otázka: snahy a tužby národního obrození</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-06.b-03</cell>
+                 <cell>63,168</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>T. G. Masaryk</name></cell>
+                 <cell><title rend="italic">Otázka sociální: základy marxismu sociologické a filosofické</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-06.b-04</cell>
+                 <cell>190,279</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>T. G. Masaryk</name></cell>
+                 <cell><title rend="italic">Jan Hus: naše obrození a naše reformace</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-06.b-05</cell>
+                 <cell>25,635</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>T. G. Masaryk</name> Full Tokens Count: 299,530</cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Na Chlumku</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-02</cell>
+                 <cell>8,016</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Na dvoře vévodském</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-04</cell>
+                 <cell>81,005</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Psohlavci</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-05</cell>
+                 <cell>88,007</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Zahořanský hon a jiné povídky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-06</cell>
+                 <cell>75,002</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Skály</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-07</cell>
+                 <cell>90,021</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Temno</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-08</cell>
+                 <cell>215,002</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Bratrstvo (1): Bitva u Lučence</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-09</cell>
+                 <cell>146,023</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Bratrstvo (2): Mária</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-10</cell>
+                 <cell>158,003</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Bratrstvo (3): Žebráci</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-11</cell>
+                 <cell>180,009</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">F.L. Věk</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-12</cell>
+                 <cell>152,028</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Maryla</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-13</cell>
+                 <cell>53,035</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Husitský král (2)</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-13</cell>
+                 <cell>115,006</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Lucerna</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-07.b-14</cell>
+                 <cell>27,001</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>A. Jirásek</name></cell>
+                 <cell><title rend="italic">Mezi proudy (1)</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-07.b-16</cell>
+                 <cell>124,009</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>A. Jirásek</name> Full Tokens Count: 1,512,167</cell>
+               </row>
+               <row>
+                 <cell><name>Č. Slepánek</name></cell>
+                 <cell><title rend="italic">Srbsko od prvého povstání 1804 do dnešní doby</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-08.b-01</cell>
+                 <cell>110,022</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>Č. Slepánek</name></cell>
+                 <cell><title rend="italic">Črty z Ruska a odjinud</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-08.b-02</cell>
+                 <cell>40,032</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>Č. Slepánek</name></cell>
+                 <cell><title rend="italic">Svědomí Lidových novin, čili, Jak bylo po léta v českém<lb/>tisku štváno lživě proti mně</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-08.b-03</cell>
+                 <cell>6,004</cell>
+                 <cell>Set, Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>Č. Slepánek</name></cell>
+                 <cell><title rend="italic">Dělnické hnutí v Rusku</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-08.b-04</cell>
+                 <cell>18,057</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>Č. Slepánek</name> Full Tokens Count: 174,115</cell>
+               </row>
+               <row>
+                 <cell><name>E. Krásnohorská</name></cell>
+                 <cell><title rend="italic">Svéhlavička</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-09.b-01</cell>
+                 <cell>74,030</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>E. Krásnohorská</name></cell>
+                 <cell><title rend="italic">Celínka</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-09.b-02</cell>
+                 <cell>90,003</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>E. Krásnohorská</name></cell>
+                 <cell><title rend="italic">Pohádky Elišky Krásnohorské</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-09.b-03</cell>
+                 <cell>40,004</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>E. Krásnohorská</name></cell>
+                 <cell><title rend="italic">Srdcem i skutkem</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-09.b-04</cell>
+                 <cell>24,032</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>E. Krásnohorská</name></cell>
+                 <cell><title rend="italic">Do proudu žití</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-09.b-06</cell>
+                 <cell>47,013</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>E. Krásnohorská</name></cell>
+                 <cell><title rend="italic">Medvěd a víla</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-09.b-08</cell>
+                 <cell>12,002</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>E. Krásnohorská</name></cell>
+                 <cell><title rend="italic">Čertova stěna</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-09.b-10</cell>
+                 <cell>14,003</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>E. Krásnohorská</name></cell>
+                 <cell><title rend="italic">Trojí máj</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-09.b-11</cell>
+                 <cell>73,017</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>E. Krásnohorská</name> Full Tokens Count: 374,104</cell>
+               </row>
+               <row>
+                 <cell><name>F. Herites</name></cell>
+                 <cell><title rend="italic">Amanita</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-10.b-01</cell>
+                 <cell>73,015</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>F. Herites</name></cell>
+                 <cell><title rend="italic">Tajemství strýce Josefa</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-10.b-02</cell>
+                 <cell>52,010</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>F. Herites</name></cell>
+                 <cell><title rend="italic">Maloměstské humoresky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-10.b-03</cell>
+                 <cell>69,021</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>F. Herites</name></cell>
+                 <cell><title rend="italic">Tři cesty</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-10.b-04</cell>
+                 <cell>28,010</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>F. Herites</name></cell>
+                 <cell><title rend="italic">Bez chleba</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-10.b-06</cell>
+                 <cell>92,013</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>F. Herites</name></cell>
+                 <cell><title rend="italic">Všední zjevy</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-10.b-07</cell>
+                 <cell>99,011</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>F. Herites</name></cell>
+                 <cell><title rend="italic">Bůh v lidu</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-10.b-09</cell>
+                 <cell>11,022</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>F. Herites</name></cell>
+                 <cell><title rend="italic">Vodňanské vzpomínky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-10.b-10</cell>
+                 <cell>19,009</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>F. Herites</name></cell>
+                 <cell><title rend="italic">Sebrané spisy Fr. Heritesa</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-10.b-11</cell>
+                 <cell>71,020</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>F. Herites</name> Full Tokens Count: 514,131</cell>
+               </row>
+               <row>
+                 <cell><name>I. Olbracht</name></cell>
+                 <cell><title rend="italic">Nikola Šuhaj loupežník</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-11.b-01</cell>
+                 <cell>67,028</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>I. Olbracht</name></cell>
+                 <cell><title rend="italic">Anna proletářka</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-11.b-02</cell>
+                 <cell>81,016</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>I. Olbracht</name></cell>
+                 <cell><title rend="italic">Karavany v noci</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-11.b-03</cell>
+                 <cell>99,007</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>I. Olbracht</name></cell>
+                 <cell><title rend="italic">Žalář nejtemnější</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-11.b-04</cell>
+                 <cell>41,002</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>I. Olbracht</name></cell>
+                 <cell><title rend="italic">Dobyvatel</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-11.b-05</cell>
+                 <cell>193,020</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>I. Olbracht</name></cell>
+                 <cell><title rend="italic">O smutných očích Hany Karadžičové</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-11.b-06</cell>
+                 <cell>46,004</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>I. Olbracht</name></cell>
+                 <cell><title rend="italic">O zlých samotářích</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-11.b-07</cell>
+                 <cell>117,007</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>I. Olbracht</name></cell>
+                 <cell><title rend="italic">Golet v údolí</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-11.b-08</cell>
+                 <cell>71,009</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>I. Olbracht</name> Full Tokens Count: 715,093</cell>
+               </row>
+               <row>
+                 <cell><name>J. Vrchlický</name></cell>
+                 <cell><title rend="italic">Povídky ironické a sentimentální</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-12.b-01</cell>
+                 <cell>25,041</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>J. Vrchlický</name></cell>
+                 <cell><title rend="italic">Barevné střepy</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-12.b-03</cell>
+                 <cell>26,001</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Vrchlický</name></cell>
+                 <cell><title rend="italic">Nové barevné střepy</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-12.b-05</cell>
+                 <cell>35,002</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>J. Vrchlický</name></cell>
+                 <cell><title rend="italic">Loutky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-12.b-06</cell>
+                 <cell>84,012</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Vrchlický</name></cell>
+                 <cell><title rend="italic">Noc na Karlštejně</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-12.b-07</cell>
+                 <cell>21,002</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>J. Vrchlický</name></cell>
+                 <cell><title rend="italic">Drahomíra</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-12.b-08</cell>
+                 <cell>15,010</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>J. Vrchlický</name></cell>
+                 <cell><title rend="italic">Knížata</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-12.b-09</cell>
+                 <cell>35,043</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>J. Vrchlický</name> Full Tokens Count: 241,111</cell>
+               </row>
+               <row>
+                 <cell><name>J.S. Machar</name></cell>
+                 <cell><title rend="italic">Nemocnice</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-13.b-01</cell>
+                 <cell>34,020</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>J.S. Machar</name></cell>
+                 <cell><title rend="italic">Pod sluncem italským</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-13.b-01</cell>
+                 <cell>57,027</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J.S. Machar</name></cell>
+                 <cell><title rend="italic">Třicet roků</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-13.b-03</cell>
+                 <cell>60,014</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>J.S. Machar</name></cell>
+                 <cell><title rend="italic">Vídeň</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-13.b-04</cell>
+                 <cell>68,009</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J.S. Machar</name></cell>
+                 <cell><title rend="italic">Řím</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-13.b-05</cell>
+                 <cell>69,005</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>J.S. Machar</name></cell>
+                 <cell><title rend="italic">Vzpomíná se…</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-13.b-06</cell>
+                 <cell>70,002</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>J.S. Machar</name></cell>
+                 <cell><title rend="italic">Kriminál</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-13.b-07</cell>
+                 <cell>59,003</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>J.S. Machar</name> Full Tokens Count: 417,080</cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Ondřej Černyšev</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-01</cell>
+                 <cell>91,005</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Román o věrném přátelství Amise a Amila</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-02</cell>
+                 <cell>91,036</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Báje Šošany</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-03</cell>
+                 <cell>43,010</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Fantastické povídky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-04</cell>
+                 <cell>82,017</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Dobrodružství Madrány</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-05</cell>
+                 <cell>57,017</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Gompači a Komurasaki</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-06</cell>
+                 <cell>38,011</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Rokoko: Sestra Paskalina</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-07</cell>
+                 <cell>30,001</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Jan Maria Plojhar</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-08</cell>
+                 <cell>115,022</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Stratonika a jiné povídky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-09</cell>
+                 <cell>91,026</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Maeldunova výprava a jiné povídky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-10</cell>
+                 <cell>34,046</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>J. Zeyer</name></cell>
+                 <cell><title rend="italic">Tři legendy o krucifixu</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-14.b-11</cell>
+                 <cell>59,016</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>J. Zeyer</name> Full Tokens Count: 731,207</cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Válka s mloky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-01</cell>
+                 <cell>83,021</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Nůše pohádek (3)</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-02</cell>
+                 <cell>42,020</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Povídky z jedné kapsy</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-03</cell>
+                 <cell>61,027</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Povídky z druhé kapsy</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-04</cell>
+                 <cell>52,019</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Věc Makropulos</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-15.b-05</cell>
+                 <cell>22,007</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Devatero pohádek</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-06</cell>
+                 <cell>56,004</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Ze života hmyzu</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-15.b-07</cell>
+                 <cell>22,004</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Měl jsem psa a kočku</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-08</cell>
+                 <cell>25,021</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Matka</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-15.b-09</cell>
+                 <cell>24,005</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Zahradníkův rok</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-10</cell>
+                 <cell>25,007</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Povětroň</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-11</cell>
+                 <cell>52,003</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Jak se co dělá</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-12</cell>
+                 <cell>34,004</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Loupežník</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-15.b-13</cell>
+                 <cell>23,003</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Cesta na sever</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-14</cell>
+                 <cell>33,003</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Hovory s T.G. Masarykem</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-15</cell>
+                 <cell>24,013</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Továrna na Absolutno, Krakatit</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-16</cell>
+                 <cell>147,012</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Bílá nemoc</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-15.b-17</cell>
+                 <cell>25,003</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>K. Čapek</name></cell>
+                 <cell><title rend="italic">Boží muka</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-15.b-18</cell>
+                 <cell>35,022</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>K. Čapek</name> Full Tokens Count: 785,198</cell>
+               </row>
+               <row>
+                 <cell><name>K. Nový</name></cell>
+                 <cell><title rend="italic">Plamen a vítr</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-16.b-01</cell>
+                 <cell>174,008</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Nový</name></cell>
+                 <cell><title rend="italic">Železný kruh</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-16.b-02</cell>
+                 <cell>300,021</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>K. Nový</name></cell>
+                 <cell><title rend="italic">Peníze</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-16.b-03</cell>
+                 <cell>77,003</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>K. Nový</name></cell>
+                 <cell><title rend="italic">Chceme žít</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-16.b-04</cell>
+                 <cell>58,001</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Nový</name></cell>
+                 <cell><title rend="italic">Na rozcestí</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-16.b-05</cell>
+                 <cell>126,002</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>K. Nový</name></cell>
+                 <cell><title rend="italic">Atentát</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-16.b-06</cell>
+                 <cell>113,009</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Nový</name></cell>
+                 <cell><title rend="italic">Rytíři a lapkové</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-16.b-07</cell>
+                 <cell>137,001</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>K. Nový</name></cell>
+                 <cell><title rend="italic">Balada o českém vojáku</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-16.b-08</cell>
+                 <cell>47,054</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Nový</name></cell>
+                 <cell><title rend="italic">Rybaříci na Modré zátoce</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-16.b-09</cell>
+                 <cell>23,001</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Nový</name></cell>
+                 <cell><title rend="italic">Potulný lovec</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-16.b-10</cell>
+                 <cell>44,003</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>K. Nový</name> Full Tokens Count: 1,099,103</cell>
+               </row>
+               <row>
+                 <cell><name>K. Sabina</name></cell>
+                 <cell><title rend="italic">Synové světla</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-17.b-01</cell>
+                 <cell>230,005</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>K. Sabina</name></cell>
+                 <cell><title rend="italic">Hrobník</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-17.b-02</cell>
+                 <cell>27,001</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>K. Sabina</name></cell>
+                 <cell><title rend="italic">Morana čili Svět a jeho nicoty</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-17.b-03</cell>
+                 <cell>144,003</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>K. Sabina</name></cell>
+                 <cell><title rend="italic">Oživené hroby</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-17.b-04</cell>
+                 <cell>86,020</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Sabina</name></cell>
+                 <cell><title rend="italic">Černá růže</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-17.b-05</cell>
+                 <cell>20,002</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>K. Sabina</name></cell>
+                 <cell><title rend="italic">Blouznění</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-17.b-07</cell>
+                 <cell>107,001</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>K. Sabina</name> Full Tokens Count: 614,032</cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Zapadlí vlastenci</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-01</cell>
+                 <cell>125,026</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Maloměstské humorky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-02</cell>
+                 <cell>128,004</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Kalibův zločin</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-03</cell>
+                 <cell>65,028</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Paničkou: obraz z podhoří</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-04</cell>
+                 <cell>60,008</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Povídky o českých umělcích</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-05</cell>
+                 <cell>22,004</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Povídky ze starých hradů</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-07</cell>
+                 <cell>32,012</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Výminkáři</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-09</cell>
+                 <cell>48,001</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Stehle: podhorský obraz</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-10</cell>
+                 <cell>124,023</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Z rodné chaloupky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-11</cell>
+                 <cell>23,008</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Skleník</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-12</cell>
+                 <cell>33,004</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Pantáta Bezoušek</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-13</cell>
+                 <cell>88,006</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Ze srdce k srdcím</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-14</cell>
+                 <cell>22,002</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K.V. Rais</name></cell>
+                 <cell><title rend="italic">Horské kořeny</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-18.b-15</cell>
+                 <cell>49,019</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>K.V. Rais</name> Full Tokens Count: 819,145</cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">Černý Petříček</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-01</cell>
+                 <cell>35,025</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">Poslední poustevnice</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-02</cell>
+                 <cell>52,001</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">Z let probuzení</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-03</cell>
+                 <cell>70,037</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">Na úsvitě</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-04</cell>
+                 <cell>108,002</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">Kantůrčice</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-05</cell>
+                 <cell>65,001</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">O krejčíkově Anežce</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-06</cell>
+                 <cell>21,011</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">Časové ohlasy</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-07</cell>
+                 <cell>72,044</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">Kříž u potoka</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-08</cell>
+                 <cell>102,025</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">Vesnický román</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-09</cell>
+                 <cell>77,015</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">Frantina</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-10</cell>
+                 <cell>65,001</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>K. Světlá</name></cell>
+                 <cell><title rend="italic">Nemodlenec</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-19.b-11</cell>
+                 <cell>98,035</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>K. Světlá</name> Full Tokens Count: 765,197</cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Československá cesta</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-04</cell>
+                 <cell>32,009</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Vzpomínky (1)</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-05</cell>
+                 <cell>40,006</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Francouzská revoluce (1)</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-06</cell>
+                 <cell>158,001</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Francouzská revoluce (2)</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-07</cell>
+                 <cell>171,012</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Francouzská revoluce (3)</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-08</cell>
+                 <cell>157,013</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Ať žije život</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-09</cell>
+                 <cell>42,022</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Jelec</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-10</cell>
+                 <cell>11,008</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Enciány s Popa Ivana</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-11</cell>
+                 <cell>24,012</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">O umění</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-12</cell>
+                 <cell>217,009</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Paměti a drobné prózy</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-13</cell>
+                 <cell>47,018</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Zlatý oblak</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-14</cell>
+                 <cell>70,018</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>S.K. Neumann</name></cell>
+                 <cell><title rend="italic">Konfese a konfrontace (2)</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-20.b-15</cell>
+                 <cell>168,005</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>S.K. Neumann</name> Full Tokens Count: 1,137,133</cell>
+               </row>
+               <row>
+                 <cell><name>V. Hálek</name></cell>
+                 <cell><title rend="italic">Na vejminku</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-21.b-01</cell>
+                 <cell>46,020</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>V. Hálek</name></cell>
+                 <cell><title rend="italic">Pod pustým kopcem</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-21.b-03</cell>
+                 <cell>58,023</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>V. Hálek</name></cell>
+                 <cell><title rend="italic">Mejrima a Husejn</title></cell>
+                 <cell>Poetry</cell>
+                 <cell>a-21.b-04</cell>
+                 <cell>17,009</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>V. Hálek</name></cell>
+                 <cell><title rend="italic">Král Rudolf</title></cell>
+                 <cell>Drama</cell>
+                 <cell>a-21.b-06</cell>
+                 <cell>25,012</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>V. Hálek</name></cell>
+                 <cell><title rend="italic">Komediant</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-21.b-08</cell>
+                 <cell>87,019</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>V. Hálek</name></cell>
+                 <cell><title rend="italic">Na statku a v chaloupce</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-21.b-09</cell>
+                 <cell>38,004</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>V. Hálek</name></cell>
+                 <cell><title rend="italic">Kresby křídou i tuší</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-21.b-10</cell>
+                 <cell>146,014</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>V. Hálek</name></cell>
+                 <cell><title rend="italic">Povídky I</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-21.b-11</cell>
+                 <cell>116,005</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>V. Hálek</name></cell>
+                 <cell><title rend="italic">Fejetony</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-21.b-12</cell>
+                 <cell>170,015</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>V. Hálek</name> Full Tokens Count: 703,121</cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Obrazy z dějin národa českého</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-01</cell>
+                 <cell>141,011</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Kubula a Kuba Kubikula</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-02</cell>
+                 <cell>18,016</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Pole orná a válečná</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-03</cell>
+                 <cell>46,002</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Amazonský proud; Dlouhý, Široký, Bystrozraký</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-04</cell>
+                 <cell>38,002</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Pekař Jan Marhoul</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-05</cell>
+                 <cell>34,015</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Poslední soud</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-06</cell>
+                 <cell>37,004</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Luk královny Dorotky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-07</cell>
+                 <cell>33,001</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Tři řeky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-08</cell>
+                 <cell>93,014</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Rozmarné léto</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-10</cell>
+                 <cell>23,011</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Markéta Lazarová</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-11</cell>
+                 <cell>46,008</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>V. Vančura</name></cell>
+                 <cell><title rend="italic">Rodina Horvatova</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-22.b-12</cell>
+                 <cell>109,005</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>V. Vančura</name> Full Tokens Count: 618,089</cell>
+               </row>
+               <row>
+                 <cell><name>Z. Winter</name></cell>
+                 <cell><title rend="italic">Nezbedný bakalář a jiné rakovnické obrázky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-23.b-01</cell>
+                 <cell>115,003</cell>
+                 <cell>Set 4</cell>
+               </row>
+               <row>
+                 <cell><name>Z. Winter</name></cell>
+                 <cell><title rend="italic">Ze staré Prahy</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-23.b-02</cell>
+                 <cell>62,005</cell>
+                 <cell>Set 5</cell>
+               </row>
+               <row>
+                 <cell><name>Z. Winter</name></cell>
+                 <cell><title rend="italic">Krátký jeho svět a jiné pražské obrázky</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-23.b-04</cell>
+                 <cell>102,009</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>Z. Winter</name></cell>
+                 <cell><title rend="italic">Staré listy</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-23.b-05</cell>
+                 <cell>66,007</cell>
+                 <cell>Set 1</cell>
+               </row>
+               <row>
+                 <cell><name>Z. Winter</name></cell>
+                 <cell><title rend="italic">Rozina sebranec</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-23.b-06</cell>
+                 <cell>64,019</cell>
+                 <cell>Set 3</cell>
+               </row>
+               <row>
+                 <cell><name>Z. Winter</name></cell>
+                 <cell><title rend="italic">Bouře a přeháňka</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-23.b-07</cell>
+                 <cell>69,001</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>Z. Winter</name></cell>
+                 <cell><title rend="italic">Panečnice</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-23.b-08</cell>
+                 <cell>28,025</cell>
+                 <cell></cell>
+               </row>
+               <row>
+                 <cell><name>Z. Winter</name></cell>
+                 <cell><title rend="italic">Mistr Kampanus</title></cell>
+                 <cell>Prose</cell>
+                 <cell>a-23.b-09</cell>
+                 <cell>177,039</cell>
+                 <cell>Set 2</cell>
+               </row>
+               <row>
+                 <cell cols="6" role="label"><name>Z. Winter</name> Full Tokens Count: 683,108</cell>
+               </row>
+             </table>
+         </div>
+      </body>
+      <back>
+         <listBibl>
+            <bibl xml:id="benotto2021" label="Benotto 2021">Benotto, G. (2021) <title rend="quotes">Can an author style be unveiled through 
+               word distribution?</title>, <title rend="italic">Digital Humanities Quarterly</title>, 15(1). 
+               <ref target="http://digitalhumanities.org:8081/dhq/vol/15/1/000539/000539.html">
+               http://digitalhumanities.org:8081/dhq/vol/15/1/000539/000539.html</ref>
+            </bibl>
+            <bibl xml:id="gorman2022" label="Gorman 2022">Gorman, R. (2022) <title rend="quotes">Universal dependencies and author 
+               attribution of short texts with syntax alone</title>, <title rend="italic">Digital Humanities Quarterly</title>, 
+               16(2). <ref target="http://digitalhumanities.org:8081/dhq/vol/16/2/000606/000606.html">
+               http://digitalhumanities.org:8081/dhq/vol/16/2/000606/000606.html</ref>
+            </bibl>
+            <bibl xml:id="grieve2005" label="Grieve 2005">Grieve, J. (2005) <title rend="italic">Quantitative authorship attribution: 
+               A history and an evaluation of techniques</title>. MA thesis. Simon Fraser University. 
+               Available at: <ref target="https://summit.sfu.ca/item/8840">https://summit.sfu.ca/item/8840</ref>.
+            </bibl>
+            <bibl xml:id="grzybek2014" label="Grzybek 2014">Grzybek, P. (2014) <title rend="quotes">The emergence of stylometry: 
+               Prolegomena to the history of term and concept</title>, in Kroó, K. and Torop, P. (eds.) <title rend="italic">Text 
+               within text: Culture within Culture</title>. Paris: L’Harmattan, pp. 58–75.
+            </bibl>
+            <bibl xml:id="holmes1998" label="Holmes 1998">Holmes, D.I. (1998) <title rend="quotes">The evolution of stylometry in 
+               humanities scholarship</title>, <title rend="italic">Literary and Linguistic Computing</title>, 13(3), pp. 111–117.
+            </bibl>
+            <bibl xml:id="kusakci2012" label="Kusakci 2012">Kusakci, A.O. (2012) <title rend="quotes">Authorship attribution using 
+               committee machines with k-nearest neighbors rated voting</title>, <title rend="italic">Proceedings of the 11th symposium 
+               on neural network applications in electrical engineering, IEEE, 2012</title>. Belgrade, Serbia, 20–22 September. pp. 161–166.
+               Available at: <ref target="https://ieeexplore.ieee.org/document/6419997">https://ieeexplore.ieee.org/document/6419997</ref>.
+            </bibl>
+            <bibl xml:id="luyckx_daelemans2011" label="Luyckx and Daelemans 2011">Luyckx, K., and Daelemans, W. (2011) 
+               <title rend="quotes">The effect of author set size and data size in authorship attribution</title>, 
+               <title rend="italic">Literary and Linguistic Computing</title>, 26(1), pp. 35–55.
+            </bibl>
+            <bibl xml:id="luyckx2011" label="Luyckx 2011">Luyckx, K. (2011) <title rend="italic">Scalability issues in authorship 
+               attribution</title>. Brussels, Belgium: University Press Antwerp.
+            </bibl>
+            <bibl xml:id="marinho_hirst_amancio2016" label="Marinho, Hirst, and Amancio 2016">Marino, V.Q., Hirst, G., and Amancio, D.R. 
+               <title rend="quotes">Authorship attribution via network motifs identification</title>, <title rend="italic">Proceedings
+               of the 5th Brazilian conference of intelligent systems, IEEE, 2016</title>. Recife, Brazil, 9–12 October. pp. 355–360.
+               <ref target="https://doi.org/10.48550/arXiv.1607.06961">https://doi.org/10.48550/arXiv.1607.06961</ref>.
+            </bibl>
+            <bibl xml:id="mosteller_wallace1964" label="Mosteller and Wallace 1964">Mosteller, F., and Wallace, D. (1964) 
+               <title rend="italic">Inference and disputed authorship: The Federalist</title>. Reading, MA: Addison-Wesley.
+            </bibl>
+            <bibl xml:id="nivre2015" label="Nivre 2015">Nivre, J. (2015) <title rend="quotes">Towards a universal grammar for
+               natural language processing</title>, <title rend="italic">Proceedings of the international conference on intelligent
+               text processing and computational linguistics, CICLing, 2016</title>. Konya, Turkey, 3–9 April.
+               <ref target="https://doi.org/10.1007/978-3-319-18111-0_1">https://doi.org/10.1007/978-3-319-18111-0_1</ref>.
+            </bibl>
+            <bibl xml:id="nutanong_et_al2016" label="Nutanong et al.">Nutanong, S. et al. <title rend="quotes">A scalable framework
+               for stylometric analysis query processing</title>, <title rend="italic">Proceedings of the 16th international
+               conference on data mining, IEEE, 2016</title>. Barcelona, Spain, 12–15 December. pp. 1125–1130.
+               <ref target="https://doi.org/10.1109/ICDM.2016.0147">https://doi.org/10.1109/ICDM.2016.0147</ref>.
+            </bibl>
+            <bibl xml:id="pedregosa_et_al2011" label="Pedregosa et al. 2011">Pedregosa, F. et al. (2011) <title rend="quotes">Scikit-learn:
+               Machine learning in Python</title>, <title rend="italic">Journal of Machine Learning Research</title>, 12, pp. 2825–2830.
+               Available at: <ref target="https://jmlr.csail.mit.edu/papers/volume12/pedregosa11a/pedregosa11a.pdf">
+               https://jmlr.csail.mit.edu/papers/volume12/pedregosa11a/pedregosa11a.pdf</ref>.
+            </bibl>
+            <bibl xml:id="pinho_pratas_ferreira2016" label="Pinho, Pratas, and Ferreira 2016">Pinho, A.J., Pratas, D., and Ferreira, P.J.S.G.
+               <title rend="quotes">Authorship attribution using relative compression</title>, <title rend="italic">Proceedings of the
+               data compression conference, IEEE, 2016</title>. Snowbird, UT, 30 March–1 April. pp. 329–338.
+               <ref target="https://doi.org/10.1109/DCC.2016.53">https://doi.org/10.1109/DCC.2016.53</ref>.
+            </bibl>
+            <bibl xml:id="ramezani_sheydaei_kahani2013" label="Ramezani, Sheydaei, and Kahani 2013">Ramezani, R., Sheydaei, N., and Kahani, M. (2013)
+               <title rend="quotes">Evaluating the effects of textual features on authorship attribution accuracy</title>,
+               <title rend="italic">Proceedings of the international econference on computer and knowledge engineering, IEEE, 
+               2016</title>. Mashhad, Iran, 31 October–1 November. pp. 108–113.
+               <ref target="https://doi.org/10.1109/ICCKE.2013.6682828">https://doi.org/10.1109/ICCKE.2013.6682828</ref>
+            </bibl>
+            <bibl xml:id="savoy2020" label="Savoy 2020">Savoy, J. (2020) <title rend="italic">Machine learning methods for
+               stylometry: Authorship attribution and author profiling</title>. New York: Springer Publishing.
+            </bibl>
+            <bibl xml:id="segarra_eisen_ribeiro2013" label="Segarra, Eisen, and Ribeiro 2013">Segarra, S., Eisein, M., and Ribeiro, A. (2013)
+               <title rend="quotes">Authorship attribution using function words adjaceny networks</title>, 
+               <title rend="italic">Proceedings of the international conference on acoustics, speech and signal processing, IEEE, 2013
+               </title>. Vancouver, Canada, 26–31 May. <ref target="https://doi.org/10.1109/ICASSP.2013.6638728">
+               https://doi.org/10.1109/ICASSP.2013.6638728</ref>.
+            </bibl>
+            <bibl xml:id="stamatatos2009" label="Stamatatos 2009">Stamatatos, E. (2009) <title rend="quotes">A survey of modern
+               authorship attribution methods</title>, <title rend="italic">Journal of the American Society for Information 
+               Science and Technology</title>, 60(3), pp. 538–556. <ref target="https://doi.org/10.1002/asi.21001">
+               https://doi.org/10.1002/asi.21001</ref>.
+            </bibl>
+            <bibl xml:id="strakova_straka_hajic2019" label="Straková, Straka, and Hajič 2019">Straková, J., Straka, M., and Hajič, J. (2019)
+               <title rend="quotes">Neural architectures for nested NER through linearization</title>, <title rend="italic">Proceedings
+               of the 57th annual meeting of the association for computational linguistics, ACL, 2019</title>. Florence, Italy, 
+               28 July–2 August. pp. 5326–5331. Available at: 
+               <ref target="https://aclanthology.org/P19-1527.pdf">https://aclanthology.org/P19-1527.pdf</ref>.
+            </bibl>
+            <bibl xml:id="swain_mishra_sindhu2017" label="Swain, Mishra, and Sindhu 2017">Swain, S., Mishra, G., and Sinhu, C. (2017)
+               <title rend="quotes">Recent approaches on authorship attribution techniques: An overview</title>, 
+               <title rend="italic">Proceedings of the international conference of electronics, commmunication, and aerospace
+               technology, ICECA, 2017</title>. Coimbatore, India, 20–22 April. pp. 557–566.
+               <ref target="https://doi.org/10.1109/ICECA.2017.8203599">https://doi.org/10.1109/ICECA.2017.8203599</ref>
+            </bibl>
+            <bibl xml:id="straka2018" label="Straka 2018">Straka, M. (2018) <title rend="quotes">UDPipe 2.0 prototype at CoNLL 2018 
+               UD shared task</title>, <title rend="italic">Proceedings of the CoNLL 2018 shared task: Multilingual parsing from raw
+               text to universal dependencies, ACL, 2018</title>, pp. 197–207. 
+               <ref target="https://doi.org/10.18653/v1/K18-2020">https://doi.org/10.18653/v1/K18-2020</ref>.
+            </bibl>
+            <bibl xml:id="tyo_dhingra_lipton2022" label="Tyo, Dhingra, and Lipton 2022">Tyo, J., Dhingra, B., and Lipton, Z.C. (2022)
+               <title rend="quotes">On the state of the art in authorship attribution and authorship verification</title>,
+               <title rend="italic">arXiv</title>. <ref target="https://doi.org/10.48550/arXiv.2209.06869">
+               https://doi.org/10.48550/arXiv.2209.06869</ref>.
+            </bibl>
+            <bibl xml:id="zhao_zobel2007" label="Zhao and Zobel 2007">Zhao, Y, and Zobel, J. (2007)
+               <title rend="quotes">Searching with style: Authorship attribution in classic literature</title>,
+               <title rend="italic">Proceedings of the 30th Australasian computer science conference, ACSC, 2007</title>.
+               Ballarat, Australia, 30 January–2 February. pp. 59–68. Available at:
+               <ref target="https://www.researchgate.net/publication/221574042_Searching_With_Style_Authorship_Attribution_in_Classic_Literature">
+               https://www.researchgate.net/publication/221574042_Searching_With_Style_Authorship_Attribution_in_Classic_Literature</ref>.
+            </bibl>
+         </listBibl>
+      </back>
+   </text>
+</TEI>
