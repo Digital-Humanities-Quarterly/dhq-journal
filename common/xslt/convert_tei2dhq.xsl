@@ -142,9 +142,9 @@
                     <taxonomy xml:id="authorial_keywords">
                         <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
                     </taxonomy>
-            		<taxonomy xml:id="project_keywords">
-            			<bibl>DHQ project registry; full list available at <ref target="http://www.digitalhumanities.org/dhq/projects.xml">http://www.digitalhumanities.org/dhq/projects.xml</ref></bibl>
-            		</taxonomy>
+                        <taxonomy xml:id="project_keywords">
+                                <bibl>DHQ project registry; full list available at <ref target="http://www.digitalhumanities.org/dhq/projects.xml">http://www.digitalhumanities.org/dhq/projects.xml</ref></bibl>
+                        </taxonomy>
                 </classDecl>
             </encodingDesc>
             <profileDesc>
@@ -155,8 +155,8 @@
                 <textClass>
                     <keywords scheme="#dhq_keywords">
                         <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
-                    	
-                    	<xsl:comment>Enter keywords below preceeded by a "#". Create a new term element for each</xsl:comment>
+                        
+                        <xsl:comment>Enter keywords below preceeded by a "#". Create a new term element for each</xsl:comment>
                         <term corresp=""/>
                     </keywords>
                     <keywords scheme="#authorial_keywords">
@@ -165,11 +165,11 @@
                             <item></item>
                         </list>
                     </keywords>
-            		<keywords scheme="#project_keywords">
-            			<list type="simple">
-            				<item></item>
-            			</list>
-            		</keywords>
+                        <keywords scheme="#project_keywords">
+                                <list type="simple">
+                                        <item></item>
+                                </list>
+                        </keywords>
                 </textClass>
             </profileDesc>
            <!-- Create a copy of the Zotero bibliographic data in <xenoData>. (Useful for debugging.) -->
@@ -183,10 +183,10 @@
            </xsl:if>
            <revisionDesc>
              <xsl:comment> Replace "NNNNNN" in the @target of ref below with the appropriate DHQarticle-id value. </xsl:comment>
-        	   <change>The version history for this file can be found on <ref target=
-        		"https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub
-        	   </ref></change>
-   	       </revisionDesc>
+                   <change>The version history for this file can be found on <ref target=
+                        "https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub
+                   </ref></change>
+               </revisionDesc>
         </teiHeader>
     </xsl:template>
     
@@ -244,40 +244,48 @@
     
     
    <!-- handling of figures and tables-->
-	
-    <xsl:template match="graphic[not(parent::figure)]">
-    	<figure>
-    		<head></head>
-    		<graphic><xsl:apply-templates select="attribute::url"></xsl:apply-templates></graphic>
-    	</figure>
-    </xsl:template>
-	
-    <xsl:template match="figure">
-    	<figure>
-    		<head><xsl:value-of select="./head"/></head>
-    		<graphic>
-        		<xsl:attribute name="url">
-        			<xsl:value-of select="./graphic/@url"/>
-        		</xsl:attribute>
-    		</graphic>
-    	</figure>
-    </xsl:template>
+        
+   <xsl:template match="figure/graphic" priority="2">
+     <!-- <graphic>s that are already wrapped in <figure> get
+          reproduced with just their @url. -->
+     <xsl:copy><xsl:apply-templates select="attribute::url"/></xsl:copy>
+   </xsl:template>
+   
+   <xsl:template match="graphic" priority="1">
+     <!-- <graphic>s without a parent <figure> get wrapped in
+          <figure>. (Those with a parent <figure> are processed 
+          in the template above, instead.)-->
+     <figure>
+       <head></head>
+       <graphic><xsl:apply-templates select="attribute::url"/></graphic>
+     </figure>
+   </xsl:template>
 
-	<xsl:template match="p[@rend eq 'dhq_figdesc']">
-		<!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
-		<figDesc><xsl:comment>If this figDesc is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/><xsl:apply-templates/></figDesc>
-	</xsl:template>
+   <xsl:template match="figure">
+     <xsl:copy>
+       <xsl:apply-templates select="head"/>
+       <!-- We always want a <head>, even if empty (in which case line
+            above did nothing)-->
+       <xsl:if test="not(head)"><head/></xsl:if>
+       <xsl:apply-templates select="graphic|table"/>
+     </xsl:copy>
+   </xsl:template>
 
-	<xsl:template match="p[@rend eq 'dhq_caption']">
-		<!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
-		<head><xsl:comment>If this head is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/></head>	
-	</xsl:template>
+        <xsl:template match="p[@rend eq 'dhq_figdesc']">
+                <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+                <figDesc><xsl:comment>If this figDesc is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/><xsl:apply-templates/></figDesc>
+        </xsl:template>
+
+        <xsl:template match="p[@rend eq 'dhq_caption']">
+                <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+                <head><xsl:comment>If this head is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/></head>  
+        </xsl:template>
 
 
-	<xsl:template match="p[@rend eq 'dhq_table_label']">
-    	<!-- TTD: it would be ideal if we could move the head to be the first child of <table> -->
-		<head><xsl:comment>If this head is invalid, move it into the nearest table element</xsl:comment><xsl:apply-templates/></head>	
-	</xsl:template>
+        <xsl:template match="p[@rend eq 'dhq_table_label']">
+        <!-- TTD: it would be ideal if we could move the head to be the first child of <table> -->
+                <head><xsl:comment>If this head is invalid, move it into the nearest table element</xsl:comment><xsl:apply-templates/></head>   
+        </xsl:template>
 
     
     <xsl:template match="note/p">
@@ -297,35 +305,35 @@
 
     <!-- handling of phrase-level elements that are marked with DHQ Word styles -->
     <xsl:template match="hi[@rend eq 'dhq_term']">
-    	<term>
-    		<xsl:apply-templates/>
-    	</term>
+        <term>
+                <xsl:apply-templates/>
+        </term>
     </xsl:template>
-	
+        
     <xsl:template match="hi[@rend eq 'dhq_emphasis']">
-    	<emph>
-    		<xsl:apply-templates/>
-    	</emph>
+        <emph>
+                <xsl:apply-templates/>
+        </emph>
     </xsl:template>
-	
+        
     <xsl:template match="hi[@rend eq 'dhq_italic_title']">
-    	<title rend="italic">
-    		<xsl:apply-templates/>
-    	</title>
+        <title rend="italic">
+                <xsl:apply-templates/>
+        </title>
     </xsl:template>
 
     <xsl:template match="hi[@rend eq 'dhq_quote']">
-    	<quote rend="inline">
-    		<xsl:apply-templates/>
-    	</quote>
+        <quote rend="inline">
+                <xsl:apply-templates/>
+        </quote>
     </xsl:template>
 
    <!-- <xsl:template match="hi[@rend eq 'dhq_citation']">
-    	<ptr>
-    		<xsl:attribute name="target">
-    			<xsl:value-of select="."></xsl:value-of>
-    		</xsl:attribute>
-    	</ptr>
+        <ptr>
+                <xsl:attribute name="target">
+                        <xsl:value-of select="."></xsl:value-of>
+                </xsl:attribute>
+        </ptr>
     </xsl:template>-->
 
 
@@ -370,7 +378,7 @@
         </xsl:copy>
     </xsl:template>
     -->
-	<!--Created code below for cases where a converted file has extensive highlighting that needs to be retained; commented out because in most cases this is more trouble than it is worth (since there's a lot of extraneous <hi> coming from TEIGarage). Longer term, we want to be able to parse the @style attribute on <hi> and pass through more actionable information to the final version.
+        <!--Created code below for cases where a converted file has extensive highlighting that needs to be retained; commented out because in most cases this is more trouble than it is worth (since there's a lot of extraneous <hi> coming from TEIGarage). Longer term, we want to be able to parse the @style attribute on <hi> and pass through more actionable information to the final version.
     <xsl:template match="hi">
         <xsl:copy>
             <xsl:apply-templates select="attribute::style | child::node()"/>
@@ -381,8 +389,8 @@
         <xsl:apply-templates/>
     </xsl:template>
 
-	
-	<xsl:template name="replace" match="text()">
+        
+        <xsl:template name="replace" match="text()">
         <xsl:variable name="double_hyphen" select="replace( ., '--', '—')"/>
         <xsl:variable name="space_around" select="replace( $double_hyphen, '(\S)—(\S)', '$1 — $2')"/>
         <xsl:variable name="end_dash" select="replace($space_around, '(\S)—(\s)', '$1 —$2')"/>
