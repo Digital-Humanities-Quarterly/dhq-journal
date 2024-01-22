@@ -156,8 +156,21 @@ is loaded when Ant starts up. Please run Ant again like this:
       <factory name="${processor.name}"/>
       <param name="fpath" expression="starter.html"/>
     </xslt>
-    <!-- Download a copy of the W3C XHTML 1.0 Strict DTD, and its supporting character entity files.
-      If these are already present in the dhq-static directory, nothing is downloaded. -->
+    <!-- Create the Atom news feed. -->
+    <xslt in="toc${file.separator}toc.xml" 
+          out="${toDir.static}${file.separator}feed${file.separator}news.xml"
+          style="feed${file.separator}atomnews.xsl"
+          classpath="${processor.location}"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <!-- A relative path in <xsl:result-document> will be calculated relative to 
+        the output file's directory, ${toDir}. -->
+      <param name="static-dir" expression="${context}"/>
+    </xslt>
+    <!-- Download a copy of the W3C XHTML 1.0 Strict DTD, and its supporting 
+      character entity files. If these are already present in the dhq-static 
+      directory, nothing is downloaded. -->
     <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
          dest="${toDir.base}" skipexisting="true"/>
     <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent"
@@ -172,8 +185,9 @@ is loaded when Ant starts up. Please run Ant again like this:
           filenameparameter="fname"
           filedirparameter="fdir"
           classpath="${processor.location}">
-      <!-- To prevent Ant/Saxon from hitting the W3C servers too hard with requests for the XHTML DTD, 
-        we use a catalog entry to map the ID to the local copy of the DTD. -->
+      <!-- To prevent Ant/Saxon from hitting the W3C servers too hard with requests 
+        for the XHTML DTD, we use a catalog entry to map the ID to the local copy of 
+        the DTD. -->
       <xmlcatalog>
         <dtd publicId="-//W3C//DTD XHTML 1.0 Strict//EN"
              location="${toDir.base}${file.separator}xhtml1-strict.dtd"/>
