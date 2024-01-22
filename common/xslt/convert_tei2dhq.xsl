@@ -13,320 +13,329 @@
     exclude-result-prefixes="xs math"
     version="3.0">
     
-    
-    <xsl:output method="xml" indent="yes"/>
-    <xsl:mode on-no-match="shallow-copy"/>
-    
-    <!-- Whether to put the Zotero JSON bibliography entries in the article's <xenoData>. -->
-    <xsl:param name="show-zotero-json" select="false()" as="xs:boolean"/>
-    
-    <!-- Before doing anything else, check for Zotero inline citations (processing instructions which contain 
-      JSON). The bibliographic data is compiled here so that it can be used elsewhere in the document. -->
-    <xsl:template match="/">
-      <xsl:variable name="zoteroCitationPIs" as="item()*">
-        <!-- Try to generate maps from the JSON contents of Zotero "CSL citation" processing instructions. -->
-        <xsl:for-each select="//processing-instruction('biblio')[contains(., 'ZOTERO_ITEM CSL_CITATION')]">
-          <xsl:sequence select="parse-json(substring-after(., 'CSL_CITATION'))"/>
-        </xsl:for-each>
-      </xsl:variable>
-      <!-- Prepare DHQ-style citations. -->
-      <xsl:variable name="zoteroCitationPtrs" as="map(*)?">
-        <xsl:if test="exists($zoteroCitationPIs)">
-          <xsl:map>
-            <xsl:for-each select="$zoteroCitationPIs">
-              <xsl:map-entry key="?citationID">
-                <xsl:for-each select="?citationItems?*">
-                  <xsl:variable name="idref" select="dhq:set-bibliography-entry-id(?itemData)"/>
-                  <ptr target="#{$idref}">
-                    <xsl:if test="map:contains(., 'locator')">
-                      <xsl:attribute name="loc" select="?locator"/>
-                    </xsl:if>
-                  </ptr>
-                </xsl:for-each>
-              </xsl:map-entry>
-            </xsl:for-each>
-          </xsl:map>
-        </xsl:if>
-      </xsl:variable>
-      <!-- Generate a series of map entries corresponding to each unique Zotero item (bibliography entry). -->
-      <xsl:variable name="zoteroBibEntries" as="map(*)?">
-        <xsl:if test="exists($zoteroCitationPIs)">
-          <xsl:map>
-            <!-- Each map corresponds to an inline citation (marking a reference in the article proper). The map does, 
-              however, fully replicate each referenced Zotero item. In order to process each unique item only once, we 
-              group the Zotero items by their ID. -->
-            <xsl:for-each-group select="$zoteroCitationPIs?citationItems?*" group-by="?id">
-              <xsl:variable name="entryId" select="dhq:set-bibliography-entry-id(?itemData)"/>
-              <xsl:map-entry key="$entryId">
-                <!-- Compile data for the bibliography entry. -->
-                <xsl:call-template name="parse-bibliographic-json">
-                  <!-- Process only the first Zotero item matching this ID. -->
-                  <xsl:with-param name="citation-map" select="head(current-group())"/>
-                </xsl:call-template>
-              </xsl:map-entry>
-            </xsl:for-each-group>
-          </xsl:map>
-        </xsl:if>
-      </xsl:variable>
-      <!-- Proceed to transform the DHQ article as expected, but tunnel the compiled Zotero data to the templates 
-        that need them. -->
-      <xsl:apply-templates>
-        <xsl:with-param name="inline-citations" select="$zoteroCitationPtrs" tunnel="yes"/>
-        <xsl:with-param name="compiled-bibliography" select="$zoteroBibEntries" tunnel="yes"/>
-      </xsl:apply-templates>
-    </xsl:template>
-    
-    <!-- DHQ Template Setup -->
-    <xsl:template match="TEI">
-        <xsl:processing-instruction name="oxygen">
-            <xsl:text>RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"</xsl:text>
-        </xsl:processing-instruction>
-        <xsl:processing-instruction name="oxygen">
-            <xsl:text>SCHSchema="../../common/schema/dhqTEI-ready.sch"</xsl:text>
-        </xsl:processing-instruction>
-        <TEI xmlns="http://www.tei-c.org/ns/1.0"
-            xmlns:cc="http://web.resource.org/cc/"
-            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-            xmlns:dhq="http://www.digitalhumanities.org/ns/dhq">
+  
+  <xsl:output method="xml" indent="yes"/>
+  <xsl:mode on-no-match="shallow-copy"/>
+  
+  <!-- Whether to put the Zotero JSON bibliography entries in the article's <xenoData>. -->
+  <xsl:param name="show-zotero-json" select="false()" as="xs:boolean"/>
+  
+  <!-- Before doing anything else, check for Zotero inline citations (processing instructions which contain 
+       JSON). The bibliographic data is compiled here so that it can be used elsewhere in the document. -->
+  <xsl:template match="/">
+    <xsl:variable name="zoteroCitationPIs" as="item()*">
+      <!-- Try to generate maps from the JSON contents of Zotero "CSL citation" processing instructions. -->
+      <xsl:for-each select="//processing-instruction('biblio')[contains(., 'ZOTERO_ITEM CSL_CITATION')]">
+        <xsl:sequence select="parse-json(substring-after(., 'CSL_CITATION'))"/>
+      </xsl:for-each>
+    </xsl:variable>
+    <!-- Prepare DHQ-style citations. -->
+    <xsl:variable name="zoteroCitationPtrs" as="map(*)?">
+      <xsl:if test="exists($zoteroCitationPIs)">
+        <xsl:map>
+          <xsl:for-each select="$zoteroCitationPIs">
+            <xsl:map-entry key="?citationID">
+              <xsl:for-each select="?citationItems?*">
+                <xsl:variable name="idref" select="dhq:set-bibliography-entry-id(?itemData)"/>
+                <ptr target="#{$idref}">
+                  <xsl:if test="map:contains(., 'locator')">
+                    <xsl:attribute name="loc" select="?locator"/>
+                  </xsl:if>
+                </ptr>
+              </xsl:for-each>
+            </xsl:map-entry>
+          </xsl:for-each>
+        </xsl:map>
+      </xsl:if>
+    </xsl:variable>
+    <!-- Generate a series of map entries corresponding to each unique Zotero item (bibliography entry). -->
+    <xsl:variable name="zoteroBibEntries" as="map(*)?">
+      <xsl:if test="exists($zoteroCitationPIs)">
+        <xsl:map>
+          <!-- Each map corresponds to an inline citation (marking a reference in the article proper). The map does, 
+               however, fully replicate each referenced Zotero item. In order to process each unique item only once, we 
+               group the Zotero items by their ID. -->
+          <xsl:for-each-group select="$zoteroCitationPIs?citationItems?*" group-by="?id">
+            <xsl:variable name="entryId" select="dhq:set-bibliography-entry-id(?itemData)"/>
+            <xsl:map-entry key="$entryId">
+              <!-- Compile data for the bibliography entry. -->
+              <xsl:call-template name="parse-bibliographic-json">
+                <!-- Process only the first Zotero item matching this ID. -->
+                <xsl:with-param name="citation-map" select="head(current-group())"/>
+              </xsl:call-template>
+            </xsl:map-entry>
+          </xsl:for-each-group>
+        </xsl:map>
+      </xsl:if>
+    </xsl:variable>
+    <!-- Proceed to transform the DHQ article as expected, but tunnel the compiled Zotero data to the templates 
+         that need them. -->
+    <xsl:apply-templates>
+      <xsl:with-param name="inline-citations" select="$zoteroCitationPtrs" tunnel="yes"/>
+      <xsl:with-param name="compiled-bibliography" select="$zoteroBibEntries" tunnel="yes"/>
+    </xsl:apply-templates>
+  </xsl:template>
+  
+  <!-- DHQ Template Setup -->
+  <xsl:template match="TEI">
+    <xsl:processing-instruction name="oxygen">
+      <xsl:text>RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"</xsl:text>
+    </xsl:processing-instruction>
+    <xsl:processing-instruction name="oxygen">
+      <xsl:text>SCHSchema="../../common/schema/dhqTEI-ready.sch"</xsl:text>
+    </xsl:processing-instruction>
+    <TEI xmlns="http://www.tei-c.org/ns/1.0"
+         xmlns:cc="http://web.resource.org/cc/"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dhq="http://www.digitalhumanities.org/ns/dhq">
             
-            <xsl:apply-templates/>
+      <xsl:apply-templates/>
+      
+    </TEI>
+  </xsl:template>
+    
+  <xsl:template match="teiHeader">
+    <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
+    <teiHeader>
+      <fileDesc>
+        <titleStmt>
+          <xsl:comment>Author should supply the title and personal information</xsl:comment>
+          <title type="article" xml:lang="en"><xsl:comment>article title in English</xsl:comment></title>
+          <xsl:comment>Add a &lt;title&gt; with appropriate @xml:lang for articles in languages other than English</xsl:comment>
+          <dhq:authorInfo>
+            <xsl:comment>Include a separate &lt;dhq:authorInfo&gt; element for each author</xsl:comment>
+            <dhq:author_name>first name(s) <dhq:family>family name</dhq:family></dhq:author_name>
+            <idno type="ORCID"><xsl:comment>if the author has an ORCID ID, include the full URI, e.g. https://orcid.org/0000-0000-0000-0000</xsl:comment></idno>
+            <dhq:affiliation></dhq:affiliation>
+            <email></email>
+            <dhq:bio><p></p></dhq:bio>
+          </dhq:authorInfo>
+        </titleStmt>
+        <publicationStmt>
+          <publisher>Alliance of Digital Humanities Organizations</publisher>
+          <publisher>Association for Computers and the Humanities</publisher>
+          <xsl:comment>This information will be completed at publication</xsl:comment>
+          <idno type="DHQarticle-id"><xsl:comment>including leading zeroes: e.g. 000110</xsl:comment></idno>
+          <idno type="volume"><xsl:comment>volume number, with leading zeroes as needed to make 3 digits: e.g. 006</xsl:comment></idno>
+          <idno type="issue"><xsl:comment>issue number, without leading zeroes: e.g. 2</xsl:comment></idno>
+          <date></date>
+          <dhq:articleType>article</dhq:articleType>
+          <availability status="CC-BY-ND">
+            <xsl:comment>If using a different license from the default, choose one of the following:
+            CC-BY-ND (DHQ default): <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>     
+            CC-BY:  <cc:License rdf:about="https://creativecommons.org/licenses/by/2.5/"/>
+            CC0: <cc:License rdf:about="https://creativecommons.org/publicdomain/zero/1.0/"/>
+            </xsl:comment>
+            <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>
+          </availability>
+        </publicationStmt>
+        
+        <sourceDesc>
+          <p>This is the source</p>
+        </sourceDesc>
+      </fileDesc>
+      <encodingDesc>
+        <classDecl>
+          <taxonomy xml:id="dhq_keywords">
+            <bibl>DHQ classification scheme; full list available at <ref target="http://www.digitalhumanities.org/dhq/taxonomy.xml">http://www.digitalhumanities.org/dhq/taxonomy.xml</ref></bibl>
+          </taxonomy>
+          <taxonomy xml:id="authorial_keywords">
+            <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+          </taxonomy>
+          <taxonomy xml:id="project_keywords">
+            <bibl>DHQ project registry; full list available at <ref target="http://www.digitalhumanities.org/dhq/projects.xml">http://www.digitalhumanities.org/dhq/projects.xml</ref></bibl>
+          </taxonomy>
+        </classDecl>
+      </encodingDesc>
+      <profileDesc>
+        <langUsage>
+          <language ident="en" extent="original"/>
+          <xsl:comment>add &lt;language&gt; with appropriate @ident for any additional languages</xsl:comment>
+        </langUsage>
+        <textClass>
+          <keywords scheme="#dhq_keywords">
+            <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
             
-        </TEI>
-    </xsl:template>
-    
-    <xsl:template match="teiHeader">
-        <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
-        <teiHeader>
-            <fileDesc>
-                <titleStmt>
-                    <xsl:comment>Author should supply the title and personal information</xsl:comment>
-                    <title type="article" xml:lang="en"><xsl:comment>article title in English</xsl:comment></title>
-                    <xsl:comment>Add a &lt;title&gt; with appropriate @xml:lang for articles in languages other than English</xsl:comment>
-                    <dhq:authorInfo>
-                        <xsl:comment>Include a separate &lt;dhq:authorInfo&gt; element for each author</xsl:comment>
-                        <dhq:author_name>first name(s) <dhq:family>family name</dhq:family></dhq:author_name>
-                    <idno type="ORCID"><xsl:comment>if the author has an ORCID ID, include the full URI, e.g. https://orcid.org/0000-0000-0000-0000</xsl:comment></idno>
-                        <dhq:affiliation></dhq:affiliation>
-                        <email></email>
-                        <dhq:bio><p></p></dhq:bio>
-                    </dhq:authorInfo>
-                </titleStmt>
-                <publicationStmt>
-                    <publisher>Alliance of Digital Humanities Organizations</publisher>
-                    <publisher>Association for Computers and the Humanities</publisher>
-                    <xsl:comment>This information will be completed at publication</xsl:comment>
-                    <idno type="DHQarticle-id"><xsl:comment>including leading zeroes: e.g. 000110</xsl:comment></idno>
-                    <idno type="volume"><xsl:comment>volume number, with leading zeroes as needed to make 3 digits: e.g. 006</xsl:comment></idno>
-                    <idno type="issue"><xsl:comment>issue number, without leading zeroes: e.g. 2</xsl:comment></idno>
-                    <date></date>
-                    <dhq:articleType>article</dhq:articleType>
-                    <availability status="CC-BY-ND">
-                    <xsl:comment>If using a different license from the default, choose one of the following:
-                  CC-BY-ND (DHQ default): <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>     
-                  CC-BY:  <cc:License rdf:about="https://creativecommons.org/licenses/by/2.5/"/>
-                  CC0: <cc:License rdf:about="https://creativecommons.org/publicdomain/zero/1.0/"/>
-</xsl:comment>
-                        <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>
-                    </availability>
-                </publicationStmt>
-                
-                <sourceDesc>
-                    <p>This is the source</p>
-                </sourceDesc>
-            </fileDesc>
-            <encodingDesc>
-                <classDecl>
-                    <taxonomy xml:id="dhq_keywords">
-                        <bibl>DHQ classification scheme; full list available at <ref target="http://www.digitalhumanities.org/dhq/taxonomy.xml">http://www.digitalhumanities.org/dhq/taxonomy.xml</ref></bibl>
-                    </taxonomy>
-                    <taxonomy xml:id="authorial_keywords">
-                        <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
-                    </taxonomy>
-                        <taxonomy xml:id="project_keywords">
-                                <bibl>DHQ project registry; full list available at <ref target="http://www.digitalhumanities.org/dhq/projects.xml">http://www.digitalhumanities.org/dhq/projects.xml</ref></bibl>
-                        </taxonomy>
-                </classDecl>
-            </encodingDesc>
-            <profileDesc>
-                <langUsage>
-                    <language ident="en" extent="original"/>
-                    <xsl:comment>add &lt;language&gt; with appropriate @ident for any additional languages</xsl:comment>
-                </langUsage>
-                <textClass>
-                    <keywords scheme="#dhq_keywords">
-                        <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
-                        
-                        <xsl:comment>Enter keywords below preceeded by a "#". Create a new term element for each</xsl:comment>
-                        <term corresp=""/>
-                    </keywords>
-                    <keywords scheme="#authorial_keywords">
-                        <xsl:comment>Authors may include one or more keywords of their choice</xsl:comment>
-                        <list type="simple">
-                            <item></item>
-                        </list>
-                    </keywords>
-                        <keywords scheme="#project_keywords">
-                                <list type="simple">
-                                        <item></item>
-                                </list>
-                        </keywords>
-                </textClass>
-            </profileDesc>
-           <!-- Create a copy of the Zotero bibliographic data in <xenoData>. (Useful for debugging.) -->
-           <xsl:if test="$show-zotero-json and exists($compiled-bibliography)">
-              <xenoData>
-                <xsl:text>[ </xsl:text>
-                <xsl:sequence select="string-join($compiled-bibliography?*?jsonStr, ',  
-')"/>
-                <xsl:text> ]</xsl:text>
-              </xenoData>
-           </xsl:if>
-           <revisionDesc>
-             <xsl:comment> Replace "NNNNNN" in the @target of ref below with the appropriate DHQarticle-id value. </xsl:comment>
-                   <change>The version history for this file can be found on <ref target=
-                        "https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub
-                   </ref></change>
-               </revisionDesc>
-        </teiHeader>
-    </xsl:template>
-    
-    <xsl:template match="text">
-        <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
-        <xsl:copy>
-            <xsl:attribute name="xml:lang">en</xsl:attribute>
-            <xsl:attribute name="type">original</xsl:attribute>
-            <front>
-                <dhq:abstract>
-                    <xsl:comment>Include a brief abstract of the article</xsl:comment>
-                    <p></p>
-                </dhq:abstract>
-                <dhq:teaser>
-                    <xsl:comment>Include a brief teaser, no more than a phrase or a single sentence</xsl:comment>
-                    <p></p>
-                </dhq:teaser>
-            </front>
-            <xsl:apply-templates/>
-            <back>
-                <listBibl>
-                    <!-- If the document contains Zotero citations, populate the DHQ bibliography with those entries. -->
-                    <xsl:choose>
-                      <xsl:when test="exists($compiled-bibliography)">
-                        <xsl:variable name="biblStructSeq" as="node()*">
-                          <xsl:apply-templates select="descendant::p[dhq:has-zotero-bibliography-pi(.)]" mode="biblio"/>
-                        </xsl:variable>
-                        <xsl:variable name="unmatchedEntries" as="node()*" 
-                          select="$compiled-bibliography?*[not(?citationKey = $biblStructSeq/@xml:id/data(.))]
-                                                          ?teiBibEntry"/>
-                        <xsl:sequence select="$biblStructSeq"/>
-                        <xsl:if test="exists($unmatchedEntries)">
-                          <xsl:message>Unmatched bibliography entries</xsl:message>
-                          <xsl:comment> Entries below were cited but could not be matched to Zotero's bibliography </xsl:comment>
-                          <xsl:sequence select="$unmatchedEntries"/>
-                        </xsl:if>
-                      </xsl:when>
-                      <!-- If no Zotero metadata could be found, output a <bibl> placeholder. -->
-                      <xsl:otherwise>
-                          <bibl></bibl>
-                      </xsl:otherwise>
-                    </xsl:choose>
-                </listBibl>
-            </back>
-        </xsl:copy>
-    </xsl:template>
-    
-    
-     
-    <!-- Suppress unwanted attributes and elements -->
-    <xsl:template match="p/@* | note/@* | table/@*"/>
-    <xsl:template match="anchor"/>
-    <xsl:template match="pb"/>
-    <xsl:template match="lb"/>
-    
-    
-   <!-- handling of figures and tables-->
-        
-   <xsl:template match="figure/graphic" priority="2">
-     <!-- <graphic>s that are already wrapped in <figure> get
-          reproduced with just their @url. -->
-     <xsl:copy><xsl:apply-templates select="attribute::url"/></xsl:copy>
-   </xsl:template>
-   
-   <xsl:template match="graphic" priority="1">
-     <!-- <graphic>s without a parent <figure> get wrapped in
-          <figure>. (Those with a parent <figure> are processed 
-          in the template above, instead.)-->
-     <figure>
-       <head></head>
-       <graphic><xsl:apply-templates select="attribute::url"/></graphic>
-     </figure>
-   </xsl:template>
+            <xsl:comment>Enter keywords below preceeded by a "#". Create a new term element for each</xsl:comment>
+            <term corresp=""/>
+          </keywords>
+          <keywords scheme="#authorial_keywords">
+            <xsl:comment>Authors may include one or more keywords of their choice</xsl:comment>
+            <list type="simple">
+              <item></item>
+            </list>
+          </keywords>
+          <keywords scheme="#project_keywords">
+            <list type="simple">
+              <item></item>
+            </list>
+          </keywords>
+        </textClass>
+      </profileDesc>
+      <!-- Create a copy of the Zotero bibliographic data in <xenoData>. (Useful for debugging.) -->
+      <xsl:if test="$show-zotero-json and exists($compiled-bibliography)">
+        <xenoData>
+          <xsl:text>[ </xsl:text>
+          <xsl:sequence select="string-join($compiled-bibliography?*?jsonStr, ',  
+                                ')"/>
+          <xsl:text> ]</xsl:text>
+        </xenoData>
+      </xsl:if>
+      <revisionDesc>
+        <xsl:comment> Replace "NNNNNN" in the @target of ref below with the appropriate DHQarticle-id value. </xsl:comment>
+        <change>The version history for this file can be found on <ref target=
+        "https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub
+        </ref></change>
+      </revisionDesc>
+    </teiHeader>
+  </xsl:template>
+  
+  <xsl:template match="text">
+    <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
+    <xsl:copy>
+      <xsl:attribute name="xml:lang">en</xsl:attribute>
+      <xsl:attribute name="type">original</xsl:attribute>
+      <front>
+        <dhq:abstract>
+          <xsl:comment>Include a brief abstract of the article</xsl:comment>
+          <p></p>
+        </dhq:abstract>
+        <dhq:teaser>
+          <xsl:comment>Include a brief teaser, no more than a phrase or a single sentence</xsl:comment>
+          <p></p>
+        </dhq:teaser>
+      </front>
+      <xsl:apply-templates/>
+      <back>
+        <listBibl>
+          <!-- If the document contains Zotero citations, populate the DHQ bibliography with those entries. -->
+          <xsl:choose>
+            <xsl:when test="exists($compiled-bibliography)">
+              <xsl:variable name="biblStructSeq" as="node()*">
+                <xsl:apply-templates select="descendant::p[dhq:has-zotero-bibliography-pi(.)]" mode="biblio"/>
+              </xsl:variable>
+              <xsl:variable name="unmatchedEntries" as="node()*" 
+                            select="$compiled-bibliography?*[not(?citationKey = $biblStructSeq/@xml:id/data(.))]
+                                    ?teiBibEntry"/>
+              <xsl:sequence select="$biblStructSeq"/>
+              <xsl:if test="exists($unmatchedEntries)">
+                <xsl:message>Unmatched bibliography entries</xsl:message>
+                <xsl:comment> Entries below were cited but could not be matched to Zotero's bibliography </xsl:comment>
+                <xsl:sequence select="$unmatchedEntries"/>
+              </xsl:if>
+            </xsl:when>
+            <!-- If no Zotero metadata could be found, output a <bibl> placeholder. -->
+            <xsl:otherwise>
+              <bibl></bibl>
+            </xsl:otherwise>
+          </xsl:choose>
+        </listBibl>
+      </back>
+    </xsl:copy>
+  </xsl:template>
+  
+  
+  <!-- Suppress unwanted attributes and elements -->
+  <xsl:template match="p/@* | note/@* | table/@*"/>
+  <xsl:template match="anchor"/>
+  <xsl:template match="pb"/>
+  <xsl:template match="lb"/>
+  
+  
+  <!-- handling of figures and tables-->
+  
+  <xsl:template match="figure/graphic" priority="2">
+    <!-- <graphic>s that are already wrapped in <figure> get
+         reproduced with just their @url. -->
+    <xsl:copy><xsl:apply-templates select="attribute::url"/></xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="graphic" priority="1">
+    <!-- <graphic>s without a parent <figure> get wrapped in
+         <figure>. (Those with a parent <figure> are processed 
+         in the template above, instead.)-->
+    <figure>
+      <head></head>
+      <graphic><xsl:apply-templates select="attribute::url"/></graphic>
+    </figure>
+  </xsl:template>
 
-   <xsl:template match="figure">
-     <xsl:copy>
-       <xsl:apply-templates select="head"/>
-       <!-- We always want a <head>, even if empty (in which case line
-            above did nothing)-->
-       <xsl:if test="not(head)"><head/></xsl:if>
-       <xsl:apply-templates select="graphic|table"/>
-     </xsl:copy>
-   </xsl:template>
+  <xsl:template match="figure">
+    <xsl:copy>
+      <xsl:apply-templates select="head"/>
+      <!-- We always want a <head>, even if empty (in which case line
+           above did nothing)-->
+      <xsl:if test="not(head)"><head/></xsl:if>
+      <xsl:apply-templates select="graphic|table"/>
+    </xsl:copy>
+  </xsl:template>
 
-        <xsl:template match="p[@rend eq 'dhq_figdesc']">
-                <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
-                <figDesc><xsl:comment>If this figDesc is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/><xsl:apply-templates/></figDesc>
-        </xsl:template>
-
-        <xsl:template match="p[@rend eq 'dhq_caption']">
-                <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
-                <head><xsl:comment>If this head is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/></head>  
-        </xsl:template>
+  <xsl:template match="@url">
+    <!-- Strip off whatever path component(s) the user supplied and
+         change it to what DHQ uses: “resources/images/”. Note that
+         this is done in a fast-and-lousy way, so the scheme, if any,
+         is also stripped off. (We don’t seem to ever have any with
+         schemes on the input, and never use one on output, so this
+         is probably not a problem.) -->
+    <xsl:attribute name="url" select="replace( normalize-space(.), '^.*/', 'resources/images/')"/>
+  </xsl:template>
+  
+  <xsl:template match="p[@rend eq 'dhq_figdesc']">
+    <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+    <figDesc><xsl:comment>If this figDesc is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/><xsl:apply-templates/></figDesc>
+  </xsl:template>
+  
+  <xsl:template match="p[@rend eq 'dhq_caption']">
+    <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+    <head><xsl:comment>If this head is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/></head>  
+  </xsl:template>
 
 
-        <xsl:template match="p[@rend eq 'dhq_table_label']">
-        <!-- TTD: it would be ideal if we could move the head to be the first child of <table> -->
-                <head><xsl:comment>If this head is invalid, move it into the nearest table element</xsl:comment><xsl:apply-templates/></head>   
-        </xsl:template>
+  <xsl:template match="p[@rend eq 'dhq_table_label']">
+    <!-- TTD: it would be ideal if we could move the head to be the first child of <table> -->
+    <head><xsl:comment>If this head is invalid, move it into the nearest table element</xsl:comment><xsl:apply-templates/></head>   
+  </xsl:template>
 
-    
-    <xsl:template match="note/p">
-            <xsl:apply-templates select="child::node()"/>
-    </xsl:template>
-    
-    <!-- may need to uncomment following template for files initially converted from .rtf -->
-    <!-- <xsl:template match="ref">
-            <xsl:apply-templates select="child::node()"/>
-    </xsl:template> -->
-    
-    <xsl:template match="ptr">
-        <xsl:element name="ref">
-            <xsl:apply-templates select="attribute::target | child::node()"/>
-        </xsl:element>
-    </xsl:template>
+  
+  <xsl:template match="note/p">
+    <xsl:apply-templates select="child::node()"/>
+  </xsl:template>
+  
+  <!-- may need to uncomment following template for files initially converted from .rtf -->
+  <!-- <xsl:template match="ref">
+       <xsl:apply-templates select="child::node()"/>
+       </xsl:template> -->
+  
+  <xsl:template match="ptr">
+    <xsl:element name="ref">
+      <xsl:apply-templates select="attribute::target | child::node()"/>
+    </xsl:element>
+  </xsl:template>
 
-    <!-- handling of phrase-level elements that are marked with DHQ Word styles -->
-    <xsl:template match="hi[@rend eq 'dhq_term']">
-        <term>
-                <xsl:apply-templates/>
-        </term>
-    </xsl:template>
-        
-    <xsl:template match="hi[@rend eq 'dhq_emphasis']">
-        <emph>
-                <xsl:apply-templates/>
-        </emph>
-    </xsl:template>
-        
-    <xsl:template match="hi[@rend eq 'dhq_italic_title']">
-        <title rend="italic">
-                <xsl:apply-templates/>
-        </title>
-    </xsl:template>
+  <!-- handling of phrase-level elements that are marked with DHQ Word styles -->
+  <xsl:template match="hi[@rend eq 'dhq_term']">
+    <term>
+      <xsl:apply-templates/>
+    </term>
+  </xsl:template>
+  
+  <xsl:template match="hi[@rend eq 'dhq_emphasis']">
+    <emph>
+      <xsl:apply-templates/>
+    </emph>
+  </xsl:template>
+  
+  <xsl:template match="hi[@rend eq 'dhq_italic_title']">
+    <title rend="italic">
+      <xsl:apply-templates/>
+    </title>
+  </xsl:template>
 
-    <xsl:template match="hi[@rend eq 'dhq_quote']">
-        <quote rend="inline">
-                <xsl:apply-templates/>
-        </quote>
-    </xsl:template>
+  <xsl:template match="hi[@rend eq 'dhq_quote']">
+    <quote rend="inline">
+      <xsl:apply-templates/>
+    </quote>
+  </xsl:template>
 
    <!-- <xsl:template match="hi[@rend eq 'dhq_citation']">
         <ptr>
