@@ -10,15 +10,25 @@
     xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
     xmlns:cc="http://web.resource.org/cc/"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    exclude-result-prefixes="xs math"
+    exclude-result-prefixes="xs array map math"
     version="3.0">
     
     
     <xsl:output method="xml" indent="yes"/>
     <xsl:mode on-no-match="shallow-copy"/>
     
+    <!-- Whether or not to Zotero-derived <biblStruct>s should be saved in a separate document. -->
+    <xsl:param name="save-zotero-biblStructs-elsewhere" select="true()" as="xs:boolean"/>
+    <!-- If $save-zotero-biblStructs-elsewhere is turned on, the filepath to the document for the 
+      derived <listBibl>. -->
+    <xsl:param name="save-zotero-biblStructs-to" as="xs:string?">
+      <xsl:variable name="inputDocPath" select="base-uri()"/>
+      <xsl:value-of select="replace($inputDocPath, '[^/]+$', 'zotero-data.xml')"/>
+    </xsl:param>
+    
     <!-- Whether to put the Zotero JSON bibliography entries in the article's <xenoData>. -->
     <xsl:param name="show-zotero-json" select="false()" as="xs:boolean"/>
+    
     
     <!-- Before doing anything else, check for Zotero inline citations (processing instructions which contain 
       JSON). The bibliographic data is compiled here so that it can be used elsewhere in the document. -->
@@ -142,9 +152,9 @@
                     <taxonomy xml:id="authorial_keywords">
                         <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
                     </taxonomy>
-            		<taxonomy xml:id="project_keywords">
-            			<bibl>DHQ project registry; full list available at <ref target="http://www.digitalhumanities.org/dhq/projects.xml">http://www.digitalhumanities.org/dhq/projects.xml</ref></bibl>
-            		</taxonomy>
+                        <taxonomy xml:id="project_keywords">
+                                <bibl>DHQ project registry; full list available at <ref target="http://www.digitalhumanities.org/dhq/projects.xml">http://www.digitalhumanities.org/dhq/projects.xml</ref></bibl>
+                        </taxonomy>
                 </classDecl>
             </encodingDesc>
             <profileDesc>
@@ -155,8 +165,8 @@
                 <textClass>
                     <keywords scheme="#dhq_keywords">
                         <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
-                    	
-                    	<xsl:comment>Enter keywords below preceeded by a "#". Create a new term element for each</xsl:comment>
+                        
+                        <xsl:comment>Enter keywords below preceeded by a "#". Create a new term element for each</xsl:comment>
                         <term corresp=""/>
                     </keywords>
                     <keywords scheme="#authorial_keywords">
@@ -165,11 +175,11 @@
                             <item></item>
                         </list>
                     </keywords>
-            		<keywords scheme="#project_keywords">
-            			<list type="simple">
-            				<item></item>
-            			</list>
-            		</keywords>
+                        <keywords scheme="#project_keywords">
+                                <list type="simple">
+                                        <item></item>
+                                </list>
+                        </keywords>
                 </textClass>
             </profileDesc>
            <!-- Create a copy of the Zotero bibliographic data in <xenoData>. (Useful for debugging.) -->
@@ -183,10 +193,10 @@
            </xsl:if>
            <revisionDesc>
              <xsl:comment> Replace "NNNNNN" in the @target of ref below with the appropriate DHQarticle-id value. </xsl:comment>
-        	   <change>The version history for this file can be found on <ref target=
-        		"https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub
-        	   </ref></change>
-   	       </revisionDesc>
+                   <change>The version history for this file can be found on <ref target=
+                        "https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub
+                   </ref></change>
+               </revisionDesc>
         </teiHeader>
     </xsl:template>
     
@@ -208,11 +218,30 @@
             <xsl:apply-templates/>
             <back>
                 <listBibl>
-                    <!-- If the document contains Zotero citations, populate the DHQ bibliography with those entries. -->
                     <xsl:choose>
+                      <!-- If $save-zotero-biblStructs-elsewhere is toggled on, and there's a Zotero bibliography, 
+                        process <p>-citations as <bibl>s and save the Zotero-derived <biblStruct>s to a separate 
+                        document. -->
+                      <xsl:when test="$save-zotero-biblStructs-elsewhere and exists($compiled-bibliography)">
+                        <xsl:apply-templates select="descendant::p[dhq:has-zotero-bibliography-pi(.)]" 
+                          mode="biblio"/>
+                        <xsl:if test="exists($save-zotero-biblStructs-to) and 
+                           normalize-space($save-zotero-biblStructs-to) ne ''">
+                          <xsl:result-document href="{$save-zotero-biblStructs-to}">
+                            <xsl:document>
+                              <listBibl>
+                                <xsl:sequence select="$compiled-bibliography?*?teiBibEntry"/>
+                              </listBibl>
+                            </xsl:document>
+                          </xsl:result-document>
+                        </xsl:if>
+                      </xsl:when>
+                      <!-- If the document contains Zotero citations, populate the DHQ bibliography with those 
+                        entries. -->
                       <xsl:when test="exists($compiled-bibliography)">
                         <xsl:variable name="biblStructSeq" as="node()*">
-                          <xsl:apply-templates select="descendant::p[dhq:has-zotero-bibliography-pi(.)]" mode="biblio"/>
+                          <xsl:apply-templates select="descendant::p[dhq:has-zotero-bibliography-pi(.)]" 
+                            mode="biblio"/>
                         </xsl:variable>
                         <xsl:variable name="unmatchedEntries" as="node()*" 
                           select="$compiled-bibliography?*[not(?citationKey = $biblStructSeq/@xml:id/data(.))]
@@ -244,40 +273,48 @@
     
     
    <!-- handling of figures and tables-->
-	
-    <xsl:template match="graphic[not(parent::figure)]">
-    	<figure>
-    		<head></head>
-    		<graphic><xsl:apply-templates select="attribute::url"></xsl:apply-templates></graphic>
-    	</figure>
-    </xsl:template>
-	
-    <xsl:template match="figure">
-    	<figure>
-    		<head><xsl:value-of select="./head"/></head>
-    		<graphic>
-        		<xsl:attribute name="url">
-        			<xsl:value-of select="./graphic/@url"/>
-        		</xsl:attribute>
-    		</graphic>
-    	</figure>
-    </xsl:template>
+        
+   <xsl:template match="figure/graphic" priority="2">
+     <!-- <graphic>s that are already wrapped in <figure> get
+          reproduced with just their @url. -->
+     <xsl:copy><xsl:apply-templates select="attribute::url"/></xsl:copy>
+   </xsl:template>
+   
+   <xsl:template match="graphic" priority="1">
+     <!-- <graphic>s without a parent <figure> get wrapped in
+          <figure>. (Those with a parent <figure> are processed 
+          in the template above, instead.)-->
+     <figure>
+       <head></head>
+       <graphic><xsl:apply-templates select="attribute::url"/></graphic>
+     </figure>
+   </xsl:template>
 
-	<xsl:template match="p[@rend eq 'dhq_figdesc']">
-		<!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
-		<figDesc><xsl:comment>If this figDesc is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/><xsl:apply-templates/></figDesc>
-	</xsl:template>
+   <xsl:template match="figure">
+     <xsl:copy>
+       <xsl:apply-templates select="head"/>
+       <!-- We always want a <head>, even if empty (in which case line
+            above did nothing)-->
+       <xsl:if test="not(head)"><head/></xsl:if>
+       <xsl:apply-templates select="graphic|table"/>
+     </xsl:copy>
+   </xsl:template>
 
-	<xsl:template match="p[@rend eq 'dhq_caption']">
-		<!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
-		<head><xsl:comment>If this head is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/></head>	
-	</xsl:template>
+        <xsl:template match="p[@rend eq 'dhq_figdesc']">
+                <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+                <figDesc><xsl:comment>If this figDesc is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/><xsl:apply-templates/></figDesc>
+        </xsl:template>
+
+        <xsl:template match="p[@rend eq 'dhq_caption']">
+                <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+                <head><xsl:comment>If this head is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/></head>  
+        </xsl:template>
 
 
-	<xsl:template match="p[@rend eq 'dhq_table_label']">
-    	<!-- TTD: it would be ideal if we could move the head to be the first child of <table> -->
-		<head><xsl:comment>If this head is invalid, move it into the nearest table element</xsl:comment><xsl:apply-templates/></head>	
-	</xsl:template>
+        <xsl:template match="p[@rend eq 'dhq_table_label']">
+        <!-- TTD: it would be ideal if we could move the head to be the first child of <table> -->
+                <head><xsl:comment>If this head is invalid, move it into the nearest table element</xsl:comment><xsl:apply-templates/></head>   
+        </xsl:template>
 
     
     <xsl:template match="note/p">
@@ -297,35 +334,35 @@
 
     <!-- handling of phrase-level elements that are marked with DHQ Word styles -->
     <xsl:template match="hi[@rend eq 'dhq_term']">
-    	<term>
-    		<xsl:apply-templates/>
-    	</term>
+        <term>
+                <xsl:apply-templates/>
+        </term>
     </xsl:template>
-	
+        
     <xsl:template match="hi[@rend eq 'dhq_emphasis']">
-    	<emph>
-    		<xsl:apply-templates/>
-    	</emph>
+        <emph>
+                <xsl:apply-templates/>
+        </emph>
     </xsl:template>
-	
+        
     <xsl:template match="hi[@rend eq 'dhq_italic_title']">
-    	<title rend="italic">
-    		<xsl:apply-templates/>
-    	</title>
+        <title rend="italic">
+                <xsl:apply-templates/>
+        </title>
     </xsl:template>
 
     <xsl:template match="hi[@rend eq 'dhq_quote']">
-    	<quote rend="inline">
-    		<xsl:apply-templates/>
-    	</quote>
+        <quote rend="inline">
+                <xsl:apply-templates/>
+        </quote>
     </xsl:template>
 
    <!-- <xsl:template match="hi[@rend eq 'dhq_citation']">
-    	<ptr>
-    		<xsl:attribute name="target">
-    			<xsl:value-of select="."></xsl:value-of>
-    		</xsl:attribute>
-    	</ptr>
+        <ptr>
+                <xsl:attribute name="target">
+                        <xsl:value-of select="."></xsl:value-of>
+                </xsl:attribute>
+        </ptr>
     </xsl:template>-->
 
 
@@ -370,7 +407,7 @@
         </xsl:copy>
     </xsl:template>
     -->
-	<!--Created code below for cases where a converted file has extensive highlighting that needs to be retained; commented out because in most cases this is more trouble than it is worth (since there's a lot of extraneous <hi> coming from TEIGarage). Longer term, we want to be able to parse the @style attribute on <hi> and pass through more actionable information to the final version.
+        <!--Created code below for cases where a converted file has extensive highlighting that needs to be retained; commented out because in most cases this is more trouble than it is worth (since there's a lot of extraneous <hi> coming from TEIGarage). Longer term, we want to be able to parse the @style attribute on <hi> and pass through more actionable information to the final version.
     <xsl:template match="hi">
         <xsl:copy>
             <xsl:apply-templates select="attribute::style | child::node()"/>
@@ -381,8 +418,8 @@
         <xsl:apply-templates/>
     </xsl:template>
 
-	
-	<xsl:template name="replace" match="text()">
+        
+        <xsl:template name="replace" match="text()">
         <xsl:variable name="double_hyphen" select="replace( ., '--', '—')"/>
         <xsl:variable name="space_around" select="replace( $double_hyphen, '(\S)—(\S)', '$1 — $2')"/>
         <xsl:variable name="end_dash" select="replace($space_around, '(\S)—(\s)', '$1 —$2')"/>
@@ -420,7 +457,9 @@
     </xsl:template>
     
     
-  <!--  BIBLIO MODE  -->
+  <!--
+      BIBLIO MODE
+    -->
     
     <xsl:template match="div[not(descendant::div)][descendant-or-self::*[dhq:has-zotero-bibliography-pi(.)]]"
        mode="biblio">
@@ -429,7 +468,128 @@
       </xsl:copy>
     </xsl:template>
     
+    <!-- <p>s are not processed by default, only when Zotero's processing instruction appears. -->
     <xsl:template match="p" mode="biblio"/>
+    
+    <!-- This template handles the paragraph with the Zotero processing instruction. The PI indicates 
+      that this and all following <p>s are generated by Zotero. In order to process each <p> in order, 
+      this template also processes the triggering <p>'s siblings. -->
+    <xsl:template match="p[dhq:has-zotero-bibliography-pi(.)]" mode="biblio" priority="2">
+      <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
+      <!-- Iterate over this and all following paragraphs, treating them as bibliographic citations. -->
+      <xsl:iterate select="(., following-sibling::p)">
+        <xsl:param name="try-entries" select="$compiled-bibliography" as="map(*)?"/>
+        <!-- Turn this <p> into a <bibl>, which will give us a better foundation for finding matches. -->
+        <xsl:variable name="thisBibl" as="node()">
+          <bibl>
+            <xsl:apply-templates mode="biblio"/>
+          </bibl>
+        </xsl:variable>
+        <xsl:variable name="italicizedField" 
+          select="descendant::hi[normalize-space(.) ne ''][1]/replace(., '\W', '')"/>
+        <xsl:variable name="biblMatches" as="map(*)*" 
+          select="dhq:match-citations($thisBibl, $try-entries)"/>
+        <xsl:variable name="numMatches" select="count($biblMatches)"/>
+        <xsl:choose>
+          <!-- If we're replacing this <p> with a matching <biblStruct>, do so. -->
+          <xsl:when test="not($save-zotero-biblStructs-elsewhere) and $numMatches eq 1">
+            <xsl:sequence select="$biblMatches?teiBibEntry"/>
+            <xsl:next-iteration>
+              <xsl:with-param name="try-entries" select="map:remove($try-entries, $biblMatches?itemId)"/>
+            </xsl:next-iteration>
+          </xsl:when>
+          <!-- If we want to replace this <p> but more than one <biblStruct> matches, surround the possible 
+            matches with comments. -->
+          <xsl:when test="not($save-zotero-biblStructs-elsewhere) and $numMatches gt 1">
+            <xsl:comment> More than one match!!! </xsl:comment>
+            <xsl:sequence select="$biblMatches?teiBibEntry"/>
+            <xsl:comment> End matches!!! </xsl:comment>
+            <xsl:next-iteration>
+              <xsl:with-param name="try-entries" select="$try-entries"/>
+            </xsl:next-iteration>
+          </xsl:when>
+          <!-- Otherwise, transform this <p> into a <bibl>. -->
+          <xsl:otherwise>
+            <bibl>
+              <xsl:if test="$numMatches eq 1">
+                <xsl:attribute name="xml:id" select="$biblMatches?citationKey"/>
+              </xsl:if>
+              <xsl:sequence select="$thisBibl/node()"/>
+            </bibl>
+            <xsl:next-iteration>
+              <xsl:with-param name="try-entries" 
+                select="if ( $numMatches eq 1 ) then
+                          map:remove($try-entries, $biblMatches?itemId)
+                        else $try-entries"/>
+            </xsl:next-iteration>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:iterate>
+    </xsl:template>
+    
+    <!-- Process the text node children of <p>-citations. Quote marks are turned into <title rend="quotes"> 
+      (ONLY if both delimiters are present; it's easier for humans to introduce tags across multiple nodes). URLs 
+      (starting with "http" or "https") are turned into <ref>. -->
+    <xsl:template match="p/text() | title/text()" priority="3" mode="biblio">
+      <!-- Look for double quote pairs first. -->
+      <xsl:variable name="parsedQuoteDoubles" as="node()*">
+        <xsl:analyze-string select="." regex="“([^”]+)”" flags="m">
+          <xsl:matching-substring>
+            <title rend="quotes"><xsl:value-of select="regex-group(1)"/></title>
+          </xsl:matching-substring>
+          <xsl:non-matching-substring>
+            <xsl:value-of select="."/>
+          </xsl:non-matching-substring>
+        </xsl:analyze-string>
+      </xsl:variable>
+      <!-- Test the text node results of $parsedQuoteDoubles for single quote pairs. -->
+      <xsl:variable name="parsedQuoteSingles" as="node()*">
+        <xsl:for-each select="$parsedQuoteDoubles">
+          <xsl:choose>
+            <xsl:when test="self::text()">
+              <!-- We can't use the [^’] character group here, because ’ can be used in contractions. Using . in 
+                "dot-all" mode (the "s" flag) will match the furthest closing delimiter and hopefully include 
+                those contractions. -->
+              <xsl:analyze-string select="." regex="‘(.+)’" flags="sm">
+                <xsl:matching-substring>
+                  <title rend="quotes"><xsl:value-of select="regex-group(1)"/></title>
+                </xsl:matching-substring>
+                <xsl:non-matching-substring>
+                  <xsl:value-of select="."/>
+                </xsl:non-matching-substring>
+              </xsl:analyze-string>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:apply-templates select="." mode="biblio"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:for-each>
+      </xsl:variable>
+      <!-- Test the text node results of $parsedQuoteSingles for strings that look like URLs. -->
+      <xsl:variable name="parsedUrls" as="node()*">
+        <xsl:for-each select="$parsedQuoteSingles">
+          <xsl:choose>
+            <xsl:when test="self::text()">
+              <!-- Though periods are valid characters in URLs, the period at the end is not part of the <ref>. -->
+              <xsl:analyze-string select="." regex="(https?://?[A-Za-z0-9\.~:/?#\[\]@!$&amp;'()*+,;%=_-]+)(\.)">
+                <xsl:matching-substring>
+                  <ref target="{regex-group(1)}"><xsl:value-of select="regex-group(1)"/></ref>
+                  <xsl:text>.</xsl:text>
+                </xsl:matching-substring>
+                <xsl:non-matching-substring>
+                  <xsl:value-of select="."/>
+                </xsl:non-matching-substring>
+              </xsl:analyze-string>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:apply-templates select="." mode="biblio"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:for-each>
+      </xsl:variable>
+      <!-- Output whatever nodes have been processed above. -->
+      <xsl:sequence select="$parsedUrls"/>
+    </xsl:template>
     
     <!-- Any <hi> is likely to be a title of some kind when it appears inside one of Zotero's generated 
       "Bibliography" paragraphs. -->
@@ -439,67 +599,13 @@
       </title>
     </xsl:template>
     
-    <xsl:template match="p[dhq:has-zotero-bibliography-pi(.)]" mode="biblio" priority="2">
-      <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
-      <xsl:iterate select="(., following-sibling::p)">
-        <xsl:param name="try-entries" select="$compiled-bibliography" as="map(*)?"/>
-        <xsl:variable name="italicizedField" 
-          select="descendant::hi[normalize-space(.) ne ''][1]/replace(., '\W', '')"/>
-        <xsl:variable name="biblMatches" as="map(*)*">
-          <xsl:variable name="biblMatchTitle"
-            select="$try-entries?*[?jsonMap?title[replace(., '\W', '') eq $italicizedField]]"/>
-          <xsl:variable name="biblMatchContainerTitle"
-            select="$try-entries?*[?jsonMap?container-title[replace(., '\W', '') eq $italicizedField]]"/>
-          <xsl:choose>
-            <!-- If there wasn't an italicized field to use as testing, look for titles which appear in this string. -->
-            <xsl:when test="not(exists($italicizedField))">
-              <xsl:variable name="me" select="."/>
-              <xsl:sequence select="$try-entries?*[?jsonMap?title[contains($me, .)]]"/>
-            </xsl:when>
-            <!-- If there's an exact match on the main title, use that entry. -->
-            <xsl:when test="exists($biblMatchTitle)">
-              <xsl:sequence select="$biblMatchTitle"/>
-            </xsl:when>
-            <xsl:when test="count($biblMatchContainerTitle) eq 1">
-              <xsl:sequence select="$biblMatchContainerTitle"/>
-            </xsl:when>
-            <!-- When there's more than one entry that has a "container" title which matches this entry, do further 
-              testing against the first token of this entry.  -->
-            <xsl:when test="count($biblMatchContainerTitle) gt 1">
-              <xsl:variable name="firstToken" 
-                select="(tokenize(normalize-space(.), ' ')[1]) => replace('\W', '')"/>
-              <xsl:if test="exists($firstToken) and $firstToken ne ''">
-                <xsl:sequence 
-                  select="$biblMatchContainerTitle[exists(?jsonMap?author?*[replace(?family, '\W', '') eq $firstToken])]"/>
-              </xsl:if>
-            </xsl:when>
-          </xsl:choose>
-        </xsl:variable>
-        <xsl:choose>
-          <xsl:when test="count($biblMatches) eq 1">
-            <xsl:sequence select="$biblMatches?teiBibEntry"/>
-            <xsl:next-iteration>
-              <xsl:with-param name="try-entries" select="map:remove($try-entries, $biblMatches?itemId)"/>
-            </xsl:next-iteration>
-          </xsl:when>
-          <xsl:when test="count($biblMatches) gt 1">
-            <xsl:comment> More than one match!!! </xsl:comment>
-            <xsl:sequence select="$biblMatches?teiBibEntry"/>
-            <xsl:comment> End matches!!! </xsl:comment>
-            <xsl:next-iteration>
-              <xsl:with-param name="try-entries" select="$try-entries"/>
-            </xsl:next-iteration>
-          </xsl:when>
-          <xsl:otherwise>
-            <bibl>
-              <xsl:apply-templates mode="biblio"/>
-            </bibl>
-            <xsl:next-iteration>
-              <xsl:with-param name="try-entries" select="$try-entries"/>
-            </xsl:next-iteration>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:iterate>
+    <!-- The template that parses //p/text() iteratively introduces <title> elements. If we run across one, copy 
+      its structure and process its children. -->
+    <xsl:template match="title" mode="biblio">
+      <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="biblio"/>
+      </xsl:copy>
     </xsl:template>
     
     
@@ -772,6 +878,18 @@
   </xsl:template>
   
   <!-- 
+      Given a string, lower-case it and remove characters that aren't letters or digits.
+    -->
+  <xsl:function name="dhq:comparable-string" as="xs:string?">
+    <xsl:param name="string" as="xs:string?"/>
+    <xsl:if test="exists($string)">
+      <xsl:value-of select="lower-case($string) 
+                            => replace('\W', '')
+                            => normalize-space()"/>
+    </xsl:if>
+  </xsl:function>
+  
+  <!-- 
       Given an array of date components, create a string representing that date.
     -->
   <xsl:function name="dhq:date-array-to-string" as="xs:string?">
@@ -824,6 +942,30 @@
   <xsl:function name="dhq:has-zotero-bibliography-pi" as="xs:boolean">
     <xsl:param name="element" as="element()"/>
     <xsl:sequence select="exists($element/processing-instruction('biblio')[contains(., 'ADDIN ZOTERO_BIBL')])"/>
+  </xsl:function>
+  
+  <!--
+      Given a <bibl> with minimal encoding, try to identify the Zotero bibliography entry (or entries) which 
+      match it.
+    -->
+  <xsl:function name="dhq:match-citations" as="map(*)*">
+    <xsl:param name="readable-citation" as="node()"/>
+    <xsl:param name="bibliography-entry-map" as="map(*)"/>
+    <xsl:variable name="entryMatchUrl" 
+      select="if ( empty($readable-citation//ref[@target]) ) then () else 
+              $bibliography-entry-map?*[?jsonMap?URL[. = $readable-citation//ref[@target]/data(@target)]]"/>
+    <xsl:choose>
+      <xsl:when test="exists($entryMatchUrl)">
+        <xsl:sequence select="$entryMatchUrl"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="readableTitles" select="$readable-citation/title/dhq:comparable-string(.)"/>
+        <xsl:variable name="biblMatchTitle"
+          select="$bibliography-entry-map?*[exists(?jsonMap?title[dhq:comparable-string(.) = $readableTitles])
+                                         or exists(?jsonMap?container-title[dhq:comparable-string(.) = $readableTitles])]"/>
+        <xsl:sequence select="$biblMatchTitle"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:function>
   
   <!--
