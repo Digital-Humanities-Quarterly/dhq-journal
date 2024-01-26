@@ -10,7 +10,7 @@
     xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
     xmlns:cc="http://web.resource.org/cc/"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    exclude-result-prefixes="xs math"
+    exclude-result-prefixes="xs array map math"
     version="3.0">
     
     
@@ -487,36 +487,8 @@
         </xsl:variable>
         <xsl:variable name="italicizedField" 
           select="descendant::hi[normalize-space(.) ne ''][1]/replace(., '\W', '')"/>
-        <xsl:variable name="biblMatches" as="map(*)*">
-          <xsl:variable name="biblMatchTitle"
-            select="$try-entries?*[?jsonMap?title[replace(., '\W', '') eq $italicizedField]]"/>
-          <xsl:variable name="biblMatchContainerTitle"
-            select="$try-entries?*[?jsonMap?container-title[replace(., '\W', '') eq $italicizedField]]"/>
-          <xsl:choose>
-            <!-- If there wasn't an italicized field to use as testing, look for titles which appear in this string. -->
-            <xsl:when test="not(exists($italicizedField))">
-              <xsl:variable name="me" select="."/>
-              <xsl:sequence select="$try-entries?*[?jsonMap?title[contains($me, .)]]"/>
-            </xsl:when>
-            <!-- If there's an exact match on the main title, use that entry. -->
-            <xsl:when test="exists($biblMatchTitle)">
-              <xsl:sequence select="$biblMatchTitle"/>
-            </xsl:when>
-            <xsl:when test="count($biblMatchContainerTitle) eq 1">
-              <xsl:sequence select="$biblMatchContainerTitle"/>
-            </xsl:when>
-            <!-- When there's more than one entry that has a "container" title which matches this entry, do further 
-              testing against the first token of this entry.  -->
-            <xsl:when test="count($biblMatchContainerTitle) gt 1">
-              <xsl:variable name="firstToken" 
-                select="(tokenize(normalize-space(.), ' ')[1]) => replace('\W', '')"/>
-              <xsl:if test="exists($firstToken) and $firstToken ne ''">
-                <xsl:sequence 
-                  select="$biblMatchContainerTitle[exists(?jsonMap?author?*[replace(?family, '\W', '') eq $firstToken])]"/>
-              </xsl:if>
-            </xsl:when>
-          </xsl:choose>
-        </xsl:variable>
+        <xsl:variable name="biblMatches" as="map(*)*" 
+          select="dhq:match-citations($thisBibl, $try-entries)"/>
         <xsl:variable name="numMatches" select="count($biblMatches)"/>
         <xsl:choose>
           <!-- If we're replacing this <p> with a matching <biblStruct>, do so. -->
@@ -906,6 +878,18 @@
   </xsl:template>
   
   <!-- 
+      Given a string, lower-case it and remove characters that aren't letters or digits.
+    -->
+  <xsl:function name="dhq:comparable-string" as="xs:string?">
+    <xsl:param name="string" as="xs:string?"/>
+    <xsl:if test="exists($string)">
+      <xsl:value-of select="lower-case($string) 
+                            => replace('\W', '')
+                            => normalize-space()"/>
+    </xsl:if>
+  </xsl:function>
+  
+  <!-- 
       Given an array of date components, create a string representing that date.
     -->
   <xsl:function name="dhq:date-array-to-string" as="xs:string?">
@@ -958,6 +942,30 @@
   <xsl:function name="dhq:has-zotero-bibliography-pi" as="xs:boolean">
     <xsl:param name="element" as="element()"/>
     <xsl:sequence select="exists($element/processing-instruction('biblio')[contains(., 'ADDIN ZOTERO_BIBL')])"/>
+  </xsl:function>
+  
+  <!--
+      Given a <bibl> with minimal encoding, try to identify the Zotero bibliography entry (or entries) which 
+      match it.
+    -->
+  <xsl:function name="dhq:match-citations" as="map(*)*">
+    <xsl:param name="readable-citation" as="node()"/>
+    <xsl:param name="bibliography-entry-map" as="map(*)"/>
+    <xsl:variable name="entryMatchUrl" 
+      select="if ( empty($readable-citation//ref[@target]) ) then () else 
+              $bibliography-entry-map?*[?jsonMap?URL[. = $readable-citation//ref[@target]/data(@target)]]"/>
+    <xsl:choose>
+      <xsl:when test="exists($entryMatchUrl)">
+        <xsl:sequence select="$entryMatchUrl"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="readableTitles" select="$readable-citation/title/dhq:comparable-string(.)"/>
+        <xsl:variable name="biblMatchTitle"
+          select="$bibliography-entry-map?*[exists(?jsonMap?title[dhq:comparable-string(.) = $readableTitles])
+                                         or exists(?jsonMap?container-title[dhq:comparable-string(.) = $readableTitles])]"/>
+        <xsl:sequence select="$biblMatchTitle"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:function>
   
   <!--
