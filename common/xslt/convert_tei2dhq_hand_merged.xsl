@@ -13,7 +13,6 @@
     exclude-result-prefixes="xs array map math"
     version="3.0">
     
-    
     <xsl:output method="xml" indent="yes"/>
     <xsl:mode on-no-match="shallow-copy"/>
     
@@ -166,22 +165,87 @@
           <keywords scheme="#dhq_keywords">
             <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
             
-            <xsl:comment>Enter keywords below preceeded by a "#". Create a new term element for each</xsl:comment>
-            <term corresp=""/>
-          </keywords>
-          <keywords scheme="#authorial_keywords">
-            <xsl:comment>Authors may include one or more keywords of their choice</xsl:comment>
-            <list type="simple">
-              <item></item>
-            </list>
-          </keywords>
-          <keywords scheme="#project_keywords">
-            <list type="simple">
-              <item></item>
-            </list>
-          </keywords>
-        </textClass>
-      </profileDesc>
+        </TEI>
+    </xsl:template>
+    
+    <xsl:template match="teiHeader">
+        <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
+        <teiHeader>
+            <fileDesc>
+                <titleStmt>
+                    <xsl:comment>Author should supply the title and personal information</xsl:comment>
+                    <title type="article" xml:lang="en"><xsl:comment>article title in English</xsl:comment></title>
+                    <xsl:comment>Add a &lt;title&gt; with appropriate @xml:lang for articles in languages other than English</xsl:comment>
+                    <dhq:authorInfo>
+                        <xsl:comment>Include a separate &lt;dhq:authorInfo&gt; element for each author</xsl:comment>
+                        <dhq:author_name>first name(s) <dhq:family>family name</dhq:family></dhq:author_name>
+                    <idno type="ORCID"><xsl:comment>if the author has an ORCID ID, include the full URI, e.g. https://orcid.org/0000-0000-0000-0000</xsl:comment></idno>
+                        <dhq:affiliation></dhq:affiliation>
+                        <email></email>
+                        <dhq:bio><p></p></dhq:bio>
+                    </dhq:authorInfo>
+                </titleStmt>
+                <publicationStmt>
+                    <publisher>Alliance of Digital Humanities Organizations</publisher>
+                    <publisher>Association for Computers and the Humanities</publisher>
+                    <xsl:comment>This information will be completed at publication</xsl:comment>
+                    <idno type="DHQarticle-id"><xsl:comment>including leading zeroes: e.g. 000110</xsl:comment></idno>
+                    <idno type="volume"><xsl:comment>volume number, with leading zeroes as needed to make 3 digits: e.g. 006</xsl:comment></idno>
+                    <idno type="issue"><xsl:comment>issue number, without leading zeroes: e.g. 2</xsl:comment></idno>
+                    <date></date>
+                    <dhq:articleType>article</dhq:articleType>
+                    <availability status="CC-BY-ND">
+                    <xsl:comment>If using a different license from the default, choose one of the following:
+                  CC-BY-ND (DHQ default): <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>     
+                  CC-BY:  <cc:License rdf:about="https://creativecommons.org/licenses/by/2.5/"/>
+                  CC0: <cc:License rdf:about="https://creativecommons.org/publicdomain/zero/1.0/"/>
+</xsl:comment>
+                        <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>
+                    </availability>
+                </publicationStmt>
+                
+                <sourceDesc>
+                    <p>This is the source</p>
+                </sourceDesc>
+            </fileDesc>
+            <encodingDesc>
+                <classDecl>
+                    <taxonomy xml:id="dhq_keywords">
+                        <bibl>DHQ classification scheme; full list available at <ref target="http://www.digitalhumanities.org/dhq/taxonomy.xml">http://www.digitalhumanities.org/dhq/taxonomy.xml</ref></bibl>
+                    </taxonomy>
+                    <taxonomy xml:id="authorial_keywords">
+                        <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+                    </taxonomy>
+                        <taxonomy xml:id="project_keywords">
+                                <bibl>DHQ project registry; full list available at <ref target="http://www.digitalhumanities.org/dhq/projects.xml">http://www.digitalhumanities.org/dhq/projects.xml</ref></bibl>
+                        </taxonomy>
+                </classDecl>
+            </encodingDesc>
+            <profileDesc>
+                <langUsage>
+                    <language ident="en" extent="original"/>
+                    <xsl:comment>add &lt;language&gt; with appropriate @ident for any additional languages</xsl:comment>
+                </langUsage>
+                <textClass>
+                    <keywords scheme="#dhq_keywords">
+                        <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
+                        
+                        <xsl:comment>Enter keywords below preceeded by a "#". Create a new term element for each</xsl:comment>
+                        <term corresp=""/>
+                    </keywords>
+                    <keywords scheme="#authorial_keywords">
+                        <xsl:comment>Authors may include one or more keywords of their choice</xsl:comment>
+                        <list type="simple">
+                            <item></item>
+                        </list>
+                    </keywords>
+                        <keywords scheme="#project_keywords">
+                                <list type="simple">
+                                        <item></item>
+                                </list>
+                        </keywords>
+                </textClass>
+            </profileDesc>
            <!-- Create a copy of the Zotero bibliographic data in <xenoData>. (Useful for debugging.) -->
            <xsl:if test="$show-zotero-json and exists($compiled-bibliography)">
               <xenoData>
