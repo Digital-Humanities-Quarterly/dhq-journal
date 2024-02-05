@@ -199,6 +199,34 @@
           <xsl:with-param name="srcPath" select="$srcPath"/>
           <xsl:with-param name="outDir" select="$outArticleDir"/>
         </xsl:call-template>
+        <!-- Check for older versions of this article. These should also be 
+          transformed into XHTML. -->
+        <xsl:variable name="previousVersion" 
+          select="doc($srcPath)//dhq:revisionNote/@previous/data(.)"/>
+        <!-- TODO: what happens when there's more than one previous version? -->
+        <xsl:if test="count($previousVersion) eq 1">
+          <xsl:variable name="prevDoc" 
+            select="concat($srcDir,'/',$previousVersion,
+              if ( ends-with($previousVersion,'.xml') ) then
+                $previousVersion
+              else concat($previousVersion,'.xml')
+            )"/>
+          <xsl:choose>
+            <xsl:when test="doc-available($prevDoc)">
+              <xsl:call-template name="transform-article">
+                <xsl:with-param name="articleId" select="$articleId"/>
+                <xsl:with-param name="srcDir" select="$srcDir"/>
+                <xsl:with-param name="srcPath" select="$prevDoc"/>
+                <xsl:with-param name="outDir" select="$outArticleDir"/>
+                <xsl:with-param name="outFile" select="concat($previousVersion,'.html')"/>
+              </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:message 
+                select="concat('Could not find previous version of article at ',$prevDoc)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:if>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message select="concat('Could not find an article at ',$srcPath)"/>
@@ -268,6 +296,10 @@
     <xsl:param name="srcPath" as="xs:string"/>
     <xsl:param name="fpath" as="xs:string" tunnel="yes"/>
     <xsl:param name="outDir" as="xs:string"/>
+    <!-- By default, the transformation results will be saved as $articleID.html 
+      Sometimes we need to override this; for example, when dealing with a previous 
+      version of an article. -->
+    <xsl:param name="outFile" select="concat($articleId,'.html')" as="xs:string"/>
     <!-- Create the map which will define the article's transformation. -->
     <xsl:variable name="xslMap" as="map(*)">
       <!-- Some DHQ articles have alternate XSL stylesheets. If the article folder 
@@ -289,7 +321,7 @@
                 QName((),'context'): $context,
                 QName((),'vol'): $vol,
                 QName((),'issue'): $issue,
-                QName((),'fpath'): concat( $fpath, '/', $articleId, '.html')
+                QName((),'fpath'): concat($fpath,'/',$outFile)
               }
           }"/>
       <xsl:sequence select="map:merge(($useStylesheet, $otherEntries))"/>
@@ -297,7 +329,7 @@
     <!-- Attempt to transform the TEI article into XHTML, and save the result to the 
          output directory. -->
     <xsl:try>
-      <xsl:result-document href="{$outDir}/{$articleId}.html" method="xhtml">
+      <xsl:result-document href="{$outDir}/{$outFile}" method="xhtml">
         <xsl:sequence select="transform($xslMap)?output"/>
       </xsl:result-document>
       <!-- If something went wrong, recover but provide information for debugging 
