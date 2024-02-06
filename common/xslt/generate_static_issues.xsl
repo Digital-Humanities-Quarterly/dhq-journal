@@ -95,6 +95,11 @@
          repo to the newly created static site. -->
     <xsl:text>&#x0A;</xsl:text>
     <project name="dhq_articles">
+      <xsl:comment>
+        This is an Ant build file produced by running generate_static_issues.xsl on 
+        the DHQ TOC. The build targets defined below are designed to be used ONLY by 
+        the main DHQ build file. Please do NOT run any of these targets on their own! </xsl:comment>
+      
       <target name="copyArticleResources">
         <copy enablemultiplemappings="true">
           <!-- Remember: no @xsl:expand-text for following line! -->
