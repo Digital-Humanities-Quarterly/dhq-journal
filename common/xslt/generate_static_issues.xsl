@@ -118,6 +118,48 @@
           </compositemapper>
         </copy>
       </target>
+      
+      <!-- Also generate an Ant target for zipping up all non-preview XML articles. -->
+      <target name="zipArticleXml">
+        <!-- The articles' build file should inherit the basedir property of the DHQ 
+          build file. To make it clearer which folder we're working from, "basedir" 
+          is here mapped onto a new property "toDir.git". -->
+        <property name="toDir.git">
+          <xsl:attribute name="value">${basedir}</xsl:attribute>
+        </property>
+        <zip>
+          <xsl:attribute name="destfile">${toDir.static}${file.separator}data${file.separator}dhq-xml.zip</xsl:attribute>
+          <!-- We're only interested in zipping up articles that:
+                  1. are relatively stable (read: not in the preview issue or 
+                    editorial area), and
+                  2. are not example articles.
+               We also only need one ZIP entry per article, even if the article 
+               appears in multiple DHQ issues.
+            -->
+          <xsl:for-each-group group-by="@id/data(.)" 
+              select=".//journal[not(@preview eq 'true') and not(@editorial eq 'true')]
+                                //item[@id][not(starts-with(@id, '9'))]">
+            <xsl:variable name="id" select="current-grouping-key()"/>
+            <!-- We want each XML file to appear under the same directory, without 
+              any intermediate folders in the way. To do this, we use Ant's 
+              <zipfileset> to start each article in its containing directory, and 
+              prefix its file entry with a common folder name "dhq-articles". -->
+            <zipfileset>
+              <xsl:attribute name="dir">
+                <xsl:text>${toDir.git}${file.separator}articles${file.separator}</xsl:text>
+                <xsl:value-of select="$id"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="$id"/>
+                <xsl:text>.xml</xsl:text>
+              </xsl:attribute>
+              <xsl:attribute name="prefix">
+                <xsl:text>dhq-articles</xsl:text>
+              </xsl:attribute>
+            </zipfileset>
+          </xsl:for-each-group>
+        </zip>
+      </target>
     </project>
   </xsl:template>
   
@@ -207,10 +249,7 @@
         <xsl:if test="count($previousVersion) eq 1">
           <xsl:variable name="prevDoc" 
             select="concat($srcDir,'/',$previousVersion,
-              if ( ends-with($previousVersion,'.xml') ) then
-                $previousVersion
-              else concat($previousVersion,'.xml')
-            )"/>
+              if ( ends-with($previousVersion,'.xml') ) then () else '.xml' )"/>
           <xsl:choose>
             <xsl:when test="doc-available($prevDoc)">
               <xsl:call-template name="transform-article">
