@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
     
     <xsl:param name="context"/>
     <xsl:param name="assets-path" select="concat('/',$context,'/')"/>
@@ -21,14 +21,48 @@
                   the "head" template. -->
                 <xsl:value-of select="concat('DHQ: Digital Humanities Quarterly: ',$title[1])"/>
             </title>
+           <!-- old asset link, before embedding. -->
+           <!--
           <link rel="stylesheet" type="text/css" href="{$assets-path}common{$dir-separator}css{$dir-separator}dhq.css"/>
+                   -->
+          <style>
+              <xsl:sequence select="unparsed-text('../css/dhq.css')"/>
+          </style>
+            <!-- old asset link, before embedding. -->
+            <!--
           <link rel="stylesheet" type="text/css" media="screen"  href="{$assets-path}common{$dir-separator}css{$dir-separator}dhq_screen.css"/>
+          -->
+            <style media="screen">
+                <xsl:sequence select="unparsed-text('../css/dhq_screen.css')"/>
+            </style>
+            <!-- old asset link, before embedding. -->
+            <!-- 
           <link rel="stylesheet" type="text/css" media="print" href="{$assets-path}common{$dir-separator}css{$dir-separator}dhq_print.css"/>
+          -->
+            <style media="print">
+                <xsl:sequence select="unparsed-text('../css/dhq_print.css')"/>
+            </style>
+           <!-- what do do about rss? -->
           <link rel="alternate" type="application/atom+xml"  href="{$assets-path}feed{$dir-separator}news.xml"/>
+
+            <!-- old asset link, before embedding. -->
+            <!--   
           <link rel="shortcut icon" href="{$assets-path}common{$dir-separator}images{$dir-separator}favicon.ico"/>
+          -->
+          <xsl:variable name="favicon">
+              <xsl:sequence select="unparsed-text('../images/favicon.ico.base64')"/>
+          </xsl:variable>        
+          <link href="{concat('data:image/x-icon;base64,',$favicon)}" rel="icon" type="image/x-icon" />
+            
+            <!-- old asset link, before embedding. -->
+            <!--             
           <script defer="defer" type="text/javascript" src="{$assets-path}common{$dir-separator}js{$dir-separator}javascriptLibrary.js">
             <xsl:comment> serialize </xsl:comment>
           </script>
+          -->
+            <script defer="defer" type="text/javascript">
+                <xsl:sequence select="unparsed-text('../js/javascriptLibrary.js')"/>
+            </script>
             <!-- Google Analytics -->
             <script type="text/javascript">
 
@@ -92,5 +126,6 @@ s.parentNode.insertBefore(ga, s);
     </xsl:template>
     
     <!-- customHead template (below) may be overridden in article-specific XSLT (in articles/XXXXXX/resources/xslt/XXXXXX.xsl) to include additional stuff in the HTML <head>. See 000151. -->
+
     <xsl:template name="customHead"/> 
 </xsl:stylesheet>
