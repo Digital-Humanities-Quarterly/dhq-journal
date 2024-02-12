@@ -95,6 +95,11 @@
          repo to the newly created static site. -->
     <xsl:text>&#x0A;</xsl:text>
     <project name="dhq_articles">
+      <xsl:comment>
+        This is an Ant build file produced by running generate_static_issues.xsl on 
+        the DHQ TOC. The build targets defined below are designed to be used ONLY by 
+        the main DHQ build file. Please do NOT run any of these targets on their own! </xsl:comment>
+      
       <target name="copyArticleResources">
         <copy enablemultiplemappings="true">
           <!-- Remember: no @xsl:expand-text for following line! -->
@@ -117,6 +122,48 @@
             </firstmatchmapper>
           </compositemapper>
         </copy>
+      </target>
+      
+      <!-- Also generate an Ant target for zipping up all non-preview XML articles. -->
+      <target name="zipArticleXml">
+        <!-- The articles' build file should inherit the basedir property of the DHQ 
+          build file. To make it clearer which folder we're working from, "basedir" 
+          is here mapped onto a new property "toDir.git". -->
+        <property name="toDir.git">
+          <xsl:attribute name="value">${basedir}</xsl:attribute>
+        </property>
+        <zip>
+          <xsl:attribute name="destfile">${toDir.static}${file.separator}data${file.separator}dhq-xml.zip</xsl:attribute>
+          <!-- We're only interested in zipping up articles that:
+                  1. are relatively stable (read: not in the preview issue or 
+                    editorial area), and
+                  2. are not example articles.
+               We also only need one ZIP entry per article, even if the article 
+               appears in multiple DHQ issues.
+            -->
+          <xsl:for-each-group group-by="@id/data(.)" 
+              select=".//journal[not(@preview eq 'true') and not(@editorial eq 'true')]
+                                //item[@id][not(starts-with(@id, '9'))]">
+            <xsl:variable name="id" select="current-grouping-key()"/>
+            <!-- We want each XML file to appear under the same directory, without 
+              any intermediate folders in the way. To do this, we use Ant's 
+              <zipfileset> to start each article in its containing directory, and 
+              prefix its file entry with a common folder name "dhq-articles". -->
+            <zipfileset>
+              <xsl:attribute name="dir">
+                <xsl:text>${toDir.git}${file.separator}articles${file.separator}</xsl:text>
+                <xsl:value-of select="$id"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="$id"/>
+                <xsl:text>.xml</xsl:text>
+              </xsl:attribute>
+              <xsl:attribute name="prefix">
+                <xsl:text>dhq-articles</xsl:text>
+              </xsl:attribute>
+            </zipfileset>
+          </xsl:for-each-group>
+        </zip>
       </target>
     </project>
   </xsl:template>
@@ -199,6 +246,31 @@
           <xsl:with-param name="srcPath" select="$srcPath"/>
           <xsl:with-param name="outDir" select="$outArticleDir"/>
         </xsl:call-template>
+        <!-- Check for older versions of this article. These should also be 
+          transformed into XHTML. -->
+        <xsl:variable name="previousVersion" 
+          select="doc($srcPath)//dhq:revisionNote/@previous/data(.)"/>
+        <!-- TODO: what happens when there's more than one previous version? -->
+        <xsl:if test="count($previousVersion) eq 1">
+          <xsl:variable name="prevDoc" 
+            select="concat($srcDir,'/',$previousVersion,
+              if ( ends-with($previousVersion,'.xml') ) then () else '.xml' )"/>
+          <xsl:choose>
+            <xsl:when test="doc-available($prevDoc)">
+              <xsl:call-template name="transform-article">
+                <xsl:with-param name="articleId" select="$articleId"/>
+                <xsl:with-param name="srcDir" select="$srcDir"/>
+                <xsl:with-param name="srcPath" select="$prevDoc"/>
+                <xsl:with-param name="outDir" select="$outArticleDir"/>
+                <xsl:with-param name="outFile" select="concat($previousVersion,'.html')"/>
+              </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:message 
+                select="concat('Could not find previous version of article at ',$prevDoc)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:if>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message select="concat('Could not find an article at ',$srcPath)"/>
@@ -268,6 +340,10 @@
     <xsl:param name="srcPath" as="xs:string"/>
     <xsl:param name="fpath" as="xs:string" tunnel="yes"/>
     <xsl:param name="outDir" as="xs:string"/>
+    <!-- By default, the transformation results will be saved as $articleID.html 
+      Sometimes we need to override this; for example, when dealing with a previous 
+      version of an article. -->
+    <xsl:param name="outFile" select="concat($articleId,'.html')" as="xs:string"/>
     <!-- Create the map which will define the article's transformation. -->
     <xsl:variable name="xslMap" as="map(*)">
       <!-- Some DHQ articles have alternate XSL stylesheets. If the article folder 
@@ -289,7 +365,7 @@
                 QName((),'context'): $context,
                 QName((),'vol'): $vol,
                 QName((),'issue'): $issue,
-                QName((),'fpath'): concat( $fpath, '/', $articleId, '.html')
+                QName((),'fpath'): concat($fpath,'/',$outFile)
               }
           }"/>
       <xsl:sequence select="map:merge(($useStylesheet, $otherEntries))"/>
@@ -297,7 +373,7 @@
     <!-- Attempt to transform the TEI article into XHTML, and save the result to the 
          output directory. -->
     <xsl:try>
-      <xsl:result-document href="{$outDir}/{$articleId}.html" method="xhtml">
+      <xsl:result-document href="{$outDir}/{$outFile}" method="xhtml">
         <xsl:sequence select="transform($xslMap)?output"/>
       </xsl:result-document>
       <!-- If something went wrong, recover but provide information for debugging 

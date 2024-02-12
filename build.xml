@@ -46,7 +46,7 @@
     <echo unless:true="${has.xmlresolver}" level="error"
 >XSL transformations cannot occur unless the XML Resolver JAR 
 is loaded when Ant starts up. Please run Ant again like this:
-      ant -lib common${file.separator}lib</echo>
+      ant -lib common${file.separator}lib${file.separator}saxon</echo>
     <fail unless="${has.xmlresolver}">Java class `org.xmlresolver.Resolver` is not available.</fail>
     <!-- Otherwise, a little acknowledgement that this build target succeeded. -->
     <echo level="info">OK</echo>
@@ -56,9 +56,9 @@ is loaded when Ant starts up. Please run Ant again like this:
     <echo>** DHQ static site generation build process **</echo>
     <echo></echo>
     <echo>General format:</echo>
-    <echo>  ant [-lib common${file.separator}lib] [-Dprop=val ...] [target ...]</echo>
+    <echo>  ant [-lib common${file.separator}lib${file.separator}saxon] [-Dprop=val ...] [target ...]</echo>
     <echo>Where:</echo>
-    <echo>-lib common${file.separator}lib</echo>
+    <echo>-lib common${file.separator}lib${file.separator}saxon</echo>
     <echo>  is required if the chosen target performs XSL transformations, but is optional otherwise.</echo>
     <echo>-Dprop=val</echo>
     <echo>  is how you send parameters (which ant calls “properties”) to the process; typically</echo>
@@ -141,7 +141,7 @@ is loaded when Ant starts up. Please run Ant again like this:
     </copy>
     <!-- Copy text files in the submissions directory. -->
     <copy todir="${toDir.static}${file.separator}submissions">
-      <fileset dir="submissions" includes="*.txt"/>
+      <fileset dir="submissions" includes="*.txt *.xml"/>
     </copy>
     <!-- Copy web assets. -->
     <copy todir="${toDir.static}${file.separator}common">
@@ -201,6 +201,13 @@ is loaded when Ant starts up. Please run Ant again like this:
       <param name="assets-path" expression="..${file.separator}"/>
       <param name="context" expression="dhq"/>
     </xslt>
+    <!-- Generate the ZIP file of all articles' XML. -->
+    <mkdir dir="${toDir.static}${file.separator}data"/>
+    <!-- Use the Ant build file created in "generateIssues" to zip up all article 
+      XML. -->
+    <ant antfile="${toDir.base}${file.separator}article-map.xml" dir="${basedir}" 
+         target="zipArticleXml" inheritRefs="true"/>
+    <!-- Generate the ZIP file of the entire static site. -->
     <antcall target="compressStatic"/>
   </target>
   
