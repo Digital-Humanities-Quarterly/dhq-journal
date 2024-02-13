@@ -36,12 +36,23 @@
    -->
   <available classname="org.xmlresolver.Resolver" property="has.xmlresolver"/>
   
-  
-  <!-- The general set of article files to process (used for
-       validation, not static generation) -->
+
+  <!-- Properties used for validation, not static generation -->
+  <!-- The general set of article files to process -->
   <fileset dir="./articles" id="article.files">
     <include name="0*/0*.xml"/>
   </fileset>
+  <!-- The same set without the files we want to avoid validating
+       (typically because they are ill-formed, and thus would halt the
+       validation process). -->
+  <fileset dir="./articles" id="article.files.2validate" excludes="${excludeFromValidation}">
+    <include name="0*/0*.xml"/>
+  </fileset>
+
+  <!-- The XSLT processor to use. -->
+  <property name="processor.jarFile" value="saxon-he-12.4.jar"/>
+  <property name="processor.name" value="net.sf.saxon.BasicTransformerFactory"/>
+  <property name="processor.location" value="common${file.separator}lib${file.separator}saxon"/>  
 
   <!--
       DEFINE TASKS
@@ -117,7 +128,7 @@ is loaded when Ant starts up. Please run Ant again like this:
     <echo>  As above, but also ZIPs up the entire ${toDir.static}/ directory to make</echo>
     <echo>  it easy to transfer (e.g., to a server). The output file can be found at</echo>
     <echo>  ${toDir.base}${file.separator}${context}.zip.</echo>
-  <echo>wf</echo>
+    <echo>wf</echo>
     <echo>  (well-formedness) Check all articles/0*/0*.xml files for well-formedness.</echo>
     <echo>  Take heed, though: the message says “valid” where it means “well-formed”.</echo>
     <echo>validateClosed</echo>
@@ -126,8 +137,14 @@ is loaded when Ant starts up. Please run Ant again like this:
     <echo>  stops checking on the first file that is not well-formed!</echo>
     <echo>validateOpen</echo>
     <echo>  Tests all articles/0*/0*.xml files against ${openSchema} using schXslt.</echo>
-    <echo>  WARNING: Does this in parallel which means it is very fast, but also that it</echo>
-    <echo>  stops checking on the first file that is not well-formed! NOT YET WORKING.</echo>
+    <echo>  The raw results, as .svrl files, are placed in</echo>
+    <echo>  ${schemaDir}/${openSchema1}_results/ and</echo>
+    <echo>  ${schemaDir}/${openSchema2}_results/.</echo>
+    <echo>  No attempt is (yet) made to convert them to nice messages.</echo>
+    <echo>  Try something like</echo>
+    <echo>  $ time xmlstarlet sel -N svrl=http://purl.oclc.org/dsdl/svrl -t -m "//svrl:text" -v "preceding::svrl:active-pattern[1]/@documents" -o '#' -v "..//@location" -o "—" -v "normalize-space(.)" -n $(find ./common/schema/DHQauthor-TEI.isosch_results -name '*.svrl') $(find ./common/schema/dhqTEI-ready.sch_results -name '*.svrl') | perl -pe 's,Q{http://www.tei-c.org/ns/1.0},,g; s,Q{http://www.digitalhumanities.org/ns/dhq},dhq:,g; s,^.*dhq-journal/articles/000,articles/000,;'</echo>
+    <echo>validate</echo>
+    <echo>  Performs both closed and open validation.</echo>
     <echo>saxon</echo>
     <echo>  Run the stylesheet provided by “-Dxsl=” on all articles/0*/0*.xml files; output</echo>
     <echo>  goes into /tmp/articles/ overwriting anything already there. NOT YET WORKING.</echo>
@@ -316,7 +333,7 @@ is loaded when Ant starts up. Please run Ant again like this:
     </zip>
   </target>
   
-<!-- Check articles for well-formedness -->
+  <!-- Check articles for well-formedness -->
   <target name="wf" description="Check all article files (./articles/0*/0*.xml) for well-formedness">
     <echo level="info" message="========= checking for well-formedness"/>
     <xmlvalidate failonerror="no" lenient="true" warn="yes">
@@ -360,24 +377,108 @@ is loaded when Ant starts up. Please run Ant again like this:
       <arg value="${closedSchema}"/>
       <srcfile/>
       <path>
-	<fileset refid="article.files"/>
+        <fileset refid="article.files.2validate"/>
       </path>
     </apply>
   </target>
 
-  <target name="validateOpen" description="Check all article files (./articles/0*/0*.xml) for validity against ${openSchema}">
-    <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part iff it is empty. Someday. -->
+  <target name="validateOpen" depends="checkXmlResolver"
+          description="Check all article files (./articles/0*/0*.xml) for validity against ${openSchema}">
+    <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part if it is empty. Someday. -->
     <echo level="info" message="========= testing for validity against ${openSchema} EXCEPT for ${excludeFromValidation} ..."/>
+    <echo level="info" message="DEBUG: ${processor.location}/${processor.jarFile}, ${schemaDir} / ${openSchema1}, ${mausatronXSLT.compiler}"/>
+
+    <xslt classpath="${processor.location}"
+          destdir="${schemaDir}"
+          style="${mausatronXSLT.compiler}"
+          basedir="${schemaDir}"
+          includes="${openSchema1},${openSchema2}"
+          extension=".xslt"
+          >
+      <factory name="${processor.name}"/>
+    </xslt>
+
+    <mkdir dir="${schemaDir}/${openSchema1}_results"/>
+    <mkdir dir="${schemaDir}/${openSchema2}_results"/>
+    <basename property="openSchema1base" file="${openSchema1}" suffix="isosch"/>
+    <basename property="openSchema2base" file="${openSchema2}" suffix="sch"/>
+
+    <xslt classpath="${processor.location}"
+          destdir="${schemaDir}/${openSchema1}_results"
+          style="${schemaDir}/${openSchema1base}.xslt"
+          includes="${article.files.2validate}"
+          extension=".svrl"
+          >
+      <factory name="${processor.name}"/>
+      <fileset refid="article.files.2validate"/>
+    </xslt>
+    <xslt classpath="${processor.location}"
+          destdir="${schemaDir}/${openSchema2}_results"
+          style="${schemaDir}/${openSchema2base}.xslt"
+          includes="${article.files.2validate}"
+          extension=".svrl"
+          >
+      <factory name="${processor.name}"/>
+      <fileset refid="article.files.2validate"/>
+    </xslt>
+    <!--
+        various methods I have tried but did not work; leaving
+        them here for at least 1 git commit just for a historical
+        record of failures, I guess. —Syd, 2024-02-13
     <apply executable="java" parallel="true" failonerror="false">
-      <arg value="-jar ${processor.location}/${processor.name}"/>
-      <arg value="-xsl:${mausatron.compiler}"/>
+      <arg value="-jar"/>
+      <arg value="${processor.location}/${processor.jarFile}"/>
+      <arg value="-xsl:${mausatronXSLT.compiler}"/>
       <srcfile/>
       <path>
-	<fileset dir="." includes="${openSchema}"/>
+        <fileset dir="${schemaDir}">
+          <include name="${openSchema1}"/>
+          <filename name="${openSchema2}"/>
+        </fileset>
       </path>
-      <targetfile/>
-      <mapper type="regexp" from="^(.*\.)(iso)?sch$" to="\1xslt"/>
     </apply>
+    <apply executable="java" parallel="true" failonerror="false">
+      <arg value="-jar"/>
+      <arg value="${processor.location}/${processor.jarFile}"/>
+      <arg value="-xsl:${mausatronXSLT.compiler}"/>
+      <arg value="-s:${openSchema1}"/>
+      <fileset dir=".">
+        <filename name="NON-EXISTENT_PLACEHOLDER"/>
+      </fileset>
+    </apply>
+    <apply executable="java" parallel="true" failonerror="false">
+      <arg value="-jar"/>
+      <arg value="${processor.location}/${processor.jarFile}"/>
+      <arg value="-xsl:${mausatronXSLT.compiler}"/>
+      <fileset dir="">
+        <filename name="-s:${openSchema1}"/>
+        <filename name="-s:${openSchema2}"/>
+      </fileset>
+    </apply>
+    <apply executable="java" parallel="true" failonerror="false">
+      <arg value="-jar"/>
+      <arg value="${processor.location}/${processor.jarFile}"/>
+      <arg value="-xsl:DEBUG.xslt"/>
+      <arg value="-s:/tmp/trda.odd"/>
+      <arg value="-o:/tmp/QUACK"/>
+    </apply>
+    <apply executable="java" parallel="true" failonerror="false">
+      <arg value="-jar"/>
+      <arg value="${processor.location}/${processor.jarFile}"/>
+      <arg value="-xsl:${mausatronXSLT.compiler}"/>
+      <arg value="-s:${openSchema1}"/>
+      <targetfile/>
+      <mapper type="regexp" from="^(.*\.)(iso)?sch$" to="-o:\1xslt"/>
+    </apply>
+    <apply executable="java" parallel="true" failonerror="false">
+      <arg value="-jar"/>
+      <arg value="${processor.location}/${processor.jarFile}"/>
+      <arg value="-xsl:${mausatronXSLT.compiler}"/>
+      <arg value="-s:${openSchema2}"/>
+      <targetfile/>
+      <mapper type="regexp" from="^(.*\.)(iso)?sch$" to="-o:\1xslt"/>
+    </apply>
+    -->
   </target>
   
   <!-- Currently unused. Leaving here to check it into git at least
