@@ -39,14 +39,14 @@
 
   <!-- Properties used for validation, not static generation -->
   <!-- The general set of article files to process -->
-  <fileset dir="./articles" id="article.files">
-    <include name="0*/0*.xml"/>
+  <fileset dir="articles" id="article.files">
+    <include name="0*${file.separator}0*.xml"/>
   </fileset>
   <!-- The same set without the files we want to avoid validating
        (typically because they are ill-formed, and thus would halt the
        validation process). -->
-  <fileset dir="./articles" id="article.files.2validate" excludes="${excludeFromValidation}">
-    <include name="0*/0*.xml"/>
+  <fileset dir="articles" id="article.files.2validate" excludes="${excludeFromValidation}">
+    <include name="0*${file.separator}0*.xml"/>
   </fileset>
 
   <!-- The XSLT processor to use. -->
@@ -80,7 +80,7 @@ is loaded when Ant starts up. Please run Ant again like this:
   </target>
   
   <target name="help">
-    <echo>** DHQ static site generation build process **</echo>
+    <echo>** DHQ build process: validation and static site generation  **</echo>
     <echo></echo>
     <echo>General format:</echo>
     <echo>  ant [-lib common${file.separator}lib${file.separator}saxon] [-Dprop=val ...] [target ...]</echo>
@@ -99,55 +99,55 @@ is loaded when Ant starts up. Please run Ant again like this:
     <echo>       (Note that the “...” above means you can execute multiple targets at once;</echo>
     <echo>        however, this should rarely be necessary or even particularly helpful in</echo>
     <echo>        the DHQ case.)</echo>
-    <echo>help</echo>
+    <echo>help —</echo>
     <echo>  What you are reading now.</echo>
-    <echo>previewArticle                            (this is the default target)</echo>
+    <echo>previewArticle —                          (this is the default target)</echo>
     <echo>  transform one article XML file (specified via its 6-digit number with</echo>
     <echo>  -Darticle.id=, or via a prompt) into HTML. The output file is placed</echo>
     <echo>  in the ${previewDir}${file.separator} subdirectory. It has relative links to assets in</echo>
     <echo>  this main directory (not the subdirectory), and thus should be suit-</echo>
     <echo>  able for viewing on your local machine. (And may not be suitable for</echo>
     <echo>  use on the server.)</echo>
-    <echo>zipPreviewArticle</echo>
+    <echo>zipPreviewArticle —</echo>
     <echo>  similar to 'previewArticle', but: a) The output HTML file *and* its</echo>
     <echo>  assets are archived together into a single ZIP file. b) The output</echo>
     <echo>  HTML file uses relative links to the assets in the same directory,</echo>
     <echo>  as would happen when the ZIP file is unzipped. Both the HTML file</echo>
     <echo>  and the ZIP file are put in the ${previewDir}${file.separator} subdirectory, overwrit-</echo>
     <echo>  ing any previous version there.</echo>
-    <echo>generateIssues</echo>
+    <echo>generateIssues —</echo>
     <echo>  generates the entire static site — index pages and HTML for each issue</echo>
     <echo>  listed in the toc${file.separator}toc.xml file, including the article itself, the author</echo>
     <echo>  biographies, and the “landing” page. The output is placed in the</echo>
-    <echo>  ${toDir.static}/ directory, i.e. in a sibling to this directory, over-</echo>
+    <echo>  ${toDir.static}${file.separator} directory, i.e. in a sibling to this directory, over-</echo>
     <echo>  writing any previous version. (Some temporary files are also placed in</echo>
-    <echo>  ${toDir.base}/.) The output is designed to be viewed from a server, as</echo>
+    <echo>  ${toDir.base}${file.separator}.) The output is designed to be viewed from a server, as</echo>
     <echo>  it uses absolute filepaths to its assets. Thus it will not work properly</echo>
     <echo>  (and will look ugly) if viewed on your local machine.</echo>
-    <echo>generateSite</echo>
-    <echo>  As above, but also ZIPs up the entire ${toDir.static}/ directory to make</echo>
+    <echo>generateSite —</echo>
+    <echo>  As above, but also ZIPs up the entire ${toDir.static}${file.separator} directory to make</echo>
     <echo>  it easy to transfer (e.g., to a server). The output file can be found at</echo>
     <echo>  ${toDir.base}${file.separator}${context}.zip.</echo>
-    <echo>wf</echo>
-    <echo>  (well-formedness) Check all articles/0*/0*.xml files for well-formedness.</echo>
+    <echo>wf —</echo>
+    <echo>  (well-formedness) Check all articles${file.separator}0*${file.separator}0*.xml files for well-formedness.</echo>
     <echo>  Take heed, though: the message says “valid” where it means “well-formed”.</echo>
-    <echo>validateClosed</echo>
-    <echo>  Tests all articles/0*/0*.xml files against ${closedSchema} using jing.</echo>
+    <echo>validateClosed —</echo>
+    <echo>  Tests all articles${file.separator}0*${file.separator}0*.xml files against ${closedSchema} using jing.</echo>
     <echo>  WARNING: Does this in parallel which means it is very fast, but also that it</echo>
     <echo>  stops checking on the first file that is not well-formed!</echo>
-    <echo>validateOpen</echo>
-    <echo>  Tests all articles/0*/0*.xml files against ${openSchema} using schXslt.</echo>
+    <echo>validateOpen —</echo>
+    <echo>  Tests all articles${file.separator}0*${file.separator}0*.xml files against ${openSchema} using schXslt.</echo>
     <echo>  The raw results, as .svrl files, are placed in</echo>
-    <echo>  ${schemaDir}/${openSchema1}_results/ and</echo>
-    <echo>  ${schemaDir}/${openSchema2}_results/.</echo>
+    <echo>  ${schemaDir}${file.separator}${openSchema1}_results${file.separator} and</echo>
+    <echo>  ${schemaDir}${file.separator}${openSchema2}_results${file.separator}.</echo>
     <echo>  No attempt is (yet) made to convert them to nice messages.</echo>
     <echo>  Try something like</echo>
     <echo>  $ time xmlstarlet sel -N svrl=http://purl.oclc.org/dsdl/svrl -t -m "//svrl:text" -v "preceding::svrl:active-pattern[1]/@documents" -o '#' -v "..//@location" -o "—" -v "normalize-space(.)" -n $(find ./common/schema/DHQauthor-TEI.isosch_results -name '*.svrl') $(find ./common/schema/dhqTEI-ready.sch_results -name '*.svrl') | perl -pe 's,Q{http://www.tei-c.org/ns/1.0},,g; s,Q{http://www.digitalhumanities.org/ns/dhq},dhq:,g; s,^.*dhq-journal/articles/000,articles/000,;'</echo>
-    <echo>validate</echo>
+    <echo>validate —</echo>
     <echo>  Performs both closed and open validation.</echo>
-    <echo>saxon</echo>
-    <echo>  Run the stylesheet provided by “-Dxsl=” on all articles/0*/0*.xml files; output</echo>
-    <echo>  goes into /tmp/articles/ overwriting anything already there. NOT YET WORKING.</echo>
+    <echo>saxon — (NOT YET WORKING)</echo>
+    <echo>  Run the stylesheet provided by “-Dxsl=” on all articles${file.separator}0*${file.separator}0*.xml files; output</echo>
+    <echo>  goes into ${file.separator}tmp${file.separator}articles${file.separator} overwriting anything already there.</echo>
   </target>
 
   <!-- Generate static HTML versions of the DHQ issues (articles, bios, & indices). -->
@@ -192,7 +192,7 @@ is loaded when Ant starts up. Please run Ant again like this:
     </copy>
     <!-- Copy web assets. -->
     <copy todir="${toDir.static}${file.separator}common">
-      <fileset dir="common" excludes="lib/ tests/"/>
+      <fileset dir="common" excludes="lib${file.separator} tests${file.separator}"/>
     </copy>
     <!-- Transform the test file.
       TODO: is this still necessary? -->
@@ -334,7 +334,7 @@ is loaded when Ant starts up. Please run Ant again like this:
   </target>
   
   <!-- Check articles for well-formedness -->
-  <target name="wf" description="Check all article files (./articles/0*/0*.xml) for well-formedness">
+  <target name="wf" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for well-formedness">
     <echo level="info" message="========= checking for well-formedness"/>
     <xmlvalidate failonerror="no" lenient="true" warn="yes">
       <!-- <attribute name="http://xml.org/sax/features/namespaces" value="true"/> -->
@@ -362,12 +362,12 @@ is loaded when Ant starts up. Please run Ant again like this:
     </xslt>
   </target>
 
-  <target name="validate" description="Check all article files (./articles/0*/0*.xml) for validity (against several schemas)">
+  <target name="validate" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity (against several schemas)">
     <antcall target="validateClosed"/>
     <antcall target="validateOpen"/>
   </target>
 
-  <target name="validateClosed" description="Check all article files (./articles/0*/0*.xml) for validity against ${closedSchema}">
+  <target name="validateClosed" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity against ${closedSchema}">
     <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part iff it is empty. Someday. -->
     <echo level="info" message="========= testing for validity against ${closedSchema} EXCEPT for ${excludeFromValidation} ..."/>
     <apply executable="java" parallel="true" failonerror="false">
@@ -383,10 +383,10 @@ is loaded when Ant starts up. Please run Ant again like this:
   </target>
 
   <target name="validateOpen" depends="checkXmlResolver"
-          description="Check all article files (./articles/0*/0*.xml) for validity against ${openSchema}">
+          description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity against ${openSchema}">
     <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part if it is empty. Someday. -->
     <echo level="info" message="========= testing for validity against ${openSchema} EXCEPT for ${excludeFromValidation} ..."/>
-    <echo level="info" message="DEBUG: ${processor.location}/${processor.jarFile}, ${schemaDir} / ${openSchema1}, ${mausatronXSLT.compiler}"/>
+    <echo level="info" message="DEBUG: ${processor.location}${file.separator}${processor.jarFile}, ${schemaDir} ${file.separator} ${openSchema1}, ${mausatronXSLT.compiler}"/>
 
     <xslt classpath="${processor.location}"
           destdir="${schemaDir}"
@@ -398,14 +398,14 @@ is loaded when Ant starts up. Please run Ant again like this:
       <factory name="${processor.name}"/>
     </xslt>
 
-    <mkdir dir="${schemaDir}/${openSchema1}_results"/>
-    <mkdir dir="${schemaDir}/${openSchema2}_results"/>
+    <mkdir dir="${schemaDir}${file.separator}${openSchema1}_results"/>
+    <mkdir dir="${schemaDir}${file.separator}${openSchema2}_results"/>
     <basename property="openSchema1base" file="${openSchema1}" suffix="isosch"/>
     <basename property="openSchema2base" file="${openSchema2}" suffix="sch"/>
 
     <xslt classpath="${processor.location}"
-          destdir="${schemaDir}/${openSchema1}_results"
-          style="${schemaDir}/${openSchema1base}.xslt"
+          destdir="${schemaDir}${file.separator}${openSchema1}_results"
+          style="${schemaDir}${file.separator}${openSchema1base}.xslt"
           includes="${article.files.2validate}"
           extension=".svrl"
           >
@@ -413,8 +413,8 @@ is loaded when Ant starts up. Please run Ant again like this:
       <fileset refid="article.files.2validate"/>
     </xslt>
     <xslt classpath="${processor.location}"
-          destdir="${schemaDir}/${openSchema2}_results"
-          style="${schemaDir}/${openSchema2base}.xslt"
+          destdir="${schemaDir}${file.separator}${openSchema2}_results"
+          style="${schemaDir}${file.separator}${openSchema2base}.xslt"
           includes="${article.files.2validate}"
           extension=".svrl"
           >
