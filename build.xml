@@ -134,8 +134,6 @@ is loaded when Ant starts up. Please run Ant again like this:
     <echo>  ${schemaDir}${file.separator}${openSchema1}_results${file.separator} and</echo>
     <echo>  ${schemaDir}${file.separator}${openSchema2}_results${file.separator}.</echo>
     <echo>  No attempt is (yet) made to convert them to nice messages.</echo>
-    <echo>  Try something like</echo>
-    <echo>  $ time xmlstarlet sel -N svrl=http://purl.oclc.org/dsdl/svrl -t -m "//svrl:text" -v "preceding::svrl:active-pattern[1]/@documents" -o '#' -v "..//@location" -o "—" -v "normalize-space(.)" -n $(find ./common/schema/DHQauthor-TEI.isosch_results -name '*.svrl') $(find ./common/schema/dhqTEI-ready.sch_results -name '*.svrl') | perl -pe 's,Q{http://www.tei-c.org/ns/1.0},,g; s,Q{http://www.digitalhumanities.org/ns/dhq},dhq:,g; s,^.*dhq-journal/articles/000,articles/000,;'</echo>
     <echo>validate —</echo>
     <echo>  Performs both closed and open validation.</echo>
     <echo>saxon — (NOT YET WORKING)</echo>
@@ -379,7 +377,6 @@ is loaded when Ant starts up. Please run Ant again like this:
           description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity against ${openSchema}">
     <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part if it is empty. Someday. -->
     <echo level="info" message="========= testing for validity against ${openSchema} EXCEPT for ${excludeFromValidation} ..."/>
-    <echo level="info" message="DEBUG: ${processor.location}${file.separator}${processor.jarFile}, ${schemaDir} ${file.separator} ${openSchema1}, ${mausatronXSLT.compiler}"/>
 
     <xslt classpath="${processor.location}"
           destdir="${schemaDir}"
@@ -415,6 +412,12 @@ is loaded when Ant starts up. Please run Ant again like this:
       <fileset refid="article.files.2validate"/>
     </xslt>
     <!-- See commit 7383668d for some methods that did not work. -->
+    <echo>Schematron validation complete. Results are stored as SVRL files in</echo>
+    <echo>  ${schemaDir}${file.separator}${openSchema1}_results${file.separator}</echo>
+    <echo>and</echo>
+    <echo>  ${schemaDir}${file.separator}${openSchema2}_results${file.separator}</echo>
+    <echo>If you want to see just the error messages, you might try something like</echo>
+    <echo>$ time xmlstarlet sel -N svrl=http://purl.oclc.org/dsdl/svrl -t -m "//svrl:text" -v "preceding::svrl:active-pattern[1]/@documents" -o '#' -v "..//@location" -o "—" -v "normalize-space(.)" -n $(find ./common/schema/DHQauthor-TEI.isosch_results -name '*.svrl') $(find ./common/schema/dhqTEI-ready.sch_results -name '*.svrl') | perl -pe 's,Q{http://www.tei-c.org/ns/1.0},,g; s,Q{http://www.digitalhumanities.org/ns/dhq},dhq:,g; s,^.*dhq-journal/articles/000,articles/000,;'</echo>
   </target>
   
 </project>
