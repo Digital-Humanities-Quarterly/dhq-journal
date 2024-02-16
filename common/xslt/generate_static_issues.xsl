@@ -237,18 +237,12 @@
       issue. -->
     <xsl:variable name="issue-bios-map" as="map(*)" 
       select="dhq:set-up-issue-transformation(., 'template_bios.xsl', $fpath||'/bios.html')"/>
-    <!-- The issue-bios-sort map is a bit more complicated, because its source node 
-      is the result of a transform based on the issue-bios map. -->
-    <xsl:variable name="issue-bios-sort-map" as="map(*)">
-      <xsl:map>
-        <xsl:sequence select="dhq:stylesheet-path-entry('bios_sort.xsl')"/>
-        <xsl:map-entry key="'source-node'" select="transform( $issue-bios-map )?output"/>
-        <xsl:map-entry key="'stylesheet-params'" select="$issue-bios-map?stylesheet-params"/>
-      </xsl:map>
-    </xsl:variable>
-    <!-- Generate this issue’s bios based on the issue-bios-sort map -->
+    <!-- Generate this issue’s biographies page through two XSL transformations. -->
     <xsl:result-document href="{$outDir||'/bios.html'}">
-      <xsl:sequence select="transform( $issue-bios-sort-map )?output"/>
+      <xsl:call-template name="transform-with-sorting">
+        <xsl:with-param name="transform-1-map" select="$issue-bios-map" as="map(*)"/>
+        <xsl:with-param name="transform-2-xsl-filename" select="'bios_sort.xsl'"/>
+      </xsl:call-template>
     </xsl:result-document>
     <xsl:choose>
       <!-- If this is the current issue, run the transformation again for the DHQ home 
@@ -276,15 +270,11 @@
         <!-- Create the contributor bios page for the "preview" directory. -->
         <xsl:variable name="preview-bios-map"
           select="dhq:set-up-issue-transformation(., 'template_preview_bios.xsl', 'preview/bios.html')"/>
-        <xsl:variable name="preview-bios-sort-map" as="map(*)">
-          <xsl:map>
-            <xsl:sequence select="dhq:stylesheet-path-entry('bios_sort.xsl')"/>
-            <xsl:map-entry key="'source-node'" select="transform( $preview-bios-map )?output"/>
-            <xsl:map-entry key="'stylesheet-params'" select="$preview-bios-map?stylesheet-params"/>
-          </xsl:map>
-        </xsl:variable>
         <xsl:result-document href="{$static-dir||'/preview/bios.html'}">
-          <xsl:sequence select="transform( $preview-bios-sort-map )?output"/>
+          <xsl:call-template name="transform-with-sorting">
+            <xsl:with-param name="transform-1-map" select="$preview-bios-map" as="map(*)"/>
+            <xsl:with-param name="transform-2-xsl-filename" select="'bios_sort.xsl'"/>
+          </xsl:call-template>
         </xsl:result-document>
       </xsl:when>
     </xsl:choose>
