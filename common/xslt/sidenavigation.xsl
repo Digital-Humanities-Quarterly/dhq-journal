@@ -117,7 +117,7 @@
                 <li>
                     <a><xsl:attribute name="href">
                         <xsl:value-of
-                            select="concat('/',$context,'/announcements/index.html#submissions')"/>
+                            select="concat('/',$context,'/submissions/index.html#logistics')"/>
                     </xsl:attribute>Call for Submissions</a>
                 </li>
             </ul>
