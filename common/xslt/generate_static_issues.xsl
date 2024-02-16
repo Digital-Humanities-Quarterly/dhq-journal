@@ -168,6 +168,48 @@
         </zip>
       </target>
     </project>
+    <!-- While we're in the TOC, generate the indexes of all article titles and all 
+      contributors. Each index is processed in two steps: First, the TOC is 
+      transformed with a special stylesheet. Then, another stylesheet sorts all of 
+      the indexed entries. -->
+    <!-- Generate the index of all articles by title. -->
+    <xsl:variable name="titles-index-map" as="map(*)">
+      <xsl:map>
+        <xsl:map-entry key="'source-node'" select="$toc-source"/>
+        <xsl:sequence select="dhq:stylesheet-path-entry('title_index.xsl')"/>
+        <xsl:map-entry key="'stylesheet-params'">
+          <xsl:map>
+            <xsl:map-entry key="QName( (),'fpath')" select="'index/title.html'"/>
+            <xsl:map-entry key="QName( (),'context')" select="$context"/>
+          </xsl:map>
+        </xsl:map-entry>
+      </xsl:map>
+    </xsl:variable>
+    <xsl:result-document href="{$static-dir||'/index/title.html'}">
+      <xsl:call-template name="transform-with-sorting">
+        <xsl:with-param name="transform-1-map" select="$titles-index-map" as="map(*)"/>
+        <xsl:with-param name="transform-2-xsl-filename" select="'title_sort.xsl'"/>
+      </xsl:call-template>
+    </xsl:result-document>
+    <!-- Generate the index of all DHQ contributors. -->
+    <xsl:variable name="authors-index-map" as="map(*)">
+      <xsl:map>
+        <xsl:map-entry key="'source-node'" select="$toc-source"/>
+        <xsl:sequence select="dhq:stylesheet-path-entry('author_index.xsl')"/>
+        <xsl:map-entry key="'stylesheet-params'">
+          <xsl:map>
+            <xsl:map-entry key="QName( (),'fpath')" select="'index/author.html'"/>
+            <xsl:map-entry key="QName( (),'context')" select="$context"/>
+          </xsl:map>
+        </xsl:map-entry>
+      </xsl:map>
+    </xsl:variable>
+    <xsl:result-document href="{$static-dir||'/index/author.html'}">
+      <xsl:call-template name="transform-with-sorting">
+        <xsl:with-param name="transform-1-map" select="$authors-index-map" as="map(*)"/>
+        <xsl:with-param name="transform-2-xsl-filename" select="'author_sort.xsl'"/>
+      </xsl:call-template>
+    </xsl:result-document>
   </xsl:template>
   
   <!-- The "editorial" section of the TOC is for articles that are being worked on 
@@ -223,7 +265,7 @@
       </xsl:when>
       <!-- If this is the preview issue, we need copies of the index and bios pages 
         in the "preview" folder. As in the current issue, the pages will be the 
-        identical to their counterparts in "vol/" except for the URL at the bottom. -->
+        nearly identical to their counterparts in "vol/". -->
       <xsl:when test="@preview eq 'true'">
         <!-- Create the index page for the "preview" directory. -->
         <xsl:variable name="preview-index-map" 
@@ -417,6 +459,21 @@
         <xsl:message>*********</xsl:message>
       </xsl:catch>
     </xsl:try>
+  </xsl:template>
+  
+  <!-- Some DHQ index pages were set up to be transformed in two steps: first, 
+    generating the base HTML; then, sorting the index entries. This template 
+    streamlines the two transformations. -->
+  <xsl:template name="transform-with-sorting">
+    <xsl:param name="transform-1-map" as="map(*)"/>
+    <xsl:param name="transform-2-xsl-filename" as="xs:string"/>
+    <xsl:variable name="transform-2-map" as="map(*)">
+      <xsl:map>
+        <xsl:sequence select="dhq:stylesheet-path-entry($transform-2-xsl-filename)"/>
+        <xsl:map-entry key="'source-node'" select="transform( $transform-1-map )?output"/>
+      </xsl:map>
+    </xsl:variable>
+    <xsl:sequence select="transform( $transform-2-map )?output"/>
   </xsl:template>
   
   
