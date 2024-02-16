@@ -61,15 +61,16 @@
     <xsl:template match="tei:TEI">
         <xsl:param name="vol"><xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume'])"/></xsl:param>
         <xsl:param name="vol_no_zeroes">
-            <xsl:call-template name="get-vol">
-                <xsl:with-param name="vol">
-                    <xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume'])"/>
-                </xsl:with-param>
-            </xsl:call-template>
+            <xsl:variable name="use_vol">
+              <xsl:call-template name="get-vol">
+                  <xsl:with-param name="vol" select="$vol"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:value-of select="normalize-space($use_vol)"/>
         </xsl:param>
-        <xsl:param name="issue"><xsl:value-of select="tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/></xsl:param>
+        <xsl:param name="issue"><xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue'])"/></xsl:param>
         <xsl:param name="id">
-            <xsl:value-of select="tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']"/>
+            <xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id'])"/>
         </xsl:param>
         <xsl:param name="issueTitle"><xsl:apply-templates select="document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes and @issue=$issue]/title"/></xsl:param>
         
