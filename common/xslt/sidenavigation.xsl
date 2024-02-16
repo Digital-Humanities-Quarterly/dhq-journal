@@ -95,7 +95,7 @@
                 <xsl:value-of select="'margin-left : 7px;'"/>
             </xsl:attribute>
             <xsl:attribute name="alt">
-                <xsl:value-of select="'sidenavbarimg'"/>
+                <xsl:value-of select="''"/>
             </xsl:attribute>
         </img>
         
