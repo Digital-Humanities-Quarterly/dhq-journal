@@ -101,6 +101,8 @@
         the main DHQ build file. Please do NOT run any of these targets on their own! </xsl:comment>
       
       <target name="copyArticleResources">
+        <!-- Copy all public articles' XML, figures, etc. from the repository to the 
+          static directory. -->
         <copy enablemultiplemappings="true">
           <!-- Remember: no @xsl:expand-text for following line! -->
           <xsl:attribute name="todir">${toDir.static}</xsl:attribute>
@@ -168,7 +170,9 @@
     </project>
   </xsl:template>
   
-  <!-- The editorial section of the TOC is skipped, at least for now. -->
+  <!-- The "editorial" section of the TOC is for articles that are being worked on 
+    by the DHQ editors and authors. The articles in this section should not be 
+    published on the DHQ site. -->
   <xsl:template match="journal[@editorial eq 'true']"/>
   
   <!-- For each DHQ issue, we first produce an index page and the contributors' 
@@ -204,18 +208,44 @@
     <xsl:result-document href="{$outDir||'/bios.html'}">
       <xsl:sequence select="transform( $issue-bios-sort-map )?output"/>
     </xsl:result-document>
-    <!-- If this is the current issue, run the transformation again for the DHQ home 
-      page. The result will be identical to the issue index, but the URL at the 
-      bottom will be http://www.digitalhumanities.org/dhq/index.html -->
-    <xsl:if test="@current eq 'true'">
-      <xsl:variable name="new-param-map" 
-        select="map:put( $issue-index-map?stylesheet-params, QName( (),'fpath'), 'index.html')"/>
-      <xsl:variable name="index-index-map" 
-        select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
-      <xsl:result-document href="{$static-dir||'/index.html'}">
-        <xsl:sequence select="transform( $index-index-map )?output"/>
-      </xsl:result-document>
-    </xsl:if>
+    <xsl:choose>
+      <!-- If this is the current issue, run the transformation again for the DHQ home 
+        page. The result will be identical to the issue index, but the URL at the 
+        bottom will be http://www.digitalhumanities.org/dhq/index.html -->
+      <xsl:when test="@current eq 'true'">
+        <xsl:variable name="new-param-map" 
+          select="map:put( $issue-index-map?stylesheet-params, QName( (),'fpath'), 'index.html')"/>
+        <xsl:variable name="index-index-map" 
+          select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
+        <xsl:result-document href="{$static-dir||'/index.html'}">
+          <xsl:sequence select="transform( $index-index-map )?output"/>
+        </xsl:result-document>
+      </xsl:when>
+      <!-- If this is the preview issue, we need copies of the index and bios pages 
+        in the "preview" folder. As in the current issue, the pages will be the 
+        identical to their counterparts in "vol/" except for the URL at the bottom. -->
+      <xsl:when test="@preview eq 'true'">
+        <!-- Create the index page for the "preview" directory. -->
+        <xsl:variable name="preview-index-map" 
+          select="dhq:set-up-issue-transformation(., 'template_preview.xsl', 'preview/index.html')"/>
+        <xsl:result-document href="{$static-dir||'/preview/index.html'}">
+          <xsl:sequence select="transform( $preview-index-map )?output"/>
+        </xsl:result-document>
+        <!-- Create the contributor bios page for the "preview" directory. -->
+        <xsl:variable name="preview-bios-map"
+          select="dhq:set-up-issue-transformation(., 'template_preview_bios.xsl', 'preview/bios.html')"/>
+        <xsl:variable name="preview-bios-sort-map" as="map(*)">
+          <xsl:map>
+            <xsl:sequence select="dhq:stylesheet-path-entry('bios_sort.xsl')"/>
+            <xsl:map-entry key="'source-node'" select="transform( $preview-bios-map )?output"/>
+            <xsl:map-entry key="'stylesheet-params'" select="$preview-bios-map?stylesheet-params"/>
+          </xsl:map>
+        </xsl:variable>
+        <xsl:result-document href="{$static-dir||'/preview/bios.html'}">
+          <xsl:sequence select="transform( $preview-bios-sort-map )?output"/>
+        </xsl:result-document>
+      </xsl:when>
+    </xsl:choose>
     <!-- Proceed to transform the contents of the issue (articles). -->
     <xsl:apply-templates>
       <xsl:with-param name="vol" select="@vol/data(.)" tunnel="yes"/>
