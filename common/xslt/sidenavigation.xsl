@@ -110,7 +110,7 @@
             <ul>
                 <li>
                     <a><xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/announcements/index.html#reviewers')"
+                        <xsl:value-of select="concat('/',$context,'/news/news.html#peer_reviews')"
                         />
                     </xsl:attribute>Call for Reviewers</a>
                 </li>
