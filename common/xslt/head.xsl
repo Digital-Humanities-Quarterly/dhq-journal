@@ -120,7 +120,22 @@ s.parentNode.insertBefore(ga, s);
           
 <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"><xsl:comment>Gimme some comment!</xsl:comment></script>
             <xsl:call-template name="customHead"/> 
-            
+
+            <!--
+		Metadata for the Univerity of Victoria Endings Project
+		Static Search (UVEPSS). This template seems to be called
+		from 15 different places (in 13 different files), but on
+		quick review the only contexts it is called from are the
+		document node, <tei:TEI>, and <search:results>. I do not
+		think that last one will ever occur in the static world.
+	    -->
+	    <xsl:variable name="srcHeader" as="element(tei:teiHeader)?" select="/tei:TEI/tei:teiHeader"/>
+	    <xsl:if test="$srcHeader//dhq:*">
+	      <meta name="article type" class="staticSearch_desc" content="{$srcHeader//dhq:articleType}"/>
+	      <meta name="date of publication" class="staticSearch_date" content="{$srcHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when}"/>
+	      <meta name="volume" class="staticSearch_num" content="{$srcHeader//tei:idno[@type eq 'volume']}"/>
+	      <meta name="issue"  class="staticSearch_num" content="{$srcHeader//tei:idno[@type eq 'issue']}"/>
+	    </xsl:if>
             
         </head>
     </xsl:template>
