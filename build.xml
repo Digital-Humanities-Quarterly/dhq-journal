@@ -107,6 +107,19 @@ is loaded when Ant starts up. Please run Ant again like this:
     <echo>  As "generateSite" above, but then also creates a compressed archive of the generated</echo>
     <echo>  output to make it easy to transfer (e.g., to a server). The output file can be found at</echo>
     <echo>  ${toDir.base}${file.separator}${context}.zip.</echo>
+    <echo>generateSearchable</echo>
+    <echo>  As above, but then also uses (our copy of) the University
+    of Victoria Endings Project StaticSearch tool to generate a search
+    page at
+    ${toDir.static}${file.separator}dhq${file.separator}vol${file.separator}search.html. This
+    takes awhile as a complete index (in JSON) is built for almost
+    every file. Those files that are not well-formed XML have to be
+    excluded. To do perform the exclusion this build process
+    temporarily renames them (to *.NOTxhtml) and then renames them back.</echo>
+    <echo>generateSearchableToGo</echo>
+    <echo>  As "generateSearchable" above, but then also creates a compressed archive of the generated</echo>
+    <echo>  output to make it easy to transfer (e.g., to a server). The output file can be found at</echo>
+    <echo>  ${toDir.base}${file.separator}${context}.zip.</echo>
   </target>
 
   <!-- Generate static HTML versions of the DHQ issues (articles, bios, & indices). -->
@@ -216,6 +229,78 @@ is loaded when Ant starts up. Please run Ant again like this:
   </target>
 
   <target name="generateSiteToGo" depends="generateSite">
+    <!-- Generate the ZIP file of the entire static site. -->
+    <antcall target="compressStatic"/>
+  </target>
+
+  <target name="generateSearchable" depends="generateSite">
+    <echo>DEBUG: toDir=${toDir}, toDir.static=${toDir.static}, and uvepssDir=${uvepssDir}</echo>
+    <!-- Copy a few needed files over -->
+    <copy todir="${toDir.static}/data/uvepss">
+      <fileset dir="data/uvepss"/>
+    </copy>
+    <copy file="${toDir.static}/data/uvepss/search.html" todir="dhq/vol"/>
+    <echo> ... renaming ill-formed files (which would make this process crash) out of the way</echo>
+    <!--
+	UVEPSS will only operate on well-formed XHTML 5 files. This, I
+	think, is a good thing; a feature, not a bug. But as it is
+	indexing, if it comes across an ill-formed HTML file the
+	entire process dies. This, I think is not the right way to do
+	this; a bug. It should (IMHO) instead issue a strongly worded
+	error message, skip the ill-formed file, and continue. But I
+	do not get to make that call. (Although I do plan to submit a
+	bug report to see if this can be changed.) So for now, here we
+	need to work around this problem. So what we do is rename each
+	of thte ill-formed files within the target directory to an
+	extension that UVEPSS will ignore, and rename it back when we
+	are done.
+	You can’t just use `ant wf` (in those branches that have it)
+	to discover which files are ill-formed, because that command
+	only looks at article files, not ancillary files. So I used
+	$ for f in $(find dhq/vol -name '*ml') ; do xmlwf $f ; done
+	It would be better to use
+	$ find dhq/vol -type f -name '*ml' -print0 | while read -d $'\0' f; do xmlwf $f ; done
+	because the file "dhq/vol/16/3/000636/losh .xhtml" contains a
+	space in the filename.
+	— Syd, 2024-02-19
+    -->
+    <move todir="${toDir.static}/vol">
+      <fileset dir="${toDir.static}/vol">
+	<include name="9/2/000216/queerfemnotes.html"/>
+	<include name="9/2/000216/resources/html/queerfemnotes.html"/>
+	<include name="17/2/000652/resources/webmap_code/figure11/Figure_11.html"/>
+	<include name="17/2/000652/resources/webmap_code/figure10/figure10.html"/>
+	<include name="17/3/000720/000720_ko.xml"/>
+	<include name="11/2/000285/resources/images/333-1962-1-SP.html"/>
+	<include name="11/2/000285/resources/html/prototype.html"/>
+	<!--
+            Note: these last 2 files are ill-formed in at least two ways:
+            1) SYSTEM identifier of "http://www.w3.org/TR/html4/strict.dtd",
+	       which is NOT an XML DTD;
+            2) <meta> start-tag on 7 or 13 (depending on whether or not you
+	       count those crazy ^M chars) does not have an end-tag.
+	-->
+	<include name="7/1/000149/resources/source/000149.html"/>
+	<include name="7/1/000149/resources/source/ss.html"/>
+      </fileset>
+      <mapper type="glob" from="*" to="*.NOT"/>
+    </move>
+    <!-- Convert path to config file from relative path to absolute path: -->
+    <property name="absolute.config.file" location="${toDir.static}/data/uvepss/config.xml"/>
+    <ant dir="${uvepssDir}" antfile="build.xml">
+      <property name="ssConfigFile" value="${absolute.config.file}"/>
+    </ant>
+    <!--
+    <echo> ... renaming ill-formed files back</echo>
+    <move todir="${toDir.static}/vol">
+      <filesetdir="${toDir.static}/vol">
+	<filename name="**/*.NOT"/>
+      </fileset>
+      <mapper type="glob" from="*.NOT" to="*"/>
+    </move> -->
+  </target>
+  
+  <target name="generateSearchableToGo" depends="generateSearchable">
     <!-- Generate the ZIP file of the entire static site. -->
     <antcall target="compressStatic"/>
   </target>
