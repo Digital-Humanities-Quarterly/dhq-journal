@@ -128,7 +128,7 @@
                     <idno type="DHQarticle-id"><xsl:comment>including leading zeroes: e.g. 000110</xsl:comment></idno>
                     <idno type="volume"><xsl:comment>volume number, with leading zeroes as needed to make 3 digits: e.g. 006</xsl:comment></idno>
                     <idno type="issue"><xsl:comment>issue number, without leading zeroes: e.g. 2</xsl:comment></idno>
-                    <date></date>
+                    <date><xsl:comment>include @when with ISO date and also content in the form 23 February 2024</xsl:comment></date>
                     <dhq:articleType>article</dhq:articleType>
                     <availability status="CC-BY-ND">
                     <xsl:comment>If using a different license from the default, choose one of the following:
