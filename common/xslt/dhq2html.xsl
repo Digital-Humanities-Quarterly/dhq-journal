@@ -1066,13 +1066,13 @@
     </xsl:template>-->
 
     <!-- utilities -->
-    <xdoc:doc>Passes xml:id from TEI element to corresponding XHTML element.</xdoc:doc>
+    <xdoc:doc>If there is an @xml:id, pass it on from TEI element to
+    corresponding XHTML element; if not make up an ID, making it clear
+    to user it should not be used in permanent URIs. We do this to
+    improve search functionality — staticSearch takes user to the
+    closest ancestor ID, so the more the merrier.</xdoc:doc>
     <xsl:template name="id">
-        <xsl:if test="@xml:id">
-            <xsl:attribute name="id">
-                <xsl:value-of select="@xml:id"/>
-            </xsl:attribute>
-        </xsl:if>
+      <xsl:attribute name="id" select="( @xml:id, 'temp_id_'||generate-id() )[1]"/>
     </xsl:template>
 
     <xsl:template name="style">
