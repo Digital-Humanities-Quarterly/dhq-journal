@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="ssTeiGuidelines" default="all"
+  xmlns:if="ant:if"
+  xmlns:unless="ant:unless">
+  
+  <!-- 
+        **********************************************************
+        *  Ant file for building a static search engine for the  *
+        *  TEI Guidelines, based on the latest build of the      *
+        *  Guidelines main branch from the main TEI Jenkins      *
+        *  server.                                               *
+        *                                                        *
+        **********************************************************
+    -->
+  
+  
+  <!--****************************************************************
+     *                                                              *
+     *                       Task Definitions                       *
+     *                                                              *
+     ****************************************************************-->
+  
+  <!--  We need ant contrib. -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+  
+  
+  <!--****************************************************************
+     *                                                              *
+     *                           Properties                         *
+     *                                                              *
+     ****************************************************************-->
+  
+  <!-- Saxon of course. -->
+  <property name="saxon" value="${basedir}/../lib/saxon-he-10.jar"/>
+  
+  <!-- Place to get the TEI Guidelines build from. This is currently
+    a release package, but it could also be a Jenkins build from another
+    branch if required. -->
+  <property name="glinesUrl" value="https://github.com/TEIC/TEI/releases/download/P5_Release_4.3.0/tei-4.3.0.zip"/>
+  
+  <!-- Source folder location. -->
+  <property name="sourceFolder" value="${basedir}/source"/>
+  
+  <!-- Output folder location. -->
+  <property name="outputFolder" value="${basedir}/output"/>
+  
+  <!-- Source files in folder. -->
+  <fileset id="sourceHtml" dir="${sourceFolder}" includes="**/*.html"/>
+  
+  <target name="clean">
+    <description>
+      TARGET clean
+      Removes previous build products and recreates the 
+      relevant folders.
+    </description>
+    <echo message="Cleaning up any previous builds..."/>
+    <delete dir="${sourceFolder}"/>
+    <mkdir dir="${sourceFolder}"/>
+    <delete dir="${outputFolder}"/>
+    <mkdir dir="${outputFolder}"/>
+  </target>
+  
+  <target name="getGuidelines">
+    <description>
+      TARGET getGuidelines
+      This downloads the latest build of the TEI 
+      Guidelines and unzips it.
+    </description>
+    <echo message="Downloading Guidelines package..."/>
+    <get src="${glinesUrl}" retries="4" dest="${basedir}/guidelines.zip" usetimestamp="true"/>
+    <echo message="Unzipping Guidelines package..."/>
+    <unzip src="${basedir}/guidelines.zip" dest="${sourceFolder}"/>
+  </target>
+  
+  <target name="deployEuroGuidelines">
+    <description>
+      TARGET deployEuroGuidelines
+      This copies the indexable parts of the downloaded
+      Guidelines (the European languages that we can 
+      tokenize) to the output folder ready for indexing,
+      along with the search page and a JS folder.
+    </description>
+    <echo message="Copying indexable language Guidelines to output location..."/>
+    <copy todir="${outputFolder}">
+      <fileset dir="${sourceFolder}/doc/tei-p5-doc">
+        <exclude name="ja/**"/>
+        <exclude name="ko/**"/>
+        <exclude name="zh*/**"/>
+      </fileset>
+    </copy>
+    <copy todir="${outputFolder}/js" file="${basedir}/../js/ssHighlight.js"/>
+    <copy todir="${outputFolder}" file="${basedir}/search.html"/>
+  </target>
+  
+  <target name="unborkGuidelines">
+    <description>
+      TARGET unborkGuidelines
+      This target fixes some egregiousness in the
+      HTML encoding of the Guidelines pages.
+    </description>
+    <!--First clean up the awfulness from the Guidelines HTML. -->
+    <echo message="Fixing horrible broken HTML..."/>
+    <replaceregexp match="&lt;!DOCTYPE html" replace="">
+      <fileset refid="sourceHtml"/>
+    </replaceregexp>
+    <replaceregexp match="SYSTEM .about:legacy-compat.&gt;" replace="">
+      <fileset refid="sourceHtml"/>
+    </replaceregexp>
+  </target>
+  
+  <target name="preprocessGuidelines">
+    <description>
+      TARGET preprocessGuidelines
+      This target runs XSLT transformations on the 
+      Guidelines pages to add a number of metadata
+      elements to assist with building staticSearch
+      filters.
+    </description>
+    <copy file="${basedir}/search.html" todir="${outputFolder}"/>
+    <echo message="Preprocessing Guidelines pages..."/>
+    <java classpath="${saxon}" classname="net.sf.saxon.Transform" 
+          failonerror="true">
+      <arg value="-xsl:${basedir}/xsl/preprocess.xsl"/>
+      <arg value="-s:${basedir}/xsl/preprocess.xsl"/>
+      <arg line="basedir=${basedir}"/>
+      <arg value="--suppressXsltNamespaceCheck:on"/>
+      <jvmarg value="-Xmx2048m"/>
+    </java>
+  </target>
+  
+  <target name="buildStaticSearch">
+    <description>
+      TARGET buildStaticSearch
+      This invokes the search build process.
+    </description>
+    <ant antfile="${basedir}/../build.xml" inheritall="false">
+      <property name="ssConfig" value="tei/config_tei.xml"/>
+    </ant>
+  </target>
+  
+  <target name="copyOtherGuidelines">
+    <description>
+      TARGET copyOtherGuidelines
+      After the indexing of European guidelines pages
+      has been completed and the staticSearch set up,
+      we copy the remaining content (language that can't
+      be tokenized/indexed) into the output folder so that
+      they can at least be read.
+    </description>
+    <echo message="Copying remaining Guidelines to output location..."/>
+    <copy todir="${outputFolder}">
+      <fileset dir="${sourceFolder}/doc/tei-p5-doc">
+        <include name="ja/**/*"/>
+        <include name="ko/**/*"/>
+        <include name="zh*/**/*"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="all">
+    <description>
+      TARGET all
+      Does the complete download, process and build
+      work to create a searchable TEI Guidelines.
+    </description>
+    <antcall target="clean"/>
+    <antcall target="getGuidelines"/>
+    <antcall target="deployEuroGuidelines"/>
+    <antcall target="unborkGuidelines"/>
+    <antcall target="preprocessGuidelines"/>
+    <antcall target="buildStaticSearch"/>
+    <antcall target="copyOtherGuidelines"/>
+  </target>
+  
+</project>
