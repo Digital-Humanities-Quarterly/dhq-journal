@@ -26,9 +26,9 @@
         <!-- base url to which vol issue id to be attached -->
         
         <html>
-            <!-- code to retrieve document title from the html file and pass it to the template -->
+            <!-- code to retrieve document title from the TEI file and pass it to the template -->
             <xsl:call-template name="head">
-                <xsl:with-param name="title" select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title"/>
+                <xsl:with-param name="title" select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]"/>
             </xsl:call-template>
             
             <body>

@@ -18,8 +18,8 @@
     <xsl:param name="fname"/>
     <xsl:param name="fdir"/>
     <xsl:param name="fpath">
-      <xsl:if test="$fname and $fdir">
-        <xsl:value-of select="concat($fdir,$dir-separator,$fname)"/>
+      <xsl:if test="$fdir and $fname">
+        <xsl:value-of select="concat($fdir,'/',$fname)"/>
       </xsl:if>
     </xsl:param>
     
