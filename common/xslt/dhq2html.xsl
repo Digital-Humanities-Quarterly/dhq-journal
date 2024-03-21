@@ -25,14 +25,8 @@
     <xsl:param name="context"/>
     <xsl:param name="docurl"/>
     <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
-    <xsl:param name="vol">
-      <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume']"/>
-    </xsl:param>
-    <xsl:param name="vol_no_zeroes">
-      <xsl:call-template name="get-vol">
-        <xsl:with-param name="vol"><xsl:value-of select="$vol"/></xsl:with-param>
-      </xsl:call-template>
-    </xsl:param>
+    <xsl:param name="vol" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume']!string()"/>
+    <xsl:param name="vol_no_zeroes" select="replace( $vol, '^0+', '')"/>
     <xsl:param name="issue">
       <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/>
     </xsl:param>
@@ -175,12 +169,6 @@
         <xsl:text>&#160;Number&#160;</xsl:text>
         <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/>
       </div>
-    </xsl:template>
-
-    <!-- strip extra zeroes off volume number -->
-    <xsl:template name="get-vol">
-      <xsl:param name="vol"/>
-      <xsl:value-of select="replace( $vol, '^0+', '')"/>
     </xsl:template>
 
     <xsl:template name="toolbar">

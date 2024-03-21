@@ -103,9 +103,7 @@
     </xsl:template>
     
     <xsl:template name="toolbar">
-        <xsl:param name="vol_no_zeroes"><xsl:call-template name="get-vol">
-            <xsl:with-param name="vol"><xsl:value-of select="$vol"/></xsl:with-param></xsl:call-template>
-        </xsl:param>
+        <xsl:param name="vol_no_zeroes" select="replace( $vol, '^0+', '')"/>
         <div class="toolbar">
             <a>
                 <xsl:attribute name="href">
