@@ -176,9 +176,7 @@
         <a>
           <xsl:choose>
             <xsl:when test="$published">
-              <xsl:attribute name="href">
-                <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
-              </xsl:attribute>
+              <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
               <xsl:value-of select="$assigned-issue/title"/>
               <xsl:value-of select="concat(' ',$vol_no_zeroes,'.',$issue)"/>
               <!--
@@ -187,30 +185,23 @@
               -->
             </xsl:when>
             <xsl:otherwise>
-              <xsl:attribute name="href">
-                <xsl:value-of select="concat('/',$context,'/preview/index.html')"/>
-              </xsl:attribute>
+              <xsl:attribute name="href" select="concat('/',$context,'/preview/index.html')"/>
               <xsl:text>Preview</xsl:text>
             </xsl:otherwise>
           </xsl:choose>
         </a>
         <xsl:text>&#x00a0;|&#x00a0;</xsl:text>
         <a rel="external">
-          <xsl:attribute name="href">
-            <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
-          </xsl:attribute>
+          <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
           <xsl:text>XML</xsl:text>
         </a>
         <xsl:text>&#x20;|&#x00a0;</xsl:text>
         <a rel="external">
-          <xsl:attribute name="href">
-            <xsl:value-of select="concat($static_server,$static_pdf_directory,'/',$id,'.pdf')"/>
-          </xsl:attribute>
+          <xsl:attribute name="href" select="concat($static_server,$static_pdf_directory,'/',$id,'.pdf')"/>
           <xsl:text>PDF</xsl:text>
         </a>
         <xsl:text>&#x20;|&#x00a0;</xsl:text>
-        <a href="#" onclick="javascript:window.print();"
-           title="Click for print friendly version">Print</a>
+        <a href="#" onclick="javascript:window.print();" title="Click for print friendly version">Print</a>
       </div>
     </xsl:template>
 
@@ -218,7 +209,7 @@
       <xsl:param name="status" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/@status"/>
       <div class="license">
         <xsl:choose>
-          <xsl:when test="$status = 'CC-BY-ND'">
+          <xsl:when test="$status eq 'CC-BY-ND'">
             <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">
 	      <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png"/>
 	    </a>
@@ -226,7 +217,7 @@
 	    This work is licensed under a
 	    <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
           </xsl:when>
-          <xsl:when test="$status = 'CC-BY'">
+          <xsl:when test="$status eq 'CC-BY'">
             <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
 	      <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
 	    </a>
@@ -234,7 +225,7 @@
 	    This work is licensed under a
 	    <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
           </xsl:when>
-          <xsl:when test="$status = 'CC0'">
+          <xsl:when test="$status eq 'CC0'">
             <a rel="license" href="http://creativecommons.org/publicdomain/zero/1.0/">
               <img src="http://i.creativecommons.org/p/zero/1.0/88x31.png" style="border-style: none;" alt="CC0"/>
             </a>
@@ -260,9 +251,7 @@
             <a>
               <xsl:choose>
                 <xsl:when test="$published">
-                  <xsl:attribute name="href">
-                    <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
-                  </xsl:attribute>
+                  <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
                   <xsl:value-of select="$assigned-issue/title"/>
                   <xsl:value-of select="concat(' ',$vol_no_zeroes,'.',$issue)"/>
                   <!--
@@ -271,18 +260,14 @@
                   -->
                 </xsl:when>
                 <xsl:otherwise>
-                  <xsl:attribute name="href">
-                    <xsl:value-of select="concat('/',$context,'/preview/index.html')"/>
-                  </xsl:attribute>
+                  <xsl:attribute name="href" select="concat('/',$context,'/preview/index.html')"/>
                   <xsl:text>Preview</xsl:text>
                 </xsl:otherwise>
               </xsl:choose>
             </a>
             <xsl:text>&#x00a0;|&#x00a0;</xsl:text>
             <a rel="external">
-              <xsl:attribute name="href">
-                <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
-              </xsl:attribute>
+              <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
               <xsl:text>XML</xsl:text>
             </a>
 	    <!--
@@ -343,14 +328,10 @@
           <a rel="external">
             <xsl:choose>
               <xsl:when test="$published">
-                <xsl:attribute name="href">
-                  <xsl:value-of select="concat($bioFile,'#',$bios)"/>
-                </xsl:attribute>
+                <xsl:attribute name="href" select="concat($bioFile,'#',$bios)"/>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:attribute name="href">
-                  <xsl:value-of select="concat('/',$context,'/preview/',$bioFile,'#',$bios)"/>
-                </xsl:attribute>
+                <xsl:attribute name="href" select="concat('/',$context,'/preview/',$bioFile,'#',$bios)"/>
               </xsl:otherwise>
             </xsl:choose>
             <xsl:apply-templates select="dhq:author_name"/>
@@ -463,9 +444,7 @@
       <xsl:if test="normalize-space(.)">
         <xsl:choose>
           <xsl:when test="parent::tei:div">
-            <xsl:variable name="depth">
-              <xsl:value-of select="count(ancestor::tei:div)"/>
-            </xsl:variable>
+            <xsl:variable name="depth" select="count(ancestor::tei:div)"/>
             <xsl:choose>
               <!-- need first when/@test to avoid duplicate heads in slides -->
               <xsl:when test="($depth) &gt; 6">
@@ -1345,9 +1324,7 @@
 
     <xsl:template match="tei:note" mode="notes">
       <div class="endnote">
-        <xsl:attribute name="id">
-          <xsl:value-of select="generate-id()"/>
-        </xsl:attribute>
+        <xsl:attribute name="id" select="generate-id()"/>
         <span class="noteRef lang en">
           <xsl:text>[</xsl:text>
           <xsl:number level="any" from="tei:body"/>
@@ -1360,13 +1337,9 @@
     <xsl:template match="tei:note" mode="notes_other">
       <xsl:variable name="language"><xsl:value-of select="ancestor::tei:text/@xml:lang"/></xsl:variable>
       <div class="endnote">
-        <xsl:attribute name="id">
-          <xsl:value-of select="generate-id()"/>
-        </xsl:attribute>
+        <xsl:attribute name="id" select="generate-id()"/>
         <span>
-          <xsl:attribute name="class">
-            <xsl:value-of select="concat('noteRef lang ', ancestor::tei:text/@xml:lang)"/>
-          </xsl:attribute>
+          <xsl:attribute name="class" select="concat('noteRef lang ', ancestor::tei:text/@xml:lang)"/>
           <xsl:text>[</xsl:text>
           <xsl:number level="any" from="//tei:body"/>
           <xsl:text>]&#160;</xsl:text>
@@ -1482,17 +1455,24 @@
                 <xsl:when test="substring-after(@target, 'http')">
                   <a>
                     <xsl:attribute name="class">ref</xsl:attribute>
-                    <xsl:attribute name="href"><xsl:value-of select="@target"/></xsl:attribute>
+                    <xsl:attribute name="href" select="@target"/>
                     <xsl:value-of select="@target"/>
                   </a>
                 </xsl:when>
                 <xsl:otherwise>
-                  <span class="error"><a>
-                    <xsl:attribute name="class">ref</xsl:attribute>
-                    <xsl:attribute name="href"><xsl:choose><xsl:when test="@target"><xsl:value-of select="@target"/></xsl:when>
-                    <xsl:otherwise><xsl:text>#</xsl:text><xsl:value-of select="generate-id()"/></xsl:otherwise></xsl:choose></xsl:attribute>
-                    <xsl:value-of select="@target"/>
-                </a></span></xsl:otherwise>
+                  <span class="error">
+		    <a>
+                      <xsl:attribute name="class">ref</xsl:attribute>
+                      <xsl:attribute name="href">
+			<xsl:choose>
+			  <xsl:when test="@target"><xsl:value-of select="@target"/></xsl:when>
+			  <xsl:otherwise><xsl:text>#</xsl:text><xsl:value-of select="generate-id()"/></xsl:otherwise>
+			</xsl:choose>
+		      </xsl:attribute>
+                      <xsl:value-of select="@target"/>
+                    </a>
+		  </span>
+		</xsl:otherwise>
               </xsl:choose>
             </xsl:otherwise>
           </xsl:choose>
@@ -1504,8 +1484,17 @@
     <xsl:template match="*" mode="generated-reference">
       <a>
         <xsl:attribute name="class">ref</xsl:attribute>
-        <xsl:attribute name="href"><xsl:text>#</xsl:text><xsl:choose><xsl:when test="@xml:id"><xsl:value-of select="@xml:id"/></xsl:when>
-        <xsl:otherwise><xsl:value-of select="generate-id()"/></xsl:otherwise></xsl:choose></xsl:attribute>
+        <xsl:attribute name="href">
+	  <xsl:text>#</xsl:text>
+	  <xsl:choose>
+	    <xsl:when test="@xml:id">
+	      <xsl:value-of select="@xml:id"/>
+	    </xsl:when>
+            <xsl:otherwise>
+	      <xsl:value-of select="generate-id()"/>
+	    </xsl:otherwise>
+	  </xsl:choose>
+	</xsl:attribute>
         <xsl:apply-templates select="." mode="label"/>
       </a>
     </xsl:template>
