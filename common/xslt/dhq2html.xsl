@@ -27,12 +27,8 @@
     <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
     <xsl:param name="vol" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume']!string()"/>
     <xsl:param name="vol_no_zeroes" select="replace( $vol, '^0+', '')"/>
-    <xsl:param name="issue">
-      <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/>
-    </xsl:param>
-    <xsl:param name="id">
-      <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']"/>
-    </xsl:param>
+    <xsl:param name="issue" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/>
+    <xsl:param name="id" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']"/>
     <xsl:param name="cssFile"/>
     <xsl:param name="biblioData" select="'../../data/biblio-full.xml'"/>
 
@@ -63,7 +59,7 @@
            <xsl:apply-templates select="@label"/>
          </span>
          <xsl:if test="normalize-space(@label)">
-           <xsl:text>&#160;</xsl:text>
+           <xsl:text>&#xA0;</xsl:text>
          </xsl:if>
          <xsl:apply-templates select="key('biblioIdKey',@key,$biblio)" mode="dhqBiblio:ChicagoLoose"/>
        </div>
@@ -90,8 +86,6 @@
     </xsl:param>
 
     <xsl:key name="element-by-id" match="*[@xml:id]" use="@xml:id"/>
-    <!-- changing <bibl> to be used where they appear [CRB] -->
-    <xsl:variable name="all-notes" select="//tei:note"/>
 
     <!-- suppressed elements -->
     <xsl:template match="tei:titleStmt/tei:author"/>
@@ -164,9 +158,9 @@
           </xsl:otherwise>
         </xsl:choose>
         <xsl:value-of select="$assigned-issue/title"/><br/>
-        <xsl:text>Volume&#160;</xsl:text>
+        <xsl:text>Volume&#xA0;</xsl:text>
         <xsl:value-of select="$vol"/>
-        <xsl:text>&#160;Number&#160;</xsl:text>
+        <xsl:text>&#xA0;Number&#xA0;</xsl:text>
         <xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/>
       </div>
     </xsl:template>
@@ -178,7 +172,7 @@
             <xsl:when test="$published">
               <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
               <xsl:value-of select="$assigned-issue/title"/>
-              <xsl:value-of select="concat(' ',$vol_no_zeroes,'.',$issue)"/>
+              <xsl:value-of select="concat('&#x20;',$vol_no_zeroes,'.',$issue)"/>
               <!--
                   <xsl:value-of select="concat(': v',$vol_no_zeroes)"/>
                   <xsl:value-of select="concat(' n',$issue)"/>
@@ -190,17 +184,17 @@
             </xsl:otherwise>
           </xsl:choose>
         </a>
-        <xsl:text>&#x00a0;|&#x00a0;</xsl:text>
+        <xsl:text>&#x00A0;|&#x00A0;</xsl:text>
         <a rel="external">
           <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
           <xsl:text>XML</xsl:text>
         </a>
-        <xsl:text>&#x20;|&#x00a0;</xsl:text>
+        <xsl:text>&#x20;|&#x00A0;</xsl:text>
         <a rel="external">
           <xsl:attribute name="href" select="concat($static_server,$static_pdf_directory,'/',$id,'.pdf')"/>
           <xsl:text>PDF</xsl:text>
         </a>
-        <xsl:text>&#x20;|&#x00a0;</xsl:text>
+        <xsl:text>&#x20;|&#x00A0;</xsl:text>
         <a href="#" onclick="javascript:window.print();" title="Click for print friendly version">Print</a>
       </div>
     </xsl:template>
@@ -265,15 +259,15 @@
                 </xsl:otherwise>
               </xsl:choose>
             </a>
-            <xsl:text>&#x00a0;|&#x00a0;</xsl:text>
+            <xsl:text>&#x00A0;|&#x00A0;</xsl:text>
             <a rel="external">
               <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
               <xsl:text>XML</xsl:text>
             </a>
 	    <!--
-                |&#x00a0;
+                |&#x00A0;
                 <a href="#" onclick="javascript:window.print();" title="Click for print friendly version">Print Article</a>
-		&#x00a0;|&#x00a0;
+		&#x00A0;|&#x00A0;
                 <select name="taportools" onchange="javascript:gototaporware(this);">
                   <option>Taporware Tools</option>
                   <option value="listword">List Words</option>
@@ -282,7 +276,7 @@
                 </select> -->
 
             <!--
-		|&#x00a0;
+		|&#x00A0;
                 <xsl:text>Discuss</xsl:text>
                 (<a>
                 <xsl:attribute name="href">
@@ -338,7 +332,7 @@
           </a>
           <xsl:if test="normalize-space(child::dhq:affiliation)">
             <xsl:apply-templates select="tei:email" mode="author"/>
-            <xsl:text>,&#160;</xsl:text>
+            <xsl:text>,&#xA0;</xsl:text>
           </xsl:if>
           <xsl:apply-templates select="dhq:affiliation"/>
           <xsl:if test="tei:idno[@type='ORCID']">
@@ -354,7 +348,7 @@
       <xsl:value-of select="'&#x20;'"/>
       <a href="{$orcid}">
 	<img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16"/>
-	<xsl:value-of select="concat('&#x00a0;',$orcid)"/>
+	<xsl:value-of select="concat('&#x00A0;',$orcid)"/>
       </a>
     </xsl:template>
 
@@ -385,7 +379,7 @@
           </a>
           <xsl:if test="normalize-space(child::dhq:affiliation)">
             <xsl:apply-templates select="tei:email" mode="author"/>
-            <xsl:text>,&#160;</xsl:text>
+            <xsl:text>,&#xA0;</xsl:text>
           </xsl:if>
           <xsl:apply-templates select="dhq:affiliation"/>
         </div>
@@ -595,7 +589,7 @@
                 <tr>
                   <xsl:choose>
                     <xsl:when test="preceding-sibling::tei:p">
-                    <td class="speaker">&#160;</td><td><xsl:apply-templates/></td></xsl:when>
+                    <td class="speaker">&#xA0;</td><td><xsl:apply-templates/></td></xsl:when>
                     <xsl:otherwise>
                       <td class="speaker"><xsl:value-of select="preceding-sibling::tei:speaker"/></td><td><xsl:apply-templates/></td>
                     </xsl:otherwise>
@@ -717,7 +711,7 @@
         <xsl:if test="not(ancestor::tei:table)">
           <div class="label">
             <xsl:apply-templates select=".." mode="label"/>
-            <xsl:text>.&#160;</xsl:text>
+            <xsl:text>.&#xA0;</xsl:text>
             <xsl:apply-templates select="./tei:label" mode="figureLabel"/>
           </div>
         </xsl:if>
@@ -833,9 +827,7 @@
       <xsl:when test="@mimeType='audio/x-ms-wma'">
         <a href="{@url}">
 	  <img src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjE2cHgiIGhlaWdodD0iMTZweCIgdmlld0JveD0iMCAwIDk2Ljk5MiA5Ni45OTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDk2Ljk5MiA5Ni45OTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPGc+Cgk8cGF0aCBkPSJNODIuMjk3LDE3LjAwMkw2Ni4wMjgsMC43MzJDNjUuNTU5LDAuMjYzLDY0LjkyNCwwLDY0LjI2LDBIMTYuNDYzYy0xLjM4MSwwLTIuNSwxLjExOS0yLjUsMi41djkxLjk5MiAgIGMwLDEuMzgxLDEuMTE5LDIuNSwyLjUsMi41aDY0LjA2NmMxLjM4MSwwLDIuNS0xLjExOSwyLjUtMi41VjE4Ljc2OUM4My4wMjksMTguMTA1LDgyLjc2NiwxNy40NzEsODIuMjk3LDE3LjAwMnogTTQ4LjYzNCw2Mi4yMDkgICBjMCwwLjc3NS0wLjQ0OCwxLjQ4LTEuMTQ5LDEuODExYy0wLjI3MSwwLjEyNy0wLjU2MiwwLjE4OS0wLjg1MSwwLjE4OWMtMC40NTcsMC0wLjkxLTAuMTU2LTEuMjc2LTAuNDZsLTEwLjkzMy05LjA2aC01LjgyMyAgIGMtMS4xMDQsMC0yLTAuODk2LTItMlY0NC43MmMwLTEuMTA0LDAuODk2LTIsMi0yaDUuODIzbDEwLjkzMy05LjA2YzAuNTk4LTAuNDk1LDEuNDI2LTAuNjAxLDIuMTI3LTAuMjcgICBjMC43MDEsMC4zMjksMS4xNDksMS4wMzQsMS4xNDksMS44MVY2Mi4yMDl6IE01Ni4zMTksNTkuMDg0Yy0wLjA0OCwwLjAwMy0wLjA5NywwLjAwNS0wLjE0NCwwLjAwNSAgIGMtMC41MjksMC0xLjAzOS0wLjIwOS0xLjQxNC0wLjU4NmwtMC4yNy0wLjI2OWMtMC43MDEtMC43LTAuNzgzLTEuODExLTAuMTkxLTIuNjA1YzEuNDk2LTIuMDE5LDIuMjg3LTQuNDEzLDIuMjg3LTYuOTI0ICAgYzAtMi43MDEtMC44OTgtNS4yMzQtMi41OTctNy4zMjZjLTAuNjQ2LTAuNzk1LTAuNTg3LTEuOTUsMC4xMzgtMi42NzVsMC4yNjgtMC4yNjhjMC4zOTktMC4zOTksMC45MzYtMC42MTcsMS41MTYtMC41ODMgICBjMC41NjQsMC4wMjgsMS4wOTEsMC4yOTQsMS40NDcsMC43MzFjMi4zNTUsMi44ODMsMy42MDIsNi4zODMsMy42MDIsMTAuMTJjMCwzLjQ3OS0xLjEwMiw2Ljc5NC0zLjE4Myw5LjU4MSAgIEM1Ny40MzIsNTguNzUxLDU2Ljg5OCw1OS4wNDIsNTYuMzE5LDU5LjA4NHogTTY0LjU4OCw2NS4yNjRjLTAuMzYxLDAuNDI4LTAuODg1LDAuNjg2LTEuNDQzLDAuNzA5ICAgYy0wLjAyNywwLTAuMDU3LDAuMDAyLTAuMDg0LDAuMDAyYy0wLjUyOSwwLTEuMDM5LTAuMjExLTEuNDE0LTAuNTg2bC0wLjI2NC0wLjI2NGMtMC43MzQtMC43MzItMC43ODMtMS45MDYtMC4xMTUtMi43MDEgICBjMy4yMjYtMy44MzYsNS4wMDItOC43MDgsNS4wMDItMTMuNzE5YzAtNS4yMTItMS45MDEtMTAuMjI5LTUuMzU0LTE0LjEyOGMtMC43LTAuNzkxLTAuNjY1LTEuOTg5LDAuMDgtMi43MzdsMC4yNjMtMC4yNjMgICBjMC4zODktMC4zOTEsMC44OTUtMC42MDYsMS40NzUtMC41ODhjMC41NTEsMC4wMTYsMS4wNywwLjI1OSwxLjQzOCwwLjY3MWM0LjE3NCw0LjY5OSw2LjQ3MywxMC43NTMsNi40NzMsMTcuMDQ1ICAgQzcwLjY0MSw1NC43Niw2OC40OTEsNjAuNjQxLDY0LjU4OCw2NS4yNjR6IE02Mi4wNTEsMjIuMzQyYy0wLjMzNywwLTAuNjU4LTAuMTMzLTAuODk2LTAuMzcxICAgYy0wLjIzNy0wLjIzOC0wLjM3Mi0wLjU2MS0wLjM3Mi0wLjg5N2wwLjAwMi0xNS4xMjZMNzcuMTgsMjIuMzQzTDYyLjA1MSwyMi4zNDJMNjIuMDUxLDIyLjM0MnoiIGZpbGw9IiMwMDAwMDAiLz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K">
-	    <xsl:attribute name="alt">
-	      <xsl:value-of select="tei:desc"/>
-	    </xsl:attribute>
+	    <xsl:attribute name="alt" select="tei:desc"/>
 	  </img>
 	</a>
       </xsl:when>
@@ -853,10 +845,8 @@
     <blockquote class="eg">
       <pre>
         <code>
-          <xsl:if test="@lang and normalize-space(@lang) != 'code_general'">
-            <xsl:attribute name="class">
-              <xsl:value-of select="@lang"/>
-            </xsl:attribute>
+          <xsl:if test="@lang and normalize-space(@lang) ne 'code_general'">
+            <xsl:attribute name="class" select="@lang"/>
           </xsl:if>
           <xsl:apply-templates/>
         </code>
@@ -1040,9 +1030,7 @@
 
     <xsl:template name="style">
       <xsl:if test="@style">
-        <xsl:attribute name="style">
-          <xsl:value-of select="@style"/>
-        </xsl:attribute>
+        <xsl:attribute name="style" select="@style"/>
       </xsl:if>
     </xsl:template>
 
@@ -1076,9 +1064,7 @@
 	<xsl:text> </xsl:text>
 	<xsl:value-of select="$addClass"/>
       </xsl:variable>
-      <xsl:attribute name="class">
-	<xsl:value-of select="normalize-space($class)"/>
-      </xsl:attribute>
+      <xsl:attribute name="class" select="normalize-space($class)"/>
     </xsl:template>
 
     <xsl:template name="rend">
@@ -1107,10 +1093,8 @@
           </xsl:attribute>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:if test="$defaultRend !=''">
-            <xsl:attribute name="class">
-              <xsl:value-of select="$defaultRend"/>
-            </xsl:attribute>
+          <xsl:if test="$defaultRend != ''">
+            <xsl:attribute name="class" select="$defaultRend"/>
           </xsl:if>
         </xsl:otherwise>
       </xsl:choose>
@@ -1121,7 +1105,7 @@
         <xsl:when test="preceding-sibling::tei:quote[descendant::tei:sp]">
           <tr><td colspan="2">
             <!-- if <ref> is a child of <cit>, place parens around it [CRB] -->
-            <xsl:if test="ancestor::tei:cit or ancestor::tei:epigraph"><xsl:text>&#160;(</xsl:text></xsl:if>
+            <xsl:if test="ancestor::tei:cit or ancestor::tei:epigraph"><xsl:text>&#xA0;(</xsl:text></xsl:if>
             <xsl:choose>
               <!-- if <ref> has no target, don't make it a link [CRB] -->
               <xsl:when test="not(@target)">
@@ -1145,7 +1129,7 @@
         <xsl:when test="ancestor::tei:cit[not(parent::tei:p)]/descendant::tei:list">
           <p class="ref">
             <!-- if <ref> is a child of <cit>, place parens around it [CRB] -->
-            <xsl:if test="ancestor::tei:cit or ancestor::tei:epigraph"><xsl:text>&#160;(</xsl:text></xsl:if>
+            <xsl:if test="ancestor::tei:cit or ancestor::tei:epigraph"><xsl:text>&#xA0;(</xsl:text></xsl:if>
             <xsl:choose>
               <!-- if <ref> has no target, don't make it a link [CRB] -->
               <xsl:when test="not(@target)">
@@ -1168,7 +1152,7 @@
         </xsl:when>
         <xsl:otherwise>
           <!-- if <ref> is a child of <cit>, place parens around it [CRB] -->
-          <xsl:if test="parent::tei:cit or parent::tei:epigraph"><xsl:text>&#160;(</xsl:text></xsl:if>
+          <xsl:if test="parent::tei:cit or parent::tei:epigraph"><xsl:text>&#xA0;(</xsl:text></xsl:if>
           <xsl:choose>
             <!-- if <ref> has no target, don't make it a link [CRB] -->
             <xsl:when test="not(@target)">
@@ -1253,7 +1237,7 @@
         <!-- what is the special case for the xsl:if below? -->
         <div class="label">
           <xsl:apply-templates select="." mode="label"/>
-          <xsl:text>.&#160;</xsl:text>
+          <xsl:text>.&#xA0;</xsl:text>
         </div>
       </div>
     </xsl:template>
@@ -1328,7 +1312,7 @@
         <span class="noteRef lang en">
           <xsl:text>[</xsl:text>
           <xsl:number level="any" from="tei:body"/>
-          <xsl:text>]&#160;</xsl:text>
+          <xsl:text>]&#xA0;</xsl:text>
           <xsl:apply-templates/>
         </span>
       </div>
@@ -1342,14 +1326,14 @@
           <xsl:attribute name="class" select="concat('noteRef lang ', ancestor::tei:text/@xml:lang)"/>
           <xsl:text>[</xsl:text>
           <xsl:number level="any" from="//tei:body"/>
-          <xsl:text>]&#160;</xsl:text>
+          <xsl:text>]&#xA0;</xsl:text>
           <xsl:apply-templates/>
         </span>
       </div>
     </xsl:template>
 
     <xsl:template name="notes">
-      <xsl:if test="$all-notes">
+      <xsl:if test="//tei:note">
         <div id="notes">
           <h2>Notes</h2>
           <xsl:for-each select="tei:text">
@@ -1425,23 +1409,35 @@
                 <xsl:when test="substring-after(@target, 'http')">
                   <a>
                     <xsl:attribute name="class">ref</xsl:attribute>
-                    <xsl:attribute name="href"><xsl:value-of select="@target"/></xsl:attribute>
+                    <xsl:attribute name="href" select="@target"/>
                     <xsl:value-of select="@target"/>
                   </a>
                 </xsl:when>
                 <xsl:otherwise>
-                  <span class="error"><a>
-                    <xsl:attribute name="class">ref</xsl:attribute>
-                    <xsl:attribute name="href"><xsl:choose><xsl:when test="@target"><xsl:value-of select="@target"/></xsl:when>
-                    <xsl:otherwise><xsl:text>#</xsl:text><xsl:value-of select="generate-id()"/></xsl:otherwise></xsl:choose></xsl:attribute>
-                    <xsl:value-of select="@target"/>
-                </a></span></xsl:otherwise>
+                  <span class="error">
+		    <a>
+                      <xsl:attribute name="class">ref</xsl:attribute>
+                      <xsl:attribute name="href">
+			<xsl:choose>
+			  <xsl:when test="@target">
+			    <xsl:value-of select="@target"/>
+			  </xsl:when>
+			  <xsl:otherwise>
+			    <xsl:text>#</xsl:text>
+			    <xsl:value-of select="generate-id()"/>
+			  </xsl:otherwise>
+			</xsl:choose>
+		      </xsl:attribute>
+                      <xsl:value-of select="@target"/>
+                    </a>
+		  </span>
+		</xsl:otherwise>
               </xsl:choose>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:if test="ancestor::tei:cit"><xsl:text>&#160;</xsl:text></xsl:if>
+          <xsl:if test="ancestor::tei:cit"><xsl:text>&#xA0;</xsl:text></xsl:if>
           <xsl:choose>
             <xsl:when test="key('element-by-id', substring-after(@target, '#'))">
               <xsl:apply-templates select="key('element-by-id', substring-after(@target, '#'))" mode="generated-reference">
@@ -1514,7 +1510,7 @@
         <xsl:apply-templates select="." mode="label"/>
       </a>
       <xsl:if test="$loc">
-        <xsl:text>,&#160;</xsl:text>
+        <xsl:text>,&#xA0;</xsl:text>
         <xsl:value-of select="$loc"/>
       </xsl:if>
       <xsl:text>]</xsl:text>
@@ -1525,33 +1521,33 @@
     </xsl:template>
 
     <xsl:template match="tei:table" mode="label">
-      <xsl:text>Table&#160;</xsl:text>
+      <xsl:text>Table&#xA0;</xsl:text>
       <xsl:number level="any" from="tei:text"/>
     </xsl:template>
 
     <xsl:template match="tei:table/tei:head" mode="label">
-      <xsl:text>Table&#160;</xsl:text>
+      <xsl:text>Table&#xA0;</xsl:text>
       <xsl:number count="tei:table" level="any" from="tei:text"/>
     </xsl:template>
 
     <xsl:template match="dhq:example" mode="label">
-      <xsl:text>Example&#160;</xsl:text>
+      <xsl:text>Example&#xA0;</xsl:text>
       <xsl:number level="any" from="tei:text"/>
     </xsl:template>
 
     <xsl:template match="dhq:example/tei:head" mode="label">
-      <xsl:text>Example&#160;</xsl:text>
+      <xsl:text>Example&#xA0;</xsl:text>
       <xsl:number count="//dhq:example/tei:head" level="any" from="tei:text"/>
     </xsl:template>
 
     <xsl:template match="tei:figure" mode="label">
-      <xsl:text>Figure&#160;</xsl:text>
+      <xsl:text>Figure&#xA0;</xsl:text>
       <xsl:number count="tei:figure[not(ancestor::tei:table)]" level="any" from="tei:text"/>
     </xsl:template>
 
     <xsl:template match="*" mode="label">
       <xsl:value-of select="local-name()"/>
-      <xsl:text>&#160;</xsl:text>
+      <xsl:text>&#xA0;</xsl:text>
       <xsl:number level="any"/>
     </xsl:template>
 
@@ -1597,10 +1593,10 @@
 
     <!--  Removing this template, which handles <bibl> outside of <listBibl>, no longer needed
     <xsl:template match="tei:bibl">
-      <xsl:text>&#160;(</xsl:text>
+      <xsl:text>&#xA0;(</xsl:text>
       <span class="bibl">
         <xsl:call-template name="show-bibl-fallback"/>
-      </span><xsl:text>)&#160;</xsl:text>
+      </span><xsl:text>)&#xA0;</xsl:text>
     </xsl:template>
     -->
         
@@ -1621,7 +1617,7 @@
 	<xsl:apply-templates select="@label"/>
       </span>
       <xsl:if test="normalize-space(@label)">
-	<xsl:text>&#160;</xsl:text>
+	<xsl:text>&#xA0;</xsl:text>
       </xsl:if>
       <xsl:apply-templates/>
     </xsl:template>
@@ -1634,7 +1630,7 @@
       </xsl:attribute>
     </span>
     <xsl:if test="normalize-space(@label)">
-      <xsl:text>&#160;</xsl:text>
+      <xsl:text>&#xA0;</xsl:text>
     </xsl:if>
     <xsl:apply-templates/>
   </xsl:template>
@@ -1665,10 +1661,13 @@
       
       <!--tei:quote[@rend = 'inline']|tei:called|tei:title[@rend = 'quotes']|tei:q|tei:said|tei:soCalled-->
       <xsl:variable name="scope" select="($langspec | $who/ancestor-or-self::tei:note)[last()]"/>
-      <xsl:variable name="levels" select="$who/(ancestor::tei:quote[@rend='inline'] |
-                                                ancestor::tei:called | ancestor::soCalled |
-                                                ancestor::tei:q | ancestor::said |
-                                                ancestor::tei:title[@rend='quotes'])[ancestor-or-self::* intersect $scope]"/>
+      <xsl:variable name="levels" select="$who/( ancestor::tei:quote[@rend eq 'inline']
+					       | ancestor::tei:called
+					       | ancestor::soCalled
+					       | ancestor::tei:q
+					       | ancestor::said
+					       | ancestor::tei:title[@rend eq 'quotes']
+					       )[ancestor-or-self::* intersect $scope]"/>
       <!-- $level-count is 0 for an outermost quote; we increment it unless the language is French -->
       <xsl:variable name="level-count" select="count($levels) + (if (starts-with($nominal-lang,'fr')) then 0 else 1) "/>
       <!-- Now level 0 gets guillemet, while odd-numbered levels get double quotes -->
@@ -1690,12 +1689,9 @@
     </xsl:function>
     
     <xsl:template name="quotes">
-      <xsl:param name="contents">
-	<xsl:apply-templates/>
-      </xsl:param>
       <xsl:variable name="quote-marks" select="dhq:quotes(.)"/>
       <xsl:sequence select="$quote-marks[1]"/>
-      <xsl:copy-of select="$contents"/>
+      <xsl:apply-templates/>
       <xsl:sequence select="$quote-marks[2]"/>
     </xsl:template>
     
@@ -1741,10 +1737,10 @@
     </xsl:template>
     
     <xsl:template match="m:*">
-      <xsl:element name="m:{local-name()}" namespace="http://www.w3.org/1998/Math/MathML">
+      <xsl:copy>
 	<xsl:copy-of select="@*"/>
 	<xsl:apply-templates/>
-      </xsl:element>
+      </xsl:copy>
     </xsl:template>
     
     <xsl:template match="dhq:passThroughCode">
