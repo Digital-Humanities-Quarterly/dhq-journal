@@ -213,9 +213,12 @@
     </xsl:template>
 
     <xsl:template match="specialTitle">
-        <h1>
-            <xsl:apply-templates/>
-        </h1>
+      <h1>
+	<!-- At the moment there is only 1 special title, and it is in
+	     English, so I am not worrying about @xml:lang here.
+	     —Syd, 2024-03-21 -->
+        <xsl:apply-templates/>
+      </h1>
     </xsl:template>
 
     <xsl:template match="title">

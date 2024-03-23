@@ -247,7 +247,7 @@
                 <xsl:when test="$published">
                   <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
                   <xsl:value-of select="$assigned-issue/title"/>
-                  <xsl:value-of select="concat(' ',$vol_no_zeroes,'.',$issue)"/>
+                  <xsl:value-of select="concat('&#x20;',$vol_no_zeroes,'.',$issue)"/>
                   <!--
                       <xsl:value-of select="concat(': v',$vol_no_zeroes)"/>
                       <xsl:value-of select="concat(' n',$issue)"/>
@@ -302,7 +302,7 @@
     <xsl:template match="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title">
       <xsl:variable name="nominal-lang" select="if (matches(@xml:lang,'\S')) then normalize-space(@xml:lang) else 'en'"/>
       <h1 class="articleTitle lang {$nominal-lang}">
-        <xsl:apply-templates/>
+        <xsl:apply-templates select="@xml:lang | node()"/>
       </h1>
     </xsl:template>
 
@@ -337,7 +337,7 @@
           <xsl:apply-templates select="dhq:affiliation"/>
           <xsl:if test="tei:idno[@type='ORCID']">
             <xsl:call-template name="orcid">
-              <xsl:with-param name="orcid" select="normalize-space(tei:idno[@type = 'ORCID'])"/>
+              <xsl:with-param name="orcid" select="normalize-space(tei:idno[@type eq 'ORCID'])"/>
             </xsl:call-template>
           </xsl:if>
         </div>
@@ -401,6 +401,7 @@
     <xsl:template match="dhq:abstract">
       <xsl:if test="normalize-space()">
         <div id="abstract">
+	  <xsl:apply-templates select="@xml:lang"/>
           <h2>Abstract</h2>
           <xsl:apply-templates/>
         </div>
@@ -409,14 +410,14 @@
 
     <xsl:template match="tei:text">
       <div id="DHQtext">
-        <xsl:apply-templates/>
+        <xsl:apply-templates select="@xml:lang | node()"/>
       </div>
     </xsl:template>
 
     <xsl:template match="tei:text//tei:text" priority="2">
       <xsl:variable name="nominal-lang" select="if (matches(@xml:lang,'\S')) then normalize-space(@xml:lang) else 'en'"/>
       <div class="lang {$nominal-lang}">
-        <xsl:apply-templates/>
+        <xsl:apply-templates select="@xml:lang | node()"/>
       </div>
     </xsl:template>
 
@@ -429,7 +430,7 @@
         <xsl:call-template name="assign-class">
           <xsl:with-param name="addClass" select="concat('div',$depth)"/>
         </xsl:call-template>
-        <xsl:apply-templates/>
+        <xsl:apply-templates select="@xml:lang | node()"/>
       </div>
     </xsl:template>
 
@@ -647,12 +648,13 @@
   <xsl:template match="tei:title">
     <cite>
       <xsl:call-template name="assign-class"/>
-      <xsl:apply-templates/>
+      <xsl:apply-templates select="@xml:lang | node()"/>
     </cite>
   </xsl:template>
   
   <xsl:template match="dhq:example">
     <div>
+      <xsl:apply-templates select="@xml:lang"/>
       <xsl:call-template name="id"/>
       <xsl:call-template name="assign-class"/>
       <xsl:apply-templates/>
@@ -891,7 +893,7 @@
   <xsl:template match="tei:emph|tei:term|tei:word">
     <em>
       <xsl:call-template name="assign-class"/>
-      <xsl:apply-templates/>
+      <xsl:apply-templates select="@xml:lang | node()"/>
     </em>
   </xsl:template>
 
@@ -1084,7 +1086,7 @@
           <xsl:attribute name="class">
             <xsl:choose>
               <xsl:when test="$defaultRend != '' and @rend != 'none'">
-                <xsl:value-of select="concat($defaultRend,' ',@rend)"/>
+                <xsl:value-of select="concat($defaultRend,'&#x20;',@rend)"/>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="@rend"/>
@@ -1319,7 +1321,6 @@
     </xsl:template>
 
     <xsl:template match="tei:note" mode="notes_other">
-      <xsl:variable name="language"><xsl:value-of select="ancestor::tei:text/@xml:lang"/></xsl:variable>
       <div class="endnote">
         <xsl:attribute name="id" select="generate-id()"/>
         <span>
@@ -1500,13 +1501,7 @@
       <xsl:text>[</xsl:text>
       <a>
         <xsl:attribute name="class">ref</xsl:attribute>
-        <xsl:attribute name="href">
-          <xsl:text>#</xsl:text>
-          <xsl:choose>
-            <xsl:when test="@xml:id"><xsl:value-of select="@xml:id"/></xsl:when>
-            <xsl:otherwise><xsl:value-of select="generate-id()"/></xsl:otherwise>
-          </xsl:choose>
-        </xsl:attribute>
+        <xsl:attribute name="href" select="'#'||( @xml:id, generate-id() )[1]"/>
         <xsl:apply-templates select="." mode="label"/>
       </a>
       <xsl:if test="$loc">
@@ -1640,7 +1635,7 @@
         <xsl:call-template name="assign-class">
           <xsl:with-param name="defaultRend">i</xsl:with-param>
         </xsl:call-template>
-        <xsl:apply-templates/>
+        <xsl:apply-templates select="@xml:lang | node()"/>
       </span>
     </xsl:template>
     
@@ -1689,10 +1684,18 @@
     </xsl:function>
     
     <xsl:template name="quotes">
-      <xsl:variable name="quote-marks" select="dhq:quotes(.)"/>
-      <xsl:sequence select="$quote-marks[1]"/>
-      <xsl:apply-templates/>
-      <xsl:sequence select="$quote-marks[2]"/>
+      <!-- Trying to add @xml:lang capability I found that this
+           template did not produce an element upon which to hang the
+           output language indicator attribute(s). So I wrapped it in
+	   a <span>, using a @class that is sure not to conflict with
+	   any existing <span> class values. —Syd, 2024-03-22 -->
+      <span class="lang_holder_{local-name(.)}">
+	<xsl:apply-templates select="@xml:lang"/>
+	<xsl:variable name="quote-marks" select="dhq:quotes(.)"/>
+	<xsl:sequence select="$quote-marks[1]"/>
+	<xsl:apply-templates/>
+	<xsl:sequence select="$quote-marks[2]"/>
+      </span>
     </xsl:template>
     
     <!-- 'scrubbing' mode removes whitespace-only text nodes
@@ -1752,6 +1755,10 @@
 	<xsl:copy-of select="@*"/>
 	<xsl:apply-templates/>
       </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="@xml:lang">
+      <xsl:attribute name="lang" select="."/>
     </xsl:template>
 
 </xsl:stylesheet>
