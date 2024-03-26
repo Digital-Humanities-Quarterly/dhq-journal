@@ -61,15 +61,16 @@
     <xsl:template match="tei:TEI">
         <xsl:param name="vol"><xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume'])"/></xsl:param>
         <xsl:param name="vol_no_zeroes">
-            <xsl:call-template name="get-vol">
-                <xsl:with-param name="vol">
-                    <xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume'])"/>
-                </xsl:with-param>
-            </xsl:call-template>
+            <xsl:variable name="use_vol">
+              <xsl:call-template name="get-vol">
+                  <xsl:with-param name="vol" select="$vol"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:value-of select="normalize-space($use_vol)"/>
         </xsl:param>
-        <xsl:param name="issue"><xsl:value-of select="tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/></xsl:param>
+        <xsl:param name="issue"><xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue'])"/></xsl:param>
         <xsl:param name="id">
-            <xsl:value-of select="tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']"/>
+            <xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id'])"/>
         </xsl:param>
         <xsl:param name="issueTitle"><xsl:apply-templates select="document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes and @issue=$issue]/title"/></xsl:param>
         
@@ -111,9 +112,32 @@
                 </xsl:choose>
                 
                 <xsl:element name="a">
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',$id,'.html')"/>
-                    </xsl:attribute>
+                    <xsl:choose>
+                      <!-- If the article has no volume or issue information, do not include @href. -->
+                      <xsl:when test="$vol_no_zeroes = '' or $issue = ''">
+                        <xsl:message terminate="no">
+                          <xsl:text>Article </xsl:text>
+                          <xsl:value-of select="$id"/>
+                          <xsl:text> has a volume of '</xsl:text>
+                          <xsl:value-of select="$vol"/>
+                          <xsl:text>' and an issue of '</xsl:text>
+                          <xsl:value-of select="$issue"/>
+                          <xsl:text>'</xsl:text>
+                        </xsl:message>
+                        <!-- The attributes below are an inelegant hack to make sure that this link 
+                          appears not to be actionable. A better solution would be to just display the 
+                          text of the title instead, sans <a>. However, XSLT 1 and the need to 
+                          accommodate different languages makes this difficult to do at this time.
+                          See https://css-tricks.com/how-to-disable-links/ for more on "disabling" links. -->
+                        <xsl:attribute name="aria-disabled">true</xsl:attribute>
+                        <xsl:attribute name="style">color:currentColor;text-decoration:none;</xsl:attribute>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:attribute name="href">
+                          <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',$id,'.html')"/>
+                        </xsl:attribute>
+                      </xsl:otherwise>
+                    </xsl:choose>
                     <xsl:if test="//tei:title/@xml:lang != 'en'">
                         <xsl:attribute name="onclick">
                             <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
