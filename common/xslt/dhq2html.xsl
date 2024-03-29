@@ -68,7 +68,7 @@
     <xsl:template match="tei:listBibl//tei:bibl[@key]" priority="1">
        <div class="bibl fallback">
          <xsl:call-template name="show-bibl-fallback"/>
-	 <strong style="font-weight:bold;"><xsl:value-of select="concat('WARNING: No biblio citation found for @key: ',$key)"/></strong>
+         <strong style="font-weight:bold;"><xsl:value-of select="concat('WARNING: No biblio citation found for @key: ',$key)"/></strong>
       </div>
     </xsl:template> -->
 
@@ -117,9 +117,9 @@
           <xsl:call-template name="pubInfo"/>
           <xsl:apply-templates select="tei:teiHeader"/>
           <p style="margin-top:3em;">
-	    Read about DHQ’s <a href="/dhq/about/april1_editorial_policy.html">new publishing model</a>,
-	    and, if you must, view the article in its
-	    <a href="{concat('/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',$id,'.html?aprilfool=false')}">original verbal form</a>.
+            Read about DHQ’s <a href="/dhq/about/april1_editorial_policy.html">new publishing model</a>,
+            and, if you must, view the article in its
+            <a href="{concat('/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',$id,'.html?aprilfool=false')}">original verbal form</a>.
           </p>
           <iframe style="margin-bottom:2em; width:100%;height:400px">
             <xsl:attribute name="src">
@@ -205,19 +205,19 @@
         <xsl:choose>
           <xsl:when test="$status eq 'CC-BY-ND'">
             <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">
-	      <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png"/>
-	    </a>
-	    <br/>
-	    This work is licensed under a
-	    <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
+              <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png"/>
+            </a>
+            <br/>
+            This work is licensed under a
+            <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
           </xsl:when>
           <xsl:when test="$status eq 'CC-BY'">
             <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
-	      <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
-	    </a>
-	    <br/>
-	    This work is licensed under a
-	    <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+              <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+            </a>
+            <br/>
+            This work is licensed under a
+            <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
           </xsl:when>
           <xsl:when test="$status eq 'CC0'">
             <a rel="license" href="http://creativecommons.org/publicdomain/zero/1.0/">
@@ -228,11 +228,11 @@
           </xsl:when>
           <xsl:otherwise>
             <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">
-	      <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png"/>
-	    </a>
-	    <br/>
-	    This work is licensed under a
-	    <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
+              <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png"/>
+            </a>
+            <br/>
+            This work is licensed under a
+            <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
           </xsl:otherwise>
         </xsl:choose>            
       </div>
@@ -264,10 +264,10 @@
               <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
               <xsl:text>XML</xsl:text>
             </a>
-	    <!--
+            <!--
                 |&#x00A0;
                 <a href="#" onclick="javascript:window.print();" title="Click for print friendly version">Print Article</a>
-		&#x00A0;|&#x00A0;
+                &#x00A0;|&#x00A0;
                 <select name="taportools" onchange="javascript:gototaporware(this);">
                   <option>Taporware Tools</option>
                   <option value="listword">List Words</option>
@@ -276,7 +276,7 @@
                 </select> -->
 
             <!--
-		|&#x00A0;
+                |&#x00A0;
                 <xsl:text>Discuss</xsl:text>
                 (<a>
                 <xsl:attribute name="href">
@@ -313,10 +313,10 @@
           <!-- jawalsh: We had two authors with same first last name and same first initial, so bio didn't link correctly. Replaced commented line above, with code below. Now the full name (with spaces replaced by _ are used for ids). See also bios.xsl where a similar change was made. -->
           <!-- <xsl:value-of select="translate(concat(translate(dhq:author_name/dhq:family,' ',''),'_',translate(normalize-space(dhq:author_name/text()),' ','_')),$upper,$lower)"/> -->
             <xsl:value-of select="lower-case(
-				    concat(
-				      replace(dhq:author_name/dhq:family,'\s',''),
-				      '_',
-				      replace(normalize-space(string-join(dhq:author_name/text(),'')),'\s','_') ) )"/>
+                                    concat(
+                                      replace(dhq:author_name/dhq:family,'\s',''),
+                                      '_',
+                                      replace(normalize-space(string-join(dhq:author_name/text(),'')),'\s','_') ) )"/>
         </xsl:variable>
         <div class="author">
           <a rel="external">
@@ -347,8 +347,8 @@
       <xsl:param name="orcid"/>
       <xsl:value-of select="'&#x20;'"/>
       <a href="{$orcid}">
-	<img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16"/>
-	<xsl:value-of select="concat('&#x00A0;',$orcid)"/>
+        <img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16"/>
+        <xsl:value-of select="concat('&#x00A0;',$orcid)"/>
       </a>
     </xsl:template>
 
@@ -359,17 +359,17 @@
           <!-- jawalsh: We had two authors with same first last name and same first initial, so bio didn't link correctly. Replaced commented line above, with code below. Now the full name (with spaces replaced by _ are used for ids). See also bios.xsl where a similar change was made. -->
           <!-- <xsl:value-of select="translate(concat(translate(dhq:author_name/dhq:family,' ',''),'_',translate(normalize-space(dhq:author_name/text()),' ','_')),$upper,$lower)"/> -->
           <xsl:value-of select="lower-case(
-				  concat(
-				    replace(dhq:translator_name/dhq:family,'\s',''),
-				    '_',
-				    replace(normalize-space(string-join(dhq:translator_name/text(),'')),'\s','_') ) )"/>
+                                  concat(
+                                    replace(dhq:translator_name/dhq:family,'\s',''),
+                                    '_',
+                                    replace(normalize-space(string-join(dhq:translator_name/text(),'')),'\s','_') ) )"/>
         </xsl:variable>
         <div class="author">
           <span style="font-style:italic;">Translation: </span>
-	  <a rel="external">
+          <a rel="external">
             <xsl:choose>
               <xsl:when test="$published">
-		<xsl:attribute name="href" select="concat($bioFile,'#',$bios)"/>
+                <xsl:attribute name="href" select="concat($bioFile,'#',$bios)"/>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:attribute name="href" select="concat('/',$context,'/preview/',$bioFile,'#',$bios)"/>
@@ -401,7 +401,7 @@
     <xsl:template match="dhq:abstract">
       <xsl:if test="normalize-space()">
         <div id="abstract">
-	  <xsl:apply-templates select="@xml:lang"/>
+          <xsl:apply-templates select="@xml:lang"/>
           <h2>Abstract</h2>
           <xsl:apply-templates/>
         </div>
@@ -480,8 +480,8 @@
       <!-- added to allow block elements within tei:quote [CRB] -->
       <xsl:choose>
         <xsl:when test="descendant::tei:list|descendant::tei:sp|descendant::tei:table|descendant::tei:lg|descendant::tei:xtext|descendant::tei:p">
-	  <xsl:apply-templates/>
-	</xsl:when>
+          <xsl:apply-templates/>
+        </xsl:when>
         <xsl:when test="ancestor::tei:p"><p><xsl:apply-templates/></p></xsl:when>
         <xsl:otherwise><p class="ptext"><xsl:apply-templates/></p></xsl:otherwise>
       </xsl:choose>
@@ -527,8 +527,8 @@
           <!-- added to allow block elements within tei:quote [CRB] -->
           <xsl:choose>
             <xsl:when test="descendant::tei:list or descendant::tei:sp or descendant::tei:table or descendant::tei:lg or descendant::tei:xtext">
-	      <xsl:apply-templates/>
-	    </xsl:when>
+              <xsl:apply-templates/>
+            </xsl:when>
             <xsl:when test="descendant::tei:p"><xsl:apply-templates select="tei:quote"/></xsl:when>
             <xsl:otherwise><p class="ptext"><xsl:apply-templates/></p></xsl:otherwise>
           </xsl:choose>
@@ -828,10 +828,10 @@
       </xsl:when>
       <xsl:when test="@mimeType='audio/x-ms-wma'">
         <a href="{@url}">
-	  <img src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjE2cHgiIGhlaWdodD0iMTZweCIgdmlld0JveD0iMCAwIDk2Ljk5MiA5Ni45OTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDk2Ljk5MiA5Ni45OTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPGc+Cgk8cGF0aCBkPSJNODIuMjk3LDE3LjAwMkw2Ni4wMjgsMC43MzJDNjUuNTU5LDAuMjYzLDY0LjkyNCwwLDY0LjI2LDBIMTYuNDYzYy0xLjM4MSwwLTIuNSwxLjExOS0yLjUsMi41djkxLjk5MiAgIGMwLDEuMzgxLDEuMTE5LDIuNSwyLjUsMi41aDY0LjA2NmMxLjM4MSwwLDIuNS0xLjExOSwyLjUtMi41VjE4Ljc2OUM4My4wMjksMTguMTA1LDgyLjc2NiwxNy40NzEsODIuMjk3LDE3LjAwMnogTTQ4LjYzNCw2Mi4yMDkgICBjMCwwLjc3NS0wLjQ0OCwxLjQ4LTEuMTQ5LDEuODExYy0wLjI3MSwwLjEyNy0wLjU2MiwwLjE4OS0wLjg1MSwwLjE4OWMtMC40NTcsMC0wLjkxLTAuMTU2LTEuMjc2LTAuNDZsLTEwLjkzMy05LjA2aC01LjgyMyAgIGMtMS4xMDQsMC0yLTAuODk2LTItMlY0NC43MmMwLTEuMTA0LDAuODk2LTIsMi0yaDUuODIzbDEwLjkzMy05LjA2YzAuNTk4LTAuNDk1LDEuNDI2LTAuNjAxLDIuMTI3LTAuMjcgICBjMC43MDEsMC4zMjksMS4xNDksMS4wMzQsMS4xNDksMS44MVY2Mi4yMDl6IE01Ni4zMTksNTkuMDg0Yy0wLjA0OCwwLjAwMy0wLjA5NywwLjAwNS0wLjE0NCwwLjAwNSAgIGMtMC41MjksMC0xLjAzOS0wLjIwOS0xLjQxNC0wLjU4NmwtMC4yNy0wLjI2OWMtMC43MDEtMC43LTAuNzgzLTEuODExLTAuMTkxLTIuNjA1YzEuNDk2LTIuMDE5LDIuMjg3LTQuNDEzLDIuMjg3LTYuOTI0ICAgYzAtMi43MDEtMC44OTgtNS4yMzQtMi41OTctNy4zMjZjLTAuNjQ2LTAuNzk1LTAuNTg3LTEuOTUsMC4xMzgtMi42NzVsMC4yNjgtMC4yNjhjMC4zOTktMC4zOTksMC45MzYtMC42MTcsMS41MTYtMC41ODMgICBjMC41NjQsMC4wMjgsMS4wOTEsMC4yOTQsMS40NDcsMC43MzFjMi4zNTUsMi44ODMsMy42MDIsNi4zODMsMy42MDIsMTAuMTJjMCwzLjQ3OS0xLjEwMiw2Ljc5NC0zLjE4Myw5LjU4MSAgIEM1Ny40MzIsNTguNzUxLDU2Ljg5OCw1OS4wNDIsNTYuMzE5LDU5LjA4NHogTTY0LjU4OCw2NS4yNjRjLTAuMzYxLDAuNDI4LTAuODg1LDAuNjg2LTEuNDQzLDAuNzA5ICAgYy0wLjAyNywwLTAuMDU3LDAuMDAyLTAuMDg0LDAuMDAyYy0wLjUyOSwwLTEuMDM5LTAuMjExLTEuNDE0LTAuNTg2bC0wLjI2NC0wLjI2NGMtMC43MzQtMC43MzItMC43ODMtMS45MDYtMC4xMTUtMi43MDEgICBjMy4yMjYtMy44MzYsNS4wMDItOC43MDgsNS4wMDItMTMuNzE5YzAtNS4yMTItMS45MDEtMTAuMjI5LTUuMzU0LTE0LjEyOGMtMC43LTAuNzkxLTAuNjY1LTEuOTg5LDAuMDgtMi43MzdsMC4yNjMtMC4yNjMgICBjMC4zODktMC4zOTEsMC44OTUtMC42MDYsMS40NzUtMC41ODhjMC41NTEsMC4wMTYsMS4wNywwLjI1OSwxLjQzOCwwLjY3MWM0LjE3NCw0LjY5OSw2LjQ3MywxMC43NTMsNi40NzMsMTcuMDQ1ICAgQzcwLjY0MSw1NC43Niw2OC40OTEsNjAuNjQxLDY0LjU4OCw2NS4yNjR6IE02Mi4wNTEsMjIuMzQyYy0wLjMzNywwLTAuNjU4LTAuMTMzLTAuODk2LTAuMzcxICAgYy0wLjIzNy0wLjIzOC0wLjM3Mi0wLjU2MS0wLjM3Mi0wLjg5N2wwLjAwMi0xNS4xMjZMNzcuMTgsMjIuMzQzTDYyLjA1MSwyMi4zNDJMNjIuMDUxLDIyLjM0MnoiIGZpbGw9IiMwMDAwMDAiLz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K">
-	    <xsl:attribute name="alt" select="tei:desc"/>
-	  </img>
-	</a>
+          <img src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjE2cHgiIGhlaWdodD0iMTZweCIgdmlld0JveD0iMCAwIDk2Ljk5MiA5Ni45OTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDk2Ljk5MiA5Ni45OTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPGc+Cgk8cGF0aCBkPSJNODIuMjk3LDE3LjAwMkw2Ni4wMjgsMC43MzJDNjUuNTU5LDAuMjYzLDY0LjkyNCwwLDY0LjI2LDBIMTYuNDYzYy0xLjM4MSwwLTIuNSwxLjExOS0yLjUsMi41djkxLjk5MiAgIGMwLDEuMzgxLDEuMTE5LDIuNSwyLjUsMi41aDY0LjA2NmMxLjM4MSwwLDIuNS0xLjExOSwyLjUtMi41VjE4Ljc2OUM4My4wMjksMTguMTA1LDgyLjc2NiwxNy40NzEsODIuMjk3LDE3LjAwMnogTTQ4LjYzNCw2Mi4yMDkgICBjMCwwLjc3NS0wLjQ0OCwxLjQ4LTEuMTQ5LDEuODExYy0wLjI3MSwwLjEyNy0wLjU2MiwwLjE4OS0wLjg1MSwwLjE4OWMtMC40NTcsMC0wLjkxLTAuMTU2LTEuMjc2LTAuNDZsLTEwLjkzMy05LjA2aC01LjgyMyAgIGMtMS4xMDQsMC0yLTAuODk2LTItMlY0NC43MmMwLTEuMTA0LDAuODk2LTIsMi0yaDUuODIzbDEwLjkzMy05LjA2YzAuNTk4LTAuNDk1LDEuNDI2LTAuNjAxLDIuMTI3LTAuMjcgICBjMC43MDEsMC4zMjksMS4xNDksMS4wMzQsMS4xNDksMS44MVY2Mi4yMDl6IE01Ni4zMTksNTkuMDg0Yy0wLjA0OCwwLjAwMy0wLjA5NywwLjAwNS0wLjE0NCwwLjAwNSAgIGMtMC41MjksMC0xLjAzOS0wLjIwOS0xLjQxNC0wLjU4NmwtMC4yNy0wLjI2OWMtMC43MDEtMC43LTAuNzgzLTEuODExLTAuMTkxLTIuNjA1YzEuNDk2LTIuMDE5LDIuMjg3LTQuNDEzLDIuMjg3LTYuOTI0ICAgYzAtMi43MDEtMC44OTgtNS4yMzQtMi41OTctNy4zMjZjLTAuNjQ2LTAuNzk1LTAuNTg3LTEuOTUsMC4xMzgtMi42NzVsMC4yNjgtMC4yNjhjMC4zOTktMC4zOTksMC45MzYtMC42MTcsMS41MTYtMC41ODMgICBjMC41NjQsMC4wMjgsMS4wOTEsMC4yOTQsMS40NDcsMC43MzFjMi4zNTUsMi44ODMsMy42MDIsNi4zODMsMy42MDIsMTAuMTJjMCwzLjQ3OS0xLjEwMiw2Ljc5NC0zLjE4Myw5LjU4MSAgIEM1Ny40MzIsNTguNzUxLDU2Ljg5OCw1OS4wNDIsNTYuMzE5LDU5LjA4NHogTTY0LjU4OCw2NS4yNjRjLTAuMzYxLDAuNDI4LTAuODg1LDAuNjg2LTEuNDQzLDAuNzA5ICAgYy0wLjAyNywwLTAuMDU3LDAuMDAyLTAuMDg0LDAuMDAyYy0wLjUyOSwwLTEuMDM5LTAuMjExLTEuNDE0LTAuNTg2bC0wLjI2NC0wLjI2NGMtMC43MzQtMC43MzItMC43ODMtMS45MDYtMC4xMTUtMi43MDEgICBjMy4yMjYtMy44MzYsNS4wMDItOC43MDgsNS4wMDItMTMuNzE5YzAtNS4yMTItMS45MDEtMTAuMjI5LTUuMzU0LTE0LjEyOGMtMC43LTAuNzkxLTAuNjY1LTEuOTg5LDAuMDgtMi43MzdsMC4yNjMtMC4yNjMgICBjMC4zODktMC4zOTEsMC44OTUtMC42MDYsMS40NzUtMC41ODhjMC41NTEsMC4wMTYsMS4wNywwLjI1OSwxLjQzOCwwLjY3MWM0LjE3NCw0LjY5OSw2LjQ3MywxMC43NTMsNi40NzMsMTcuMDQ1ICAgQzcwLjY0MSw1NC43Niw2OC40OTEsNjAuNjQxLDY0LjU4OCw2NS4yNjR6IE02Mi4wNTEsMjIuMzQyYy0wLjMzNywwLTAuNjU4LTAuMTMzLTAuODk2LTAuMzcxICAgYy0wLjIzNy0wLjIzOC0wLjM3Mi0wLjU2MS0wLjM3Mi0wLjg5N2wwLjAwMi0xNS4xMjZMNzcuMTgsMjIuMzQzTDYyLjA1MSwyMi4zNDJMNjIuMDUxLDIyLjM0MnoiIGZpbGw9IiMwMDAwMDAiLz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K">
+            <xsl:attribute name="alt" select="tei:desc"/>
+          </img>
+        </a>
       </xsl:when>
       <xsl:otherwise>
         <div class="ptext"><strong>Debug: </strong> Unhandled media type.</div>
@@ -1056,15 +1056,15 @@
       <xsl:param name="addClass"/>
       <xsl:param name="defaultRend"/>
       <xsl:variable name="class">
-	<xsl:value-of select="local-name()"/>
-	<xsl:text> </xsl:text>
-	<xsl:value-of select="@rend"/>
-	<xsl:if test="not(normalize-space(@rend))">
+        <xsl:value-of select="local-name()"/>
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="@rend"/>
+        <xsl:if test="not(normalize-space(@rend))">
           <xsl:text> </xsl:text>
           <xsl:value-of select="$defaultRend"/>
-	</xsl:if>
-	<xsl:text> </xsl:text>
-	<xsl:value-of select="$addClass"/>
+        </xsl:if>
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="$addClass"/>
       </xsl:variable>
       <xsl:attribute name="class" select="normalize-space($class)"/>
     </xsl:template>
@@ -1077,11 +1077,11 @@
            set by $defaultRend, so
            @class='{$defaultRend[not(@rend='none')]} {@rend}' -->
       <xsl:choose>
-	<!-- choose: when @rend is given and not empty add a @class
+        <!-- choose: when @rend is given and not empty add a @class
              choose: when $defaultRend is given and @rend is not 'none' make
              the value $defaultRend + @rend
              otherwise make it @rend -->
-	<!-- otherwise if there's a $default then add it -->
+        <!-- otherwise if there's a $default then add it -->
         <xsl:when test="@rend and @rend != ''">
           <xsl:attribute name="class">
             <xsl:choose>
@@ -1196,18 +1196,18 @@
     <xsl:template name="external_ref">
       <!-- creating string for opening a function that opens a new window (Ashwini)-->
       <a href="{@target}" onclick="window.open('{@target}'); return false">
-	<xsl:call-template name="id"/>
-	<xsl:call-template name="assign-class"/>
-	<xsl:apply-templates mode="scrubbing"/>
+        <xsl:call-template name="id"/>
+        <xsl:call-template name="assign-class"/>
+        <xsl:apply-templates mode="scrubbing"/>
       </a>
     </xsl:template>
 
     <xsl:template name="external_ref_empty">
       <!-- creating string for opening a function that opens a new window (Ashwini)-->
       <a href="{@target}" onclick="window.open('{@target}'); return false">
-	<xsl:call-template name="id"/>
-	<xsl:call-template name="assign-class"/>
-	<xsl:value-of select="@target"/>
+        <xsl:call-template name="id"/>
+        <xsl:call-template name="assign-class"/>
+        <xsl:value-of select="@target"/>
       </a>
     </xsl:template>
 
@@ -1375,13 +1375,13 @@
     <!-- jawalsh: stuff for dhq-annex: start -->
     <xsl:template match="tei:ptr[@type = 'dhq-annex-embed']">
       <div>
-	<iframe src="{@target}" style="{@style}">
+        <iframe src="{@target}" style="{@style}">
           <p>Your browser does not support iframes. Embedded document may be found at <a href="{@target}"><xsl:value-of select="@target"/></a>
           </p>
-	</iframe>
-	<p>
+        </iframe>
+        <p>
           View embedded content above in its own browser window at: <a href="{@target}"><xsl:value-of select="@target"/></a>.
-	</p>
+        </p>
       </div>
     </xsl:template>
 
@@ -1416,23 +1416,23 @@
                 </xsl:when>
                 <xsl:otherwise>
                   <span class="error">
-		    <a>
+                    <a>
                       <xsl:attribute name="class">ref</xsl:attribute>
                       <xsl:attribute name="href">
-			<xsl:choose>
-			  <xsl:when test="@target">
-			    <xsl:value-of select="@target"/>
-			  </xsl:when>
-			  <xsl:otherwise>
-			    <xsl:text>#</xsl:text>
-			    <xsl:value-of select="generate-id()"/>
-			  </xsl:otherwise>
-			</xsl:choose>
-		      </xsl:attribute>
+                        <xsl:choose>
+                          <xsl:when test="@target">
+                            <xsl:value-of select="@target"/>
+                          </xsl:when>
+                          <xsl:otherwise>
+                            <xsl:text>#</xsl:text>
+                            <xsl:value-of select="generate-id()"/>
+                          </xsl:otherwise>
+                        </xsl:choose>
+                      </xsl:attribute>
                       <xsl:value-of select="@target"/>
                     </a>
-		  </span>
-		</xsl:otherwise>
+                  </span>
+                </xsl:otherwise>
               </xsl:choose>
             </xsl:otherwise>
           </xsl:choose>
@@ -1458,18 +1458,18 @@
                 </xsl:when>
                 <xsl:otherwise>
                   <span class="error">
-		    <a>
+                    <a>
                       <xsl:attribute name="class">ref</xsl:attribute>
                       <xsl:attribute name="href">
-			<xsl:choose>
-			  <xsl:when test="@target"><xsl:value-of select="@target"/></xsl:when>
-			  <xsl:otherwise><xsl:text>#</xsl:text><xsl:value-of select="generate-id()"/></xsl:otherwise>
-			</xsl:choose>
-		      </xsl:attribute>
+                        <xsl:choose>
+                          <xsl:when test="@target"><xsl:value-of select="@target"/></xsl:when>
+                          <xsl:otherwise><xsl:text>#</xsl:text><xsl:value-of select="generate-id()"/></xsl:otherwise>
+                        </xsl:choose>
+                      </xsl:attribute>
                       <xsl:value-of select="@target"/>
                     </a>
-		  </span>
-		</xsl:otherwise>
+                  </span>
+                </xsl:otherwise>
               </xsl:choose>
             </xsl:otherwise>
           </xsl:choose>
@@ -1482,16 +1482,16 @@
       <a>
         <xsl:attribute name="class">ref</xsl:attribute>
         <xsl:attribute name="href">
-	  <xsl:text>#</xsl:text>
-	  <xsl:choose>
-	    <xsl:when test="@xml:id">
-	      <xsl:value-of select="@xml:id"/>
-	    </xsl:when>
+          <xsl:text>#</xsl:text>
+          <xsl:choose>
+            <xsl:when test="@xml:id">
+              <xsl:value-of select="@xml:id"/>
+            </xsl:when>
             <xsl:otherwise>
-	      <xsl:value-of select="generate-id()"/>
-	    </xsl:otherwise>
-	  </xsl:choose>
-	</xsl:attribute>
+              <xsl:value-of select="generate-id()"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:attribute>
         <xsl:apply-templates select="." mode="label"/>
       </a>
     </xsl:template>
@@ -1569,20 +1569,20 @@
     <!-- for each bibl, regardless of which listBibl it's in, create a div -->
     <xsl:template match="tei:bibl">
       <div class="bibl">
-	<xsl:call-template name="show-bibl-fallback"/>
+        <xsl:call-template name="show-bibl-fallback"/>
       </div>
     </xsl:template>
 
     <!-- For annotated bibliographies, where the <bibl> is inside a <label> in a regular <list>, we handle <bibl> as a span instead. -->
     <xsl:template match="  tei:label[not(*[not(self::tei:bibl)]
-			 | text()[normalize-space(.)])]/tei:bibl
-			 | tei:item[not(*[not(self::tei:bibl)]
-			 | text()[normalize-space(.)])]/tei:bibl">
+                         | text()[normalize-space(.)])]/tei:bibl
+                         | tei:item[not(*[not(self::tei:bibl)]
+                         | text()[normalize-space(.)])]/tei:bibl">
       <!-- bibl elements appearing inside label with nothing else
            get special treatment: no parens -->
       <span class="bibl">
-	<!-- this time show-bibl is not called, so the @label, if any, will not show -->
-	<xsl:apply-templates/>
+        <!-- this time show-bibl is not called, so the @label, if any, will not show -->
+        <xsl:apply-templates/>
       </span>
     </xsl:template>
 
@@ -1605,14 +1605,14 @@
 
     <xsl:template name="show-bibl-fallback">
       <span class="ref">
-	<xsl:attribute name="id">
+        <xsl:attribute name="id">
           <xsl:apply-templates select="." mode="id"/>
-	</xsl:attribute>
-	<xsl:comment> close </xsl:comment>
-	<xsl:apply-templates select="@label"/>
+        </xsl:attribute>
+        <xsl:comment> close </xsl:comment>
+        <xsl:apply-templates select="@label"/>
       </span>
       <xsl:if test="normalize-space(@label)">
-	<xsl:text>&#xA0;</xsl:text>
+        <xsl:text>&#xA0;</xsl:text>
       </xsl:if>
       <xsl:apply-templates/>
     </xsl:template>
@@ -1643,7 +1643,7 @@
     <xsl:function name="dhq:quotes" as="xs:string+">
       <xsl:param name="who" as="node()"/>
       <!-- $langspec is either $who's nearest ancestor w/ xml:lang, or the root element if no @xml:lang is found.
-	   The point of $langspec is *only* to determine the scope of counting levels. -->
+           The point of $langspec is *only* to determine the scope of counting levels. -->
       <xsl:variable name="langspec" select="$who/ancestor-or-self::*[exists(@xml:lang)][last()]"/>
       <!-- $nominal-lang is the value of xml:lang given ('fr','de','jp' etc etc.) or 'en' if none is found (with deference) -->
       <xsl:variable name="nominal-lang" select="if (exists($langspec)) then ($langspec/@xml:lang) else 'en'"/>
@@ -1657,29 +1657,29 @@
       <!--tei:quote[@rend = 'inline']|tei:called|tei:title[@rend = 'quotes']|tei:q|tei:said|tei:soCalled-->
       <xsl:variable name="scope" select="($langspec | $who/ancestor-or-self::tei:note)[last()]"/>
       <xsl:variable name="levels" select="$who/( ancestor::tei:quote[@rend eq 'inline']
-					       | ancestor::tei:called
-					       | ancestor::soCalled
-					       | ancestor::tei:q
-					       | ancestor::said
-					       | ancestor::tei:title[@rend eq 'quotes']
-					       )[ancestor-or-self::* intersect $scope]"/>
+                                               | ancestor::tei:called
+                                               | ancestor::soCalled
+                                               | ancestor::tei:q
+                                               | ancestor::said
+                                               | ancestor::tei:title[@rend eq 'quotes']
+                                               )[ancestor-or-self::* intersect $scope]"/>
       <!-- $level-count is 0 for an outermost quote; we increment it unless the language is French -->
       <xsl:variable name="level-count" select="count($levels) + (if (starts-with($nominal-lang,'fr')) then 0 else 1) "/>
       <!-- Now level 0 gets guillemet, while odd-numbered levels get double quotes -->
       <xsl:choose>
-	<!-- Note we emit pairs of xsl:text b/c we actually want discrete strings, returning a pair -->
-	<xsl:when test="$level-count = 0">
+        <!-- Note we emit pairs of xsl:text b/c we actually want discrete strings, returning a pair -->
+        <xsl:when test="$level-count = 0">
           <xsl:text>«</xsl:text>
           <xsl:text>»</xsl:text>
-	</xsl:when>
-	<xsl:when test="$level-count mod 2 (: odds :)">
+        </xsl:when>
+        <xsl:when test="$level-count mod 2 (: odds :)">
           <xsl:text>“</xsl:text>
           <xsl:text>”</xsl:text>
-	</xsl:when>
-	<xsl:otherwise>
+        </xsl:when>
+        <xsl:otherwise>
           <xsl:text>‘</xsl:text>
           <xsl:text>’</xsl:text>
-	</xsl:otherwise>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:function>
     
@@ -1687,14 +1687,14 @@
       <!-- Trying to add @xml:lang capability I found that this
            template did not produce an element upon which to hang the
            output language indicator attribute(s). So I wrapped it in
-	   a <span>, using a @class that is sure not to conflict with
-	   any existing <span> class values. —Syd, 2024-03-22 -->
+           a <span>, using a @class that is sure not to conflict with
+           any existing <span> class values. —Syd, 2024-03-22 -->
       <span class="lang_holder_{local-name(.)}">
-	<xsl:apply-templates select="@xml:lang"/>
-	<xsl:variable name="quote-marks" select="dhq:quotes(.)"/>
-	<xsl:sequence select="$quote-marks[1]"/>
-	<xsl:apply-templates/>
-	<xsl:sequence select="$quote-marks[2]"/>
+        <xsl:apply-templates select="@xml:lang"/>
+        <xsl:variable name="quote-marks" select="dhq:quotes(.)"/>
+        <xsl:sequence select="$quote-marks[1]"/>
+        <xsl:apply-templates/>
+        <xsl:sequence select="$quote-marks[2]"/>
       </span>
     </xsl:template>
     
@@ -1741,8 +1741,8 @@
     
     <xsl:template match="m:*">
       <xsl:copy>
-	<xsl:copy-of select="@*"/>
-	<xsl:apply-templates/>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates/>
       </xsl:copy>
     </xsl:template>
     
@@ -1752,13 +1752,18 @@
     
     <xsl:template match="dhq:passThroughCode//*">
       <xsl:element name="{local-name()}" >
-	<xsl:copy-of select="@*"/>
-	<xsl:apply-templates/>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates/>
       </xsl:element>
     </xsl:template>
 
     <xsl:template match="@xml:lang">
-      <xsl:attribute name="lang" select="."/>
+      <!--
+          Use both @xml:lang (so the XPath lang() function will work)
+          and @lang (for browsers).
+      -->
+      <xsl:attribute name="xml:lang" select="normalize-space(.)"/>
+      <xsl:attribute name=    "lang" select="normalize-space(.)"/>
     </xsl:template>
 
 </xsl:stylesheet>

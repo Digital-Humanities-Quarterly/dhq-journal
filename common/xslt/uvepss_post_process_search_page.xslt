@@ -13,7 +13,8 @@
       <xd:p>Read in the DHQ search.html file created by the UVEPSS process and write
       out a version with some mods:
       <xd:ul>
-        <xd:li>“issue” and ”volume” boxes swapped to correct order</xd:li>
+        <xd:li>“issue” and “volume” boxes swapped to correct order</xd:li>
+        <xd:li>Re-sort the “Search only in” checkbox list so that the languages all come last</xd:li>
       </xd:ul>
       </xd:p>
     </xd:desc>
@@ -27,8 +28,17 @@
       <xsl:apply-templates select="@*"/>
       <xsl:apply-templates select="fieldset">
         <xsl:sort select="@id"/>
+        <!-- This works because “volume” has ID ssNum1, and “issue” ssNum2. -->
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
   
+  <xsl:template match="ul[ @class eq 'ssSearchInCheckboxList']">
+    <xsl:copy>
+      <xsl:apply-templates select="@*"/>
+      <xsl:apply-templates select="li[ label[ not( starts-with( .,'language:') ) ] ]"/>
+      <xsl:apply-templates select="li[ label[      starts-with( .,'language:')   ] ]"/>
+    </xsl:copy>
+   </xsl:template>
+
 </xsl:stylesheet>
