@@ -301,81 +301,128 @@
           <div>
             <head>4 Use Case 1: Accessing an Audiovisual Dance Performance Archive via Human Poses</head>
               <div>
-                <head>4.1 The Prix de Lausanne audiovisual archive</head>
-                  <p>The Prix de Lausanne is a competition for young dancers held yearly in Lausanne, Switzerland since 1973<note> https://www.prixdelausanne.org/ </note>. Nearly all editions have been recorded and digitised, recording in a rich dataset of 1445 mp4 videos of individual dance performances, across forty-two years. This audiovisual collection is documented with information on the dancers and their chosen performances. This metadata, although valuable, does not document the embodied elements of dance performances, limiting how one can access such an archive. With our solution, we augment the data available with computational methods and employ the extracted features to map the whole dataset in two dimensions through the human poses embedded in the material, revealing its hidden structures and creating new connections between similar poses.</p>
+                <head>4.1 The <name>Prix de Lausanne</name> Audiovisual Archive</head>
+                  <p>The <name>Prix de Lausanne</name> is a competition for young dancers held yearly in <name>Lausanne</name>, <name>Switzerland</name> since 
+                     1973<note>See <ref target="https://www.prixdelausanne.org/">https://www.prixdelausanne.org</ref></note>. Nearly each year of the competition 
+                     has been recorded and digitised, resulting in a rich dataset of 1,445 mp4 videos of individual dance performances across forty-two years, 
+                     along with information on the dancers and their chosen performances. This metadata, although valuable, does not document the embodied 
+                     elements of dance performances, limiting how one can access such an archive. With our solution, we augmented the available data using 
+                     computational methods and employed the extracted features to map the whole dataset in two dimensions through the human poses embedded in the 
+                     material, revealing its hidden structures and creating new connections between similar poses.
+                  </p>
               </div>
               <div>
-                <head>4.2 Building feature vectors for the dancers’ poses</head>
-                  <p>We extracted human skeletons data with MediaPipe BlazePose GHUM 3D model (Bazarevsky et al., 2020), mainly chosen for its robustness out-of-the-box and rapidity of inference for single human estimation. In the case of the Prix de Lausanne, since the videos record one participant at a time on stage, we found this model to be the most suitable. We also observe only occasional cases of occlusions when the dancers are wearing particularly large costumes. The BlazePose algorithm outputs skeleton data as a set of 33 keypoints in three-dimensional space, normalised to the image size. Compared to models trained on the COCO dataset, MediaPipe algorithm detects more keypoints, including both hands and foots index fingers, allowing us to compute the wrists and ankles angles. Although not specifically trained on dance recordings, we believe these additional features help to better capture specific poses of dance performances, where even the position of hands and feets are crucial. Videos are processed to extract one pose every five seconds, a cautious design decision to avoid over-collecting similar poses merely due to temporal closeness. We do note however this is potentially not the best solution to ensure a full coverage of the diversity of poses, and future research in this direction could improve the results presented even further. It is worth noting that not all frames necessarily have a detected pose, since in some cases the dancer is too far away from the camera, or because some videos are not properly cut to the exact dance performance and thus have irrelevant frames at the beginning and/or the end. We measure the rate of detection by taking the mean of the ratio of poses detected over the number of frames per video, obtaining a mean detection rate of 76.80% across all the videos. The pose extraction process results in a total of 27672 poses.</p>
-                  <p>Once these poses have been extracted, we normalise them following a two-step procedure. We first subtract the pose centre, defined as the mean point between the left and right hips. We then scale the pose by its size, defined as the maximum between the torso size and the maximum distance between the pose centre and any keypoint, where the torso size is computed as the distance between the centre of the shoulders and the pose centre (the centre of the hips). The procedure ensures meaningful comparison between the poses by normalising them. An intuitive sample of normalised poses with their corresponding frames is provided in Figure 1.</p>
+                <head>4.2 Building Feature Vectors for the Dancers' Poses</head>
+                  <p>We extracted human skeleton data using the MediaPipe BlazePose GHUM 3D model <ptr target="#bazarevsky_et_al_2020"/>, which was mainly chosen 
+                     for its out-of-the-box robustness and rapidity of inference for single human estimation. In the case of the <name>Prix de Lausanne</name>, 
+                     since the videos record one participant at a time on stage, we found this model to be the most suitable. We also observed only occasional 
+                     cases of occlusions when the dancers are wearing particularly large costumes. The BlazePose algorithm outputs skeleton data as a set of 33 
+                     key points in three-dimensional space, normalised to the image size. Compared to models trained on the COCO dataset, MediaPipe algorithm 
+                     detects more key points, including the index fingers and toes of both hands and feet, allowing us to compute the angles of the wrists and 
+                     ankles. Although the algorithm was not specifically trained on dance recordings, we believe these additional features help to better capture 
+                     specific poses of dance performances, where even the positions of the hands and feet are crucial. Videos were processed to extract one pose 
+                     every five seconds, a cautious design decision to avoid over-collecting similar poses merely due to temporal closeness. We do note however 
+                     this is potentially not the best solution to ensure a full coverage of the diversity of poses, and future research in this direction could 
+                     improve the results presented even further. It is worth noting that not all frames necessarily had a detected pose, since in some cases the 
+                     dancer was too far away from the camera, or because some videos were not properly cut to the exact dance performance and thus had irrelevant 
+                     frames at the beginning and/or the end. We measured the rate of detection by taking the mean of the ratio of poses detected over the number of 
+                     frames per video, obtaining a mean detection rate of 76.80% across all the videos. The pose extraction process resulted in a total of 27,672 
+                     poses.
+                  </p>
+                  <p>Once these poses had been extracted, we normalised them following a two-step procedure. We first subtracted the pose centre, defined as the 
+                     mean point between the left and right hips. We then scaled the pose by its size, defined as the maximum between the torso size and the maximum 
+                     distance between the pose centre and any key point, where the torso size was computed as the distance between the centre of the shoulders and 
+                     the pose centre (the centre of the hips). The procedure ensures meaningful comparison between the poses by normalising them. An intuitive 
+                     sample of normalised poses with their corresponding frames is provided in Figure 1.
+                  </p>
                   <figure>
-                    <head>Sample of normalised poses with corresponding frames. Only the main keypoints are displayed for ease of visualization (the nose, the shoulders, the elbows, the wrists, the hips, the knees and the ankles).</head>
+                    <head>Sample of normalised poses with corresponding frames. Only the main key points are displayed for ease of visualization (the nose, the 
+                      shoulders, the elbows, the wrists, the hips, the knees, and the ankles).</head>
                       <graphic url="resources/images/figure01.jpg"/>
                   </figure>
-                  <p>Subsequently, two feature vectors are built and tested. On one hand, we simply take the vector of keypoints and flattened it, resulting in a 99-dimensional vector. On the other hand, we build a custom feature vector, taking a combination of pose lengths (distances between two keypoints) and pose angles (angles defined by three keypoints). Table 1 reports the features computed.</p>
+                  <p>Subsequently, two feature vectors were built and tested. For the first, we simply took the vector of the key points and flattened it, 
+                     resulting in a 99-dimensional vector. For the second, we built a custom feature vector, taking a combination of pose lengths (distances 
+                     between two key points) and pose angles (angles defined by three key points). Table 1 shows the features computed.
+                  </p>
                   <table>
                     <head>A list of custom features used to represent dance poses in the <name>Prix de Laussanne</name> archive.</head>
                       <row role="label">
                         <cell role="label">Category</cell>
                         <cell role="label">Feature</cell>
                       </row>
-                      <row role="data">
-                        <cell>Distances between joints</cell>
-                        <cell>Left elbow - Right elbow
-                        Left wrist - Right wrist
-                        Left knee - Right knee
-                        Left ankle - Right ankle
-                        Left hip - Left wrist
-                        Right hip - Right wrist
-                        Left hip - Left ankle
-                        </cell>
-                        <cell>Right hip - Right ankle
-                        Left ankle - Left wrist
-                        Right ankle - Right wrist
-                        Left shoulder - Right ankle
-                        Right shoulder - Left ankle
-                        Left wrist - Right ankle
-                        Right wrist - Left ankle
+                      <row>
+                        <cell role="label">Pose Lengths<lb/>(Distances Between Joints)</cell>
+                        <cell>Left elbow — Right elbow<lb/>Left wrist — Right wrist<lb/>Left knee — Right knee<lb/>Left ankle — Right ankle
+                          <lb/>Left hip — Left wrist<lb/>Right hip — Right wrist<lb/>Left hip — Left ankle<lb/>Right hip — Right ankle<lb/>
+                          Left ankle — Left wrist<lb/>Right ankle — Right wrist<lb/>Left shoulder — Right ankle<lb/>Right shoulder — Left ankle<lb/>
+                          Left wrist — Right ankle<lb/>Right wrist — Left ankle
                         </cell>
                       </row>
-                      <row role="data">
-                        <cell>Angles</cell>
-                        <cell>Left hip - Left knee - Left ankle
-                        Right hip - Right knee - Right ankle
-                        Left shoulder - Left elbow - Left wrist
-                        Right shoulder - Right elbow - Right wrist
-                        Left hip - Left shoulder - Left elbow
-                        Right hip - Right shoulder - Right elbow
-                        </cell>
-                        <cell>Left shoulder - Left hip - Left knee
-                        Right shoulder - Right hip - Right knee
-                        Left elbow - Left wrist - Left index
-                        Right elbow - Right wrist - Right index
-                        Left knee - Left ankle - Left foot index
-                        Right knee - Right ankle - Right foot index
+                      <row>
+                        <cell role="label">Pose Angles<lb/>(Defined by Three Key Points)</cell>
+                        <cell>Left hip — Left knee — Left ankle<lb/>Right hip — Right knee — Right ankle<lb/>Left shoulder — Left elbow — Left wrist<lb/>
+                          Right shoulder — Right elbow — Right wrist<lb/>Left hip — Left shoulder — Left elbow<lb/>Right hip — Right shoulder — Right 
+                          elbow<lb/>Left shoulder — Left hip — Left knee<lb/>Right shoulder — Right hip — Right knee<lb/>Left elbow — Left wrist — Left 
+                          index finger<lb/>Right elbow — Right wrist — Right index finger<lb/>Left knee — Left ankle — Left index toe<lb/>Right knee — Right 
+                          ankle — Right index toe
                         </cell>
                       </row>
                   </table>
               </div>
               <div>
-                <head>4.3 Mapping the Prix de Lausanne archive</head>
-                  <p>One of the fundamental applications unlocked by computational archives is the possibility to visualise the whole collection. To this end, we apply dimensionality reduction (DR) algorithms to embed the high-dimensional feature spaces in two or three dimensions, in order to create a novel way of visualising and navigating the whole archive. We test both standard DR methods such as Principal Component Analysis (PCA) and t-distributed Stochastic Neighbour Embedding (tSNE) as well as a more recent approach with Uniform Manifold Approximation and Projection (UMAP). We leverage scikit-learn (Pedregosa et al., 2011) implementations for the two first algorithms (Halko et al., 2011, Martinsson et al., 2011, van der Maaten and Hinton, 2008) and the official UMAP Python implementation for the latter (McInnes et al., 2018). For tSNE and UMAP we compare using cosine and Euclidean metrics as the distance measure to compute the projection. We therefore test five options on 27672 poses, with both sets of feature vectors. Figure 2 shows the resulting embeddings in two dimensions.</p>
+                <head>4.3 Mapping the <name>Prix de Lausanne</name> Archive</head>
+                  <p>One of the fundamental applications unlocked by computational archives is the possibility to visualise whole collections. To this end, we 
+                     apply dimensionality reduction (DR) algorithms to embed the high-dimensional feature spaces in two or three dimensions, in order to create a 
+                     novel way of visualising and navigating the whole archive. We tested both standard DR methods, such as Principal Component Analysis (PCA), 
+                     and t-distributed Stochastic Neighbour Embedding (tSNE), as well as a more recent approach, Uniform Manifold Approximation and Projection 
+                     (UMAP). We leveraged scikit-learn implementations for the two first algorithms and the official UMAP Python implementation for the latter 
+                     <ptr target="#pedregosa_et_al_2011"/> <ptr target="#halko_martinsson_tropp_2011"/> <ptr target="#martinsson_rokhlin_tvgert_2011"/> 
+                     <ptr target="#van-der-maaten_hinton_2008"/> <ptr target="#mcinnes_et_al_2018"/>. For tSNE and UMAP we compared using cosine and Euclidean 
+                     metrics as the distance measure to compute the projection. We therefore tested five options on 27,672 poses, with both sets of feature 
+                     vectors. Figure 2 shows the resulting embeddings in two dimensions.
+                  </p>
                   <figure>
-                    <head>Embeddings of 27672 poses in two dimensions. The top row (blue) uses the flattened vectors of keypoints and the bottom row (red) uses the custom features computed. From left to right, the algorithms used are PCA, tSNE (cosine metric), tSNE (Euclidean metric), UMAP (cosine metric), UMAP (Euclidean metric).</head>
+                    <head>Embeddings of 27,672 poses in two dimensions. The top row (blue) uses the flattened vectors of key points, while the bottom row (red) 
+                      uses the custom features computed. From left to right, the algorithms used are PCA, tSNE (cosine metric), tSNE (Euclidean metric), UMAP 
+                      (cosine metric), and UMAP (Euclidean metric).</head>
                       <graphic url="resources/images/figure02.jpeg"/>
                   </figure>
-                  <p>We can immediately observe that PCA performs poorly on this dataset, as expected due to its linear nature that cannot preserve much variance with just two dimensions (only 49% with the flattened vectors of keypoints, and 45% with the custom features). Both tSNE and UMAP however give much more interesting results, where structures in the dataset can be observed. Since we do not notice meaningful differences between the two sets of feature vectors used, we pursue further examinations with the flattened vectors of keypoints to exploit the heuristic quality of the algorithms independent of the choice of features. Therefore, we set out to investigate tSNE and UMAP behaviours more in-depth, by studying the effect of their hyperparameters. For tSNE, we observe how the embedding in two dimensions behaves for different perplexities <hi rend="italic">𝜖</hi>, the main parameter for this algorithm, related to the number of neighbours considered for any given point during the computation. For UMAP, we investigate the number of nearest neighbours <hi rend="italic">𝑛</hi>, controlling how UMAP balances local versus global structure in the data, and the minimum distance <hi rend="italic">𝑑</hi>𝑚𝑖𝑛 the algorithm is allowed to pack points together in the low-dimensional space. We use the Euclidean distance as it seems to produce slightly clearer results. Figure 3 shows how tSNE behaves for different values of <hi rend="italic">𝜖</hi>, while Figure 4 displays the results of UMAP with varying <hi rend="italic">n</hi> and <hi rend="italic">𝑑</hi>𝑚𝑖𝑛 values.</p>
+                  <p>We can immediately observe that PCA performs poorly on this dataset, as expected due to its linear nature that cannot preserve much variance 
+                     with just two dimensions (only 49% with the flattened vectors of key points and 45% with the custom features). Both tSNE and UMAP, however, 
+                     give much more interesting results, where structures in the dataset can be observed. Since we did not observe meaningful differences between 
+                     the two sets of feature vectors used, we pursued further examinations with the flattened vectors of keypoints to exploit the heuristic 
+                     quality of the algorithms independent of the choice of features. Therefore, we set out to investigate tSNE and UMAP behaviours in more depth 
+                     by studying the effects of their hyperparameters. For tSNE, we observed how the embedding in two dimensions behaves for different 
+                     perplexities (<formula rend="inline" notation="tex">\(ϵ\)</formula>), the main parameter for this algorithm, related to the number of 
+                     neighbours considered for any given point during the computation. For UMAP, we investigated the number of nearest neighbours 
+                     (<formula rend="inline" notation="tex">\(𝑛\)</formula>), controlling how UMAP balances local versus global structure in the data, as well as 
+                     the minimum distance (<formula rend="inline" notation="tex">\(𝑑_{min}\)</formula>) the algorithm is allowed to pack points together in the 
+                     low-dimensional space. We used the Euclidean distance as it seemed to produce slightly clearer results. Figure 3 shows how tSNE behaves for 
+                     different values of <formula rend="inline" notation="tex">\(ϵ\)</formula>, while Figure 4 displays the results of UMAP with varying 
+                     <formula rend="inline" notation="tex">\(𝑛\)</formula> and <formula rend="inline" notation="tex">\(𝑑_{min}\)</formula> values.
+                  </p>
                   <figure>
-                    <head>Effect of the perplexity 𝜖 on the tSNE embeddings of 27672 poses (flattened vectors of keypoints, Euclidean distance). Lower values of 𝜖 result in a more granular embedding.</head>
+                    <head>Effect of the perplexity (ϵ) on the tSNE embeddings of 27,672 poses (flattened vectors of key points, Euclidean distance). Lower values 
+                      of ϵ result in a more granular embedding.</head>
                       <graphic url="resources/images/figure03.jpeg"/>
                   </figure>
                   <figure>
-                    <head>Effect of the number of neighbours 𝑛 and the minimum distance 𝑑𝑚𝑖𝑛 on the UMAP embeddings of 27672 poses (flattened vectors of keypoints, Euclidean distance). Lower values of 𝑑𝑚𝑖𝑛 result in a more packed embedding but global structures appear to be quite stable.</head>
+                    <head>Effect of the number of neighbours 𝑛 and the minimum distance 𝑑ₘₙᵢₙ on the UMAP embeddings of 27,672 poses (flattened vectors of 
+                      key points, Euclidean distance). Lower values of 𝑑ₘₙᵢₙ result in a more packed embedding, but global structures appear to be quite 
+                      stable.</head>
                       <graphic url="resources/images/figure04.jpeg"/>              
                   </figure>
-                  <p>To conclude our exploration of the Prix de Lausanne moving image collection, we set out to produce a map of the human poses embedded in the archive. Following the outlined procedure, we extract the keypoints, compute the corresponding feature vectors and apply UMAP (with Euclidean distance, <hi rend="italic">n</hi> = 50, <hi rend="italic">𝑑</hi>𝑚𝑖𝑛 = 0.5) on the flattened vectors of keypoints to create Figure 5, where we display the corresponding pose at each point. For the sake of visibility, we only show a portion of all the poses extracted, resulting in a map of 2768 poses. Through this visualisation, we can verify the effectiveness of our approach in grouping together similar poses, thus unlocking a new way of seeing an embodied knowledge archive.</p>
+                  <p>To conclude our exploration of the <name>Prix de Lausanne</name> moving image collection, we set out to produce a map of the human poses 
+                     embedded in the archive. Following the outlined procedure, we extracted the key points, computed the corresponding feature vectors, and 
+                     applied UMAP (with Euclidean distance, <formula rend="inline" notation="tex">\(𝑛\)</formula> = 50, 
+                     <formula rend="inline" notation="tex">\(𝑑_{min}\)</formula> = 0.5) on the flattened vectors of keypoints to create Figure 5, where we display 
+                     the corresponding pose at each point. For the sake of visibility, we only show a portion of all the poses extracted, resulting in a map of 
+                     2,768 poses. Through this visualisation, we can verify the effectiveness of our approach in grouping together similar poses, thus unlocking a 
+                     new way of seeing an embodied knowledge archive.
+                  </p>
                   <figure>
-                    <head>Effect of the perplexity 𝜖 on the tSNE embeddings of 27672 poses (flattened vectors of keypoints, Euclidean distance). Lower values of 𝜖 result in a more granular embedding.</head>
+                    <head>Map of 2,768 dancers' poses, based on the 2D embeddings of the vectors of flattened key points with UMAP (Euclidean distance, 
+                      𝑛 = 50, 𝑑<hi rend="subscript">𝑚𝑖𝑛</hi> = 0.5).</head>
                       <graphic url="resources/images/figure05.png"/>
                   </figure>
               </div>
