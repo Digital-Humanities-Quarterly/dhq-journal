@@ -183,7 +183,6 @@
   	
   	<!-- warns if @target of a <ref> seems to point to an external source but is missing a protocol -->
   	<rule context="tei:ref[@target]">
-      <let name="startsWithHttp" value="starts-with(@target, 'http://')"/>
       <let name="startsWithProtocol" value="starts-with(@target, 'http://') or starts-with(@target, 'https://')"/>
       <let name="isExternal" value="not(starts-with(@target, '#'))"/>
       <assert role="warning" test="($isExternal and $startsWithProtocol) or not($isExternal)">@target should begin with 'http://' or 'https://' if it points to an external source.</assert>
