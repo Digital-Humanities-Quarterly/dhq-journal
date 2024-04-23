@@ -181,11 +181,14 @@
   			The @target of <name/> does not reference an @xml:id in this document</assert>
   	</rule>
   	
-  	<!-- warns if @target of a <ref> seems to point to an external source but is missing a protocol -->
-  	<rule context="tei:ref[@target]">
-      <let name="startsWithProtocol" value="starts-with(@target, 'http://') or starts-with(@target, 'https://')"/>
-      <let name="isExternal" value="not(starts-with(@target, '#'))"/>
-      <assert role="warning" test="($isExternal and $startsWithProtocol) or not($isExternal)">@target should begin with 'http://' or 'https://' if it points to an external source.</assert>
+  	<!-- warns if @target seems to point externally and is missing a protocol or is missing a # -->
+		<rule context="*[@target]">
+  		<assert role="warning"
+  			test="starts-with(@target, 'http://') or
+  						starts-with(@target, 'https://') or
+  						starts-with(@target, '#')">
+  			@target should begin with 'http://' or 'https://' if it points to an external source.
+  		</assert>
     </rule>
 
     <rule context="tei:ptr[starts-with(@target,'#')]">
@@ -215,9 +218,6 @@
     	 -->
       <report test="contains(@loc,'-')" role="warning"><name/>/@loc contains
         '-' (hyphen): try '&#x2013;' (en-dash)</report>
-    	
-    	<!-- removing constraints on @loc allowed empty @loc to exist, this rule requires a value if it is present -->
-    	<assert test="not(@loc) or exists(@loc/text())" role="error">@loc must contain a value (e.g., page number, section, slide, etc.)</assert>
       <!-- elsewhere we check bibl elements to which we have ptr cross-references,
            to ensure they also have @label -->
        
