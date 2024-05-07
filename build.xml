@@ -225,13 +225,13 @@ is loaded when Ant starts up. Please run Ant again like this:
   </target>
 
   <target name="generateSiteToGo" depends="generateSite"
-	  description="Generate a static copy of DHQ (without search capability), and ZIP it for easy transfer to a server. This is NOT a standalone copy.">
+          description="Generate a static copy of DHQ (without search capability), and ZIP it for easy transfer to a server. This is NOT a standalone copy.">
     <!-- Generate the ZIP file of the entire static site. -->
     <antcall target="compressStatic"/>
   </target>
 
   <target name="generateSearchable" depends="generateSite"
-	  description="Generate a searchable static non-standalone copy of DHQ.">
+          description="Generate a searchable static non-standalone copy of DHQ.">
     <!-- Copy a few needed files over -->
     <copy todir="${toDir.static}/data/uvepss">
       <fileset dir="data/uvepss"/>
@@ -263,7 +263,7 @@ is loaded when Ant starts up. Please run Ant again like this:
     -->
     <move todir="${toDir.static}/vol">
       <fileset dir="${toDir.static}/vol">
-	<!-- Set of ill-formed files last updated 2024-03-22 -->
+        <!-- Set of ill-formed files last updated 2024-03-22 -->
         <include name="9/2/000216/queerfemnotes.html"/>
         <include name="9/2/000216/resources/html/queerfemnotes.html"/>
         <include name="17/2/000652/resources/webmap_code/figure11/Figure_11.html"/>
@@ -283,6 +283,51 @@ is loaded when Ant starts up. Please run Ant again like this:
       </fileset>
       <mapper type="glob" from="*" to="*.NOT"/>
     </move>
+    <!--
+        The article-map.xml ant file created by the "generateSite"
+        target copies over all of the potential assets for each
+        article, i.e. all of the other files in the article’s
+        directory. Problem is, sometimes this includes a copy of a
+        preview edition of the article (usually, but not always, named
+        ${article.id}.xhtml; as far as I can tell always having a
+        <title> that starts with “[PREVIEW] DHQ: Digital Humanities
+        Quarterly:”, and sometimes has other stuff after that. If we
+        leave these files in the output dhq-static/dhq/vol/ hierarchy
+        they will get inappropriately indexed for searching;
+        furthermore, if the preview shares the same filename as the
+        actual article (which most, but not all, do), UVEPSS will find
+        the preview but not the real article.  So, at least for now,
+        the method of handling this is just to erase them. What I
+        would like to do is just $ rm $(grep -Flr '<title>[PREVIEW]
+        DHQ: Digital Humanities Quarterly' ${toDir.static}/vol/) but I
+        do not know how to develop a fileset in ant based on the
+        contents of files rather than metadata about them (like names
+        & paths). Also don’t know what the equivalent of the above
+        command is in Windows, so it seems <exec> is out of
+        reach. Thus I wrote a tiny little XSLT program that lists the
+        files of interest; after tweaking that file to use relative
+        paths instead of URLs, we delete everything in that
+        list. Sigh. Seems like a really stupid, inefficient way to do
+        this.
+    -->
+    <echo> ... removing PREVIEW files</echo>
+    <property name="preview.list.file" location="${toDir.base}/list_of_preview_files_to_erase.txt"/>
+    <xslt in="common/xslt/list_preview_files.xslt" 
+          out="${preview.list.file}"
+          style="common/xslt/list_preview_files.xslt"
+          classpath="${processor.location}"
+          force="true"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+    </xslt>
+    <replaceregexp
+        file="${preview.list.file}"
+        match="^file:.*${toDir.base}/"
+        replace=""
+        flags="gm"/>
+    <delete>
+      <fileset dir="${toDir.base}" includesfile="${preview.list.file}"/>
+    </delete>
     <!-- Convert path to config file from relative path to absolute path: -->
     <property name="absolute.config.file" location="${toDir.static}/data/uvepss/config.xml"/>
     <ant dir="${uvepssDir}" antfile="build.xml">
@@ -307,7 +352,7 @@ is loaded when Ant starts up. Please run Ant again like this:
   </target>
   
   <target name="generateSearchableToGo" depends="generateSearchable"
-	  description="Generate a searchable static non-standalone copy of DHQ, and ZIP it for easy transfer to server.">
+          description="Generate a searchable static non-standalone copy of DHQ, and ZIP it for easy transfer to server.">
     <!-- Generate the ZIP file of the entire static site. -->
     <antcall target="compressStatic"/>
   </target>
