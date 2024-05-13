@@ -84,7 +84,7 @@
   ss.captions.get('en')[MUST_NOT_CONTAIN]    = 'Must not contain: ';
   ss.captions.get('en')[MAY_CONTAIN]         = 'May contain: ';
   ss.captions.get('en')[WILDCARD]            = 'Wildcard term: ';
-  ss.captions.get('en').strScore             = 'Score: ';
+  ss.captions.get('en').strScore             = ' hits: ';
   ss.captions.get('en').strSearchTooBroad    = 'Your search is too broad. Include more letters in every term.';
   ss.captions.get('en').strDiscardedTerms    = 'Not searched (too common or too short): ';
   ss.captions.get('en').strShowMore          = 'Show more';
