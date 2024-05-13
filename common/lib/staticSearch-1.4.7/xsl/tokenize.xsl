@@ -102,9 +102,13 @@
         <xd:desc>Regex to match alphanumeric words. Note that we use 
         Unicode character classes to take our best shot at splitting on
         word boundaries, but this is bound to be fragile where multiple
-        languages are involved.</xd:desc>
+        languages are involved. NOTE: character U+A78F is introduced explicitly,
+        although it should be covered by \p{L}, because of an apparent bug in
+        Java or Saxon regex processing; see GH issue #200. When Saxon 12.5
+        is available, this should solve the problem, and the fix can 
+        be removed.</xd:desc>
     </xd:doc>
-  <xsl:variable name="alphanumeric">[\p{L}\p{M}<xsl:value-of select="string-join($allApos,'')"/>]+</xsl:variable>
+    <xsl:variable name="alphanumeric">[&#xA78F;\p{L}\p{M}<xsl:value-of select="string-join($allApos,'')"/>]+</xsl:variable>
     
     <xd:doc>
         <xd:desc>Regex to match hyphenated words</xd:desc>
@@ -299,7 +303,7 @@
         <xd:desc>Template to retain all elements that have a declared language, a declared id, or a
             special data-ss- attribute since we may need those elements in other contexts.</xd:desc>
     </xd:doc>
-    <xsl:template match="*[@lang or @xml:lang or @id or @*[matches(local-name(),'^data-ss-')]][ancestor::body]" mode="clean">
+    <xsl:template match="*[@lang or @xml:lang or @id or @*[matches(local-name(),'^(data-)?ss-')]][ancestor::body]" mode="clean">
         <xsl:copy>
             <xsl:apply-templates select="@*|node()" mode="#current"/>
         </xsl:copy>
@@ -404,7 +408,7 @@
             <xsl:when test="local-name()=('id','lang')">
                 <xsl:copy-of select="."/>
             </xsl:when>
-            <xsl:when test="matches(local-name(),'^data-(staticSearch|ss)-')">
+            <xsl:when test="matches(local-name(),'^(data-)?(staticSearch|ss)-')">
                 <xsl:copy-of select="."/>
             </xsl:when>
             <xsl:otherwise/>
