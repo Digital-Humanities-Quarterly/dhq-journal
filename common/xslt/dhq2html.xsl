@@ -246,13 +246,13 @@
     </xsl:template>
     <!-- Load tsvs -->
     <xsl:variable name="specter-recs-tsv">
-      <xsl:sequence select="unparsed-text('/Users/joellee/Desktop/zfill.tsv')"/>
+      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-specter.tsv')"/>
     </xsl:variable>
     <xsl:variable name="keywords-recs-tsv">
-      <xsl:sequence select="unparsed-text('/Users/joellee/Desktop/dhq-recs-zfill-keywords.tsv')"/>
+      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-keywords.tsv')"/>
     </xsl:variable>
     <xsl:variable name="tfidf-recs-tsv">
-      <xsl:sequence select="unparsed-text('/Users/joellee/Desktop/dhq-recs-zfill-full-text.tsv')"/>
+      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-full-text.tsv')"/>
     </xsl:variable>
 
     <!-- Creating function for writing one recommendation-->
@@ -269,9 +269,10 @@
             <xsl:if test="starts-with(., $tabs[$num])">
                     <!-- Select the chosen matching row -->
                     <xsl:variable name="inner_tabs" select="tokenize(., '\t')" />
+                    <xsl:variable name="path" select="substring-after($inner_tabs[18], 'org')" />
                     <!-- Now we pull from the tabs of the selected row. 18 is the url, 6 is the name of the article -->
                     <!-- Setting up the url and its <a> tag-->
-                    <a href="{$inner_tabs[18]}"><xsl:value-of select="$inner_tabs[6]"/></a>&#160;
+                    <a href="{$path}"><xsl:value-of select="$inner_tabs[6]"/></a>&#160;
                     <!-- selecting and inputting the year [2], author [4], and university [5] -->
                     <xsl:value-of select="$inner_tabs[2]"/>,
                     <xsl:value-of select="$inner_tabs[4]"/>, <xsl:value-of select="$inner_tabs[5] "/>
