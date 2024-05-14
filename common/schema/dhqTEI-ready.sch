@@ -174,6 +174,22 @@
       <assert role="warning" test="matches(@target,'#|/')"><name/>/@target
         appears suspect: it has neither '#' nor '/'</assert>
     </rule>
+  	
+  	<!--checks to see when @target begins with a '#' AND does not point to an @xml:id-->
+  	<rule context="tei:ref[starts-with(normalize-space(@target),'#')]">
+  		<assert role="warning" test="substring(normalize-space(@target), 2) = //@xml:id">
+  			The @target of <name/> does not reference an @xml:id in this document</assert>
+  	</rule>
+  	
+  	<!-- warns if @target seems to point externally and is missing a protocol or is missing a # -->
+		<rule context="*[@target]">
+  		<assert role="warning"
+  			test="starts-with(@target, 'http://') or
+  						starts-with(@target, 'https://') or
+  						starts-with(@target, '#')">
+  			@target should begin with 'http://' or 'https://' if it points to an external source.
+  		</assert>
+    </rule>
 
     <rule context="tei:ptr[starts-with(@target,'#')]">
       <extends rule="target-uri-constraints"/>

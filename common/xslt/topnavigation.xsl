@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="3.0">
     <xsl:param name="context"/>
     <xsl:template name="topnavigation">
         <div id="top">
@@ -67,34 +67,24 @@
     <xsl:template name="topbanner">
         <!--Added for rotating banner image -->
         <div id="backgroundpic">
-            <script type="text/javascript">
-                <xsl:attribute name="src">
-                    <xsl:value-of select="concat('/',$context,'/common/js/pics.js')"/>
-                </xsl:attribute>
-                <xsl:comment>displays banner image</xsl:comment>
-            </script>
+            <xsl:variable name="imgFile">
+                <xsl:sequence select="unparsed-text('../images/bannerimg/banner29.jpg.base64')"/>
+            </xsl:variable>   
+            <img alt="banner" width="100%" height="62px" src="{concat('data:image/jpeg;base64,',$imgFile)}"/>​
         </div>
         
         <div id="banner">
             <div id="dhqlogo">
-                <img>
-                    <xsl:attribute name="src">
-                        <xsl:value-of select="concat('/',$context,'/common/images/dhqlogo.png')"/>
-                    </xsl:attribute>
-                    <xsl:attribute name="alt">
-                        <xsl:value-of select="'DHQ Logo'"/>
-                    </xsl:attribute>
-                </img>
+                <xsl:variable name="imgFile">
+                    <xsl:sequence select="unparsed-text('../images/dhqLogo.png.base64')"/>
+                </xsl:variable>        
+                <img alt="DHQ Logo" src="{concat('data:image/png;base64,',$imgFile)}" />
             </div>
             <div id="longdhqlogo">
-                <img>
-                    <xsl:attribute name="src">
-                        <xsl:value-of select="concat('/',$context,'/common/images/dhqlogolonger.png')"/>
-                    </xsl:attribute>
-                    <xsl:attribute name="alt">
-                        <xsl:value-of select="'Digital Humanities Quarterly Logo'"/>
-                    </xsl:attribute>
-                </img>
+                <xsl:variable name="imgFile">
+                    <xsl:sequence select="unparsed-text('../images/dhqlogolonger.png.base64')"/>
+                </xsl:variable>        
+                <img alt="Digital Humanities Quarterly Logo" src="{concat('data:image/png;base64,',$imgFile)}" />
             </div>
         </div>
     </xsl:template>

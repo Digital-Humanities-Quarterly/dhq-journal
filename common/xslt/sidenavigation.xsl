@@ -95,7 +95,7 @@
                 <xsl:value-of select="'margin-left : 7px;'"/>
             </xsl:attribute>
             <xsl:attribute name="alt">
-                <xsl:value-of select="'sidenavbarimg'"/>
+                <xsl:value-of select="''"/>
             </xsl:attribute>
         </img>
         
@@ -110,14 +110,14 @@
             <ul>
                 <li>
                     <a><xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/announcements/index.html#reviewers')"
+                        <xsl:value-of select="concat('/',$context,'/news/news.html#peer_reviews')"
                         />
                     </xsl:attribute>Call for Reviewers</a>
                 </li>
                 <li>
                     <a><xsl:attribute name="href">
                         <xsl:value-of
-                            select="concat('/',$context,'/announcements/index.html#submissions')"/>
+                            select="concat('/',$context,'/submissions/index.html#logistics')"/>
                     </xsl:attribute>Call for Submissions</a>
                 </li>
             </ul>

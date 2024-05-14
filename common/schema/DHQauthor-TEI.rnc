@@ -12,10 +12,9 @@ namespace teix = "http://www.tei-c.org/ns/Examples"
 namespace xi = "http://www.w3.org/2001/XInclude"
 namespace xlink = "http://www.w3.org/1999/xlink"
 
-# Schema generated from ODD source 2023-09-25T12:26:16Z. .
-# TEI Edition: Version 4.4.0. Last updated on
-#         19th April 2022, revision ff9cc28b0
-# TEI Edition Location: https://www.tei-c.org/Vault/P5/Version 4.4.0/
+# Schema generated from ODD source 2024-04-23T22:18:35Z. . 
+# TEI Edition: Version 4.4.0. Last updated on 19th April 2022, revision ff9cc28b0 
+# TEI Edition Location: https://www.tei-c.org/Vault/P5/4.4.0/ 
 #  This schema supports basic journal features. 
 
 #
@@ -1222,15 +1221,15 @@ dhq_macro.specialPara =
    | dhq_model.divPart
    | dhq_model.global)*
 dhq_teidata.word = xsd:token { pattern = "[^\p{C}\p{Z}]+" }
-anyElement-xenoData =
+anyElement_xenoData_1 =
   element * - (tei:* | teix:egXML) {
     attribute * { text }*,
-    (text | anyElement-xenoData)*
+    (text | anyElement_xenoData_1)*
   }
-anyElement-passThroughCode =
+anyElement_passThroughCode_2 =
   element * - (tei:* | teix:egXML) {
     attribute * { text }*,
-    (text | anyElement-passThroughCode)*
+    (text | anyElement_passThroughCode_2)*
   }
 dhq_att.anchoring.attributes =
   dhq_att.anchoring.attribute.anchored,
@@ -1470,6 +1469,7 @@ dhq_model.hiLike_sequenceRepeatable = dhq_hi+, dhq_q+
 dhq_model.emphLike =
   dhq_foreign
   | dhq_emph
+  | dhq_mentioned
   | dhq_soCalled
   | dhq_term
   | dhq_title
@@ -1477,15 +1477,23 @@ dhq_model.emphLike =
 dhq_model.emphLike_alternation =
   dhq_foreign
   | dhq_emph
+  | dhq_mentioned
   | dhq_soCalled
   | dhq_term
   | dhq_title
   | dhq_code
 dhq_model.emphLike_sequence =
-  dhq_foreign, dhq_emph, dhq_soCalled, dhq_term, dhq_title, dhq_code
+  dhq_foreign,
+  dhq_emph,
+  dhq_mentioned,
+  dhq_soCalled,
+  dhq_term,
+  dhq_title,
+  dhq_code
 dhq_model.emphLike_sequenceOptional =
   dhq_foreign?,
   dhq_emph?,
+  dhq_mentioned?,
   dhq_soCalled?,
   dhq_term?,
   dhq_title?,
@@ -1493,6 +1501,7 @@ dhq_model.emphLike_sequenceOptional =
 dhq_model.emphLike_sequenceOptionalRepeatable =
   dhq_foreign*,
   dhq_emph*,
+  dhq_mentioned*,
   dhq_soCalled*,
   dhq_term*,
   dhq_title*,
@@ -1500,6 +1509,7 @@ dhq_model.emphLike_sequenceOptionalRepeatable =
 dhq_model.emphLike_sequenceRepeatable =
   dhq_foreign+,
   dhq_emph+,
+  dhq_mentioned+,
   dhq_soCalled+,
   dhq_term+,
   dhq_title+,
@@ -1908,6 +1918,19 @@ dhq_cit =
     empty
   }
 
+dhq_mentioned =
+  ## an italicized word or phrase that the author is discussing or referencing (but not quoting from an external source) [3.3.3. Quotation]
+  element tei:word {
+    dhq_macro.phraseSeq,
+    dhq_att.global.attributes,
+    attribute xml:lang {
+      xsd:language
+      | (
+         "")
+    }?,
+    empty
+  }
+
 dhq_soCalled =
   ## (so called) contains a word or phrase for which the author or narrator indicates a disclaiming of responsibility, for example by the use of scare quotes or italics. [3.3.3. Quotation]
   element tei:soCalled {
@@ -2151,7 +2174,9 @@ dhq_ptr =
       xsd:anyURI { pattern = "\S+" }
     }?,
     ## The value will typically be either a numeric page reference or page range, or else a section number (which may be numeric or alphabetic, or may conceivably use some other ordering system)
-    attribute loc { xsd:string }?,
+    attribute loc {
+      xsd:string { pattern = ".*\S+.*" }
+    }?,
     ## Permits specialized types of pointers to be identified (e.g. those pointing to video or audio files).
     attribute type {
       ## Indicates that the pointer references an embedded feed from the DHQ annex.
@@ -2193,7 +2218,9 @@ dhq_ref =
       xsd:anyURI { pattern = "\S+" }
     }?,
     ## The value will typically be either a numeric page reference or page range, or else a section number (which may be numeric or alphabetic, or may conceivably use some other ordering system)
-    attribute loc { xsd:string }?,
+    attribute loc {
+      xsd:string { pattern = ".*\S+.*" }
+    }?,
     ## Provides a classification of the reference
     attribute type {
       ## Indicates that the reference in question does not have a linked target.
@@ -2253,6 +2280,7 @@ dhq_item =
     dhq_macro.specialPara,
     dhq_att.global.attributes,
     dhq_att.sortable.attributes,
+    attribute xml:id { xsd:ID }?,
     empty
   }
 
@@ -3114,7 +3142,7 @@ dhq_correspContext =
 dhq_xenoData =
   ## (non-TEI metadata) provides a container element into which metadata in non-TEI formats may be placed. [2.5. Non-TEI Metadata]
   element tei:xenoData {
-    (text | anyElement-xenoData),
+    (text | anyElement_xenoData_1),
     dhq_att.global.attributes,
     attribute type {
       "embed_map" | "embed_audio" | "embed_video" | "embed_3d"
@@ -3246,7 +3274,7 @@ dhq_body =
   element tei:body {
     (dhq_model.global*,
      (dhq_model.divTop, (dhq_model.global | dhq_model.divTop)*)?,
-     (dhq_model.global)*,
+     dhq_model.global*,
      ((dhq_model.divLike, (dhq_model.global)*)+
       | (dhq_model.global)*
       | (((dhq_model.common), dhq_model.global*)+,
@@ -3290,9 +3318,9 @@ dhq_div =
   ## (text division) contains a subdivision of the front, body, or back of a text. [4.1. Divisions of the Body]
   element tei:div {
     ((dhq_model.divTop | dhq_model.global)*,
-     ((((dhq_model.divLike), dhq_model.global*)+
-       | (((dhq_model.common), dhq_model.global*)+,
-          ((dhq_model.divLike), dhq_model.global*)*)),
+     (((dhq_model.divLike, dhq_model.global*)+
+       | ((dhq_model.common, dhq_model.global*)+,
+          (dhq_model.divLike, dhq_model.global*)*)),
       (dhq_model.divBottom, dhq_model.global*)*)?)
     >> sch:pattern [
          id =
@@ -3508,7 +3536,9 @@ dhq_notatedMusic =
 dhq_figure =
   ## (figure) groups elements representing or containing graphic information such as an illustration, formula, or figure. [14.4. Specific Elements for Graphic Images]
   element tei:figure {
-    (dhq_head?, (dhq_figDesc | dhq_model.graphicLike | dhq_figure)*),
+    ((dhq_ptr, dhq_head?)
+     | (dhq_head?,
+        (dhq_figDesc | dhq_model.graphicLike | dhq_figure)*)),
     dhq_att.global.attributes,
     dhq_att.written.attributes,
     ## Provides a unique identifier for the figure
@@ -3790,7 +3820,7 @@ dhq_citRef =
 dhq_passThroughCode =
   ## Passthrough code gets passed through to the HTML output where it can be executed. The assumption is that this code will be HTML, or something that can be embedded within an HTML document.
   element passThroughCode {
-    (text | anyElement-passThroughCode)*,
+    (text | anyElement_passThroughCode_2)*,
     ## Indicates whether the code is to be presented as block or in-line element. If "block", a border will be generated.
     attribute rend {
       ## indicates that the embedded code should be presented as a block element

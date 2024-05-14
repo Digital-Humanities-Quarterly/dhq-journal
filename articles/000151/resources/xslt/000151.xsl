@@ -7,7 +7,7 @@
     xmlns:cc="http://web.resource.org/cc/"
     exclude-result-prefixes="tei dhq cc xdoc" version="1.0">
     
-    <xsl:import href="../../../../common/xslt/template_editorial_article.xsl"/>
+    <xsl:import href="../../../../common/xslt/template_article.xsl"/>
     
     <xsl:template match="tei:ab[@type = 'imageGallery']">
         <div class="galleria" style="margin-left:auto; margin-right:auto;">

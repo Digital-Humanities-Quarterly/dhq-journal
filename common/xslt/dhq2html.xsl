@@ -1091,7 +1091,7 @@
         </div>
     </xsl:template>
 
-    <xsl:template match="tei:emph|tei:term">
+    <xsl:template match="tei:emph|tei:term|tei:word">
         <em>
             <xsl:call-template name="assign-class"/>
             <xsl:apply-templates/>

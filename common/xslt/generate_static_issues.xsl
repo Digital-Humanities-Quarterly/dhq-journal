@@ -95,7 +95,14 @@
          repo to the newly created static site. -->
     <xsl:text>&#x0A;</xsl:text>
     <project name="dhq_articles">
+      <xsl:comment>
+        This is an Ant build file produced by running generate_static_issues.xsl on 
+        the DHQ TOC. The build targets defined below are designed to be used ONLY by 
+        the main DHQ build file. Please do NOT run any of these targets on their own! </xsl:comment>
+      
       <target name="copyArticleResources">
+        <!-- Copy all public articles' XML, figures, etc. from the repository to the 
+          static directory. -->
         <copy enablemultiplemappings="true">
           <!-- Remember: no @xsl:expand-text for following line! -->
           <xsl:attribute name="todir">${toDir.static}</xsl:attribute>
@@ -118,10 +125,96 @@
           </compositemapper>
         </copy>
       </target>
+      
+      <!-- Also generate an Ant target for zipping up all non-preview XML articles. -->
+      <target name="zipArticleXml">
+        <!-- The articles' build file should inherit the basedir property of the DHQ 
+          build file. To make it clearer which folder we're working from, "basedir" 
+          is here mapped onto a new property "toDir.git". -->
+        <property name="toDir.git">
+          <xsl:attribute name="value">${basedir}</xsl:attribute>
+        </property>
+        <zip>
+          <xsl:attribute name="destfile">${toDir.static}${file.separator}data${file.separator}dhq-xml.zip</xsl:attribute>
+          <!-- We're only interested in zipping up articles that:
+                  1. are relatively stable (read: not in the preview issue or 
+                    editorial area), and
+                  2. are not example articles.
+               We also only need one ZIP entry per article, even if the article 
+               appears in multiple DHQ issues.
+            -->
+          <xsl:for-each-group group-by="@id/data(.)" 
+              select=".//journal[not(@preview eq 'true') and not(@editorial eq 'true')]
+                                //item[@id][not(starts-with(@id, '9'))]">
+            <xsl:variable name="id" select="current-grouping-key()"/>
+            <!-- We want each XML file to appear under the same directory, without 
+              any intermediate folders in the way. To do this, we use Ant's 
+              <zipfileset> to start each article in its containing directory, and 
+              prefix its file entry with a common folder name "dhq-articles". -->
+            <zipfileset>
+              <xsl:attribute name="dir">
+                <xsl:text>${toDir.git}${file.separator}articles${file.separator}</xsl:text>
+                <xsl:value-of select="$id"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="$id"/>
+                <xsl:text>.xml</xsl:text>
+              </xsl:attribute>
+              <xsl:attribute name="prefix">
+                <xsl:text>dhq-articles</xsl:text>
+              </xsl:attribute>
+            </zipfileset>
+          </xsl:for-each-group>
+        </zip>
+      </target>
     </project>
+    <!-- While we're in the TOC, generate the indexes of all article titles and all 
+      contributors. Each index is processed in two steps: First, the TOC is 
+      transformed with a special stylesheet. Then, another stylesheet sorts all of 
+      the indexed entries. -->
+    <!-- Generate the index of all articles by title. -->
+    <xsl:variable name="titles-index-map" as="map(*)">
+      <xsl:map>
+        <xsl:map-entry key="'source-node'" select="$toc-source"/>
+        <xsl:sequence select="dhq:stylesheet-path-entry('title_index.xsl')"/>
+        <xsl:map-entry key="'stylesheet-params'">
+          <xsl:map>
+            <xsl:map-entry key="QName( (),'fpath')" select="'index/title.html'"/>
+            <xsl:map-entry key="QName( (),'context')" select="$context"/>
+          </xsl:map>
+        </xsl:map-entry>
+      </xsl:map>
+    </xsl:variable>
+    <xsl:result-document href="{$static-dir||'/index/title.html'}">
+      <xsl:call-template name="transform-with-sorting">
+        <xsl:with-param name="transform-1-map" select="$titles-index-map" as="map(*)"/>
+        <xsl:with-param name="transform-2-xsl-filename" select="'title_sort.xsl'"/>
+      </xsl:call-template>
+    </xsl:result-document>
+    <!-- Generate the index of all DHQ contributors. -->
+    <xsl:variable name="authors-index-map" as="map(*)">
+      <xsl:map>
+        <xsl:map-entry key="'source-node'" select="$toc-source"/>
+        <xsl:sequence select="dhq:stylesheet-path-entry('author_index.xsl')"/>
+        <xsl:map-entry key="'stylesheet-params'">
+          <xsl:map>
+            <xsl:map-entry key="QName( (),'fpath')" select="'index/author.html'"/>
+            <xsl:map-entry key="QName( (),'context')" select="$context"/>
+          </xsl:map>
+        </xsl:map-entry>
+      </xsl:map>
+    </xsl:variable>
+    <xsl:result-document href="{$static-dir||'/index/author.html'}">
+      <xsl:call-template name="transform-with-sorting">
+        <xsl:with-param name="transform-1-map" select="$authors-index-map" as="map(*)"/>
+        <xsl:with-param name="transform-2-xsl-filename" select="'author_sort.xsl'"/>
+      </xsl:call-template>
+    </xsl:result-document>
   </xsl:template>
   
-  <!-- The editorial section of the TOC is skipped, at least for now. -->
+  <!-- The "editorial" section of the TOC is for articles that are being worked on 
+    by the DHQ editors and authors. The articles in this section should not be 
+    published on the DHQ site. -->
   <xsl:template match="journal[@editorial eq 'true']"/>
   
   <!-- For each DHQ issue, we first produce an index page and the contributors' 
@@ -144,31 +237,47 @@
       issue. -->
     <xsl:variable name="issue-bios-map" as="map(*)" 
       select="dhq:set-up-issue-transformation(., 'template_bios.xsl', $fpath||'/bios.html')"/>
-    <!-- The issue-bios-sort map is a bit more complicated, because its source node 
-      is the result of a transform based on the issue-bios map. -->
-    <xsl:variable name="issue-bios-sort-map" as="map(*)">
-      <xsl:map>
-        <xsl:sequence select="dhq:stylesheet-path-entry('bios_sort.xsl')"/>
-        <xsl:map-entry key="'source-node'" select="transform( $issue-bios-map )?output"/>
-        <xsl:map-entry key="'stylesheet-params'" select="$issue-bios-map?stylesheet-params"/>
-      </xsl:map>
-    </xsl:variable>
-    <!-- Generate this issue’s bios based on the issue-bios-sort map -->
+    <!-- Generate this issue’s biographies page through two XSL transformations. -->
     <xsl:result-document href="{$outDir||'/bios.html'}">
-      <xsl:sequence select="transform( $issue-bios-sort-map )?output"/>
+      <xsl:call-template name="transform-with-sorting">
+        <xsl:with-param name="transform-1-map" select="$issue-bios-map" as="map(*)"/>
+        <xsl:with-param name="transform-2-xsl-filename" select="'bios_sort.xsl'"/>
+      </xsl:call-template>
     </xsl:result-document>
-    <!-- If this is the current issue, run the transformation again for the DHQ home 
-      page. The result will be identical to the issue index, but the URL at the 
-      bottom will be http://www.digitalhumanities.org/dhq/index.html -->
-    <xsl:if test="@current eq 'true'">
-      <xsl:variable name="new-param-map" 
-        select="map:put( $issue-index-map?stylesheet-params, QName( (),'fpath'), 'index.html')"/>
-      <xsl:variable name="index-index-map" 
-        select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
-      <xsl:result-document href="{$static-dir||'/index.html'}">
-        <xsl:sequence select="transform( $index-index-map )?output"/>
-      </xsl:result-document>
-    </xsl:if>
+    <xsl:choose>
+      <!-- If this is the current issue, run the transformation again for the DHQ home 
+        page. The result will be identical to the issue index, but the URL at the 
+        bottom will be http://www.digitalhumanities.org/dhq/index.html -->
+      <xsl:when test="@current eq 'true'">
+        <xsl:variable name="new-param-map" 
+          select="map:put( $issue-index-map?stylesheet-params, QName( (),'fpath'), 'index.html')"/>
+        <xsl:variable name="index-index-map" 
+          select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
+        <xsl:result-document href="{$static-dir||'/index.html'}">
+          <xsl:sequence select="transform( $index-index-map )?output"/>
+        </xsl:result-document>
+      </xsl:when>
+      <!-- If this is the preview issue, we need copies of the index and bios pages 
+        in the "preview" folder. As in the current issue, the pages will be the 
+        nearly identical to their counterparts in "vol/". -->
+      <xsl:when test="@preview eq 'true'">
+        <!-- Create the index page for the "preview" directory. -->
+        <xsl:variable name="preview-index-map" 
+          select="dhq:set-up-issue-transformation(., 'template_preview.xsl', 'preview/index.html')"/>
+        <xsl:result-document href="{$static-dir||'/preview/index.html'}">
+          <xsl:sequence select="transform( $preview-index-map )?output"/>
+        </xsl:result-document>
+        <!-- Create the contributor bios page for the "preview" directory. -->
+        <xsl:variable name="preview-bios-map"
+          select="dhq:set-up-issue-transformation(., 'template_preview_bios.xsl', 'preview/bios.html')"/>
+        <xsl:result-document href="{$static-dir||'/preview/bios.html'}">
+          <xsl:call-template name="transform-with-sorting">
+            <xsl:with-param name="transform-1-map" select="$preview-bios-map" as="map(*)"/>
+            <xsl:with-param name="transform-2-xsl-filename" select="'bios_sort.xsl'"/>
+          </xsl:call-template>
+        </xsl:result-document>
+      </xsl:when>
+    </xsl:choose>
     <!-- Proceed to transform the contents of the issue (articles). -->
     <xsl:apply-templates>
       <xsl:with-param name="vol" select="@vol/data(.)" tunnel="yes"/>
@@ -199,6 +308,31 @@
           <xsl:with-param name="srcPath" select="$srcPath"/>
           <xsl:with-param name="outDir" select="$outArticleDir"/>
         </xsl:call-template>
+        <!-- Check for older versions of this article. These should also be 
+          transformed into XHTML. -->
+        <xsl:variable name="previousVersion" 
+          select="doc($srcPath)//dhq:revisionNote/@previous/data(.)"/>
+        <!-- TODO: what happens when there's more than one previous version? -->
+        <xsl:if test="count($previousVersion) eq 1">
+          <xsl:variable name="prevDoc" 
+            select="concat($srcDir,'/',$previousVersion,
+              if ( ends-with($previousVersion,'.xml') ) then () else '.xml' )"/>
+          <xsl:choose>
+            <xsl:when test="doc-available($prevDoc)">
+              <xsl:call-template name="transform-article">
+                <xsl:with-param name="articleId" select="$articleId"/>
+                <xsl:with-param name="srcDir" select="$srcDir"/>
+                <xsl:with-param name="srcPath" select="$prevDoc"/>
+                <xsl:with-param name="outDir" select="$outArticleDir"/>
+                <xsl:with-param name="outFile" select="concat($previousVersion,'.html')"/>
+              </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:message 
+                select="concat('Could not find previous version of article at ',$prevDoc)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:if>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message select="concat('Could not find an article at ',$srcPath)"/>
@@ -268,6 +402,10 @@
     <xsl:param name="srcPath" as="xs:string"/>
     <xsl:param name="fpath" as="xs:string" tunnel="yes"/>
     <xsl:param name="outDir" as="xs:string"/>
+    <!-- By default, the transformation results will be saved as $articleID.html 
+      Sometimes we need to override this; for example, when dealing with a previous 
+      version of an article. -->
+    <xsl:param name="outFile" select="concat($articleId,'.html')" as="xs:string"/>
     <!-- Create the map which will define the article's transformation. -->
     <xsl:variable name="xslMap" as="map(*)">
       <!-- Some DHQ articles have alternate XSL stylesheets. If the article folder 
@@ -289,7 +427,7 @@
                 QName((),'context'): $context,
                 QName((),'vol'): $vol,
                 QName((),'issue'): $issue,
-                QName((),'fpath'): concat( $fpath, '/', $articleId, '.html')
+                QName((),'fpath'): concat($fpath,'/',$outFile)
               }
           }"/>
       <xsl:sequence select="map:merge(($useStylesheet, $otherEntries))"/>
@@ -297,7 +435,7 @@
     <!-- Attempt to transform the TEI article into XHTML, and save the result to the 
          output directory. -->
     <xsl:try>
-      <xsl:result-document href="{$outDir}/{$articleId}.html" method="xhtml">
+      <xsl:result-document href="{$outDir}/{$outFile}" method="xhtml">
         <xsl:sequence select="transform($xslMap)?output"/>
       </xsl:result-document>
       <!-- If something went wrong, recover but provide information for debugging 
@@ -311,6 +449,21 @@
         <xsl:message>*********</xsl:message>
       </xsl:catch>
     </xsl:try>
+  </xsl:template>
+  
+  <!-- Some DHQ index pages were set up to be transformed in two steps: first, 
+    generating the base HTML; then, sorting the index entries. This template 
+    streamlines the two transformations. -->
+  <xsl:template name="transform-with-sorting">
+    <xsl:param name="transform-1-map" as="map(*)"/>
+    <xsl:param name="transform-2-xsl-filename" as="xs:string"/>
+    <xsl:variable name="transform-2-map" as="map(*)">
+      <xsl:map>
+        <xsl:sequence select="dhq:stylesheet-path-entry($transform-2-xsl-filename)"/>
+        <xsl:map-entry key="'source-node'" select="transform( $transform-1-map )?output"/>
+      </xsl:map>
+    </xsl:variable>
+    <xsl:sequence select="transform( $transform-2-map )?output"/>
   </xsl:template>
   
   

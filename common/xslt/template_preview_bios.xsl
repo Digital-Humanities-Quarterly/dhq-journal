@@ -22,7 +22,7 @@
                 <div id="main">
                     <div id="leftsidebar">
                         <xsl:call-template name="sidenavigation">
-                            <xsl:with-param name="session" select="'true'"/>
+                            <!--<xsl:with-param name="session" select="'true'"/>-->
                         </xsl:call-template>
                     </div>
                     <div id="mainContent">
