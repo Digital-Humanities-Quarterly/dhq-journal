@@ -282,14 +282,14 @@
 
 
     <xsl:template name="recommendations">
-        <!-- Tokenize rows -->
-        <xsl:variable name="spector_rows" select="tokenize($specter-recs-tsv, '\n')" />
         <!-- Find the row that matches this article's ID. -->
         <div id="recommendations">
         <h2>Recommendations</h2>
         <p>DHQ is testing out three new article recommendation methods! Please explore the links below to find articles that are related in different ways to the one you just read. 
         We are interested in how these methods work for readers—if you would like to share feedback with us, please complete our short evaluation survey. 
-        You can also visit our [documentation for these recommendation methods] to learn more.</p>
+        You can also visit our <a href="/dhq/explore/explore.html">documentation for these recommendation methods</a> to learn more.</p>
+        <!-- Tokenize rows -->
+        <xsl:variable name="spector_rows" select="tokenize($specter-recs-tsv, '\n')" />
         <xsl:for-each select="$spector_rows">
             <xsl:if test="starts-with(., xs:string($id))">
                 <!-- Tokenize that row, splitting by tab character. -->
