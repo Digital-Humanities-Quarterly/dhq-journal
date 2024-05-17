@@ -91,7 +91,12 @@
                             <div id="mainContent">
                                 <xsl:call-template name="sitetitle"/>
                                 <h1>Resource not found.</h1>
-                                <p>The resource you requested (/<xsl:value-of select="concat($context,'/',$fpath)"/>) does not exist.</p>
+                                <p>The resource you requested<!-- 
+                                  2024-05-17: Ash commented out the instruction below, since the static 
+                                  site will not be able to construct a 404 response including the 
+                                  requested resource path.
+                                    (/<xsl:value-of select="concat($context,'/',$fpath)"/>)
+                                  --> does not exist.</p>
                                 <h2>Contact Information</h2>
                                 <h3>Email</h3>
                                 <p>General Information: <a href="mailto:dhqinfo@digitalhumanities.org">dhqinfo@digitalhumanities.org</a></p>

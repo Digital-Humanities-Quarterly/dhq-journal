@@ -147,6 +147,31 @@ is loaded when Ant starts up. Please run Ant again like this:
     <copy todir="${toDir.static}${file.separator}common">
       <fileset dir="common" excludes="lib/ tests/"/>
     </copy>
+    <!-- Create a generic error page. (HTTP status 500) -->
+    <xslt in="toc${file.separator}toc.xml" 
+          out="${toDir.static}${file.separator}500.html"
+          style="common${file.separator}xslt${file.separator}template_article.xsl"
+          classpath="${processor.location}"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <param name="error" expression="true"/>
+      <!-- A relative path in <xsl:result-document> will be calculated relative to 
+        the output file's directory, ${toDir}. -->
+      <param name="static-dir" expression="${context}"/>
+    </xslt>
+    <!-- Create a page for "not found" errors. (HTTP status 404) -->
+    <xslt in="toc${file.separator}toc.xml" 
+          out="${toDir.static}${file.separator}404.html"
+          style="common${file.separator}xslt${file.separator}template_article.xsl"
+          classpath="${processor.location}"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <!-- A relative path in <xsl:result-document> will be calculated relative to 
+        the output file's directory, ${toDir}. -->
+      <param name="static-dir" expression="${context}"/>
+    </xslt>
     <!-- Transform the test file.
       TODO: is this still necessary? -->
     <xslt in="common${file.separator}tests${file.separator}starter.xml" 
