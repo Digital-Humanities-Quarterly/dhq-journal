@@ -124,15 +124,6 @@
         </div>
         <div class="leftsidecontent">
             
-            <!-- AddThis Button BEGIN -->
-            <script type="text/javascript">addthis_pub  = 'dhq';</script>
-            <a href="http://www.addthis.com/bookmark.php"
-                onmouseover="return addthis_open(this, '', '[URL]', '[TITLE]')"
-                onmouseout="addthis_close()" onclick="return addthis_sendto()">
-                <img src="http://s9.addthis.com/button1-addthis.gif" width="125" height="16" alt="button1-addthis.gif"/>
-            </a>
-            <script type="text/javascript" src="http://s7.addthis.com/js/152/addthis_widget.js"><![CDATA[<!-- Javascript functions -->]]></script>
-            <!-- AddThis Button END -->
             
             <!-- Editorial area with logout button if we have a session variable [CRB] -->
             <!--<br /><br /><span><a href="/dhq/login.html">Editorial Area</a></span>-->
@@ -147,20 +138,7 @@
         
     </xsl:template>
     
-    <xsl:template name="taportool"> 
-        <!-- Div statement remove because the content is now inline -->
-        <!--         <div class="leftsidecontent"> -->
-        <!--         <div class="toolbar"> -->
-        <form name="taporware">
-            <select name="taportools" onchange="gototaporware()">
-                <option>Taporware Tools</option>
-                <option value="listword">List Words</option>
-                <option value="findtext">Find Text</option>
-                <option value="colloc">Collocation</option>
-            </select>
-        </form>
-        <!--        </div> -->
-    </xsl:template>
+    
     
     <xsl:template name="sitetitle">
         <div id="printSiteTitle">DHQ: Digital Humanities Quarterly</div>
