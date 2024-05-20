@@ -236,7 +236,9 @@ is loaded when Ant starts up. Please run Ant again like this:
     <copy todir="${toDir.static}/data/uvepss">
       <fileset dir="data/uvepss"/>
     </copy>
+    <!--
     <copy file="${toDir.static}/data/uvepss/search.html" todir="${toDir.static}/vol"/>
+    -->
     <echo> ... renaming ill-formed files (which would make this process crash) out of the way</echo>
     <!--
         UVEPSS will only operate on well-formed XHTML 5 files. This, I
@@ -283,6 +285,14 @@ is loaded when Ant starts up. Please run Ant again like this:
       </fileset>
       <mapper type="glob" from="*" to="*.NOT"/>
     </move>
+    <!-- create dhq-flavored search.html page for later processing. -->
+    <xslt in="common/search/search.html"
+    	  out="${toDir.static}/vol/search.html"
+          style="common${file.separator}xslt${file.separator}template_static_pages.xsl"
+    	  classpath="${processor.location}"
+          force="true"
+	  failonerror="false"/>
+
     <!--
         The article-map.xml ant file created by the "generateSite"
         target copies over all of the potential assets for each
@@ -341,6 +351,7 @@ is loaded when Ant starts up. Please run Ant again like this:
       <mapper type="glob" from="*.NOT" to="*"/>
     </move>
     <echo> ... tweaking UVEPSS search page</echo>
+
     <xslt in="${toDir.static}/vol/search.html"
           out="${toDir.static}/vol/search_DHQ_articles.html"
           style="${toDir.static}/common/xslt/uvepss_post_process_search_page.xslt"
@@ -349,6 +360,7 @@ is loaded when Ant starts up. Please run Ant again like this:
           failonerror="false">
       <factory name="${processor.name}"/>
     </xslt>    
+
   </target>
   
   <target name="generateSearchableToGo" depends="generateSearchable"
