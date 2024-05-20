@@ -143,6 +143,9 @@ s.parentNode.insertBefore(ga, s);
               <meta name="docTitle" class="staticSearch_docTitle"
                     content="{$srcHeader/tei:fileDesc/tei:titleStmt/tei:title[1]!normalize-space(.)}"/>
               <script type="text/javascript" src="../../../uvepss/ssHighlight.js"/>
+	      <script defer="defer" type="text/javascript">
+		      <xsl:sequence select="unparsed-text('../lib/staticSearch-1.4.7/js/ssHighlight.js')"/>
+        </script>
             </xsl:if>
             
         </head>
