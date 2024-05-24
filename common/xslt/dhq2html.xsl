@@ -702,16 +702,28 @@
             <xsl:call-template name="id"/>
             <xsl:call-template name="assign-class"/>
             <xsl:apply-templates/>
-            <xsl:choose>
-                <xsl:when test="tei:head">
-                    <xsl:apply-templates select="tei:head" mode="caption"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:call-template name="label-no-caption"/>
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:call-template name="make_caption"/>
         </div>
-
+    </xsl:template>
+    
+    <!-- Generate a caption for <table> or <dhq:example>. -->
+    <xsl:template name="make_caption">
+      <xsl:choose>
+          <!-- If this element has a <dhq:caption>, use that as the base for the HTML caption. If 
+            there's also a <head>, that will also be included. -->
+          <xsl:when test="dhq:caption">
+              <xsl:apply-templates select="dhq:caption" mode="caption"/>
+          </xsl:when>
+          <!-- A <head> can also be used to generate an HTML caption when it appears on its own. -->
+          <xsl:when test="tei:head">
+              <xsl:apply-templates select="tei:head" mode="caption"/>
+          </xsl:when>
+          <!-- As a fallback, a "caption" and label will be generated using this element's identity and 
+            where it appears in the article. -->
+          <xsl:otherwise>
+              <xsl:call-template name="label-no-caption"/>
+          </xsl:otherwise>
+      </xsl:choose>
     </xsl:template>
 
     <xsl:template match="tei:gi">
@@ -775,7 +787,7 @@
         <xsl:apply-templates/>
     </xsl:template>
 
-    <xsl:template match="tei:table/tei:head" mode="caption">
+    <xsl:template match="tei:table/tei:head | dhq:example/tei:head" mode="caption">
         <div class="caption">
             <div class="label">
             <xsl:apply-templates select="." mode="label"/>
@@ -786,7 +798,7 @@
         </div>
     </xsl:template>
 
-    <xsl:template match="dhq:example/tei:head" mode="caption">
+    <!--<xsl:template match="dhq:example/tei:head" mode="caption">
         <div class="caption">
             <div class="label">
                 <xsl:apply-templates select="." mode="label"/>
@@ -795,6 +807,30 @@
             </div>
             <xsl:apply-templates/>
         </div>
+    </xsl:template>-->
+    
+    <xsl:template match="tei:table/dhq:caption | dhq:example/dhq:caption" mode="caption">
+      <!-- Which element should be used to generate the label: the heading or the caption's parent 
+        element. -->
+      <xsl:variable name="labelmaker" 
+        select="if ( exists(preceding-sibling::tei:head) ) then 
+                  preceding-sibling::tei:head[1]
+                else parent::*" as="node()"/>
+      <div class="caption">
+        <div class="label">
+          <xsl:apply-templates select="$labelmaker" mode="label"/>
+          <xsl:text>.</xsl:text>
+          <!-- If the table/example had a heading, we need to process its content as well. -->
+          <xsl:if test="exists($labelmaker[self::tei:head])">
+            <xsl:text>&#160;</xsl:text>
+            <xsl:variable name="processedHeading" as="node()*">
+              <xsl:apply-templates select="$labelmaker" mode="caption"/>
+            </xsl:variable>
+            <xsl:sequence select="$processedHeading/node()[not(@class eq 'label')]"/>
+          </xsl:if>
+        </div>
+        <xsl:apply-templates/>
+      </div>
     </xsl:template>
 
     <xsl:template match="tei:graphic">
@@ -1281,14 +1317,7 @@
                 <!--<xsl:call-template name="id"/>-->
                 <xsl:apply-templates select="tei:row"/>
             </table>
-            <xsl:choose>
-                <xsl:when test="tei:head">
-                    <xsl:apply-templates select="tei:head" mode="caption"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:call-template name="label-no-caption"/>
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:call-template name="make_caption"/>
         </div>
     </xsl:template>
 
