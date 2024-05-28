@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
     
     <xsl:param name="context"/>
@@ -8,6 +9,7 @@
       for linking to local CSS and Javascript, so that a preview webpage is styled 
       appropriately on Windows computers. -->
     <xsl:param name="dir-separator" select="'/'"/>
+    <xsl:param name="previewable" select="false()" as="xs:boolean"/>
     
     <xsl:template name="head">
         <xsl:param name="title"/>
@@ -42,7 +44,15 @@
             <style media="print">
                 <xsl:sequence select="unparsed-text('../css/dhq_print.css')"/>
             </style>
-           <!-- what do do about rss? -->
+            
+            <!-- If we're generating a preview version of the site, special CSS rules go here. -->
+            <xsl:if test="$previewable">
+              <style>
+                <xsl:sequence select="unparsed-text('../css/dhq_preview.css')"/>
+              </style>
+            </xsl:if>
+            
+          <!-- what do do about rss? -->
           <link rel="alternate" type="application/atom+xml"  href="{$assets-path}feed{$dir-separator}news.xml"/>
 
             <!-- old asset link, before embedding. -->
