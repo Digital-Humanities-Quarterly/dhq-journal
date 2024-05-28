@@ -33,6 +33,7 @@
   
   <xsl:output encoding="UTF-8" indent="yes" method="xhtml" omit-xml-declaration="no"/>
   
+  
  <!--  PARAMETERS  -->
   
   <!-- An absolute path to the DHQ repository. -->
@@ -50,6 +51,10 @@
   
   <!-- The base URL for DHQ. Passed on to the article HTML transformations. -->
   <xsl:param name="context" as="xs:string"/>
+  
+  <!-- When $doProofing is toggled on, the articles in the "editorial" space should be included, and the 
+    HTML should appear distinct from the regular DHQ site. -->
+  <xsl:param name="doProofing" select="false()" as="xs:boolean"/>
   
   
  <!--  GLOBAL VARIABLES  -->
@@ -181,6 +186,7 @@
           <xsl:map>
             <xsl:map-entry key="QName( (),'fpath')" select="'index/title.html'"/>
             <xsl:map-entry key="QName( (),'context')" select="$context"/>
+            <xsl:map-entry key="QName( (),'doProofing')" select="$doProofing"/>
           </xsl:map>
         </xsl:map-entry>
       </xsl:map>
@@ -200,6 +206,7 @@
           <xsl:map>
             <xsl:map-entry key="QName( (),'fpath')" select="'index/author.html'"/>
             <xsl:map-entry key="QName( (),'context')" select="$context"/>
+            <xsl:map-entry key="QName( (),'doProofing')" select="$doProofing"/>
           </xsl:map>
         </xsl:map-entry>
       </xsl:map>
@@ -214,7 +221,7 @@
   
   <!-- The "editorial" section of the TOC is for articles that are being worked on 
     by the DHQ editors and authors. The articles in this section should not be 
-    published on the DHQ site. -->
+    published on the DHQ site, only in a preview copy. -->
   <xsl:template match="journal[@editorial eq 'true']"/>
   
   <!-- For each DHQ issue, we first produce an index page and the contributors' 
@@ -490,6 +497,7 @@
           <xsl:map-entry key="QName( (),'issue')" select="$journal-node/@issue/data()"/>
           <xsl:map-entry key="QName( (),'fpath')" select="$web-filepath"/>
           <xsl:map-entry key="QName( (),'context')" select="$context"/>
+          <xsl:map-entry key="QName( (),'doProofing')" select="$doProofing"/>
         </xsl:map>
       </xsl:map-entry>
     </xsl:map>

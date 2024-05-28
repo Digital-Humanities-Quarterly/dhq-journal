@@ -35,9 +35,9 @@
   <available classname="org.xmlresolver.Resolver" property="has.xmlresolver"/>
   
   
-  <!-- 
-    ANT TASKS
-  -->
+  <!--
+      ANT TASKS
+    -->
   
   <!-- If the XML Resolver JAR file is not already loaded, provide instructions for 
     running Ant with the "lib" command line option. Ant <target>s that use Saxon HE 
@@ -106,6 +106,8 @@ is loaded when Ant starts up. Please run Ant again like this:
   <!-- Generate static HTML versions of the DHQ issues (articles, bios, & indices). -->
   <target name="generateIssues" depends="checkXmlResolver" 
      description="Generate static HTML versions of the DHQ issues.">
+    <property name="context.use" value="${context}" unless:set="${context.use}"/>
+    <property name="do.proofing" value="false" unless:set="${do.proofing}"/>
     <mkdir dir="${toDir.static}${file.separator}vol"/>
     <!-- Use XSLT to transform issues using the DHQ table of contents. -->
     <xslt in="toc${file.separator}toc.xml" 
@@ -115,10 +117,11 @@ is loaded when Ant starts up. Please run Ant again like this:
           force="true"
           failonerror="false">
       <factory name="${processor.name}"/>
-      <param name="context" expression="${context}"/>
+      <param name="context" expression="${context.use}"/>
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
         the output file's directory, ${toDir}. -->
-      <param name="static-dir" expression="${context}"/>
+      <param name="static-dir" expression="${context.use}"/>
+      <param name="doProofing" expression="${do.proofing}"/>
     </xslt>
   </target>
 
@@ -234,6 +237,19 @@ is loaded when Ant starts up. Please run Ant again like this:
          target="zipArticleXml" inheritRefs="true"/>
     <!-- Generate the ZIP file of the entire static site. -->
     <antcall target="compressStatic"/>
+  </target>
+  
+  <!-- Generate a copy of the site for proofing. -->
+  <target name="makeProofingSite"
+     description="Generate a copy of the full DHQ site, including unpublished articles listed in the TOC.">
+    <!-- The preview version of the DHQs site must be stored separately from the regular, public site. 
+      To manage this, we set the "context.use" property before the "generateIssues" target can. -->
+    <property name="context.use" value="${context}-preview"/>
+    <!-- Within ${toDir.base}, individually generated static site files will be 
+      written to the ${context}-preview directory. -->
+    <property name="toDir.preview" value="${toDir.base}${file.separator}${context.use}"/>
+    <property name="do.proofing" value="true"/>
+    <antcall target="generateIssues" inheritall="true"/>
   </target>
   
   <!-- Compress the static site's files for backup and transportation. -->
