@@ -9,7 +9,7 @@
       for linking to local CSS and Javascript, so that a preview webpage is styled 
       appropriately on Windows computers. -->
     <xsl:param name="dir-separator" select="'/'"/>
-    <xsl:param name="previewable" select="false()" as="xs:boolean"/>
+    <xsl:param name="doProofing" select="false()" as="xs:boolean"/>
     
     <xsl:template name="head">
         <xsl:param name="title"/>
@@ -46,9 +46,9 @@
             </style>
             
             <!-- If we're generating a preview version of the site, special CSS rules go here. -->
-            <xsl:if test="$previewable">
+            <xsl:if test="$doProofing">
               <style>
-                <xsl:sequence select="unparsed-text('../css/dhq_preview.css')"/>
+                <xsl:sequence select="unparsed-text('../css/dhq_proof.css')"/>
               </style>
             </xsl:if>
             

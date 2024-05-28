@@ -3,7 +3,7 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="3.0">
     <xsl:param name="context"/>
-    <xsl:param name="previewable" select="false()" as="xs:boolean"/>
+    <xsl:param name="doProofing" select="false()" as="xs:boolean"/>
     
     <xsl:template name="topnavigation">
         <div id="top">
@@ -77,9 +77,9 @@
         </div>
         
         <div id="banner">
-            <xsl:if test="$previewable">
+            <xsl:if test="$doProofing">
               <div class="preview-warn">
-                <strong>Preview</strong>
+                <strong>Proofing copy</strong>
               </div>
             </xsl:if>
             <div id="dhqlogo">
