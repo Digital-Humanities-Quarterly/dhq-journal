@@ -248,7 +248,7 @@
           <xsl:with-param name="transform-2-xsl-filename" select="'bios_sort.xsl'"/>
         </xsl:call-template>
       </xsl:result-document>
-      <!-- Generate article list? article_list.xsl -->
+      <!-- TODO: Generate article lists? article_list.xsl -->
       <!-- Transform the articles in this section. -->
       <xsl:apply-templates>
         <xsl:with-param name="vol" select="@vol/data(.)" tunnel="yes"/>
@@ -553,6 +553,10 @@
           <xsl:map-entry key="QName( (),'fpath')" select="$web-filepath"/>
           <xsl:map-entry key="QName( (),'context')" select="$context"/>
           <xsl:map-entry key="QName( (),'doProofing')" select="$doProofing"/>
+          <!-- toc.xsl uses <xsl:message> to list every article in the issue. This 
+            is useful but too much noise for the static site generation process, so 
+            it's turned off here. -->
+          <xsl:map-entry key="QName( (),'do-list-articles')" select="false()"/>
         </xsl:map>
       </xsl:map-entry>
     </xsl:map>

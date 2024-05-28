@@ -52,9 +52,9 @@
     <xsl:template match="list|cluster">
         <xsl:for-each select="item[not(ancestor::journal/attribute::editorial)]">
             <xsl:apply-templates select="document(concat($staticPublishingPath,@id,'/',@id,'.xml'))//tei:TEI"/>
-            <xsl:message>
+            <!--<xsl:message>
                 <xsl:value-of select="concat('file: ',$staticPublishingPath,@id,'/',@id,'.xml')"/>
-            </xsl:message>
+            </xsl:message>-->
         </xsl:for-each>
     </xsl:template>
     

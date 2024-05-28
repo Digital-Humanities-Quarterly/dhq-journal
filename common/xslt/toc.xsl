@@ -10,76 +10,54 @@
     <xsl:param name="issue"><xsl:value-of select="toc/journal[@current]/@issue"/></xsl:param>
     <xsl:param name="staticPublishingPath"><xsl:value-of select="'../../articles/'"/></xsl:param>
     <xsl:param name="context"/>
+    <!-- Whether or not to use XSL messages to list all the articles for the given issue. -->
+    <xsl:param name="do-list-articles" select="true()" as="xs:boolean"/>
+    
     <xsl:variable name="apos">'</xsl:variable>
 
     <xsl:template match="cluster">
         <xsl:apply-templates/>
     </xsl:template>
-
+    
+    <!-- 2024-05-28: AMC restructured this template so there is less repetition and 
+      it's easier to tell what's going on. -->
     <xsl:template match="item">
-        <xsl:choose>
+        <xsl:variable name="articlePath">
+          <xsl:variable name="normalizedId" select="normalize-space(@id)"/>
+          <xsl:value-of select="concat($staticPublishingPath,$normalizedId,'/',$normalizedId,'.xml')"/>
+        </xsl:variable>
+        <!-- Process the article in whatever mode is required. -->
+        <xsl:variable name="processedArticle" as="node()*">
+          <xsl:choose>
             <xsl:when test="ancestor::journal[@preview]">
-                <xsl:choose>
-                    <xsl:when test="parent::cluster">
-                        <div class="cluster">
-                            <xsl:apply-templates
-                                select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI" mode="preview"/>
-                            <xsl:message>
-                                <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                            </xsl:message>
-                        </div>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:apply-templates
-                            select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI" mode="preview"/>
-                        <xsl:message>
-                            <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                        </xsl:message>
-                    </xsl:otherwise>
-                </xsl:choose>
+              <xsl:apply-templates select="document($articlePath)//tei:TEI" mode="preview"/>
             </xsl:when>
             <xsl:when test="ancestor::journal[@editorial]">
-                <xsl:choose>
-                    <xsl:when test="parent::cluster">
-                        <div class="cluster">
-                            <xsl:apply-templates
-                                select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI" mode="editorial"/>
-                            <xsl:message>
-                                <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                            </xsl:message>
-                        </div>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:apply-templates
-                            select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI" mode="editorial"/>
-                        <xsl:message>
-                            <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                        </xsl:message>
-                    </xsl:otherwise>
-                </xsl:choose>
+              <xsl:apply-templates select="document($articlePath)//tei:TEI" mode="editorial"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:choose>
-                    <xsl:when test="parent::cluster">
-                        <div class="cluster">
-                            <xsl:apply-templates
-                                select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI"/>
-                            <xsl:message>
-                                <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                            </xsl:message>
-                        </div>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:apply-templates
-                            select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI"/>
-                        <xsl:message>
-                            <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                        </xsl:message>
-                    </xsl:otherwise>
-                </xsl:choose>
+              <xsl:apply-templates select="document($articlePath)//tei:TEI"/>
             </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <!-- If the article occurs inside a <cluster>, wrap $processedArticle in a 
+          <div class="cluster">. Otherwise, just reproduce $processedArticle. -->
+        <xsl:choose>
+          <xsl:when test="parent::cluster">
+            <div class="cluster">
+              <xsl:sequence select="$processedArticle"/>
+            </div>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:sequence select="$processedArticle"/>
+          </xsl:otherwise>
         </xsl:choose>
-
+        <!-- 2024-05-28: Rather than repeating the <xsl:message> in every branch of 
+          the conditional, we do it once: here, at the end. And then, only if the 
+          $do-list-articles parameter is toggled on. -->
+        <xsl:if test="$do-list-articles">
+          <xsl:message select="concat('file: ',$articlePath)"/>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="list[@id='frontmatter']">
