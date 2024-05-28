@@ -241,7 +241,7 @@
       <!-- Generate author biographies. -->
       <xsl:variable name="editorial-bios-map" as="map(*)" 
         select="dhq:set-up-issue-transformation(., 'template_editorial_bios.xsl', $fpath||'/bios.html')"/>
-      <!-- Generate the editorial biographies page through two XSL transformations. -->
+      <!-- Generate the biographies page through two XSL transformations. -->
       <xsl:result-document href="{$outDir||'/bios.html'}">
         <xsl:call-template name="transform-with-sorting">
           <xsl:with-param name="transform-1-map" select="$editorial-bios-map" as="map(*)"/>
@@ -250,6 +250,15 @@
       </xsl:result-document>
       <!-- Generate article list? article_list.xsl -->
       <!-- Transform the articles in this section. -->
+      <xsl:apply-templates>
+        <xsl:with-param name="vol" select="@vol/data(.)" tunnel="yes"/>
+        <xsl:with-param name="issue" select="@issue/data(.)" tunnel="yes"/>
+        <xsl:with-param name="fpath" select="$fpath" tunnel="yes"/>
+        <xsl:with-param name="outDir" select="$outDir" tunnel="yes"/>
+        <xsl:with-param name="defaultXslPath" tunnel="yes" 
+          select="dhq:set-filesystem-path(( $repo-dir, 'common', 'xslt', 
+                                            'template_editorial_article.xsl' ))"/>
+      </xsl:apply-templates>
     </xsl:if>
   </xsl:template>
   
@@ -326,7 +335,7 @@
   <!-- An article listed for an issue is transformed into HTML. Then, an Ant file 
     mapper entry is created, so that this article's XML and other resources can be 
     copied to the static directory later. -->
-  <xsl:template match="journal[@vol][@issue]//item[@id]">
+  <xsl:template match="journal//item[@id]">
     <xsl:param name="outDir" as="xs:string" tunnel="yes"/>
     <xsl:variable name="articleId" select="@id/data(.)"/>
     <xsl:variable name="srcDir" 
@@ -415,11 +424,17 @@
       the article directory.
       
       If DHQ eventually decides to place article XML next to the HTML, delete the <regexpmapper> below. 
-      The second file mapper will place the XML in the article directory. -->
-    <regexpmapper handledirsep="true">
-      <xsl:attribute name="from" select="'^'||$article-id||'/'||$article-id||'\.xml$'"/>
-      <xsl:attribute name="to"   select="replace( $toVal, concat('^', $static-dir, '/' ), '' )||'.xml'"/>
-    </regexpmapper>
+      The second file mapper will place the XML in the article directory.
+      
+      2024-05-28: The "editorial" (internal preview) article XSLT expects the XML to be in the same 
+        directory as the HTML, it turns out.
+    -->
+    <xsl:if test="not(ancestor::journal[@editorial eq 'true'])">
+      <regexpmapper handledirsep="true">
+        <xsl:attribute name="from" select="'^'||$article-id||'/'||$article-id||'\.xml$'"/>
+        <xsl:attribute name="to"   select="replace( $toVal, concat('^', $static-dir, '/' ), '' )||'.xml'"/>
+      </regexpmapper>
+    </xsl:if>
     <!-- Map all (remaining) resources in the article folder to the static article 
       folder. -->
     <regexpmapper handledirsep="true">
@@ -442,6 +457,7 @@
       Sometimes we need to override this; for example, when dealing with a previous 
       version of an article. -->
     <xsl:param name="outFile" select="concat($articleId,'.html')" as="xs:string"/>
+    <xsl:param name="defaultXslPath" as="xs:string?" tunnel="yes"/>
     <!-- Create the map which will define the article's transformation. -->
     <xsl:variable name="xslMap" as="map(*)">
       <!-- Some DHQ articles have alternate XSL stylesheets. If the article folder 
@@ -455,6 +471,15 @@
                     'stylesheet-location': $altXslPath,
                     'cache': false()
                   }
+                (: If the default XSLT has been overridden, we'll need a new map. 
+                  Here too, no caching should be done. :)
+                else if ( exists($defaultXslPath) and doc-available($defaultXslPath) ) then
+                  map {
+                      'stylesheet-location': $defaultXslPath,
+                      'cache': false()
+                    }
+                (: By default, we can just use the $xsl-map-base defined globally. 
+                  Most articles will use this. :)
                 else $xsl-map-base"/>
       <xsl:variable name="otherEntries" 
         select="map {
