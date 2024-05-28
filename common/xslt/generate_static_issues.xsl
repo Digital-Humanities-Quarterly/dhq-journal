@@ -222,7 +222,36 @@
   <!-- The "editorial" section of the TOC is for articles that are being worked on 
     by the DHQ editors and authors. The articles in this section should not be 
     published on the DHQ site, only in a preview copy. -->
-  <xsl:template match="journal[@editorial eq 'true']"/>
+  <xsl:template match="journal[@editorial eq 'true']">
+    <!-- Proceed with transforming the articles in this section ONLY if $doProofing 
+      is toggled on. -->
+    <xsl:if test="$doProofing">
+      <xsl:message select="'Processing editorial section'"/>
+      <xsl:variable name="fpath" select="'editorial'"/>
+      <!-- Generate index of articles. -->
+      <!-- Define the transformation of the TOC into the Internal Preview index. 
+        Most of the heavy lifting is done by dhq:set-up-issue-transformation(). -->
+      <xsl:variable name="editorial-index-map" as="map(*)"
+        select="dhq:set-up-issue-transformation(., 'template_editorial.xsl', $fpath||'/index.html')"/>
+      <xsl:variable name="outDir" select="dhq:set-filesystem-path(( $static-dir, 'editorial' ))"/>
+      <!-- Generate this issue’s main page using $editorial-index-map -->
+      <xsl:result-document href="{$outDir||'/index.html'}">
+        <xsl:sequence select="transform( $editorial-index-map )?output"/>
+      </xsl:result-document>
+      <!-- Generate author biographies. -->
+      <xsl:variable name="editorial-bios-map" as="map(*)" 
+        select="dhq:set-up-issue-transformation(., 'template_editorial_bios.xsl', $fpath||'/bios.html')"/>
+      <!-- Generate the editorial biographies page through two XSL transformations. -->
+      <xsl:result-document href="{$outDir||'/bios.html'}">
+        <xsl:call-template name="transform-with-sorting">
+          <xsl:with-param name="transform-1-map" select="$editorial-bios-map" as="map(*)"/>
+          <xsl:with-param name="transform-2-xsl-filename" select="'bios_sort.xsl'"/>
+        </xsl:call-template>
+      </xsl:result-document>
+      <!-- Generate article list? article_list.xsl -->
+      <!-- Transform the articles in this section. -->
+    </xsl:if>
+  </xsl:template>
   
   <!-- For each DHQ issue, we first produce an index page and the contributors' 
     biographies page. If this issue is the current one, we also produce the DHQ home 
@@ -434,7 +463,8 @@
                 QName((),'context'): $context,
                 QName((),'vol'): $vol,
                 QName((),'issue'): $issue,
-                QName((),'fpath'): concat($fpath,'/',$outFile)
+                QName((),'fpath'): concat($fpath,'/',$outFile),
+                QName((),'doProofing'): $doProofing
               }
           }"/>
       <xsl:sequence select="map:merge(($useStylesheet, $otherEntries))"/>
