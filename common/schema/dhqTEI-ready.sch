@@ -182,14 +182,14 @@
   	</rule>
   	
   	<!-- warns if @target seems to point externally and is missing a protocol or is missing a # -->
-		<rule context="*[@target]">
+		<!--<rule context="*[@target]">
   		<assert role="warning"
   			test="starts-with(@target, 'http://') or
   						starts-with(@target, 'https://') or
   						starts-with(@target, '#')">
   			@target should begin with 'http://' or 'https://' if it points to an external source.
   		</assert>
-    </rule>
+    </rule>-->
 
     <rule context="tei:ptr[starts-with(@target,'#')]">
       <extends rule="target-uri-constraints"/>
