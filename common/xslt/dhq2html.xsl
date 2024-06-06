@@ -1575,7 +1575,7 @@
 
     <xsl:template match="dhq:example/tei:head" mode="label">
         <xsl:text>Example&#160;</xsl:text>
-        <xsl:number count="//dhq:example/tei:head" level="any" from="tei:text"/>
+        <xsl:number count="dhq:example" level="any" from="tei:text"/>
     </xsl:template>
 
     <xsl:template match="tei:figure" mode="label">
