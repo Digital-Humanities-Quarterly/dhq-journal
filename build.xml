@@ -108,6 +108,7 @@ is loaded when Ant starts up. Please run Ant again like this:
      description="Generate static HTML versions of the DHQ issues.">
     <property name="context.use" value="${context}" unless:set="${context.use}"/>
     <property name="do.proofing" value="false" unless:set="${do.proofing}"/>
+    <property name="do.proofing.full" value="true" unless:set="${do.proofing.full}"/>
     <mkdir dir="${toDir.static}${file.separator}vol"/>
     <!-- Use XSLT to transform issues using the DHQ table of contents. -->
     <xslt in="toc${file.separator}toc.xml" 
@@ -121,7 +122,8 @@ is loaded when Ant starts up. Please run Ant again like this:
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
         the output file's directory, ${toDir}. -->
       <param name="static-dir" expression="${context.use}"/>
-      <param name="doProofing" expression="${do.proofing}"/>
+      <param name="do-proofing" expression="${do.proofing}"/>
+      <param name="do-proofing-full" expression="${do.proofing.full}"/>
     </xslt>
     <!--<echo message="${do.proofing}"/>-->
   </target>
@@ -245,11 +247,18 @@ is loaded when Ant starts up. Please run Ant again like this:
      description="Generate a copy of the full DHQ site, including unpublished articles listed in the TOC.">
     <!-- The preview version of the DHQ site must be stored separately from the regular, public site. 
       To manage this, we set the "context.use" property before the "generateIssues" target can. -->
+    <!-- TODO: change "context.use" to more specifically the static directory -->
     <property name="context.use" value="${context}-proofing"/>
+    <property name="do.proofing" value="true"/>
+    <property name="do.proofing.full" value="false"/>
     <!-- Within ${toDir.base}, individually generated static site files will be 
       written to the ${context}-proofing directory. -->
     <property name="toDir.proofing" value="${toDir.base}${file.separator}${context.use}"/>
-    <property name="do.proofing" value="true"/>
+    <!-- Delete the contents of the proofing directory before beginning. This ensures that the same 
+      directory can be re-used for a full site proofing endeavor as for an editorial-only endeavor. -->
+    <delete includeemptydirs="true">
+      <fileset dir="${toDir.proofing}" includes="**/*"/>
+    </delete>
     <antcall target="generateIssues"/>
   </target>
   

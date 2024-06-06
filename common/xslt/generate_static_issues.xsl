@@ -52,12 +52,22 @@
   <!-- The base URL for DHQ. Passed on to the article HTML transformations. -->
   <xsl:param name="context" as="xs:string"/>
   
-  <!-- When $doProofing is toggled on, the articles in the "editorial" space should be included, and the 
-    HTML should appear distinct from the regular DHQ site. -->
-  <xsl:param name="doProofing" select="false()" as="xs:boolean"/>
+  <!-- When $do-proofing is toggled on, the articles in the "editorial" space should 
+    be included, and the HTML should appear distinct from the regular DHQ site. -->
+  <xsl:param name="do-proofing" select="false()" as="xs:boolean"/>
+  
+  <!-- When $do-proofing AND $do-proofing-full are toggled on, the 
+    preview issue and other public issues are not processed. Only the articles in 
+    the "editorial" space of the TOC are included. -->
+  <xsl:param name="do-proofing-full" select="true()" as="xs:boolean"/>
   
   
  <!--  GLOBAL VARIABLES  -->
+  
+  <!-- Whether to generate the full Ant build file needed to transfer all articles 
+    and TOC derivatives, as well as compress the articles' XML. -->
+  <xsl:variable name="do-full-build" as="xs:boolean"
+    select="not($do-proofing) or ($do-proofing and $do-proofing-full)"/>
   
   <!-- Find any articles that appear in two different issues. These will need to be 
     handled separately in the Ant build file. -->
@@ -117,66 +127,93 @@
           <compositemapper>
             <!-- Generate regex mappers for any article that appears in more than 
               one issue. (As of 2023-06, there is only one: 000109 is included in 
-              both 5.3 and 6.2.) -->
-            <xsl:apply-templates select="//item[@id = $duplicated-articles]" mode="dupe-article"/>
+              both 5.3 and 6.2.) We only need to do this if multiple issues will be 
+              part of the static output. -->
+            <xsl:if test="$do-full-build">
+              <xsl:apply-templates select="//item[@id = $duplicated-articles]" mode="dupe-article"/>
+            </xsl:if>
             <!-- A majority of articles only appear once throughout DHQ. Resource 
               mappers for these articles can appear inside <firstmatchmapper>. -->
             <firstmatchmapper>
-              <!-- Run all transformations for all issues and articles. If an 
-                article is known to be duplicated across issues, the file mapper 
-                output is suppressed. -->
-              <xsl:apply-templates/>
+              <xsl:choose>
+                <!-- If we're only processing the "editorial" section of the TOC, 
+                  apply templates there and only there. -->
+                <xsl:when test="not($do-full-build)">
+                  <xsl:apply-templates select="//journal[@editorial eq 'true']"/>
+                </xsl:when>
+                <!-- Run all transformations for all issues and articles. If an 
+                  article is known to be duplicated across issues, the file mapper 
+                  output is suppressed. -->
+                <xsl:otherwise>
+                  <xsl:apply-templates/>
+                </xsl:otherwise>
+              </xsl:choose>
             </firstmatchmapper>
           </compositemapper>
         </copy>
       </target>
-      
-      <!-- Also generate an Ant target for zipping up all non-preview XML articles. -->
-      <target name="zipArticleXml">
-        <!-- The articles' build file should inherit the basedir property of the DHQ 
-          build file. To make it clearer which folder we're working from, "basedir" 
-          is here mapped onto a new property "toDir.git". -->
-        <property name="toDir.git">
-          <xsl:attribute name="value">${basedir}</xsl:attribute>
-        </property>
-        <zip>
-          <xsl:attribute name="destfile">${toDir.static}${file.separator}data${file.separator}dhq-xml.zip</xsl:attribute>
-          <!-- We're only interested in zipping up articles that:
-                  1. are relatively stable (read: not in the preview issue or 
-                    editorial area), and
-                  2. are not example articles.
-               We also only need one ZIP entry per article, even if the article 
-               appears in multiple DHQ issues.
-            -->
-          <xsl:for-each-group group-by="@id/data(.)" 
-              select=".//journal[not(@preview eq 'true') and not(@editorial eq 'true')]
-                                //item[@id][not(starts-with(@id, '9'))]">
-            <xsl:variable name="id" select="current-grouping-key()"/>
-            <!-- We want each XML file to appear under the same directory, without 
-              any intermediate folders in the way. To do this, we use Ant's 
-              <zipfileset> to start each article in its containing directory, and 
-              prefix its file entry with a common folder name "dhq-articles". -->
-            <zipfileset>
-              <xsl:attribute name="dir">
-                <xsl:text>${toDir.git}${file.separator}articles${file.separator}</xsl:text>
-                <xsl:value-of select="$id"/>
-              </xsl:attribute>
-              <xsl:attribute name="includes">
-                <xsl:value-of select="$id"/>
-                <xsl:text>.xml</xsl:text>
-              </xsl:attribute>
-              <xsl:attribute name="prefix">
-                <xsl:text>dhq-articles</xsl:text>
-              </xsl:attribute>
-            </zipfileset>
-          </xsl:for-each-group>
-        </zip>
-      </target>
+      <!-- Also, generate an Ant target for zipping up all non-preview XML articles. 
+        We don't need to do this when proofing only the editorial articles. -->
+      <xsl:if test="$do-full-build">
+        <xsl:call-template name="make-target-to-compress-xml"/>
+      </xsl:if>
     </project>
-    <!-- While we're in the TOC, generate the indexes of all article titles and all 
-      contributors. Each index is processed in two steps: First, the TOC is 
-      transformed with a special stylesheet. Then, another stylesheet sorts all of 
-      the indexed entries. -->
+    <!-- While we're in the TOC, generate indexes of all article titles and all 
+      contributors. We don't need to do this when proofing only the editorial 
+      articles. -->
+    <xsl:if test="$do-full-build">
+      <xsl:call-template name="generate-article-indexes"/>
+    </xsl:if>
+  </xsl:template>
+  
+  <!-- Generate an Ant target for zipping up all non-preview XML articles. -->
+  <xsl:template name="make-target-to-compress-xml">
+    <target name="zipArticleXml">
+      <!-- The articles' build file should inherit the basedir property of the DHQ 
+        build file. To make it clearer which folder we're working from, "basedir" 
+        is here mapped onto a new property "toDir.git". -->
+      <property name="toDir.git">
+        <xsl:attribute name="value">${basedir}</xsl:attribute>
+      </property>
+      <zip>
+        <xsl:attribute name="destfile">${toDir.static}${file.separator}data${file.separator}dhq-xml.zip</xsl:attribute>
+        <!-- We're only interested in zipping up articles that:
+                1. are relatively stable (read: not in the preview issue or 
+                  editorial area), and
+                2. are not example articles.
+             We also only need one ZIP entry per article, even if the article 
+             appears in multiple DHQ issues.
+          -->
+        <xsl:for-each-group group-by="@id/data(.)" 
+            select=".//journal[not(@preview eq 'true') and not(@editorial eq 'true')]
+                              //item[@id][not(starts-with(@id, '9'))]">
+          <xsl:variable name="id" select="current-grouping-key()"/>
+          <!-- We want each XML file to appear under the same directory, without 
+            any intermediate folders in the way. To do this, we use Ant's 
+            <zipfileset> to start each article in its containing directory, and 
+            prefix its file entry with a common folder name "dhq-articles". -->
+          <zipfileset>
+            <xsl:attribute name="dir">
+              <xsl:text>${toDir.git}${file.separator}articles${file.separator}</xsl:text>
+              <xsl:value-of select="$id"/>
+            </xsl:attribute>
+            <xsl:attribute name="includes">
+              <xsl:value-of select="$id"/>
+              <xsl:text>.xml</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="prefix">
+              <xsl:text>dhq-articles</xsl:text>
+            </xsl:attribute>
+          </zipfileset>
+        </xsl:for-each-group>
+      </zip>
+    </target>
+  </xsl:template>
+  
+  <!-- Generate the indexes of all article titles and all contributors. Each index 
+    is processed in two steps: First, the TOC is transformed with a special 
+    stylesheet. Then, another stylesheet sorts all of the indexed entries. -->
+  <xsl:template name="generate-article-indexes">
     <!-- Generate the index of all articles by title. -->
     <xsl:variable name="titles-index-map" as="map(*)">
       <xsl:map>
@@ -186,7 +223,7 @@
           <xsl:map>
             <xsl:map-entry key="QName( (),'fpath')" select="'index/title.html'"/>
             <xsl:map-entry key="QName( (),'context')" select="$context"/>
-            <xsl:map-entry key="QName( (),'doProofing')" select="$doProofing"/>
+            <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
           </xsl:map>
         </xsl:map-entry>
       </xsl:map>
@@ -206,7 +243,7 @@
           <xsl:map>
             <xsl:map-entry key="QName( (),'fpath')" select="'index/author.html'"/>
             <xsl:map-entry key="QName( (),'context')" select="$context"/>
-            <xsl:map-entry key="QName( (),'doProofing')" select="$doProofing"/>
+            <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
           </xsl:map>
         </xsl:map-entry>
       </xsl:map>
@@ -223,9 +260,9 @@
     by the DHQ editors and authors. The articles in this section should not be 
     published on the DHQ site, only in a preview copy. -->
   <xsl:template match="journal[@editorial eq 'true']">
-    <!-- Proceed with transforming the articles in this section ONLY if $doProofing 
+    <!-- Proceed with transforming the articles in this section ONLY if $do-proofing 
       is toggled on. -->
-    <xsl:if test="$doProofing">
+    <xsl:if test="$do-proofing">
       <xsl:message select="'Processing editorial section'"/>
       <xsl:variable name="fpath" select="'editorial'"/>
       <!-- Generate index of articles. -->
@@ -489,7 +526,7 @@
                 QName((),'vol'): $vol,
                 QName((),'issue'): $issue,
                 QName((),'fpath'): concat($fpath,'/',$outFile),
-                QName((),'doProofing'): $doProofing
+                QName((),'doProofing'): $do-proofing
               }
           }"/>
       <xsl:sequence select="map:merge(($useStylesheet, $otherEntries))"/>
@@ -552,7 +589,7 @@
           <xsl:map-entry key="QName( (),'issue')" select="$journal-node/@issue/data()"/>
           <xsl:map-entry key="QName( (),'fpath')" select="$web-filepath"/>
           <xsl:map-entry key="QName( (),'context')" select="$context"/>
-          <xsl:map-entry key="QName( (),'doProofing')" select="$doProofing"/>
+          <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
           <!-- toc.xsl uses <xsl:message> to list every article in the issue. This 
             is useful but too much noise for the static site generation process, so 
             it's turned off here. -->
