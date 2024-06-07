@@ -9,7 +9,7 @@
   <!-- 
     See build-properties.xml for the settings used in this file. When referenced, 
     properties look like this:
-      ${toDir}
+      ${toDir.base}
     For more information, see https://ant.apache.org/manual/Tasks/xmlproperty.html
   -->
   <xmlproperty file="build-properties.xml" keepRoot="false"/>
@@ -17,11 +17,15 @@
   <!-- Define the relative path from the DHQ repository (this directory) to the 
     directory which will hold the directory of generated static site files, as well 
     as the full compressed site and derived Ant build file. -->
-  <property name="toDir.base" value="..${file.separator}${toDir}"/>
+  <property name="toDir.base.path" value="..${file.separator}${toDir.base}"/>
   
   <!-- Within ${toDir.base}, individually generated static site files will be 
     written to the ${context} directory. -->
-  <property name="toDir.static" value="${toDir.base}${file.separator}${context}"/>
+  <property name="toDir.static.path" value="${toDir.base.path}${file.separator}${toDir.static}"/>
+  
+  <!-- Within ${toDir.base}, the proofing version of the site will be written to the 
+    "dhq-proofing" directory. -->
+  <property name="toDir.proofing.path" value="${toDir.base.path}${file.separator}${toDir.proofing}"/>
   
   <!-- Check for the XML Resolver Java class, as it is a dependency for using the 
     Saxon HE processor. From the Saxon documentation on XSLT with Ant:
@@ -94,50 +98,55 @@ is loaded when Ant starts up. Please run Ant again like this:
     <echo>  biographies, and the “landing” page. The output is placed in the</echo>
     <echo>  ${toDir.static}/ directory, i.e. in a sibling to this directory, over-</echo>
     <echo>  writing any previous version. (Some temporary files are also placed in</echo>
-    <echo>  ${toDir.base}/.) The output is designed to be viewed from a server, as</echo>
+    <echo>  ${toDir.base.path}/.) The output is designed to be viewed from a server, as</echo>
     <echo>  it uses absolute filepaths to its assets. Thus it will not work properly</echo>
     <echo>  (and will look ugly) if viewed on your local machine.</echo>
     <echo>generateSite</echo>
     <echo>  As above, but also ZIPs up the entire ${toDir.static}/ directory to make</echo>
     <echo>  it easy to transfer (e.g., to a server). The output file can be found at</echo>
-    <echo>  ${toDir.base}${file.separator}${context}.zip.</echo>
+    <echo>  ${toDir.base.path}${file.separator}${context}.zip.</echo>
   </target>
 
   <!-- Generate static HTML versions of the DHQ issues (articles, bios, & indices). -->
   <target name="generateIssues" depends="checkXmlResolver" 
      description="Generate static HTML versions of the DHQ issues.">
-    <property name="context.use" value="${context}" unless:set="${context.use}"/>
+    <!-- By default, we want to use the standard directory for the static site. 
+      However, we can override it by setting the property first elsewhere — either 
+      on the command line, or in another Ant target that calls this one. This method 
+      of falling back lets us use this target to generate a proofing copy of DHQ as 
+      well as the publication-ready version. -->
+    <property name="toDir.use" value="${toDir.static.path}" unless:set="${toDir.use}"/>
     <property name="do.proofing" value="false" unless:set="${do.proofing}"/>
     <property name="do.proofing.full" value="true" unless:set="${do.proofing.full}"/>
-    <mkdir dir="${toDir.static}${file.separator}vol"/>
+    <mkdir dir="${toDir.use}${file.separator}vol"/>
     <!-- Use XSLT to transform issues using the DHQ table of contents. -->
     <xslt in="toc${file.separator}toc.xml" 
-          out="${toDir.base}${file.separator}article-map.xml"
+          out="${toDir.base.path}${file.separator}article-map.xml"
           style="common${file.separator}xslt${file.separator}generate_static_issues.xsl"
           classpath="${processor.location}"
           force="true"
           failonerror="false">
       <factory name="${processor.name}"/>
-      <param name="context" expression="${context.use}"/>
+      <param name="context" expression="${context}"/>
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
-        the output file's directory, ${toDir}. -->
-      <param name="static-dir" expression="${context.use}"/>
+        the output file's directory, ${toDir.base}. -->
+      <param name="static-dir" expression="${toDir.use}"/>
       <param name="do-proofing" expression="${do.proofing}"/>
       <param name="do-proofing-full" expression="${do.proofing.full}"/>
     </xslt>
-    <!--<echo message="${do.proofing}"/>-->
+    <!--<echo message="${toDir.use}"/>-->
   </target>
 
   <!-- Generate a static version of the DHQ website. -->
   <target name="generateSite" depends="checkXmlResolver,generateIssues"
      description="Generate a full static copy of DHQ intended for the DHQ server. This is NOT a standalone copy.">
-    <mkdir dir="${toDir.static}"/>
+    <mkdir dir="${toDir.static.path}"/>
     <!-- Use the Ant build file created in "generateIssues" to copy articles' 
       resources to the right static directories. -->
-    <ant antfile="${toDir.base}${file.separator}article-map.xml" 
+    <ant antfile="${toDir.base.path}${file.separator}article-map.xml" 
          target="copyArticleResources" inheritRefs="true"/>
     <!-- Copy specific files in the base directory. -->
-    <copy todir="${toDir.static}">
+    <copy todir="${toDir.static.path}">
       <filelist dir=".">
         <file name="flow.js"/>
         <file name="robots.txt"/>
@@ -146,16 +155,16 @@ is loaded when Ant starts up. Please run Ant again like this:
       </filelist>
     </copy>
     <!-- Copy text files in the submissions directory. -->
-    <copy todir="${toDir.static}${file.separator}submissions">
+    <copy todir="${toDir.static.path}${file.separator}submissions">
       <fileset dir="submissions" includes="*.txt *.xml"/>
     </copy>
     <!-- Copy web assets. -->
-    <copy todir="${toDir.static}${file.separator}common">
+    <copy todir="${toDir.static.path}${file.separator}common">
       <fileset dir="common" excludes="lib/ tests/"/>
     </copy>
     <!-- Create a generic error page. (HTTP status 500) -->
     <xslt in="toc${file.separator}toc.xml" 
-          out="${toDir.static}${file.separator}500.html"
+          out="${toDir.static.path}${file.separator}500.html"
           style="common${file.separator}xslt${file.separator}template_article.xsl"
           classpath="${processor.location}"
           failonerror="false">
@@ -163,25 +172,25 @@ is loaded when Ant starts up. Please run Ant again like this:
       <param name="context" expression="${context}"/>
       <param name="error" expression="true"/>
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
-        the output file's directory, ${toDir}. -->
-      <param name="static-dir" expression="${context}"/>
+        the output file's directory, ${toDir.base}. -->
+      <param name="static-dir" expression="${toDir.static}"/>
     </xslt>
     <!-- Create a page for "not found" errors. (HTTP status 404) -->
     <xslt in="toc${file.separator}toc.xml" 
-          out="${toDir.static}${file.separator}404.html"
+          out="${toDir.static.path}${file.separator}404.html"
           style="common${file.separator}xslt${file.separator}template_article.xsl"
           classpath="${processor.location}"
           failonerror="false">
       <factory name="${processor.name}"/>
       <param name="context" expression="${context}"/>
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
-        the output file's directory, ${toDir}. -->
+        the output file's directory, ${toDir.base}. -->
       <param name="static-dir" expression="${context}"/>
     </xslt>
     <!-- Transform the test file.
       TODO: is this still necessary? -->
     <xslt in="common${file.separator}tests${file.separator}starter.xml" 
-          out="${toDir.static}${file.separator}starter.html"
+          out="${toDir.static.path}${file.separator}starter.html"
           style="common${file.separator}tests${file.separator}test2.xsl"
           classpath="${processor.location}">
       <factory name="${processor.name}"/>
@@ -189,29 +198,29 @@ is loaded when Ant starts up. Please run Ant again like this:
     </xslt>
     <!-- Create the Atom news feed. -->
     <xslt in="toc${file.separator}toc.xml" 
-          out="${toDir.static}${file.separator}feed${file.separator}news.xml"
+          out="${toDir.static.path}${file.separator}feed${file.separator}news.xml"
           style="feed${file.separator}atomnews.xsl"
           classpath="${processor.location}"
           failonerror="false">
       <factory name="${processor.name}"/>
       <param name="context" expression="${context}"/>
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
-        the output file's directory, ${toDir}. -->
-      <param name="static-dir" expression="${context}"/>
+        the output file's directory, ${toDir.base}. -->
+      <param name="static-dir" expression="${toDir.static.path}"/>
     </xslt>
     <!-- Download a copy of the W3C XHTML 1.0 Strict DTD, and its supporting 
       character entity files. If these are already present in the dhq-static 
       directory, nothing is downloaded. -->
     <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
-         dest="${toDir.base}" skipexisting="true"/>
+         dest="${toDir.base.path}" skipexisting="true"/>
     <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent"
-         dest="${toDir.base}" skipexisting="true"/>
+         dest="${toDir.base.path}" skipexisting="true"/>
     <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent"
-         dest="${toDir.base}" skipexisting="true"/>
+         dest="${toDir.base.path}" skipexisting="true"/>
     <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent"
-         dest="${toDir.base}" skipexisting="true"/>
+         dest="${toDir.base.path}" skipexisting="true"/>
     <!-- Add headers and footers to static pages. -->
-    <xslt destdir="${toDir.static}"
+    <xslt destdir="${toDir.static.path}"
           style="common${file.separator}xslt${file.separator}template_static_pages.xsl"
           filenameparameter="fname"
           filedirparameter="fdir"
@@ -221,7 +230,7 @@ is loaded when Ant starts up. Please run Ant again like this:
         the DTD. -->
       <xmlcatalog>
         <dtd publicId="-//W3C//DTD XHTML 1.0 Strict//EN"
-             location="${toDir.base}${file.separator}xhtml1-strict.dtd"/>
+             location="${toDir.base.path}${file.separator}xhtml1-strict.dtd"/>
       </xmlcatalog>
       <mapper>
         <regexpmapper
@@ -233,10 +242,10 @@ is loaded when Ant starts up. Please run Ant again like this:
       <param name="context" expression="dhq"/>
     </xslt>
     <!-- Generate the ZIP file of all articles' XML. -->
-    <mkdir dir="${toDir.static}${file.separator}data"/>
+    <mkdir dir="${toDir.static.path}${file.separator}data"/>
     <!-- Use the Ant build file created in "generateIssues" to zip up all article 
       XML. -->
-    <ant antfile="${toDir.base}${file.separator}article-map.xml" dir="${basedir}" 
+    <ant antfile="${toDir.base.path}${file.separator}article-map.xml" dir="${basedir}" 
          target="zipArticleXml" inheritRefs="true"/>
     <!-- Generate the ZIP file of the entire static site. -->
     <antcall target="compressStatic"/>
@@ -245,27 +254,24 @@ is loaded when Ant starts up. Please run Ant again like this:
   <!-- Generate a copy of the site for proofing. -->
   <target name="makeProofingSite"
      description="Generate a copy of the full DHQ site, including unpublished articles listed in the TOC.">
-    <!-- The preview version of the DHQ site must be stored separately from the regular, public site. 
-      To manage this, we set the "context.use" property before the "generateIssues" target can. -->
-    <!-- TODO: change "context.use" to more specifically the static directory -->
-    <property name="context.use" value="${context}-proofing"/>
+    <!-- The preview version of the DHQ site must be stored separately from the 
+      regular, public site. To manage this, we set the "context.use" property before 
+      the "generateIssues" target can. -->
+    <property name="toDir.use" value="${toDir.proofing.path}"/>
     <property name="do.proofing" value="true"/>
     <property name="do.proofing.full" value="false"/>
-    <!-- Within ${toDir.base}, individually generated static site files will be 
-      written to the ${context}-proofing directory. -->
-    <property name="toDir.proofing" value="${toDir.base}${file.separator}${context.use}"/>
     <!-- Delete the contents of the proofing directory before beginning. This ensures that the same 
       directory can be re-used for a full site proofing endeavor as for an editorial-only endeavor. -->
     <delete includeemptydirs="true">
-      <fileset dir="${toDir.proofing}" includes="**/*"/>
+      <fileset dir="${toDir.proofing.path}" includes="**/*"/>
     </delete>
     <antcall target="generateIssues"/>
   </target>
   
   <!-- Compress the static site's files for backup and transportation. -->
   <target name="compressStatic">
-    <zip destfile="${toDir.base}${file.separator}${context}.zip">
-      <fileset dir="${toDir.static}"/>
+    <zip destfile="${toDir.base.path}${file.separator}${context}.zip">
+      <fileset dir="${toDir.static.path}"/>
     </zip>
   </target>
 

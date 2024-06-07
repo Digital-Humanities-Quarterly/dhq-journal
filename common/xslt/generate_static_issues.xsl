@@ -120,7 +120,7 @@
           static directory. -->
         <copy enablemultiplemappings="true">
           <!-- Remember: no @xsl:expand-text for following line! -->
-          <xsl:attribute name="todir">${toDir.static}</xsl:attribute>
+          <xsl:attribute name="todir">${toDir.static.path}</xsl:attribute>
           <fileset>
             <xsl:attribute name="dir">${basedir}${file.separator}articles</xsl:attribute>
           </fileset>
@@ -176,7 +176,8 @@
         <xsl:attribute name="value">${basedir}</xsl:attribute>
       </property>
       <zip>
-        <xsl:attribute name="destfile">${toDir.static}${file.separator}data${file.separator}dhq-xml.zip</xsl:attribute>
+        <xsl:attribute name="destfile"
+          >${toDir.static.path}${file.separator}data${file.separator}dhq-xml.zip</xsl:attribute>
         <!-- We're only interested in zipping up articles that:
                 1. are relatively stable (read: not in the preview issue or 
                   editorial area), and
