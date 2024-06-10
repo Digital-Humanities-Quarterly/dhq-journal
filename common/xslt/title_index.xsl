@@ -29,7 +29,7 @@
                     </div>
                     <div id="mainContent">
                         <xsl:call-template name="sitetitle"/>
-                        <!-- Rest of the document/article is coverd in this template - this is a call to dhq2html.xsl -->
+                        <!-- Rest of the document/article is covered in this template, defined in this stylesheet -->
                         <xsl:call-template name="index_main_body"/>
                         <!-- Use the URL generated to pass to the footer -->
                         <xsl:call-template name="footer">
