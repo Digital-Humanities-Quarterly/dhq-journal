@@ -252,7 +252,7 @@ is loaded when Ant starts up. Please run Ant again like this:
   </target>
   
   <!-- Generate a copy of the site for proofing. -->
-  <target name="makeProofingSite"
+  <target name="makeInternalPreview"
      description="Generate a copy of the full DHQ site, including unpublished articles listed in the TOC.">
     <!-- The preview version of the DHQ site must be stored separately from the 
       regular, public site. To manage this, we set the "context.use" property before 
@@ -260,12 +260,17 @@ is loaded when Ant starts up. Please run Ant again like this:
     <property name="toDir.use" value="${toDir.proofing.path}"/>
     <property name="do.proofing" value="true"/>
     <property name="do.proofing.full" value="false"/>
-    <!-- Delete the contents of the proofing directory before beginning. This ensures that the same 
-      directory can be re-used for a full site proofing endeavor as for an editorial-only endeavor. -->
+    <!-- Delete the contents of the proofing directory before beginning. This 
+      ensures that the same directory can be re-used for a full site proofing 
+      endeavor as for an editorial-only endeavor. -->
     <delete includeemptydirs="true">
       <fileset dir="${toDir.proofing.path}" includes="**/*"/>
     </delete>
     <antcall target="generateIssues"/>
+    <!-- Use the Ant build file created in "generateIssues" to copy articles' 
+      resources to the right static directories. -->
+    <ant antfile="${toDir.base.path}${file.separator}article-map.xml" 
+         target="copyArticleResources" inheritRefs="true"/>
   </target>
   
   <!-- Compress the static site's files for backup and transportation. -->

@@ -129,8 +129,10 @@
         <!-- Copy all public articles' XML, figures, etc. from the repository to the 
           static directory. -->
         <copy enablemultiplemappings="true">
-          <!-- Remember: no @xsl:expand-text for following line! -->
-          <xsl:attribute name="todir">${toDir.static.path}</xsl:attribute>
+          <!-- We could use the Ant property ${toDir.static.path}, but since the 
+            generated build file will be local to this computer, we can simply use 
+            $static-dir without worrying about OS-specific file separators. -->
+          <xsl:attribute name="todir" select="$static-dir"/>
           <fileset>
             <xsl:attribute name="dir">${basedir}${file.separator}articles</xsl:attribute>
           </fileset>
@@ -461,8 +463,12 @@
         <xsl:attribute name="value">${basedir}</xsl:attribute>
       </property>
       <zip>
-        <xsl:attribute name="destfile"
-          >${toDir.static.path}${file.separator}data${file.separator}dhq-xml.zip</xsl:attribute>
+        <!-- The ZIP file of article XML should be saved within the "data" folder of 
+          $static-dir. -->
+        <xsl:attribute name="destfile">
+          <xsl:value-of select="$static-dir"/>
+          <xsl:text>${file.separator}data${file.separator}dhq-xml.zip</xsl:text>
+        </xsl:attribute>
         <!-- We're only interested in zipping up articles that:
                 1. are relatively stable (read: not in the preview issue or 
                   editorial area), and
