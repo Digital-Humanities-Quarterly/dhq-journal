@@ -243,52 +243,46 @@
         </xsl:choose>
     </xsl:template>
 
-
+    <!-- Link to the author biographies for the current issue. -->
     <xsl:template name="index_main_body">
         <div id="toc">
             <xsl:apply-templates select="toc/journal[@vol=$vol and @issue=$issue]"/>
-
             <h2>
+                <!-- 2024-06: Ash changed this to a relative link. The bios page appears in the same 
+                  directory as the issue's index. -->
                 <a>
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/vol/',$vol,'/',$issue,'/','bios.html')"/>
-                    </xsl:attribute>
+                    <xsl:attribute name="href" select="'bios.html'"/>
                     <xsl:value-of select="'Author Biographies'"/>
                 </a>
             </h2>
-
         </div>
     </xsl:template>
 
     <xsl:template name="index_main_body_preview">
         <div id="toc">
             <xsl:apply-templates select="toc/journal[@preview]"/>
-
             <h2>
+                <!-- 2024-06: Ash changed this to a relative link. The bios page appears in the same 
+                  directory as the issue's index. -->
                 <a>
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/preview/bios.html')"/>
-                    </xsl:attribute>
+                    <xsl:attribute name="href" select="'bios.html'"/>
                     <xsl:value-of select="'Author Biographies'"/>
                 </a>
             </h2>
-
         </div>
     </xsl:template>
 
     <xsl:template name="index_main_body_editorial">
         <div id="toc">
             <xsl:apply-templates select="toc/journal[@editorial]"/>
-
             <h2>
+                <!-- 2024-06: Ash changed this to a relative link. The bios page appears in the same 
+                  directory as the issue's index. -->
                 <a>
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/editorial/bios.html')"/>
-                    </xsl:attribute>
+                    <xsl:attribute name="href" select="'bios.html'"/>
                     <xsl:value-of select="'Author Biographies'"/>
                 </a>
             </h2>
-
         </div>
     </xsl:template>
 
@@ -314,17 +308,17 @@
                         <span class="monospace">[<xsl:value-of select="@xml:lang"/>]&#160;</span>
                     </xsl:otherwise>
                 </xsl:choose>
-		        <xsl:element name="a">
-		            <xsl:attribute name="href">
-		                <xsl:value-of select="concat('/',$context,'/vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
-		            </xsl:attribute>
+		        <a>
+		            <!-- 2024-06: Ash changed this to a relative link. An article page appears in its own 
+		              folder within the current index page's directory. -->
+		            <xsl:attribute name="href" select="concat($id,'/',$id,'.html')"/>
                     <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
                         <xsl:attribute name="onclick">
                             <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
                         </xsl:attribute>
                     </xsl:if>
 		            <xsl:apply-templates select="."/>
-		        </xsl:element>
+		        </a>
             </xsl:for-each>
 
           <div style="padding-left:1em; margin:0;text-indent:-1em;">
@@ -619,14 +613,14 @@
 		        <xsl:element name="a">
                 <xsl:choose>
                     <xsl:when test="$vol">
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
-                        </xsl:attribute>
+                        <!-- 2024-06: Ash changed this to a relative link. An article page appears in 
+                          its own folder within the current index page's directory. -->
+                        <xsl:attribute name="href" select="concat($id,'/',$id,'.html')"/>
                         <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
-                        <xsl:attribute name="onclick">
-                            <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
-                        </xsl:attribute>
-                    </xsl:if>
+                          <xsl:attribute name="onclick">
+                              <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
+                          </xsl:attribute>
+                        </xsl:if>
                         <xsl:apply-templates select="."/>
                     </xsl:when>
                     <xsl:otherwise>
@@ -719,9 +713,9 @@
                     </xsl:otherwise>
                 </xsl:choose>
 		        <xsl:element name="a">
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/editorial/',$id,'/',$id,'.html')"/>
-                    </xsl:attribute>
+		                <!-- 2024-06: Ash changed this to a relative link. An "editorial" article page appears in 
+                      its own folder within the current index page's directory. -->
+                    <xsl:attribute name="href" select="concat($id,'/',$id,'.html')"/>
                     <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
                         <xsl:attribute name="onclick">
                             <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
