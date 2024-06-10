@@ -5,7 +5,8 @@
     xmlns:tei="http://www.tei-c.org/ns/1.0"
     xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
     xmlns:m="http://www.w3.org/1998/Math/MathML"
-    exclude-result-prefixes="tei dhq xdoc" version="1.0">
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    exclude-result-prefixes="tei dhq xdoc xhtml" version="1.0">
     
     <xsl:import href="sidenavigation.xsl"/>
     <xsl:import href="topnavigation.xsl"/>
@@ -66,14 +67,15 @@
         <!-- Using lower-case of author's last name + first initial to sort [CRB] -->
         <xsl:variable name="lower">abcdefghijklmnopqrstuvwxyz</xsl:variable>
         <xsl:variable name="upper">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+        <!-- 2024-06: The ID generated for the bios page does not always match the ID generated here! -->
         <xsl:variable name="bios">
             <xsl:value-of select="translate(concat(translate(dhq:author_name/dhq:family,' ',''),'_',substring(normalize-space(dhq:author_name),1,1)),$upper,$lower)"/>
         </xsl:variable>
         <div class="author">
+            <!-- 2024-06: Ash changed this to a relative link. The bios page for the Internal Preview 
+              site is in the directory above this article's. -->
             <a rel="external">
-                <xsl:attribute name="href">
-                    <xsl:value-of select="concat('/',$context,'/editorial/bios.html','#',$bios)"/>
-                </xsl:attribute>
+                <xsl:attribute name="href" select="concat('../bios.html','#',$bios)"/>
                 <xsl:apply-templates select="dhq:author_name"/>
             </a>
             <xsl:if test="normalize-space(child::dhq:affiliation)">
