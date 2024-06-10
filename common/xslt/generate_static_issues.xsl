@@ -34,7 +34,9 @@
   <xsl:output encoding="UTF-8" indent="yes" method="xhtml" omit-xml-declaration="no"/>
   
   
- <!--  PARAMETERS  -->
+ <!--
+    PARAMETERS
+   -->
   
   <!-- An absolute path to the DHQ repository. -->
   <xsl:param name="repo-dir" as="xs:string">
@@ -62,7 +64,9 @@
   <xsl:param name="do-proofing-full" select="true()" as="xs:boolean"/>
   
   
- <!--  GLOBAL VARIABLES  -->
+ <!--
+    GLOBAL VARIABLES
+   -->
   
   <!-- Whether to generate the full Ant build file needed to transfer all articles 
     and TOC derivatives, as well as compress the articles' XML. -->
@@ -92,7 +96,10 @@
       }"/>
   
   
- <!--  DEFAULT PROCESSING TEMPLATES  -->
+  
+ <!--
+    DEFAULT PROCESSING TEMPLATES
+   -->
   
   <xsl:template match="*" mode="#all">
     <xsl:apply-templates mode="#current"/>
@@ -101,7 +108,10 @@
   <xsl:template match="@* | text() | comment() | processing-instruction()" mode="#all"/>
   
   
- <!--  TEMPLATES, #default mode  -->
+  
+ <!--
+    TEMPLATES, #default mode
+   -->
   
   <xsl:template match="/">
     <xsl:message select="'Base repository path: '||$repo-dir"/>
@@ -153,108 +163,17 @@
         </copy>
       </target>
       <!-- Also, generate an Ant target for zipping up all non-preview XML articles. 
-        We don't need to do this when proofing only the editorial articles. -->
+        We don't need to do this when proofing the editorial articles alone. -->
       <xsl:if test="$do-full-build">
         <xsl:call-template name="make-target-to-compress-xml"/>
       </xsl:if>
     </project>
     <!-- While we're in the TOC, generate indexes of all article titles and all 
-      contributors. We don't need to do this when proofing only the editorial 
-      articles. -->
+      contributors. We don't need to do this when proofing the editorial articles 
+      alone. -->
     <xsl:if test="$do-full-build">
       <xsl:call-template name="generate-article-indexes"/>
     </xsl:if>
-  </xsl:template>
-  
-  <!-- Generate an Ant target for zipping up all non-preview XML articles. -->
-  <xsl:template name="make-target-to-compress-xml">
-    <target name="zipArticleXml">
-      <!-- The articles' build file should inherit the basedir property of the DHQ 
-        build file. To make it clearer which folder we're working from, "basedir" 
-        is here mapped onto a new property "toDir.git". -->
-      <property name="toDir.git">
-        <xsl:attribute name="value">${basedir}</xsl:attribute>
-      </property>
-      <zip>
-        <xsl:attribute name="destfile"
-          >${toDir.static.path}${file.separator}data${file.separator}dhq-xml.zip</xsl:attribute>
-        <!-- We're only interested in zipping up articles that:
-                1. are relatively stable (read: not in the preview issue or 
-                  editorial area), and
-                2. are not example articles.
-             We also only need one ZIP entry per article, even if the article 
-             appears in multiple DHQ issues.
-          -->
-        <xsl:for-each-group group-by="@id/data(.)" 
-            select=".//journal[not(@preview eq 'true') and not(@editorial eq 'true')]
-                              //item[@id][not(starts-with(@id, '9'))]">
-          <xsl:variable name="id" select="current-grouping-key()"/>
-          <!-- We want each XML file to appear under the same directory, without 
-            any intermediate folders in the way. To do this, we use Ant's 
-            <zipfileset> to start each article in its containing directory, and 
-            prefix its file entry with a common folder name "dhq-articles". -->
-          <zipfileset>
-            <xsl:attribute name="dir">
-              <xsl:text>${toDir.git}${file.separator}articles${file.separator}</xsl:text>
-              <xsl:value-of select="$id"/>
-            </xsl:attribute>
-            <xsl:attribute name="includes">
-              <xsl:value-of select="$id"/>
-              <xsl:text>.xml</xsl:text>
-            </xsl:attribute>
-            <xsl:attribute name="prefix">
-              <xsl:text>dhq-articles</xsl:text>
-            </xsl:attribute>
-          </zipfileset>
-        </xsl:for-each-group>
-      </zip>
-    </target>
-  </xsl:template>
-  
-  <!-- Generate the indexes of all article titles and all contributors. Each index 
-    is processed in two steps: First, the TOC is transformed with a special 
-    stylesheet. Then, another stylesheet sorts all of the indexed entries. -->
-  <xsl:template name="generate-article-indexes">
-    <!-- Generate the index of all articles by title. -->
-    <xsl:variable name="titles-index-map" as="map(*)">
-      <xsl:map>
-        <xsl:map-entry key="'source-node'" select="$toc-source"/>
-        <xsl:sequence select="dhq:stylesheet-path-entry('title_index.xsl')"/>
-        <xsl:map-entry key="'stylesheet-params'">
-          <xsl:map>
-            <xsl:map-entry key="QName( (),'fpath')" select="'index/title.html'"/>
-            <xsl:map-entry key="QName( (),'context')" select="$context"/>
-            <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
-          </xsl:map>
-        </xsl:map-entry>
-      </xsl:map>
-    </xsl:variable>
-    <xsl:result-document href="{$static-dir||'/index/title.html'}">
-      <xsl:call-template name="transform-with-sorting">
-        <xsl:with-param name="transform-1-map" select="$titles-index-map" as="map(*)"/>
-        <xsl:with-param name="transform-2-xsl-filename" select="'title_sort.xsl'"/>
-      </xsl:call-template>
-    </xsl:result-document>
-    <!-- Generate the index of all DHQ contributors. -->
-    <xsl:variable name="authors-index-map" as="map(*)">
-      <xsl:map>
-        <xsl:map-entry key="'source-node'" select="$toc-source"/>
-        <xsl:sequence select="dhq:stylesheet-path-entry('author_index.xsl')"/>
-        <xsl:map-entry key="'stylesheet-params'">
-          <xsl:map>
-            <xsl:map-entry key="QName( (),'fpath')" select="'index/author.html'"/>
-            <xsl:map-entry key="QName( (),'context')" select="$context"/>
-            <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
-          </xsl:map>
-        </xsl:map-entry>
-      </xsl:map>
-    </xsl:variable>
-    <xsl:result-document href="{$static-dir||'/index/author.html'}">
-      <xsl:call-template name="transform-with-sorting">
-        <xsl:with-param name="transform-1-map" select="$authors-index-map" as="map(*)"/>
-        <xsl:with-param name="transform-2-xsl-filename" select="'author_sort.xsl'"/>
-      </xsl:call-template>
-    </xsl:result-document>
   </xsl:template>
   
   <!-- The "editorial" section of the TOC is for articles that are being worked on 
@@ -432,7 +351,9 @@
   </xsl:template>
   
   
- <!--  TEMPLATES, dupe-article mode  -->
+ <!--
+    TEMPLATES, dupe-article mode
+   -->
   
   <xsl:template match="*" mode="dupe-article"/>
   
@@ -448,7 +369,56 @@
   </xsl:template>
   
   
- <!--  NAMED TEMPLATES  -->
+  
+ <!--
+    NAMED TEMPLATES
+   -->
+  
+  <!-- Generate the indexes of all article titles and all contributors. Each index 
+    is processed in two steps: First, the TOC is transformed with a special 
+    stylesheet. Then, another stylesheet sorts all of the indexed entries. -->
+  <xsl:template name="generate-article-indexes">
+    <!-- Generate the index of all articles by title. -->
+    <xsl:variable name="titles-index-map" as="map(*)">
+      <xsl:map>
+        <xsl:map-entry key="'source-node'" select="$toc-source"/>
+        <xsl:sequence select="dhq:stylesheet-path-entry('title_index.xsl')"/>
+        <xsl:map-entry key="'stylesheet-params'">
+          <xsl:map>
+            <xsl:map-entry key="QName( (),'fpath')" select="'index/title.html'"/>
+            <xsl:map-entry key="QName( (),'context')" select="$context"/>
+            <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
+          </xsl:map>
+        </xsl:map-entry>
+      </xsl:map>
+    </xsl:variable>
+    <xsl:result-document href="{$static-dir||'/index/title.html'}">
+      <xsl:call-template name="transform-with-sorting">
+        <xsl:with-param name="transform-1-map" select="$titles-index-map" as="map(*)"/>
+        <xsl:with-param name="transform-2-xsl-filename" select="'title_sort.xsl'"/>
+      </xsl:call-template>
+    </xsl:result-document>
+    <!-- Generate the index of all DHQ contributors. -->
+    <xsl:variable name="authors-index-map" as="map(*)">
+      <xsl:map>
+        <xsl:map-entry key="'source-node'" select="$toc-source"/>
+        <xsl:sequence select="dhq:stylesheet-path-entry('author_index.xsl')"/>
+        <xsl:map-entry key="'stylesheet-params'">
+          <xsl:map>
+            <xsl:map-entry key="QName( (),'fpath')" select="'index/author.html'"/>
+            <xsl:map-entry key="QName( (),'context')" select="$context"/>
+            <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
+          </xsl:map>
+        </xsl:map-entry>
+      </xsl:map>
+    </xsl:variable>
+    <xsl:result-document href="{$static-dir||'/index/author.html'}">
+      <xsl:call-template name="transform-with-sorting">
+        <xsl:with-param name="transform-1-map" select="$authors-index-map" as="map(*)"/>
+        <xsl:with-param name="transform-2-xsl-filename" select="'author_sort.xsl'"/>
+      </xsl:call-template>
+    </xsl:result-document>
+  </xsl:template>
   
   <!-- Create an Ant file mapper to copy XML and article assets into the right static directory. -->
   <xsl:template name="make-ant-file-mapper">
@@ -479,6 +449,51 @@
       <xsl:attribute name="from" select="'^'||$article-id||'/(.*)$'"/>
       <xsl:attribute name="to"   select="replace( $toVal, concat('^', $static-dir, '/' ), '' )||'/\1'"/>
     </regexpmapper>
+  </xsl:template>
+  
+  <!-- Generate an Ant target for zipping up all non-preview XML articles. -->
+  <xsl:template name="make-target-to-compress-xml">
+    <target name="zipArticleXml">
+      <!-- The articles' build file should inherit the basedir property of the DHQ 
+        build file. To make it clearer which folder we're working from, "basedir" 
+        is here mapped onto a new property "toDir.git". -->
+      <property name="toDir.git">
+        <xsl:attribute name="value">${basedir}</xsl:attribute>
+      </property>
+      <zip>
+        <xsl:attribute name="destfile"
+          >${toDir.static.path}${file.separator}data${file.separator}dhq-xml.zip</xsl:attribute>
+        <!-- We're only interested in zipping up articles that:
+                1. are relatively stable (read: not in the preview issue or 
+                  editorial area), and
+                2. are not example articles.
+             We also only need one ZIP entry per article, even if the article 
+             appears in multiple DHQ issues.
+          -->
+        <xsl:for-each-group group-by="@id/data(.)" 
+            select=".//journal[not(@preview eq 'true') and not(@editorial eq 'true')]
+                              //item[@id][not(starts-with(@id, '9'))]">
+          <xsl:variable name="id" select="current-grouping-key()"/>
+          <!-- We want each XML file to appear under the same directory, without 
+            any intermediate folders in the way. To do this, we use Ant's 
+            <zipfileset> to start each article in its containing directory, and 
+            prefix its file entry with a common folder name "dhq-articles". -->
+          <zipfileset>
+            <xsl:attribute name="dir">
+              <xsl:text>${toDir.git}${file.separator}articles${file.separator}</xsl:text>
+              <xsl:value-of select="$id"/>
+            </xsl:attribute>
+            <xsl:attribute name="includes">
+              <xsl:value-of select="$id"/>
+              <xsl:text>.xml</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="prefix">
+              <xsl:text>dhq-articles</xsl:text>
+            </xsl:attribute>
+          </zipfileset>
+        </xsl:for-each-group>
+      </zip>
+    </target>
   </xsl:template>
   
   <!-- Transform an article from XML into HTML, and store it in the static site 
