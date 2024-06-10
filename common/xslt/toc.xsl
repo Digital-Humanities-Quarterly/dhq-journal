@@ -713,7 +713,7 @@
                     </xsl:otherwise>
                 </xsl:choose>
 		        <xsl:element name="a">
-		                <!-- 2024-06: Ash changed this to a relative link. An "editorial" article page appears in 
+                    <!-- 2024-06: Ash changed this to a relative link. An "editorial" article page appears in 
                       its own folder within the current index page's directory. -->
                     <xsl:attribute name="href" select="concat($id,'/',$id,'.html')"/>
                     <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">

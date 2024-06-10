@@ -107,17 +107,16 @@
             <xsl:with-param name="vol"><xsl:value-of select="$vol"/></xsl:with-param></xsl:call-template>
         </xsl:param>
         <div class="toolbar">
+            <!-- 2024-06: Ash changed this to a relative link. The index page for the Internal Preview 
+              site is in the directory above this article's. -->
             <a>
-                <xsl:attribute name="href">
-                    <xsl:value-of select="concat('/',$context,'/editorial/index.html')"/>
-                </xsl:attribute>
+                <xsl:attribute name="href" select="'../index.html'"/>
                 <xsl:text>Editorial</xsl:text>
             </a>
             &#x00a0;|&#x00a0;
+            <!-- 2024-06: The XML for this article is in this directory. -->
             <a>
-                <xsl:attribute name="href">
-                    <xsl:value-of select="concat('/',$context,'/editorial/',$id,'/',$id,'.xml')"/>
-                </xsl:attribute>
+                <xsl:attribute name="href" select="concat($id,'.xml')"/>
                 <xsl:text>XML</xsl:text>
             </a>
             |&#x00a0;
@@ -134,17 +133,16 @@
             <form id="taporware" action="get">
                 <!-- added <p></p> to surrond form content to validate [CRB] -->
                 <p>
+                    <!-- 2024-06: Ash changed this to a relative link. The index page for the Internal Preview 
+                      site is in the directory above this article's. -->
                     <a>
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/editorial/index.html')"/>
-                        </xsl:attribute>
+                        <xsl:attribute name="href" select="'../index.html'"/>
                         <xsl:text>Editorial</xsl:text>
                     </a>
                     &#x00a0;|&#x00a0;
+                    <!-- 2024-06: The XML for this article is in this directory. -->
                     <a>
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/editorial/',$id,'/',$id,'.xml')"/>
-                        </xsl:attribute>
+                        <xsl:attribute name="href" select="concat($id,'.xml')"/>
                         <xsl:text>XML</xsl:text>
                     </a>
                     |&#x00a0;
