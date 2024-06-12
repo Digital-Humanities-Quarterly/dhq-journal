@@ -197,6 +197,17 @@
         </xsl:choose>
     </xsl:template>
 
+    <!-- Load tsvs -->
+    <xsl:variable name="specter-recs-tsv">
+      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-spctr.tsv')"/>
+    </xsl:variable>
+    <xsl:variable name="keywords-recs-tsv">
+      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-kwd.tsv')"/>
+    </xsl:variable>
+    <xsl:variable name="tfidf-recs-tsv">
+      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-bm25.tsv')"/>
+    </xsl:variable>
+
     <xsl:template name="toolbar">
         <div class="toolbar">
             <a>
@@ -239,21 +250,26 @@
             |&#x00a0;
             <a href="#" onclick="javascript:window.print();"
                 title="Click for print friendly version">Print</a>
-            |&#x00a0;
-            <a href="#recommendations" onclick="document.getElementById('recommendations').scrollIntoView();"
-                title="See Recommendations">See Recommendations</a>
+            <!-- this is to make sure that when there are no recommendations, the See Recommendations link is not shown. -->
+            <!-- Tokenize rows -->
+            <xsl:variable name="spector_rows" select="tokenize($specter-recs-tsv, '\n')" />
+            <!-- Find the row that matches this article's ID. -->
+            <xsl:variable name="my_spector_row" select="$spector_rows[starts-with(., xs:string($id))]"/>
+            <!-- Tokenize rows -->
+            <xsl:variable name="keyword_rows" select="tokenize($keywords-recs-tsv, '\n')" />
+            <!-- Find the row that matches this article's ID. -->  
+            <xsl:variable name="my_keyword_row" select="$keyword_rows[starts-with(., xs:string($id))]"/>
+            <!-- Tokenize rows -->
+            <xsl:variable name="tfidf_rows" select="tokenize($tfidf-recs-tsv, '\n')" />
+            <!-- Find the row that matches this article's ID. -->
+            <xsl:variable name="my_tfidf_row" select="$tfidf_rows[starts-with(., xs:string($id))]"/>
+            <xsl:if test="$my_spector_row or $my_keyword_row or $my_tfidf_row">
+                |&#x00a0;
+                <a href="#recommendations" onclick="document.getElementById('recommendations').scrollIntoView();"
+                    title="See Recommendations">See Recommendations</a>
+            </xsl:if>
         </div>
     </xsl:template>
-    <!-- Load tsvs -->
-    <xsl:variable name="specter-recs-tsv">
-      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-spctr.tsv')"/>
-    </xsl:variable>
-    <xsl:variable name="keywords-recs-tsv">
-      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-kwd.tsv')"/>
-    </xsl:variable>
-    <xsl:variable name="tfidf-recs-tsv">
-      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-bm25.tsv')"/>
-    </xsl:variable>
 
     <!-- Creating function for writing one recommendation-->
     <xsl:function name="dhqf:recs">
@@ -269,7 +285,7 @@
         <xsl:variable name="path" select="substring-after($inner_tabs[16], 'org')" />
         <!-- Now we pull from the tabs of the selected row. 5 is the name of the article -->
         <!-- Setting up the url and its <a> tag-->
-        <a href="{$path}"><xsl:value-of select="$inner_tabs[5]"/></a>&#160;
+        <a href="{$path}"><xsl:value-of select="$inner_tabs[5]"/></a>,&#160;
         <!-- selecting and inputting the year [2], author(s) [3], and university [4] -->
         <xsl:value-of select="$inner_tabs[2]"/>,
         <xsl:value-of select="$inner_tabs[3]"/>, <xsl:value-of select="$inner_tabs[4] "/>
