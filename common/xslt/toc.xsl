@@ -14,6 +14,9 @@
     <xsl:param name="do-list-articles" select="true()" as="xs:boolean"/>
     
     <xsl:variable name="apos">'</xsl:variable>
+    <!-- Whether the issue targeted by this transformation is the current issue. -->
+    <xsl:variable name="is-current-issue" 
+      select="exists(toc/journal[@vol eq $vol][@issue eq $issue]/@current)"/>
 
     <xsl:template match="cluster">
         <xsl:apply-templates/>
@@ -248,10 +251,23 @@
         <div id="toc">
             <xsl:apply-templates select="toc/journal[@vol=$vol and @issue=$issue]"/>
             <h2>
-                <!-- 2024-06: Ash changed this to a relative link. The bios page appears in the same 
-                  directory as the issue's index. -->
+                <!-- 2024-06: Ash changed this to a relative link. -->
                 <a>
-                    <xsl:attribute name="href" select="'bios.html'"/>
+                    <xsl:attribute name="href">
+                      <xsl:choose>
+                        <!-- If this issue index serves as the DHQ home page, the 
+                          bios page should appear within the volume and issue's 
+                          directory structure. -->
+                        <xsl:when test="$fpath = 'index.html' and $is-current-issue">
+                          <xsl:value-of select="concat('vol/',$vol,'/',$issue,'/bios.html')"/>
+                        </xsl:when>
+                        <!-- Usually, the bios page appears in the same directory as 
+                          the issue's index. -->
+                        <xsl:otherwise>
+                          <xsl:value-of select="'bios.html'"/>
+                        </xsl:otherwise>
+                      </xsl:choose>
+                    </xsl:attribute>
                     <xsl:value-of select="'Author Biographies'"/>
                 </a>
             </h2>
@@ -309,9 +325,23 @@
                     </xsl:otherwise>
                 </xsl:choose>
 		        <a>
-		            <!-- 2024-06: Ash changed this to a relative link. An article page appears in its own 
-		              folder within the current index page's directory. -->
-		            <xsl:attribute name="href" select="concat($id,'/',$id,'.html')"/>
+		            <!-- 2024-06: Ash changed this to a relative link. -->
+		            <xsl:attribute name="href">
+		              <xsl:variable name="articlePath" select="concat($id,'/',$id,'.html')"/>
+		              <xsl:choose>
+		                <!-- If this issue index serves as the DHQ home page, the article 
+  		                page should appear within the volume and issue's directory 
+  		                structure. -->
+  		              <xsl:when test="$fpath = 'index.html' and $is-current-issue">
+                      <xsl:value-of select="concat('vol/',$vol,'/',$issue,'/',$articlePath)"/>
+                    </xsl:when>
+                    <!-- In most cases, the article page appears in its own folder 
+                      within the current index page's directory. -->
+                    <xsl:otherwise>
+                      <xsl:value-of select="$articlePath"/>
+                    </xsl:otherwise>
+		              </xsl:choose>
+		            </xsl:attribute>
                     <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
                         <xsl:attribute name="onclick">
                             <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
@@ -614,7 +644,7 @@
                 <xsl:choose>
                     <xsl:when test="$vol">
                         <!-- 2024-06: Ash changed this to a relative link. An article page appears in 
-                          its own folder within the current index page's directory. -->
+                          its own folder within the preview index page's directory. -->
                         <xsl:attribute name="href" select="concat($id,'/',$id,'.html')"/>
                         <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
                           <xsl:attribute name="onclick">

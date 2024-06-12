@@ -7,12 +7,14 @@
     <xsl:import href="head.xsl"/>
     <xsl:import href="toc.xsl"/>
     <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
+    
     <!--Parameter from sitemap -->
     <xsl:param name="context"/>
     <xsl:param name="vol"><xsl:value-of select="toc/journal[@current]/@vol"/></xsl:param>
     <xsl:param name="issue"><xsl:value-of select="toc/journal[@current]/@issue"/></xsl:param>
     <xsl:param name="fpath"/>
     <xsl:param name="staticPublishingPathPrefix"><xsl:value-of select="'../../toc/'"/></xsl:param>
+    
     <xsl:template match="/">
         <html>
             <!-- code to retrieve document title from the html file and pass it to the template -->
