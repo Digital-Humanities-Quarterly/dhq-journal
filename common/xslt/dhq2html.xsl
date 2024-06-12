@@ -142,13 +142,18 @@
          </xsl:when>
         <xsl:otherwise>
         -->
+        <!-- 2024-06, Ash: Rather than running the "toolbar" template twice, we do 
+          it once and place a copy in both places we expect it to be. -->
+        <xsl:variable name="toolbar" as="node()*">
+          <xsl:call-template name="toolbar"/>
+        </xsl:variable>
         <div class="DHQarticle">
             <xsl:call-template name="pubInfo"/>
-            <xsl:call-template name="toolbar"/>
+            <xsl:sequence select="$toolbar"/>
             <xsl:apply-templates/>
             <xsl:call-template name="notes"/>
             <xsl:call-template name="bibliography"/>
-            <xsl:call-template name="toolbar"/>
+            <xsl:sequence select="$toolbar"/>
             <xsl:call-template name="license"/>
         </div>
       <!--
@@ -200,9 +205,10 @@
             <a>
                 <xsl:choose>
                     <xsl:when test="$published">
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
-                        </xsl:attribute>
+                        <!-- 2024-06, Ash: Changed this to a relative link. The 
+                          issue index should be one directory above the one 
+                          containing this article's HTML. -->
+                        <xsl:attribute name="href" select="'../index.html'"/>
                         <xsl:value-of select="$assigned-issue/title"/>
                         <xsl:value-of select="concat(' ',$vol_no_zeroes,'.',$issue)"/>
                         <!--
@@ -211,18 +217,19 @@
                         -->
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/preview/index.html')"/>
-                        </xsl:attribute>
+                        <!-- 2024-06, Ash: Changed this to a relative link. The path 
+                          must return to the base directory, then the "preview" 
+                          directory. -->
+                        <xsl:attribute name="href" select="'../../../../preview/index.html'"/>
                         <xsl:text>Preview</xsl:text>
                     </xsl:otherwise>
                 </xsl:choose>
             </a>
             &#x00a0;|&#x00a0;
+            <!-- 2024-06, Ash: Changed this to a relative link. Currently (oddly), 
+              article XML is stored in the directory above this article's HTML. -->
             <a rel="external">
-                <xsl:attribute name="href">
-                    <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
-                </xsl:attribute>
+                <xsl:attribute name="href" select="concat('../',$id,'.xml')"/>
                 <xsl:text>XML</xsl:text>
             </a>
             
@@ -265,6 +272,7 @@
         </div>
     </xsl:template>
 
+    <!-- 2024-06: Template below is unused? -->
     <xsl:template name="toolbar_top">
         <div class="toolbar">
             <form id="taporware" action="get">

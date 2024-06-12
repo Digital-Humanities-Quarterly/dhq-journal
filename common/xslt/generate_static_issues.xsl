@@ -228,7 +228,7 @@
     <xsl:variable name="fpath" select="string-join( ( 'vol', @vol/data(), @issue/data()), '/' )"/>
     <xsl:variable name="outDir" 
       select="dhq:set-filesystem-path(( $static-dir, 'vol', @vol/data(), @issue/data() ))"/>
-    <xsl:message select="'Processing '||@vol||'.'||@issue||' …'"/>
+    <xsl:message select="'Processing volume '||@vol||', issue '||@issue||' …'"/>
     <!-- Define the transformation of the TOC into the index for this issue. Most of 
       the heavy lifting is done by dhq:set-up-issue-transformation(). -->
     <xsl:variable name="issue-index-map" as="map(*)"

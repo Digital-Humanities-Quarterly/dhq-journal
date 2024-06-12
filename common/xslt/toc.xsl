@@ -643,23 +643,25 @@
 		        <xsl:element name="a">
                 <xsl:choose>
                     <xsl:when test="$vol">
-                        <!-- 2024-06: Ash changed this to a relative link. An article page appears in 
-                          its own folder within the preview index page's directory. -->
-                        <xsl:attribute name="href" select="concat($id,'/',$id,'.html')"/>
+                        <!-- 2024-06: Ash changed this to a relative link. The 
+                          preview index link must return to the base directory, then 
+                          navigate to the correct volume and issue directory. -->
+                        <xsl:attribute name="href" select="concat('../vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
                         <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
                           <xsl:attribute name="onclick">
                               <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
                           </xsl:attribute>
                         </xsl:if>
-                        <xsl:apply-templates select="."/>
                     </xsl:when>
                     <xsl:otherwise>
+                        <!-- If $vol hasn't been set, set the article link to a file 
+                          within the preview directory. -->
                         <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/preview/',$id,'.html')"/>
+                            <xsl:value-of select="concat($id,'.html')"/>
                         </xsl:attribute>
-                        <xsl:apply-templates select="."/>
                     </xsl:otherwise>
                 </xsl:choose>
+		            <xsl:apply-templates select="."/>
             </xsl:element>
             </xsl:for-each>
 
