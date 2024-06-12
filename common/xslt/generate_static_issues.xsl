@@ -462,6 +462,7 @@
       <property name="toDir.git">
         <xsl:attribute name="value">${basedir}</xsl:attribute>
       </property>
+      <echo>Zipping XML for all articles…</echo>
       <zip>
         <!-- The ZIP file of article XML should be saved within the "data" folder of 
           $static-dir. -->
