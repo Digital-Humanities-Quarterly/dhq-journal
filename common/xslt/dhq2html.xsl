@@ -371,9 +371,11 @@
                         </xsl:attribute>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/preview/',$bioFile,'#',$bios)"/>
-                        </xsl:attribute>
+                        <!-- 2024-06, Ash: Made this a relative link. To get back to 
+                          the preview file, we need to go through the volume and 
+                          issue directories back to the base directory. -->
+                        <xsl:attribute name="href" 
+                          select="concat('../../../../preview/',$bioFile,'#',$bios)"/>
                     </xsl:otherwise>
                 </xsl:choose>
                 <xsl:apply-templates select="dhq:author_name"/>
@@ -422,9 +424,11 @@
                         </xsl:attribute>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/preview/',$bioFile,'#',$bios)"/>
-                        </xsl:attribute>
+                        <!-- 2024-06, Ash: Made this a relative link. To get back to 
+                          the preview file, we need to go through the volume and 
+                          issue directories back to the base directory. -->
+                        <xsl:attribute name="href" 
+                          select="concat('../../../../preview/',$bioFile,'#',$bios)"/>
                     </xsl:otherwise>
                 </xsl:choose>
                 <xsl:apply-templates select="dhq:translator_name"/>
