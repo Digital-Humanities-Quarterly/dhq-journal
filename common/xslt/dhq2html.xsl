@@ -210,14 +210,14 @@
     
     <!-- Determine if this article has recommendations from any of the three TSVs. -->
     <xsl:variable name="has-recommendations" as="xs:boolean">
-      <!-- We want to find rows that start with the article ID. Since "matches()" 
-        defaults to treating each row as the regex string-beginning, we can test 
+      <!-- We want to find rows that start with the article ID. The "m" flag in 
+        "matches()" treats each row as the regex string-beginning, so we can test 
         specifically for the ID appearing in column 1. -->
-      <xsl:variable name="articleIdRegex" select="concat('^',$id,'\t')"/>
+      <xsl:variable name="articleIdRegex" select="concat('^',normalize-space($id),'\t')"/>
       <xsl:sequence 
-        select="matches($specter-recs-tsv, $articleIdRegex) or 
-                matches($keywords-recs-tsv, $articleIdRegex) or 
-                matches($tfidf-recs-tsv, $articleIdRegex)"/>
+        select="matches($specter-recs-tsv, $articleIdRegex, 'm') or 
+                matches($keywords-recs-tsv, $articleIdRegex, 'm') or 
+                matches($tfidf-recs-tsv, $articleIdRegex, 'm')"/>
     </xsl:variable>
 
     <xsl:template name="toolbar">
