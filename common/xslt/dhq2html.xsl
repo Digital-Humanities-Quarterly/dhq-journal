@@ -207,6 +207,18 @@
     <xsl:variable name="tfidf-recs-tsv">
       <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-bm25.tsv')"/>
     </xsl:variable>
+    
+    <!-- Determine if this article has recommendations from any of the three TSVs. -->
+    <xsl:variable name="has-recommendations" as="xs:boolean">
+      <!-- We want to find rows that start with the article ID. Since "matches()" 
+        defaults to treating each row as the regex string-beginning, we can test 
+        specifically for the ID appearing in column 1. -->
+      <xsl:variable name="articleIdRegex" select="concat('^',$id,'\t')"/>
+      <xsl:sequence 
+        select="matches($specter-recs-tsv, $articleIdRegex) or 
+                matches($keywords-recs-tsv, $articleIdRegex) or 
+                matches($tfidf-recs-tsv, $articleIdRegex)"/>
+    </xsl:variable>
 
     <xsl:template name="toolbar">
         <div class="toolbar">
@@ -250,20 +262,8 @@
             |&#x00a0;
             <a href="#" onclick="javascript:window.print();"
                 title="Click for print friendly version">Print</a>
-            <!-- this is to make sure that when there are no recommendations, the See Recommendations link is not shown. -->
-            <!-- Tokenize rows -->
-            <xsl:variable name="spector_rows" select="tokenize($specter-recs-tsv, '\n')" />
-            <!-- Find the row that matches this article's ID. -->
-            <xsl:variable name="my_spector_row" select="$spector_rows[starts-with(., xs:string($id))]"/>
-            <!-- Tokenize rows -->
-            <xsl:variable name="keyword_rows" select="tokenize($keywords-recs-tsv, '\n')" />
-            <!-- Find the row that matches this article's ID. -->  
-            <xsl:variable name="my_keyword_row" select="$keyword_rows[starts-with(., xs:string($id))]"/>
-            <!-- Tokenize rows -->
-            <xsl:variable name="tfidf_rows" select="tokenize($tfidf-recs-tsv, '\n')" />
-            <!-- Find the row that matches this article's ID. -->
-            <xsl:variable name="my_tfidf_row" select="$tfidf_rows[starts-with(., xs:string($id))]"/>
-            <xsl:if test="$my_spector_row or $my_keyword_row or $my_tfidf_row">
+            <!-- Make sure that when there are no recommendations, the See Recommendations link is not shown. -->
+            <xsl:if test="$has-recommendations">
                 |&#x00a0;
                 <a href="#recommendations" onclick="document.getElementById('recommendations').scrollIntoView();"
                     title="See Recommendations">See Recommendations</a>
@@ -313,22 +313,21 @@
 
 
     <xsl:template name="recommendations">
-        <!-- Moving the tokenizing and searching of the rows for the article ID to the top so we can have a check if there exists any recommendations from any recommendation system for the article-->
-        <!-- Tokenize rows -->
-        <xsl:variable name="spector_rows" select="tokenize($specter-recs-tsv, '\n')" />
-        <!-- Find the row that matches this article's ID. -->
-        <xsl:variable name="my_spector_row" select="$spector_rows[starts-with(., xs:string($id))]"/>
-        <!-- Tokenize rows -->
-        <xsl:variable name="keyword_rows" select="tokenize($keywords-recs-tsv, '\n')" />
-        <!-- Find the row that matches this article's ID. -->  
-        <xsl:variable name="my_keyword_row" select="$keyword_rows[starts-with(., xs:string($id))]"/>
-        <!-- Tokenize rows -->
-        <xsl:variable name="tfidf_rows" select="tokenize($tfidf-recs-tsv, '\n')" />
-        <!-- Find the row that matches this article's ID. -->
-        <xsl:variable name="my_tfidf_row" select="$tfidf_rows[starts-with(., xs:string($id))]"/>
-
-        <!-- Checking if there are any recommendations to be shown -->
-        <xsl:if test="$my_spector_row or $my_keyword_row or $my_tfidf_row">
+        <!-- Checking global variable if there are any recommendations to be shown -->
+        <xsl:if test="$has-recommendations">
+            <!-- Tokenize rows -->
+            <xsl:variable name="spector_rows" select="tokenize($specter-recs-tsv, '\n')" />
+            <!-- Find the row that matches this article's ID. -->
+            <xsl:variable name="my_spector_row" select="$spector_rows[starts-with(., xs:string($id))]"/>
+            <!-- Tokenize rows -->
+            <xsl:variable name="keyword_rows" select="tokenize($keywords-recs-tsv, '\n')" />
+            <!-- Find the row that matches this article's ID. -->  
+            <xsl:variable name="my_keyword_row" select="$keyword_rows[starts-with(., xs:string($id))]"/>
+            <!-- Tokenize rows -->
+            <xsl:variable name="tfidf_rows" select="tokenize($tfidf-recs-tsv, '\n')" />
+            <!-- Find the row that matches this article's ID. -->
+            <xsl:variable name="my_tfidf_row" select="$tfidf_rows[starts-with(., xs:string($id))]"/>
+            
             <div id="recommendations">
             <h2>Recommendations</h2>
             <p>DHQ is testing out three new article recommendation methods! Please explore the links below to find articles that are related in different ways to the one you just read. 
