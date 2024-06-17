@@ -143,9 +143,7 @@
         <xsl:otherwise>
       -->
       <div class="DHQarticle">
-	<xsl:message>debug: in "tei:TEI" from dhq2html.xsl</xsl:message>
         <xsl:apply-templates select="@xml:lang"/>
-	<xsl:message select="'debug: in DHQarticle'"/>
         <xsl:call-template name="pubInfo"/>
         <xsl:call-template name="toolbar"/>
         <xsl:apply-templates select="node()"/>
