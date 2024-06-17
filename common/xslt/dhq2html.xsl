@@ -143,10 +143,12 @@
         <xsl:otherwise>
       -->
       <div class="DHQarticle">
-        <xsl:apply-templates select="@xml:lang|node()"/>
+	<xsl:message>debug: in "tei:TEI" from dhq2html.xsl</xsl:message>
+        <xsl:apply-templates select="@xml:lang"/>
+	<xsl:message select="'debug: in DHQarticle'"/>
         <xsl:call-template name="pubInfo"/>
         <xsl:call-template name="toolbar"/>
-        <xsl:apply-templates/>
+        <xsl:apply-templates select="node()"/>
         <xsl:call-template name="notes"/>
         <xsl:call-template name="bibliography"/>
         <xsl:call-template name="toolbar"/>
@@ -329,6 +331,10 @@
     <xsl:template match="tei:teiHeader">
       <div class="DHQheader">
         <xsl:apply-templates select="@xml:lang|node()"/>
+	<xsl:comment> generated <xsl:value-of
+	select="current-dateTime()"/> from <xsl:value-of
+	select="base-uri(/)"/> using <xsl:value-of
+	select="document-uri(/)"/>. </xsl:comment>
         <xsl:call-template name="coins"/>
       </div>
     </xsl:template>

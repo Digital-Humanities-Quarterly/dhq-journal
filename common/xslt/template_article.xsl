@@ -42,8 +42,17 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:param>
+      <xsl:message> debug: template_article processing <xsl:value-of
+      select="base-uri(/)"/> with context=<xsl:value-of
+      select="$context"/>, fpath=<xsl:value-of
+      select="$fpath"/>, vol=<xsl:value-of
+      select="$vol"/>, issue=<xsl:value-of
+      select="$issue"/>, error=<xsl:value-of
+      select="$error"/>, staticPublishingPath=<xsl:value-of
+      select="$staticPublishingPath"/>, cleanId=<xsl:value-of
+      select="$cleanId"/>.</xsl:message>
         <xsl:choose>
-            <xsl:when test="document('../../toc/toc.xml')//journal[@vol=$vol and @issue=$issue and descendant::item/attribute::id=$cleanId and not(@editorial)]">
+            <xsl:when test="true()"><!-- DEBUG!! test="document('../../toc/toc.xml')//journal[@vol=$vol and @issue=$issue and descendant::item/attribute::id=$cleanId and not(@editorial)]"> -->
                 <xsl:apply-templates select="tei:TEI"/>
             </xsl:when>
             <xsl:when test="$error">
@@ -78,7 +87,7 @@
                     <xsl:call-template name="head">
                         <xsl:with-param name="title" select="'Resource Not Found'"/>
                     </xsl:call-template>
-                    <body>
+                    <body xml:lang="en" lang="en">
                         <xsl:call-template name="topnavigation"/>
                         <div id="main">
                             <div id="leftsidebar">
@@ -109,11 +118,12 @@
     
     <xsl:template match="tei:TEI">
         <html>
+	  <xsl:message>debug: in "tei:TEI" from template_article.xsl</xsl:message>
             <!-- code to retrieve document title from the html file and pass it to the template -->
             <xsl:call-template name="head">
                 <xsl:with-param name="title" select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title"/>
             </xsl:call-template>
-            <body>
+            <body lang="en" xml:lang="en">
                 <xsl:call-template name="topnavigation"/>
                 <div id="main">
                     <div id="leftsidebar">
@@ -122,6 +132,7 @@
                     <div id="mainContent">
                         <xsl:call-template name="sitetitle"/>
                         <!-- Rest of the document/article is coverd in this template - this is a call to dhq2html.xsl -->
+			<xsl:message>debug: calling article_main_body( <xsl:value-of select="$docurl"/>, <xsl:value-of select="$id"/> ), but params seem to be ignored.</xsl:message>
                         <xsl:call-template name="article_main_body"> 
 				<xsl:with-param name="docurl" select="$fpath"/>
 				<xsl:with-param name="id" select="$id"/>
