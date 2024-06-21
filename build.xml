@@ -59,8 +59,7 @@ is loaded when Ant starts up. Please run Ant again like this:
   <!-- Documentation for the targets defined by this Ant build file. -->
   <target name="help"
           description="Documentation on how to use DHQ Ant build targets.">
-    <echo>** DHQ static site generation build process **
-
+    <echo>** DHQ static site generation build process **${line.separator}
 General format:
   ant [-lib common${file.separator}lib${file.separator}saxon] [-Dprop=val ...] [target ...]
 Where:
@@ -88,23 +87,32 @@ previewArticle                            (this is the default target)
   suitable for viewing on your local machine. (And may not be suitable
   for use on the server.)
 zipPreviewArticle
-  Similar to 'previewArticle', but: a) The output HTML file *and* its
+  Similar to 'previewArticle', but: a) The output HTML file _and_ its
   assets are archived together into a single ZIP file. b) The output
   HTML file uses relative links to the assets in the same directory,
   as would happen when the ZIP file is unzipped. Both the HTML file
   and the ZIP file are put in the ${previewDir}${file.separator} subdirectory,
   overwriting any previous version there.
+makeInternalPreview
+  Generate a proofing copy of all unpublished articles in the “editorial”
+  section of the toc${file.separator}toc.xml file. You will be given the option to 
+  generate a full copy of the DHQ static site _as well as_ the internal 
+  preview. The output is placed in the ${toDir.proofing.path}${file.separator} 
+  directory, i.e. inside a sibling to this directory. Any existing files 
+  inside ${toDir.proofing}${file.separator} will be deleted first. HTML for the unpublished 
+  articles will be found inside the ${toDir.proofing.path}${file.separator}editorial${file.separator} 
+  directory.
 generateIssues
   Generates the entire static site — index pages and HTML for each issue
   listed in the toc${file.separator}toc.xml file, including the article itself, the author
   biographies, and the “landing” page. The output is placed in the
-  ${toDir.static}${file.separator} directory, i.e. in a sibling to this directory, overwriting
-  any previous version. (Some temporary files are also placed in
-  ${toDir.base.path}${file.separator}.) The output is designed to be viewed from a server, as
+  ${toDir.static.path}${file.separator} directory, i.e. inside a sibling to this directory, 
+  overwriting any previous version. (Some temporary files are also placed 
+  in ${toDir.base.path}${file.separator}.) The output is designed to be viewed from a server, as
   it uses absolute filepaths to its assets. Thus it will not work properly
   (and will look ugly) if viewed on your local machine.
 generateSite
-  As above, but also ZIPs up the entire ${toDir.static}/ directory to make
+  As above, but also ZIPs up the entire ${toDir.static.path}${file.separator} directory to make
   it easy to transfer (e.g., to a server). The output file can be found at
   ${toDir.base.path}${file.separator}${context}.zip.
 </echo>
@@ -284,7 +292,8 @@ To proof only the internal preview, hit the return key or type "false".</input>
   </target>
   
   <!-- Compress the static site's files for backup and transportation. -->
-  <target name="compressStatic">
+  <target name="compressStatic"
+          description="Compress the static site for backup or upload.">
     <zip destfile="${toDir.base.path}${file.separator}${context}.zip">
       <fileset dir="${toDir.static.path}"/>
     </zip>
