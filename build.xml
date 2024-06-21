@@ -304,18 +304,30 @@ To proof only the internal preview, hit the return key or type "false".</input>
     </zip>
   </target>
 
+  <!-- Get a list of all targets *explicitly* set by the user. If no target was 
+    provided and Ant is falling back onto the default target, this value will be 
+    blank. This allows us to test if the default target is being run knowingly, or 
+    if helpful information might be needed. See 
+    https://ant.apache.org/manual/properties.html . -->
+  <property name="target.explicit" value="${ant.project.invoked-targets}"/>
+  
+  <!-- An echoed notice about the default target, providing a bit more information 
+    in case the command was run by accident. -->
   <target name="defaultnotice">
     <echo>#</echo>
     <echo># Generating single article preview.</echo>
     <echo>#</echo>
     <echo># For usage information issue `ant help`.</echo>
     <echo># For target list issue `ant -projecthelp`.</echo>
-    <echo>#</echo>
+    <echo>#${line.separator}${line.separator}</echo>
   </target>
   
   <!-- Create an HTML preview version of a single article. -->
-  <target name="previewArticle" depends="defaultnotice,checkXmlResolver" 
+  <target name="previewArticle" depends="checkXmlResolver" 
      description="Create an HTML preview version of a single article.">
+    <!-- If this target was run using `ant` (no target provided), output the 
+      "defaultnotice". -->
+    <antcall target="defaultnotice" if:blank="${target.explicit}"/>
     <!-- If the 'article.id' property wasn't already set using the command line, Ant 
       will prompt for it. -->
     <input unless:set="article.id" 
