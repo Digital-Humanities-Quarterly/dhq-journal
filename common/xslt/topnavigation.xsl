@@ -38,6 +38,13 @@
                 </span>
                 <span>
                     <a><xsl:attribute name="href">
+                        <xsl:value-of select="concat('/',$context,'/explore/explore.html')"/>
+                    </xsl:attribute><xsl:attribute name="class">
+                        <xsl:value-of select="'topnav'"/>
+                    </xsl:attribute>explore</a>
+                </span>
+                <span>
+                    <a><xsl:attribute name="href">
                         <xsl:value-of select="concat('/',$context,'/people/people.html')"/>
                     </xsl:attribute><xsl:attribute name="class">
                         <xsl:value-of select="'topnav'"/>
@@ -84,7 +91,7 @@
             </xsl:if>
             <div id="dhqlogo">
                 <xsl:variable name="imgFile">
-                    <xsl:sequence select="unparsed-text('../images/dhqLogo.png.base64')"/>
+                    <xsl:sequence select="unparsed-text('../images/dhqlogo.png.base64')"/>
                 </xsl:variable>        
                 <img alt="DHQ" src="{concat('data:image/png;base64,',$imgFile)}" />
             </div>
