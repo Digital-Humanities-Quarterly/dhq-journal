@@ -1,0 +1,315 @@
+<project xmlns:if="ant:if" xmlns:unless="ant:unless" 
+   name="dhq"
+   default="previewArticle">
+  
+  <description>
+    Apache Ant buildfile for Digital Humanities Quarterly.
+  </description>
+  
+  <!-- 
+    See build-properties.xml for the settings used in this file. When referenced, 
+    properties look like this:
+      ${toDir}
+    For more information, see https://ant.apache.org/manual/Tasks/xmlproperty.html
+  -->
+  <xmlproperty file="build-properties.xml" keepRoot="false"/>
+  
+  <!-- Define the relative path from the DHQ repository (this directory) to the 
+    directory which will hold the directory of generated static site files, as well 
+    as the full compressed site and derived Ant build file. -->
+  <property name="toDir.base" value="..${file.separator}${toDir}"/>
+  
+  <!-- Within ${toDir.base}, individually generated static site files will be 
+    written to the ${context} directory. -->
+  <property name="toDir.static" value="${toDir.base}${file.separator}${context}"/>
+  
+  <!-- Check for the XML Resolver Java class, as it is a dependency for using the 
+    Saxon HE processor. From the Saxon documentation on XSLT with Ant:
+      "In particular, the classpath attribute of the xslt task element has been 
+      unreliable: the safest approach is to ensure that the Jar files needed to run 
+      Saxon are present on the externally-specified classpath (the classpath at the 
+      point where Ant is invoked), rather than relying on the task-specific 
+      classpath."
+    https://www.saxonica.com/html/documentation11/using-xsl/xsltfromant.html
+   -->
+  <available classname="org.xmlresolver.Resolver" property="has.xmlresolver"/>
+  
+  
+  <!-- 
+    ANT TASKS
+  -->
+  
+  <!-- If the XML Resolver JAR file is not already loaded, provide instructions for 
+    running Ant with the "lib" command line option. Ant <target>s that use Saxon HE 
+    should list this one as a dependency. -->
+  <target name="checkXmlResolver">
+    <echo unless:true="${has.xmlresolver}" level="error"
+>XSL transformations cannot occur unless the XML Resolver JAR 
+is loaded when Ant starts up. Please run Ant again like this:
+      ant -lib common${file.separator}lib${file.separator}saxon</echo>
+    <fail unless="${has.xmlresolver}">Java class `org.xmlresolver.Resolver` is not available.</fail>
+    <!-- Otherwise, a little acknowledgement that this build target succeeded. -->
+    <echo level="info">OK</echo>
+  </target>
+  
+  <target name="help">
+    <echo>** DHQ static site generation build process **</echo>
+    <echo></echo>
+    <echo>General format:</echo>
+    <echo>  ant [-lib common${file.separator}lib${file.separator}saxon] [-Dprop=val ...] [target ...]</echo>
+    <echo>Where:</echo>
+    <echo>-lib common${file.separator}lib${file.separator}saxon</echo>
+    <echo>  is required if the chosen target performs XSL transformations, but is optional otherwise.</echo>
+    <echo>-Dprop=val</echo>
+    <echo>  is how you send parameters (which ant calls “properties”) to the process; typically</echo>
+    <echo>  used to say which specific article file to work on, e.g. “-Darticle.id=000370”.</echo>
+    <echo>  (The “...” just means that you can use multiple -Dprop=val, as needed.)</echo>
+    <echo>target</echo>
+    <echo>  indicates what you want done. For a list of possible targets with short descriptions,</echo>
+    <echo>  issue `ant -projecthelp`. For longer descriptions, read on.</echo>
+    <echo/>
+    <echo>Targets:</echo>
+    <echo>       (Note that the “...” above means you can execute multiple targets at once;</echo>
+    <echo>        however, this should rarely be necessary or even particularly helpful in</echo>
+    <echo>        the DHQ case.)</echo>
+    <echo>help</echo>
+    <echo>  What you are reading now.</echo>
+    <echo>previewArticle                            (this is the default target)</echo>
+    <echo>  transform one article XML file (specified via its 6-digit number with</echo>
+    <echo>  -Darticle.id=, or via a prompt) into HTML. The output file is placed</echo>
+    <echo>  in the ${previewDir}${file.separator} subdirectory. It has relative links to assets in</echo>
+    <echo>  this main directory (not the subdirectory), and thus should be suit-</echo>
+    <echo>  able for viewing on your local machine. (And may not be suitable for</echo>
+    <echo>  use on the server.)</echo>
+    <echo>zipPreviewArticle</echo>
+    <echo>  similar to 'previewArticle', but: a) The output HTML file *and* its</echo>
+    <echo>  assets are archived together into a single ZIP file. b) The output</echo>
+    <echo>  HTML file uses relative links to the assets in the same directory,</echo>
+    <echo>  as would happen when the ZIP file is unzipped. Both the HTML file</echo>
+    <echo>  and the ZIP file are put in the ${previewDir}${file.separator} subdirectory, overwrit-</echo>
+    <echo>  ing any previous version there.</echo>
+    <echo>generateIssues</echo>
+    <echo>  generates the entire static site — index pages and HTML for each issue</echo>
+    <echo>  listed in the toc${file.separator}toc.xml file, including the article itself, the author</echo>
+    <echo>  biographies, and the “landing” page. The output is placed in the</echo>
+    <echo>  ${toDir.static}/ directory, i.e. in a sibling to this directory, over-</echo>
+    <echo>  writing any previous version. (Some temporary files are also placed in</echo>
+    <echo>  ${toDir.base}/.) The output is designed to be viewed from a server, as</echo>
+    <echo>  it uses absolute filepaths to its assets. Thus it will not work properly</echo>
+    <echo>  (and will look ugly) if viewed on your local machine.</echo>
+    <echo>generateSite</echo>
+    <echo>  As above, but also ZIPs up the entire ${toDir.static}/ directory to make</echo>
+    <echo>  it easy to transfer (e.g., to a server). The output file can be found at</echo>
+    <echo>  ${toDir.base}${file.separator}${context}.zip.</echo>
+  </target>
+
+  <!-- Generate static HTML versions of the DHQ issues (articles, bios, & indices). -->
+  <target name="generateIssues" depends="checkXmlResolver" 
+     description="Generate static HTML versions of the DHQ issues.">
+    <mkdir dir="${toDir.static}${file.separator}vol"/>
+    <!-- Use XSLT to transform issues using the DHQ table of contents. -->
+    <xslt in="toc${file.separator}toc.xml" 
+          out="${toDir.base}${file.separator}article-map.xml"
+          style="common${file.separator}xslt${file.separator}generate_static_issues.xsl"
+          classpath="${processor.location}"
+          force="true"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <!-- A relative path in <xsl:result-document> will be calculated relative to 
+        the output file's directory, ${toDir}. -->
+      <param name="static-dir" expression="${context}"/>
+    </xslt>
+  </target>
+
+  <!-- Generate a static version of the DHQ website. -->
+  <target name="generateSite" depends="checkXmlResolver,generateIssues"
+     description="Generate a full static copy of DHQ intended for the DHQ server. This is NOT a standalone copy.">
+    <mkdir dir="${toDir.static}"/>
+    <!-- Use the Ant build file created in "generateIssues" to copy articles' 
+      resources to the right static directories. -->
+    <ant antfile="${toDir.base}${file.separator}article-map.xml" 
+         target="copyArticleResources" inheritRefs="true"/>
+    <!-- Copy specific files in the base directory. -->
+    <copy todir="${toDir.static}">
+      <filelist dir=".">
+        <file name="flow.js"/>
+        <file name="robots.txt"/>
+        <!--<file name="sitemap.xmap"/>-->
+        <file name="sruExplain.xml"/>
+      </filelist>
+    </copy>
+    <!-- Copy text files in the submissions directory. -->
+    <copy todir="${toDir.static}${file.separator}submissions">
+      <fileset dir="submissions" includes="*.txt *.xml"/>
+    </copy>
+    <!-- Copy web assets. -->
+    <copy todir="${toDir.static}${file.separator}common">
+      <fileset dir="common" excludes="lib/ tests/"/>
+    </copy>
+    <!-- Create a generic error page. (HTTP status 500) -->
+    <xslt in="toc${file.separator}toc.xml" 
+          out="${toDir.static}${file.separator}500.html"
+          style="common${file.separator}xslt${file.separator}template_article.xsl"
+          classpath="${processor.location}"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <param name="error" expression="true"/>
+      <!-- A relative path in <xsl:result-document> will be calculated relative to 
+        the output file's directory, ${toDir}. -->
+      <param name="static-dir" expression="${context}"/>
+    </xslt>
+    <!-- Create a page for "not found" errors. (HTTP status 404) -->
+    <xslt in="toc${file.separator}toc.xml" 
+          out="${toDir.static}${file.separator}404.html"
+          style="common${file.separator}xslt${file.separator}template_article.xsl"
+          classpath="${processor.location}"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <!-- A relative path in <xsl:result-document> will be calculated relative to 
+        the output file's directory, ${toDir}. -->
+      <param name="static-dir" expression="${context}"/>
+    </xslt>
+    <!-- Transform the test file.
+      TODO: is this still necessary? -->
+    <xslt in="common${file.separator}tests${file.separator}starter.xml" 
+          out="${toDir.static}${file.separator}starter.html"
+          style="common${file.separator}tests${file.separator}test2.xsl"
+          classpath="${processor.location}">
+      <factory name="${processor.name}"/>
+      <param name="fpath" expression="starter.html"/>
+    </xslt>
+    <!-- Create the Atom news feed. -->
+    <xslt in="toc${file.separator}toc.xml" 
+          out="${toDir.static}${file.separator}feed${file.separator}news.xml"
+          style="feed${file.separator}atomnews.xsl"
+          classpath="${processor.location}"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <!-- A relative path in <xsl:result-document> will be calculated relative to 
+        the output file's directory, ${toDir}. -->
+      <param name="static-dir" expression="${context}"/>
+    </xslt>
+    <!-- Download a copy of the W3C XHTML 1.0 Strict DTD, and its supporting 
+      character entity files. If these are already present in the dhq-static 
+      directory, nothing is downloaded. -->
+    <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
+         dest="${toDir.base}" skipexisting="true"/>
+    <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent"
+         dest="${toDir.base}" skipexisting="true"/>
+    <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent"
+         dest="${toDir.base}" skipexisting="true"/>
+    <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent"
+         dest="${toDir.base}" skipexisting="true"/>
+    <!-- Add headers and footers to static pages. -->
+    <xslt destdir="${toDir.static}"
+          style="common${file.separator}xslt${file.separator}template_static_pages.xsl"
+          filenameparameter="fname"
+          filedirparameter="fdir"
+          classpath="${processor.location}">
+      <!-- To prevent Ant/Saxon from hitting the W3C servers too hard with requests 
+        for the XHTML DTD, we use a catalog entry to map the ID to the local copy of 
+        the DTD. -->
+      <xmlcatalog>
+        <dtd publicId="-//W3C//DTD XHTML 1.0 Strict//EN"
+             location="${toDir.base}${file.separator}xhtml1-strict.dtd"/>
+      </xmlcatalog>
+      <mapper>
+        <!-- You can find the regular expression for the XHTML pages to be 
+          transformed in build-properties.xml . -->
+        <regexpmapper from="${staticPages.from}" to="${staticPages.to}" 
+          handledirsep="yes"/>
+      </mapper>
+      <factory name="${processor.name}"/>
+      <param name="assets-path" expression="..${file.separator}"/>
+      <param name="context" expression="dhq"/>
+    </xslt>
+    <!-- Generate the ZIP file of all articles' XML. -->
+    <mkdir dir="${toDir.static}${file.separator}data"/>
+    <!-- Use the Ant build file created in "generateIssues" to zip up all article 
+      XML. -->
+    <ant antfile="${toDir.base}${file.separator}article-map.xml" dir="${basedir}" 
+         target="zipArticleXml" inheritRefs="true"/>
+    <!-- Generate the ZIP file of the entire static site. -->
+    <antcall target="compressStatic"/>
+  </target>
+  
+  <!-- Compress the static site's files for backup and transportation. -->
+  <target name="compressStatic">
+    <zip destfile="${toDir.base}${file.separator}${context}.zip">
+      <fileset dir="${toDir.static}"/>
+    </zip>
+  </target>
+
+  <target name="defaultnotice">
+    <echo>#</echo>
+    <echo># Generating single article preview.</echo>
+    <echo>#</echo>
+    <echo># For usage information issue `ant help`.</echo>
+    <echo># For target list issue `ant -projecthelp`.</echo>
+    <echo>#</echo>
+  </target>
+  
+  <!-- Create an HTML preview version of a single article. -->
+  <target name="previewArticle" depends="defaultnotice,checkXmlResolver" 
+     description="Create an HTML preview version of a single article.">
+    <!-- If the 'article.id' property wasn't already set using the command line, Ant 
+      will prompt for it. -->
+    <input unless:set="article.id" 
+       message="Please type the ID of the article you want to preview:" 
+       addproperty="article.id"/>
+    <!-- Test the 'article.id' property to make sure it has 6 digits and doesn't 
+      start with '9'. -->
+    <condition property="article.id.ok" value="${article.id}">
+      <matches string="${article.id}" pattern="^[0-8]\d{5,5}$"/>
+    </condition>
+    <fail unless="article.id.ok"
+       message="An article ID must be 6 digits long. It must not start with '9'"/>
+    <!-- Set the assets path if it hasn't already been set. -->
+    <property unless:set="assets.path" name="assets.path" 
+      value="..${file.separator}"/>
+    <!-- If it doesn't exist yet, create the preview directory specified in 
+      build-properties.xml. -->
+    <mkdir dir="${previewDir}"/>
+    <!-- Transform the article with XSLT, using the Saxon HE processor. -->
+    <xslt in="articles${file.separator}${article.id}${file.separator}${article.id}.xml" 
+          out="${previewDir}${file.separator}${article.id}.html"
+          style="common${file.separator}xslt${file.separator}template_article.xsl"
+          classpath="${processor.location}"
+          force="true"
+          failOnTransformationError="false">
+      <factory name="${processor.name}"/>
+      <param name="assets-path" expression="${assets.path}"/>
+      <param name="context" expression="dhq"/>
+      <param name="dir-separator" expression="${file.separator}"/>
+      <param name="doProofing" expression="true"/>
+    </xslt>
+    <echo message="Created article preview at ${previewDir}${file.separator}${article.id}.html"/>
+  </target>
+  
+  <target name="zipPreviewArticle"
+     description="Create a ZIP file which contains the HTML preview for a single article.">
+    <!-- If the 'article.id' property wasn't already set using the command line, Ant 
+      will prompt for it. -->
+    <input unless:set="article.id" 
+       message="Please type the ID of the article you want to preview:" 
+       addproperty="article.id"/>
+    <!-- The "previewArticle" task assumes that the common directory is a sibling of 
+      the current one. For the ZIP, we want the HTML file at the same level as the 
+      common directory. -->
+    <property name="assets.path" value=".${file.separator}"/>
+    <antcall target="previewArticle" inheritall="yes"/>
+    <zip destfile="${previewDir}${file.separator}dhq-article-${article.id}.zip">
+      <fileset dir="." includes="common/css/ common/js/"/>
+      <fileset dir=".${file.separator}articles${file.separator}${article.id}" 
+        excludes="**${file.separator}${article.id}.xml **${file.separator}${article.id}.xhtml"/>
+      <fileset dir="${previewDir}">
+        <filename name="${article.id}.html"/>
+      </fileset>
+    </zip>
+  </target>
+  
+</project>

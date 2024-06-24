@@ -20,11 +20,11 @@
         <xdoc:short>XSLT stylesheet to transform DHQauthor documents to XHTML.</xdoc:short>
     </xdoc:doc>
     <xsl:param name="context"/>
-    <xsl:param name="fpath"/>
-    <xsl:param name="vol"/>
-    <xsl:param name="issue"/>
-    <xsl:param name="id"/>
+    <!-- $vol, $issue, and $id are parameters set in dhq2html.xsl . -->
+    <xsl:param name="fpath" select="concat('vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
     <xsl:param name="error"/>
+    <!-- When $doProofing is true(), no check is made to ensure that the article exists in the TOC. -->
+    <xsl:param name="doProofing" select="false()"/>
     <xsl:param name="staticPublishingPath">
         <xsl:value-of select="'../../articles/'"/>
     </xsl:param>
@@ -43,7 +43,11 @@
         </xsl:choose>
       </xsl:param>
         <xsl:choose>
-            <xsl:when test="document('../../toc/toc.xml')//journal[@vol=$vol and @issue=$issue and descendant::item/attribute::id=$cleanId and not(@editorial)]">
+            <xsl:when test="$doProofing 
+              or document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes 
+                                                    and @issue=$issue 
+                                                    and descendant::item/attribute::id=$cleanId 
+                                                    and not(@editorial)]">
                 <xsl:apply-templates select="tei:TEI"/>
             </xsl:when>
             <xsl:when test="$error">
@@ -87,7 +91,12 @@
                             <div id="mainContent">
                                 <xsl:call-template name="sitetitle"/>
                                 <h1>Resource not found.</h1>
-                                <p>The resource you requested (/<xsl:value-of select="concat($context,'/',$fpath)"/>) does not exist.</p>
+                                <p>The resource you requested<!-- 
+                                  2024-05-17: Ash commented out the instruction below, since the static 
+                                  site will not be able to construct a 404 response including the 
+                                  requested resource path.
+                                    (/<xsl:value-of select="concat($context,'/',$fpath)"/>)
+                                  --> does not exist.</p>
                                 <h2>Contact Information</h2>
                                 <h3>Email</h3>
                                 <p>General Information: <a href="mailto:dhqinfo@digitalhumanities.org">dhqinfo@digitalhumanities.org</a></p>
