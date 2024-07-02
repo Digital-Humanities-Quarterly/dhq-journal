@@ -171,10 +171,8 @@
 
     <rule abstract="true" id="target-uri-constraints">
       <assert test="normalize-space(@target)"><name/>/@target is empty</assert>
-      <assert test="@target castable as xs:anyURI"><name/>/@target is not a
-      URI</assert>
-      <assert role="warning" test="matches(@target,'#|/')"><name/>/@target
-        appears suspect: it has neither '#' nor '/'</assert>
+      <assert test="@target castable as xs:anyURI"><name/>/@target is not a URI</assert>
+      <assert role="warning" test="matches(@target,'#|/')"><name/>/@target appears suspect: it has neither '#' nor '/'</assert>
     </rule>
         
     <!--checks to see when @target begins with a '#' AND does not point to an @xml:id-->
@@ -184,17 +182,16 @@
       </assert>
     </rule>
     
-        <!-- warns if @target seems to point externally and is missing a protocol or is missing a # -->
-                <!--<rule context="*[@target]">
-                <assert role="warning"
-                        test="starts-with(@target, 'http://') or
-                                                starts-with(@target, 'https://') or
-                                                starts-with(@target, '#')">
-                        @target should begin with 'http://' or 'https://' if it points to an external source.
-                </assert>
-    </rule>-->
+    <!-- warns if @target seems to point externally and is missing a protocol or is missing a # -->
+    <rule context="*[ @target  and  not( starts-with( normalize-space(@target), '#') ) ]">
+      <assert role="warning"
+              test="starts-with( normalize-space(@target), 'http://') or
+                    starts-with( normalize-space(@target), 'https://')" >
+        @target should begin with 'http://' or 'https://' if it points to an external source.
+      </assert>
+    </rule>
 
-    <rule context="tei:ptr[starts-with(@target,'#')]">
+    <rule context="tei:ptr[ starts-with( normalize-space(@target), '#')]">
       <extends rule="target-uri-constraints"/>
       <assert test="substring(normalize-space(@target), 2) = //tei:bibl/@xml:id" role="warning">
         The @target of <name/> ("<value-of select="@target"/>") does not reference a bibl in this document
