@@ -293,6 +293,21 @@ To proof only the internal preview, hit the return key or type "false".</input>
     <ant unless:true="${do.proofing.full}"
          antfile="${toDir.base.path}${file.separator}article-map.xml" 
          target="copyArticleResources" inheritRefs="true"/>
+    <!-- Generate the sorted article lists hosted alongside `editorial/index.html`. -->
+    <echo>Generating list of DHQ articles from TOC</echo>
+    <xslt in="toc${file.separator}toc.xml"
+          out="${toDir.base.path}${file.separator}article-list.xml"
+          style="common${file.separator}xslt${file.separator}article_list_all.xsl"
+          classpath="${processor.location}"
+          force="true"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <param name="proofing-dir" expression="${toDir.use}"/>
+    </xslt>
+    <!-- Remove the file "article-list.xml" created from the last transformation. It 
+      will be empty; the XSLT produces no direct output. -->
+    <delete file="${toDir.base.path}${file.separator}article-list.xml"/>
     <!-- If we're generating a proofing copy of the entire site, run "generateSite". -->
     <antcall if:true="${do.proofing.full}" target="generateSite"/>
   </target>

@@ -45,7 +45,7 @@
   
   
  <!--
-      TEMPLATES, #default mode
+      TEMPLATES
    -->
   
   <xsl:template match="/toc">
