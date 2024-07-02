@@ -3,7 +3,12 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   queryBinding="xslt2">
 
-
+  <ns prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
+  <ns prefix="dhq" uri="http://www.digitalhumanities.org/ns/dhq"/>
+  <ns prefix="cc"  uri="http://web.resource.org/cc/"/>
+  <ns prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+  <ns prefix="xs"  uri="http://www.w3.org/2001/XMLSchema"/>
+  
   <p>Authorial readiness check for DHQ articles.</p>
 
   <p>This checks a number of constraints on DHQauthor articles that we can't or
@@ -16,12 +21,6 @@
   <!-- Also check DHQ-TEI-diagnostic.sch for rules that should be
        in here -->
 
-  <ns prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
-  <ns prefix="dhq" uri="http://www.digitalhumanities.org/ns/dhq"/>
-  <ns prefix="cc"  uri="http://web.resource.org/cc/"/>
-  <ns prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
-  <ns prefix="xs"  uri="http://www.w3.org/2001/XMLSchema"/>
-  
   <pattern id="top-level">
 <!-- Cannot put up with hrefs to http: in
       <?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
@@ -57,14 +56,15 @@
                    tei:profileDesc//* |
                    tei:revisionDesc"
       >
-      <!-- matching these to create exceptions for the next rules --> </rule>
+      <assert test="true()"> matching these to create exceptions for the following rules </assert>
+    </rule>
 
     <rule context="tei:publicationStmt/tei:idno[@type = ('volume','issue')][. castable as xs:integer]">
       <let name="me" value="normalize-space(.)"/>
-      <assert test="$me eq .">There should be no spaces in the <value-of select="@type"/> number</assert>
-      <assert test="$me castable as xs:positiveInteger">The <value-of select="@type"/> number should be a positive integer</assert>
       <let name="min" value="1"/>
       <let name="max" value="if (@type eq 'issue') then 4 else 899"/> <!-- rule only works for ~900 years -->
+      <assert test="$me eq .">There should be no spaces in the <value-of select="@type"/> number</assert>
+      <assert test="$me castable as xs:positiveInteger">The <value-of select="@type"/> number should be a positive integer</assert>
       <assert test="$max ge xs:integer($me)  and  xs:integer($me) ge $min">The <value-of select="@type"/> number is out of range</assert>
       <assert test="if (@type eq 'volume') then string-length($me) eq 3 else true()">The volume number should be 3 digits long (with leading zeroes as needed)</assert>
       <assert test="if (@type eq 'issue') then string-length($me) eq 1 else true()">The issue number should be only 1 digit long (no leading zeroes allowed)</assert>
@@ -91,8 +91,8 @@
       <assert test="not(@when)">Publication date is missing its @when attribute value</assert>
     </rule>
     <rule context="tei:teiHeader//tei:date[ @when  and  @when ne '']">
-      <assert test="@when castable as xs:date"><value-of select="name(..)"/><name/>/@when is not an ISO date</assert>
       <let name="date-str" value="@when/format-date(.,'[D] [MNn] [Y]')"/>
+      <assert test="@when castable as xs:date"><value-of select="name(..)"/><name/>/@when is not an ISO date</assert>
       <assert test=". eq $date-str">date value is not @when in 'D Month YYYY' format (expecting '<value-of select="$date-str"/>')</assert>
     </rule>
     
@@ -104,19 +104,21 @@
     </rule>
 
     <rule context="tei:taxonomy[@xml:id='dhq_keywords']">
-      <!--<let name="contents" value="*|text()[normalize-space(.)]"/>
-      <assert test="exists(bibl[1]) and not($contents except tei:bibl[1])"><name/> contains
-      unexpected content (should have a single bibl)</assert>
-      <assert test="normalize-space(.) = 
-        normalize-space('DHQ classification scheme; full list available in the
-        DHQ keyword taxonomy')">text content of <name/> is incorrect: should be
-        "DHQ classification scheme; full list available in the
-        DHQ keyword taxonomy"</assert>--> </rule>
-    <rule context="tei:taxonomy[@xml:id='authorial_keywords']"/>
+      <assert test="true()"> could put a test for contents here; previous attempt commented out, below </assert>
+      <!--
+        <let name="contents" value="*|text()[normalize-space(.)]"/>
+        <assert test="exists(bibl[1]) and not($contents except tei:bibl[1])"><name/> contains unexpected content (should have a single bibl)</assert>
+        <assert test="normalize-space(.) = normalize-space('DHQ classification scheme; full list available in the DHQ keyword taxonomy')">
+          text content of <name/> is incorrect: should be "DHQ classification scheme; full list available in the DHQ keyword taxonomy"
+        </assert>
+      -->
+    </rule>
+    <rule context="tei:taxonomy[@xml:id='authorial_keywords']">
+      <assert test="true()"/>
+    </rule>
     <rule context="tei:classDecl/*">
       <report test="true()"><name/> unexpected here</report>
     </rule>
-
     <rule context="tei:front//dhq:*">
       <assert test="normalize-space(.)"><name/> is empty</assert>
     </rule>
@@ -295,7 +297,9 @@
 
   <pattern>
     <title>flagging markup content</title>
-    <rule context="tei:code | tei:eg | tei:formula"/>
+    <rule context="tei:code | tei:eg | tei:formula">
+      <assert test="true()"> the exceptions to the following rule </assert>
+    </rule>
     <rule context="*[exists(text()[normalize-space(.)])]">
       <!-- matches any elements that don't match the first rule -->
       <report role="warning" test="exists(text()[matches(.,'&lt;|&gt;')])">
@@ -333,5 +337,13 @@
         next to non-space character</report>
     </rule>
   </pattern>
+
+  <properties>
+    <property id="placeholder" role="validity">
+      This is here only because ISO 19757-3:2016 appendix A requires
+      it for validity. We do not actually use properties. (I do not
+      even know how to.) —Syd, 2024-01-29
+    </property>
+  </properties>
   
 </schema>
