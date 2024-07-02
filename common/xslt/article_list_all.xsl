@@ -87,7 +87,9 @@
     <xsl:param name="sort-method" select="'id'" as="xs:string"/>
     <xsl:param name="sort-direction" select="'asc'" as="xs:string"/>
     <xsl:param name="outputFileName" as="xs:string"
-      select="'articles_'||$sort-method||'_'||$sort-direction||'.html'"/>
+      select="concat('articles_',$sort-method,
+                    if ($sort-direction eq 'desc') then '_'||$sort-direction else ''
+                    ,'.html')"/>
     <xsl:variable name="filepath" select="'editorial/'||$outputFileName"/>
     <!-- Define the XSL transformation that needs to occur. -->
     <xsl:variable name="xslOptionMap" as="map(*)">
