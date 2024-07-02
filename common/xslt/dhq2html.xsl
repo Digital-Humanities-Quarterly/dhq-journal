@@ -249,13 +249,13 @@
         <!-- Select the chosen matching row -->
         <xsl:variable name="inner_tabs" select="tokenize($identifiedRow[1], '\t')" />
         <!-- Editing the url to get the relative url path. index 16 is the url-->
-        <xsl:variable name="path" select="substring-after($inner_tabs[16], 'org')" />
-        <!-- Now we pull from the tabs of the selected row. 5 is the name of the article -->
+        <xsl:variable name="path" select="substring-after($inner_tabs[17], 'org')" />
+        <!-- Now we pull from the tabs of the selected row. 6 is the name of the article -->
         <!-- Setting up the url and its <a> tag-->
-        <a href="{$path}"><xsl:value-of select="$inner_tabs[5]"/></a>,&#160;
-        <!-- selecting and inputting the year [2], author(s) [3], and university [4] -->
+        <a href="{$path}"><xsl:value-of select="$inner_tabs[6]"/></a>,
+        <!-- selecting and inputting the year [2], and author(s) and their affiliation [5] -->
         <xsl:value-of select="$inner_tabs[2]"/>,
-        <xsl:value-of select="$inner_tabs[3]"/>, <xsl:value-of select="$inner_tabs[4] "/>
+        <xsl:value-of select="$inner_tabs[5]"/>
     </xsl:function>
     
     
@@ -266,7 +266,7 @@
       <xsl:param name="all-rows"/>
       <!-- The recommendations for this article start at column 6 of the TSV and end at column 10. -->
       <ol>
-        <xsl:for-each select="6 to 10">
+        <xsl:for-each select="7 to 11">
           <li>
             <!-- create variable to pass as parameter. This is the index of a recommended article ID -->
             <xsl:variable name="input_num" select="." />
