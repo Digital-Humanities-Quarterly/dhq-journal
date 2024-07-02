@@ -137,16 +137,16 @@
     <rule role="warning" context="tei:div">
       <report test="empty(tei:head)">A div has no head.</report>
     </rule>
-  	
-  	<!-- Checks new  <change> template (implemented 2022-08)
-  		to verify the article number was replaced in the gitHub url -->
-  	<rule role="error" context="tei:change/tei:ref">
-  		<extends rule="target-uri-constraints"/>
-  		<report role="error" test="matches(@target,'NNNNNN')">
-  			Revision description appears suspect: does not contain proper article id.
-  		</report>
-  	</rule>
-  	
+        
+        <!-- Checks new  <change> template (implemented 2022-08)
+                to verify the article number was replaced in the gitHub url -->
+        <rule role="error" context="tei:change/tei:ref">
+                <extends rule="target-uri-constraints"/>
+                <report role="error" test="matches(@target,'NNNNNN')">
+                        Revision description appears suspect: does not contain proper article id.
+                </report>
+        </rule>
+        
     <rule role="warning" context="tei:head">
       <assert test="empty(preceding-sibling::tei:head)">This is not the first head in this element; please check (is this a new div or caption)?</assert>
     </rule>
@@ -174,29 +174,31 @@
       <assert role="warning" test="matches(@target,'#|/')"><name/>/@target
         appears suspect: it has neither '#' nor '/'</assert>
     </rule>
-  	
-  	<!--checks to see when @target begins with a '#' AND does not point to an @xml:id-->
-  	<rule context="tei:ref[starts-with(normalize-space(@target),'#')]">
-  		<assert role="warning" test="substring(normalize-space(@target), 2) = //@xml:id">
-  			The @target of <name/> does not reference an @xml:id in this document</assert>
-  	</rule>
-  	
-  	<!-- warns if @target seems to point externally and is missing a protocol or is missing a # -->
-		<!--<rule context="*[@target]">
-  		<assert role="warning"
-  			test="starts-with(@target, 'http://') or
-  						starts-with(@target, 'https://') or
-  						starts-with(@target, '#')">
-  			@target should begin with 'http://' or 'https://' if it points to an external source.
-  		</assert>
+        
+    <!--checks to see when @target begins with a '#' AND does not point to an @xml:id-->
+    <rule context="tei:ref[starts-with(normalize-space(@target),'#')]">
+      <assert role="warning" test="substring(normalize-space(@target), 2) = //@xml:id">
+        The @target of <name/> ("<value-of select="@target"/>") does not reference an @xml:id in this document
+      </assert>
+    </rule>
+    
+        <!-- warns if @target seems to point externally and is missing a protocol or is missing a # -->
+                <!--<rule context="*[@target]">
+                <assert role="warning"
+                        test="starts-with(@target, 'http://') or
+                                                starts-with(@target, 'https://') or
+                                                starts-with(@target, '#')">
+                        @target should begin with 'http://' or 'https://' if it points to an external source.
+                </assert>
     </rule>-->
 
     <rule context="tei:ptr[starts-with(@target,'#')]">
       <extends rule="target-uri-constraints"/>
-      <assert test="replace(@target,'^#','') = //tei:bibl/@xml:id"
-        role="warning"><name/> does not reference a bibl</assert>
-    	<!-- Removing the checks on @loc; actual values are too complex to model/constrain with Schematron. 
-    		Retaining the code in case we want it later.
+      <assert test="substring(normalize-space(@target), 2) = //tei:bibl/@xml:id" role="warning">
+        The @target of <name/> ("<value-of select="@target"/>") does not reference a bibl in this document
+      </assert>
+        <!-- Removing the checks on @loc; actual values are too complex to model/constrain with Schematron. 
+                Retaining the code in case we want it later.
       <!- $d is an arabic natural number (one or more digits not starting with 0) 
       <let name="d" value="'[1-9]\d*'"/>
       <!- $r is a lower-case roman numeral 
@@ -207,15 +209,15 @@
       <let name="rr" value="concat($r,'(&#x2013;',$r,')?')"/>
       <!- $drrr is a choice between $dr and $rr 
       <let name="drrr" value="concat('(',$dr,'|',$rr,')')"/>
-      <!- $s is one of a set of special characters 	
-      <let name="s" value="'[§¶]*'"></let>	
+      <!- $s is one of a set of special characters      
+      <let name="s" value="'[§¶]*'"></let>      
       <!- $seq is a sequence of one or more $drrr, comma-delimited, with optional special-character prefix $s 
       <let name="seq" value="concat('^',$s,$drrr,'(, ',$drrr,')*$')"/>
       
       <assert test="not(@loc) or matches(@loc,$seq)" role="warning"
         ><name/>/@loc '<value-of select="@loc"/>' is unusual: please
         check</assert>
-    	 -->
+         -->
       <report test="contains(@loc,'-')" role="warning"><name/>/@loc contains
         '-' (hyphen): try '&#x2013;' (en-dash)</report>
       <!-- elsewhere we check bibl elements to which we have ptr cross-references,
