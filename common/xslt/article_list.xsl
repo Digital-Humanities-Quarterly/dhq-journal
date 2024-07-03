@@ -83,20 +83,27 @@
       <xsl:map>
         <xsl:map-entry key="'id'">
           <xsl:sequence>
-            <a href="articles.html">article ID</a> 
-            <a href="articles_desc.html">descending</a>
+            <a href="articles.html">article ID</a>
+            <!-- There's an @aria-label here in order to explicitly describe this 
+              link. This is necessary because the "descending" links don't stand on 
+              their own, and any preceding link may be reduced to its textual 
+              content. -->
+            <a href="articles_desc.html" 
+              aria-label="article ID in descending order">descending</a>
           </xsl:sequence>
         </xsl:map-entry>
         <xsl:map-entry key="'issue'">
           <xsl:sequence>
-            <a href="articles_issue.html">volume and issue</a> 
-            <a href="articles_issue_desc.html">descending</a>
+            <a href="articles_issue.html">volume and issue</a>
+            <a href="articles_issue_desc.html" 
+              aria-label="volume and issue in descending order">descending</a>
           </xsl:sequence>
         </xsl:map-entry>
         <xsl:map-entry key="'title'">
           <xsl:sequence>
             <a href="articles_title.html">title</a>
-            <a href="articles_title_desc.html">descending</a>
+            <a href="articles_title_desc.html" 
+              aria-label="title in descending order">descending</a>
           </xsl:sequence>
         </xsl:map-entry>
       </xsl:map>
@@ -113,21 +120,27 @@
           <xsl:variable name="isRequestedMethod" select=". eq $sort"/>
           <xsl:variable name="linkSeq" select="$sortLinks?($sortMethod)"/>
           <li>
-            <!-- We don't need a link to the current page. Instead, we can just 
-              output the text content of <a>. -->
             <xsl:choose>
+              <!-- If the current page matches the loop's sort method and the
+                "ascending" direction, we don't need a link to the current page. 
+                Instead, we can just copy the text content of <a>. -->
               <xsl:when test="$isRequestedMethod and $direction eq 'asc'">
                 <xsl:value-of select="$linkSeq[1]"/>
               </xsl:when>
+              <!-- By default, copy the "ascending" link for this method. -->
               <xsl:otherwise>
                 <xsl:sequence select="$linkSeq[1]"/>
               </xsl:otherwise>
             </xsl:choose>
             <xsl:text> (</xsl:text>
             <xsl:choose>
+              <!-- If the current page matches the loop's sort method and the
+                "descending" direction, we don't need a link to the current page. 
+                Instead, we can just copy the text content of <a>. -->
               <xsl:when test="$isRequestedMethod and $direction eq 'desc'">
                 <xsl:value-of select="$linkSeq[2]"/>
               </xsl:when>
+              <!-- By default, copy the "descending" link for this method. -->
               <xsl:otherwise>
                 <xsl:sequence select="$linkSeq[2]"/>
               </xsl:otherwise>
