@@ -220,7 +220,7 @@
     <xsl:variable name="id" select="@id/data(.)"/>
     <xsl:variable name="vol" select="ancestor::journal/@vol/data(.)"/>
     <xsl:variable name="issue" select="ancestor::journal/@issue/data(.)"/>
-    <xsl:variable name="path" select="concat('../../articles/',$id,'/',$id,'.xml')"/>
+    <xsl:variable name="repoArticlePath" select="concat('../../articles/',$id,'/',$id,'.xml')"/>
     <xsl:variable name="isInternalArticle" as="xs:boolean"
       select="exists(ancestor::journal/@editorial)"/>
     <xsl:variable name="isPreviewArticle" as="xs:boolean"
@@ -229,7 +229,7 @@
       <xsl:choose>
         <!-- When the article is not available on the expected path, we can fill in 
           the ID but nothing else. -->
-        <xsl:when test="not(doc-available($path))">
+        <xsl:when test="not(doc-available($repoArticlePath))">
           <!-- 2024: Ash changed these from @class="center" to inline CSS, because 
             the "center" class includes a `display: block;` rule that was causing 
             the cells to group up vertically. -->
@@ -239,7 +239,7 @@
           <td>[N/A]</td>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:variable name="article" select="doc($path)"/>
+          <xsl:variable name="article" select="doc($repoArticlePath)"/>
           <!-- ID column -->
           <td style="text-align:center;">
             <xsl:value-of select="@id"/>
@@ -248,17 +248,17 @@
           <td style="text-align:center;">
             <xsl:choose>
               <xsl:when test="$isInternalArticle">
-                <a href="/dhq/editorial/index.html">Editorial</a>
+                <a href="index.html">Editorial</a>
               </xsl:when>
               <xsl:when test="$isPreviewArticle">
-                <a href="/dhq/preview/index.html">
+                <a href="../preview/index.html">
                   <xsl:value-of select="'v'||$vol||'n'||$issue"/>
                 </a>
                 <br/>
                 <xsl:text>(Preview)</xsl:text>
               </xsl:when>
               <xsl:otherwise>
-                <a href="{concat('/dhq/vol/',$vol,'/',$issue,'/index.html')}">
+                <a href="{concat('../vol/',$vol,'/',$issue,'/index.html')}">
                   <xsl:value-of select="'v'||$vol||'n'||$issue"/>
                 </a>
               </xsl:otherwise>
@@ -268,9 +268,9 @@
           <td>
             <xsl:variable name="articleUrl" 
               select="if ( $isInternalArticle ) then
-                        concat('/dhq/editorial/',$id,'.html')
+                        concat($id,'/',$id,'.html')
                       else
-                        concat('/dhq/vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
+                        concat('../vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
             <xsl:variable name="title" 
               select="$article//tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title"/>
             <xsl:choose>
@@ -298,11 +298,6 @@
                     </li>
                   </xsl:for-each>
                 </ul>
-                <!--<table summary="author list">
-                  <xsl:for-each select="doc(concat('../../articles/',$id,'/',$id,'.xml'))//tei:teiHeader/tei:fileDesc/tei:titleStmt/dhq:authorInfo">
-                    <tr><td class="author"><xsl:apply-templates select="dhq:author_name"/></td></tr>
-                  </xsl:for-each>
-                </table>-->
               </xsl:when>
               <xsl:otherwise>
                 <xsl:text>[No author]</xsl:text>
