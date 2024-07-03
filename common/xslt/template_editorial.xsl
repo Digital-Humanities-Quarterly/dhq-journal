@@ -31,7 +31,7 @@
                         <xsl:call-template name="sitetitle"/>
                         <!-- Rest of the document/article is coverd in this template - this is a call to toc.xsl -->
                         <xsl:call-template name="index_main_body_editorial"/>
-                        <h2><a href="/dhq/editorial/articles.html">Article List</a></h2>
+                        <h2><a href="articles.html">Article List</a></h2>
                         <!-- Use the URL generated to pass to the footer -->
                         <xsl:call-template name="footer">
                             <xsl:with-param name="docurl" select="$fpath"/>
