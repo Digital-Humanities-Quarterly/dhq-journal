@@ -280,10 +280,11 @@ compressStatic
            validargs="true,false"
 >Do you want to proof the full DHQ site? If so, type "true".
 To proof only the internal preview, hit the return key or type "false".</input>
-    <!-- Delete the contents of the proofing directory before beginning. This 
+    <!-- Delete any contents of the proofing directory before beginning. This 
       ensures that the same directory can be re-used for a full site proofing 
       endeavor as for an editorial-only endeavor. -->
-    <delete includeemptydirs="true">
+    <delete includeemptydirs="true"
+            failonerror="false">
       <fileset dir="${toDir.proofing.path}" includes="**/*"/>
     </delete>
     <!-- If we're only generating the Internal Preview, run "generateIssues". Then, 
@@ -293,6 +294,10 @@ To proof only the internal preview, hit the return key or type "false".</input>
     <ant unless:true="${do.proofing.full}"
          antfile="${toDir.base.path}${file.separator}article-map.xml" 
          target="copyArticleResources" inheritRefs="true"/>
+    <!-- Since "generateIssues" creates the "vol" directory, we delete it if we are 
+      only generating the editorial section. -->
+    <delete unless:true="${do.proofing.full}" 
+            dir="${toDir.proofing.path}${file.separator}vol"/>
     <!-- Generate the sorted article lists hosted alongside `editorial/index.html`. -->
     <echo>Generating list of DHQ articles from TOC</echo>
     <xslt in="toc${file.separator}toc.xml"
