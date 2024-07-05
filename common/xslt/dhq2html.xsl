@@ -273,7 +273,14 @@
         <!-- Select the chosen matching row -->
         <xsl:variable name="inner_tabs" select="tokenize($identifiedRow[1], '\t')" />
         <!-- Editing the url to get the relative url path. index 16 is the url-->
-        <xsl:variable name="path" select="substring-after($inner_tabs[16], 'org')" />
+        <xsl:variable name="path">
+          <xsl:variable name="fullUrl" select="$inner_tabs[16]"/>
+          <!-- Regex to find both new and old styles of DHQ URL. -->
+          <xsl:variable name="removeFromUrl"
+            select="'^(https://digitalhumanities\.org/dhq|https://dhq.digitalhumanities\.org)/'"/>
+          <!-- Replace the website host with a relative path back to the root directory. -->
+          <xsl:sequence select="replace($fullUrl, $removeFromUrl, '../../../../')"/>
+        </xsl:variable>
         <!-- Now we pull from the tabs of the selected row. 5 is the name of the article -->
         <!-- Setting up the url and its <a> tag-->
         <a href="{$path}"><xsl:value-of select="$inner_tabs[5]"/></a>,&#160;
