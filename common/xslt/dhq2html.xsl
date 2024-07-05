@@ -28,8 +28,10 @@
     <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
     <xsl:param name="vol" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume']!string()"/>
     <xsl:param name="vol_no_zeroes" select="replace( $vol, '^0+', '')"/>
-    <xsl:param name="issue" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/>
-    <xsl:param name="id" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']"/>
+    <xsl:param name="issue" 
+      select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']/normalize-space(.)"/>
+    <xsl:param name="id" 
+      select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']/normalize-space(.)"/>
     <xsl:param name="cssFile"/>
     <xsl:param name="biblioData" select="'../../data/biblio-full.xml'"/>
 
