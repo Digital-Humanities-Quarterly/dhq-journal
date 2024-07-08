@@ -102,7 +102,9 @@ s.parentNode.insertBefore(ga, s);
 </script>
 
           <xsl:comment>WTF?</xsl:comment>
-            <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><xsl:comment>Gimme some comment!</xsl:comment></script>
+          <!-- 2024-06-27: Ash removed Polyfill.io CDN as it has been injecting malware. We were 
+            using it to provide ECMAScript 6 (ES6) features to older browsers. -->
+          
             <script>
                 <!-- The predefined skipHtmlTags array lists the names of the tags whose contents should not be processed by MathJaX (other than to look for ignore/process classes as listed below). You can add to (or remove from) this list to prevent MathJax from processing mathematics in specific contexts. In the example below, `code` and `pre` are **removed** from the skipHtmlTags array. See http://docs.mathjax.org/en/latest/options/document.html . -->
                 MathJax = {
@@ -117,7 +119,6 @@ s.parentNode.insertBefore(ga, s);
 <!-- <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async="async"><xsl:comment>Gimme some comment!</xsl:comment></script> -->
           
          <!-- <xsl:comment>Newstuff</xsl:comment>
-          <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><xsl:comment> serialize </xsl:comment></script>
           <script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"><xsl:comment> serialize </xsl:comment>
           </script>
           <xsl:comment>End newstuff</xsl:comment>-->
