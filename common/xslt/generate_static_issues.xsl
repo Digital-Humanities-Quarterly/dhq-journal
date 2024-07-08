@@ -207,7 +207,6 @@
           <xsl:with-param name="transform-2-xsl-filename" select="'bios_sort.xsl'"/>
         </xsl:call-template>
       </xsl:result-document>
-      <!-- TODO: Generate article lists? article_list.xsl -->
       <!-- Transform the articles in this section. -->
       <xsl:apply-templates>
         <xsl:with-param name="vol" select="@vol/data(.)" tunnel="yes"/>
