@@ -38,9 +38,7 @@
                 <xsl:call-template name="topnavigation"/>
                 <div id="main">
                     <div id="leftsidebar">
-                        <xsl:call-template name="sidenavigation">
-                            <xsl:with-param name="session" select="'true'"/>
-                        </xsl:call-template>
+                        <xsl:call-template name="sidenavigation"/>
                         <!-- moved tapor toolbar to the article level toolbar in dhq2html xslt -->
                         <!--                        <xsl:call-template name="taportool"/> -->
                     </div>
