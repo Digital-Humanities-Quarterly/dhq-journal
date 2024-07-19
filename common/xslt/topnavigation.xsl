@@ -58,9 +58,12 @@
             </div>
             <div id="search">
                 <!-- append '+AND+idno%40type%3ADHQarticle-id' on form action to limit search to articles [CRB] -->
-                <form action="/dhq/findIt" method="get" onsubmit="javascript:document.location.href=cleanSearch(this.queryString.value); return false;">
-                    <div><input type="text" name="queryString" size="18" /><xsl:text> </xsl:text><input type="submit" value="Search" /></div>
-                </form>
+		    <form id="searchForm" method="get" action="/dhq/vol/search" enctype="application/x-www-form-urlencoded" accept-charset="utf-8">
+	<div id="search" title="Press the Go! button to get to the advanced search page.">
+		<input id="q" type="text" name="q" value="" placeholder="Search"/>
+		<input id="searchSubmit" type="submit" value="Go!"/>
+	</div>
+</form>
             </div>
         </div>
     </xsl:template>
