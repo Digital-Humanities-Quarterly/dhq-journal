@@ -162,6 +162,31 @@ is loaded when Ant starts up. Please run Ant again like this:
     <copy todir="${toDir.static}${file.separator}common">
       <fileset dir="common" excludes="lib/ tests/"/>
     </copy>
+    <!-- Create a generic error page. (HTTP status 500) -->
+    <xslt in="toc${file.separator}toc.xml" 
+          out="${toDir.static}${file.separator}500.html"
+          style="common${file.separator}xslt${file.separator}template_article.xsl"
+          classpath="${processor.location}"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <param name="error" expression="true"/>
+      <!-- A relative path in <xsl:result-document> will be calculated relative to 
+        the output file's directory, ${toDir}. -->
+      <param name="static-dir" expression="${context}"/>
+    </xslt>
+    <!-- Create a page for "not found" errors. (HTTP status 404) -->
+    <xslt in="toc${file.separator}toc.xml" 
+          out="${toDir.static}${file.separator}404.html"
+          style="common${file.separator}xslt${file.separator}template_article.xsl"
+          classpath="${processor.location}"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <!-- A relative path in <xsl:result-document> will be calculated relative to 
+        the output file's directory, ${toDir}. -->
+      <param name="static-dir" expression="${context}"/>
+    </xslt>
     <!-- Transform the test file.
       TODO: is this still necessary? -->
     <xslt in="common${file.separator}tests${file.separator}starter.xml" 
@@ -208,9 +233,10 @@ is loaded when Ant starts up. Please run Ant again like this:
              location="${toDir.base}${file.separator}xhtml1-strict.dtd"/>
       </xmlcatalog>
       <mapper>
-        <regexpmapper
-          from="^(about|contact|news|people|submissions)/(.+\.html)"
-          to="\1/\2" handledirsep="yes"/>
+        <!-- You can find the regular expression for the XHTML pages to be 
+          transformed in build-properties.xml . -->
+        <regexpmapper from="${staticPages.from}" to="${staticPages.to}" 
+          handledirsep="yes"/>
       </mapper>
       <factory name="${processor.name}"/>
       <param name="assets-path" expression="..${file.separator}"/>
@@ -351,16 +377,18 @@ is loaded when Ant starts up. Please run Ant again like this:
       <mapper type="glob" from="*.NOT" to="*"/>
     </move>
     <echo> ... tweaking UVEPSS search page</echo>
-
     <xslt in="${toDir.static}/vol/search.html"
-          out="${toDir.static}/vol/search_DHQ_articles.html"
+          out="${toDir.static}/vol/search_tweaked.html"
           style="${toDir.static}/common/xslt/uvepss_post_process_search_page.xslt"
           classpath="${processor.location}"
           force="true"
           failonerror="false">
       <factory name="${processor.name}"/>
     </xslt>    
-
+    <move file="${toDir.static}/vol/search.html"
+	  tofile="${toDir.static}/vol/search_orig.html"/>
+    <move file="${toDir.static}/vol/search_tweaked.html"
+	  tofile="${toDir.static}/vol/search.html"/>
   </target>
   
   <target name="generateSearchableToGo" depends="generateSearchable"

@@ -35,6 +35,13 @@
                 </span>
                 <span>
                     <a><xsl:attribute name="href">
+                        <xsl:value-of select="concat('/',$context,'/explore/explore.html')"/>
+                    </xsl:attribute><xsl:attribute name="class">
+                        <xsl:value-of select="'topnav'"/>
+                    </xsl:attribute>explore</a>
+                </span>
+                <span>
+                    <a><xsl:attribute name="href">
                         <xsl:value-of select="concat('/',$context,'/people/people.html')"/>
                     </xsl:attribute><xsl:attribute name="class">
                         <xsl:value-of select="'topnav'"/>

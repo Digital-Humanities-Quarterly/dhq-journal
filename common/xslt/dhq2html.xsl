@@ -8,6 +8,7 @@
     xmlns:cc="http://web.resource.org/cc/"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:dhqf="https://dhq.digitalhumanities.org/ns/functions"
     exclude-result-prefixes="#all" version="2.0">
 
     <xsl:import href="coins.xsl"/>
@@ -129,15 +130,16 @@
          </xsl:when>
         <xsl:otherwise>
         -->
-      <div class="DHQarticle">
-        <xsl:call-template name="pubInfo"/>
-        <xsl:call-template name="toolbar"/>
-        <xsl:apply-templates/>
-        <xsl:call-template name="notes"/>
-        <xsl:call-template name="bibliography"/>
-        <xsl:call-template name="toolbar"/>
-        <xsl:call-template name="license"/>
-      </div>
+        <div class="DHQarticle">
+            <xsl:call-template name="pubInfo"/>
+            <xsl:call-template name="toolbar"/>
+            <xsl:apply-templates/>
+            <xsl:call-template name="notes"/>
+            <xsl:call-template name="bibliography"/>
+            <xsl:call-template name="toolbar"/>
+            <xsl:call-template name="recommendations"/>
+            <xsl:call-template name="license"/>
+        </div>
       <!--
         </xsl:otherwise>
       </xsl:choose>
@@ -165,38 +167,171 @@
       </div>
     </xsl:template>
 
+    <!-- Load tsvs -->
+    <xsl:variable name="specter-recs-tsv">
+      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-spctr.tsv')"/>
+    </xsl:variable>
+    <xsl:variable name="keywords-recs-tsv">
+      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-kwd.tsv')"/>
+    </xsl:variable>
+    <xsl:variable name="tfidf-recs-tsv">
+      <xsl:sequence select="unparsed-text('../../data/dhq-recs/dhq-recs-zfill-bm25.tsv')"/>
+    </xsl:variable>
+    
+    <!-- Determine if this article has recommendations from any of the three TSVs. -->
+    <xsl:variable name="has-recommendations" as="xs:boolean">
+      <!-- We want to find rows that start with the article ID. The "m" flag in 
+        "matches()" treats each row as the regex string-beginning, so we can test 
+        specifically for the ID appearing in column 1. -->
+      <xsl:variable name="articleIdRegex" select="concat('^',normalize-space($id),'\t')"/>
+      <xsl:sequence 
+        select="matches($specter-recs-tsv, $articleIdRegex, 'm') or 
+                matches($keywords-recs-tsv, $articleIdRegex, 'm') or 
+                matches($tfidf-recs-tsv, $articleIdRegex, 'm')"/>
+    </xsl:variable>
+
     <xsl:template name="toolbar">
       <div class="toolbar">
         <a>
           <xsl:choose>
             <xsl:when test="$published">
-              <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
+              <xsl:attribute name="href">
+                <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
+              </xsl:attribute>
               <xsl:value-of select="$assigned-issue/title"/>
-              <xsl:value-of select="concat('&#x20;',$vol_no_zeroes,'.',$issue)"/>
+              <xsl:value-of select="concat(' ',$vol_no_zeroes,'.',$issue)"/>
               <!--
                   <xsl:value-of select="concat(': v',$vol_no_zeroes)"/>
                   <xsl:value-of select="concat(' n',$issue)"/>
               -->
             </xsl:when>
             <xsl:otherwise>
-              <xsl:attribute name="href" select="concat('/',$context,'/preview/index.html')"/>
+              <xsl:attribute name="href">
+                <xsl:value-of select="concat('/',$context,'/preview/index.html')"/>
+              </xsl:attribute>
               <xsl:text>Preview</xsl:text>
             </xsl:otherwise>
           </xsl:choose>
         </a>
-        <xsl:text>&#x00A0;|&#x00A0;</xsl:text>
+        <xsl:text>&#x0A;|&#x0A;</xsl:text>
         <a rel="external">
-          <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
+          <xsl:attribute name="href">
+            <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
+          </xsl:attribute>
           <xsl:text>XML</xsl:text>
         </a>
-        <xsl:text>&#x20;|&#x00A0;</xsl:text>
+        <xsl:text>&#x0A;|&#x0A;</xsl:text>
         <a rel="external">
-          <xsl:attribute name="href" select="concat($static_server,$static_pdf_directory,'/',$id,'.pdf')"/>
+          <xsl:attribute name="href">
+            <xsl:value-of select="concat($static_server,$static_pdf_directory,'/',$id,'.pdf')"/>
+          </xsl:attribute>
           <xsl:text>PDF</xsl:text>
         </a>
-        <xsl:text>&#x20;|&#x00A0;</xsl:text>
+        <xsl:text>&#x0A;|&#x0A;</xsl:text>
         <a href="#" onclick="javascript:window.print();" title="Click for print friendly version">Print</a>
+        <!-- Make sure that when there are no recommendations, the See Recommendations link is not shown. -->
+        <xsl:if test="$has-recommendations">
+          <xsl:text>&#x0A;|&#x0A;</xsl:text>
+          <a href="#recommendations" onclick="document.getElementById('recommendations').scrollIntoView();"
+             title="See Recommendations">See Recommendations</a>
+        </xsl:if>
       </div>
+    </xsl:template>
+
+    <!-- Creating function for writing one recommendation-->
+    <xsl:function name="dhqf:recs">
+        <!-- Params: num = the current recommendation, tabs = the tabs of the current row, rows = all the rows of the tsv -->
+        <xsl:param name="num" />
+        <xsl:param name="tabs" />
+        <xsl:param name="rows" />
+        <!-- checking if the current row matches the id we are looking for -->
+        <xsl:variable name="identifiedRow" select="$rows[starts-with(., $tabs[$num])]"/>
+        <!-- Select the chosen matching row -->
+        <xsl:variable name="inner_tabs" select="tokenize($identifiedRow[1], '\t')" />
+        <!-- Editing the url to get the relative url path. index 16 is the url-->
+        <xsl:variable name="path" select="substring-after($inner_tabs[17], 'org')" />
+        <!-- Now we pull from the tabs of the selected row. 6 is the name of the article -->
+        <!-- Setting up the url and its <a> tag-->
+        <a href="{$path}"><xsl:value-of select="$inner_tabs[6]"/></a>,
+        <!-- selecting and inputting the year [2], and author(s) and their affiliation [5] -->
+        <xsl:value-of select="$inner_tabs[2]"/>,
+        <xsl:value-of select="$inner_tabs[5]"/>
+    </xsl:function>
+    
+    
+    <!-- Generate an HTML list of recommended article from a single TSV representing a recommendation 
+      method. -->
+    <xsl:function name="dhqf:make-recs-list">
+      <xsl:param name="article-row-cells"/>
+      <xsl:param name="all-rows"/>
+      <!-- The recommendations for this article start at column 6 of the TSV and end at column 10. -->
+      <ol>
+        <xsl:for-each select="7 to 11">
+          <li>
+            <!-- create variable to pass as parameter. This is the index of a recommended article ID -->
+            <xsl:variable name="input_num" select="." />
+            <!-- Calling the function to populate the recommendation. Pass in the input number, the current row of the selected Article,
+              and the whole set of rows in the tsv. -->
+            <xsl:sequence select="dhqf:recs($input_num, $article-row-cells, $all-rows)" />
+          </li>
+        </xsl:for-each>
+      </ol>
+    </xsl:function>
+
+
+    <xsl:template name="recommendations">
+        <!-- Checking global variable if there are any recommendations to be shown -->
+        <xsl:if test="$has-recommendations">
+            <!-- Tokenize rows -->
+            <xsl:variable name="spector_rows" select="tokenize($specter-recs-tsv, '\n')" />
+            <!-- Find the row that matches this article's ID. -->
+            <xsl:variable name="my_spector_row" select="$spector_rows[starts-with(., xs:string($id))]"/>
+            <!-- Tokenize rows -->
+            <xsl:variable name="keyword_rows" select="tokenize($keywords-recs-tsv, '\n')" />
+            <!-- Find the row that matches this article's ID. -->  
+            <xsl:variable name="my_keyword_row" select="$keyword_rows[starts-with(., xs:string($id))]"/>
+            <!-- Tokenize rows -->
+            <xsl:variable name="tfidf_rows" select="tokenize($tfidf-recs-tsv, '\n')" />
+            <!-- Find the row that matches this article's ID. -->
+            <xsl:variable name="my_tfidf_row" select="$tfidf_rows[starts-with(., xs:string($id))]"/>
+            
+            <div id="recommendations">
+            <h2>Recommendations</h2>
+            <p>DHQ is testing out three new article recommendation methods! Please explore the links below to find articles that are related in different ways to the one you just read. 
+            We are interested in how these methods work for readers—if you would like to share feedback with us, please complete our short evaluation survey. 
+            You can also visit our <a href="/dhq/explore/explore.html">documentation</a> for these recommendation methods to learn more.</p>
+            
+            <!-- Check if the article's ID has recommendations, only display if it does -->
+            <xsl:if test="$my_spector_row">  
+                <h3>SPECTER Recommendations</h3>
+                <!-- Tokenize that row, splitting by tab character. -->
+                <xsl:variable name="spector_tabs" select="tokenize($my_spector_row, '\t')" />
+                <!-- Set up the container for recommendations: -->
+                <p>Below are article recommendations generated by the SPECTER model:</p>
+                <xsl:sequence select="dhqf:make-recs-list($spector_tabs, $spector_rows)"/>
+            </xsl:if>
+            
+            <!-- Check if the article's ID has recommendations, only display if it does -->
+            <xsl:if test="$my_keyword_row">  
+                <h3>DHQ Keyword Recommendations</h3>
+                <!-- Tokenize that row, splitting by tab character. -->
+                <xsl:variable name="keyword_tabs" select="tokenize($my_keyword_row, '\t')" />
+                <!-- Set up the container for recommendations: -->
+                <p>Below are article recommendations generated by DHQ Keywords:</p>
+                <xsl:sequence select="dhqf:make-recs-list($keyword_tabs, $keyword_rows)"/>
+            </xsl:if>
+            
+            <!-- Check if the article's ID has recommendations, only display if it does -->
+            <xsl:if test="$my_tfidf_row">
+                <h3>TF-IDF Recommendations</h3>
+                <!-- Tokenize that row, splitting by tab character. -->
+                <xsl:variable name="tfidf_tabs" select="tokenize($my_tfidf_row, '\t')" />
+                <!-- Set up the container for recommendations: -->
+                <p>Below are article recommendations generated by the TF-IDF Model:</p>
+                <xsl:sequence select="dhqf:make-recs-list($tfidf_tabs, $tfidf_rows)"/>
+            </xsl:if>
+            </div>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="license">
@@ -259,15 +394,15 @@
                 </xsl:otherwise>
               </xsl:choose>
             </a>
-            <xsl:text>&#x00A0;|&#x00A0;</xsl:text>
+            <xsl:text>&#x0A;|&#x0A;</xsl:text>
             <a rel="external">
               <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
               <xsl:text>XML</xsl:text>
             </a>
             <!--
-                |&#x00A0;
+                |&#x0A;
                 <a href="#" onclick="javascript:window.print();" title="Click for print friendly version">Print Article</a>
-                &#x00A0;|&#x00A0;
+                &#x0A;|&#x0A;
                 <select name="taportools" onchange="javascript:gototaporware(this);">
                   <option>Taporware Tools</option>
                   <option value="listword">List Words</option>
@@ -276,7 +411,7 @@
                 </select> -->
 
             <!--
-                |&#x00A0;
+                |&#x0A;
                 <xsl:text>Discuss</xsl:text>
                 (<a>
                 <xsl:attribute name="href">
@@ -348,7 +483,7 @@
       <xsl:value-of select="'&#x20;'"/>
       <a href="{$orcid}">
         <img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16"/>
-        <xsl:value-of select="concat('&#x00A0;',$orcid)"/>
+        <xsl:value-of select="concat('&#x0A;',$orcid)"/>
       </a>
     </xsl:template>
 
@@ -1531,8 +1666,8 @@
     </xsl:template>
 
     <xsl:template match="dhq:example/tei:head" mode="label">
-      <xsl:text>Example&#xA0;</xsl:text>
-      <xsl:number count="//dhq:example/tei:head" level="any" from="tei:text"/>
+        <xsl:text>Example&#160;</xsl:text>
+        <xsl:number count="dhq:example" level="any" from="tei:text"/>
     </xsl:template>
 
     <xsl:template match="tei:figure" mode="label">
