@@ -343,7 +343,7 @@
             <h2>Recommendations</h2>
             <p>DHQ is testing out three new article recommendation methods! Please explore the links below to find articles that are related in different ways to the one you just read. 
             We are interested in how these methods work for readers—if you would like to share feedback with us, please complete our short evaluation survey. 
-            You can also visit our <a href="/dhq/explore/explore.html">documentation</a> for these recommendation methods to learn more.</p>
+            You can also visit our <a href="../../../../explore/explore.html">documentation</a> for these recommendation methods to learn more.</p>
             
             <!-- Check if the article's ID has recommendations, only display if it does -->
             <xsl:if test="$my_spector_row">  
