@@ -13,6 +13,7 @@
     <xsl:import href="footer.xsl"/>
     <xsl:import href="head.xsl"/>
     <xsl:import href="dhq2html.xsl"/>
+    
     <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
     
     <xdoc:doc type="stylesheet">
@@ -20,9 +21,14 @@
         <xdoc:copyright>Copyright 2006 John A. Walsh</xdoc:copyright>
         <xdoc:short>XSLT stylesheet to transform DHQauthor documents to XHTML.</xdoc:short>
     </xdoc:doc>
+    
     <!--    <xsl:param name="source" select="''"/>-->
     <xsl:param name="context"/>
     <xsl:param name="fpath"/>
+    <!-- The relative path from the webpage to the DHQ home directory. -->
+    <xsl:param name="path_to_home" select="'../..'"/>
+    
+    
     <xsl:template match="tei:TEI">
         <!-- base url to which vol issue id to be attached -->
         

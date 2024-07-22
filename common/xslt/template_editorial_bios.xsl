@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">     
+    
     <xsl:import href="sidenavigation.xsl"/>
     <xsl:import href="topnavigation.xsl"/>
     <xsl:import href="footer.xsl"/>
     <xsl:import href="head.xsl"/>
     <xsl:import href="bios.xsl"/>
+    
     <xsl:param name="fpath"/>
+    <!-- The relative path from the webpage to the DHQ home directory. -->
+    <xsl:param name="path_to_home" select="'..'"/>
     
     <xsl:template match="/">
         <html>

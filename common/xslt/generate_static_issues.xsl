@@ -191,7 +191,7 @@
       <!-- Define the transformation of the TOC into the Internal Preview index. 
         Most of the heavy lifting is done by dhq:set-up-issue-transformation(). -->
       <xsl:variable name="editorial-index-map" as="map(*)"
-        select="dhq:set-up-issue-transformation(., 'template_editorial.xsl', $fpath||'/index.html')"/>
+        select="dhq:set-up-issue-transformation(., 'template_editorial.xsl', $fpath||'/index.html', '..')"/>
       <xsl:variable name="outDir" select="dhq:set-filesystem-path(( $static-dir, 'editorial' ))"/>
       <!-- Generate this issue’s main page using $editorial-index-map -->
       <xsl:result-document href="{$outDir||'/index.html'}">
@@ -199,7 +199,7 @@
       </xsl:result-document>
       <!-- Generate author biographies. -->
       <xsl:variable name="editorial-bios-map" as="map(*)" 
-        select="dhq:set-up-issue-transformation(., 'template_editorial_bios.xsl', $fpath||'/bios.html')"/>
+        select="dhq:set-up-issue-transformation(., 'template_editorial_bios.xsl', $fpath||'/bios.html', '..')"/>
       <!-- Generate the biographies page through two XSL transformations. -->
       <xsl:result-document href="{$outDir||'/bios.html'}">
         <xsl:call-template name="transform-with-sorting">
@@ -270,28 +270,14 @@
         nearly identical to their counterparts in "vol/". -->
       <xsl:when test="@preview eq 'true'">
         <!-- Create the index page for the "preview" directory. -->
-        <xsl:variable name="preview-index-map" as="map(*)">
-          <xsl:variable name="previewMap" 
-            select="dhq:set-up-issue-transformation(., 'template_preview.xsl', 'preview/index.html')"/>
-          <!-- The preview issue index is not served from the `vol/` directory, but 
-            from the `preview/` directory. -->
-          <xsl:variable name="revisedParams" 
-            select="map:put($previewMap?stylesheet-params, QName( (),'path_to_home'), '..')"/>
-          <xsl:sequence select="map:put($previewMap, 'stylesheet-params', $revisedParams)"/>
-        </xsl:variable>
+        <xsl:variable name="preview-index-map" as="map(*)"
+          select="dhq:set-up-issue-transformation(., 'template_preview.xsl', 'preview/index.html', '..')"/>
         <xsl:result-document href="{$static-dir||'/preview/index.html'}">
           <xsl:sequence select="transform( $preview-index-map )?output"/>
         </xsl:result-document>
         <!-- Create the contributor bios page for the "preview" directory. -->
-        <xsl:variable name="preview-bios-map" as="map(*)">
-          <xsl:variable name="previewMap" 
-            select="dhq:set-up-issue-transformation(., 'template_preview_bios.xsl', 'preview/bios.html')"/>
-          <!-- The preview issue index is not served from the `vol/` directory, but 
-            from the `preview/` directory. -->
-          <xsl:variable name="revisedParams" 
-            select="map:put($previewMap?stylesheet-params, QName( (),'path_to_home'), '..')"/>
-          <xsl:sequence select="map:put($previewMap, 'stylesheet-params', $revisedParams)"/>
-        </xsl:variable>
+        <xsl:variable name="preview-bios-map" as="map(*)"
+          select="dhq:set-up-issue-transformation(., 'template_preview_bios.xsl', 'preview/bios.html', '..')"/>
         <xsl:result-document href="{$static-dir||'/preview/bios.html'}">
           <xsl:call-template name="transform-with-sorting">
             <xsl:with-param name="transform-1-map" select="$preview-bios-map" as="map(*)"/>
@@ -621,6 +607,19 @@
     <xsl:param name="journal-node" as="node()"/>
     <xsl:param name="xsl-filename" as="xs:string"/>
     <xsl:param name="web-filepath" as="xs:string"/>
+    <xsl:sequence 
+      select="dhq:set-up-issue-transformation($journal-node, $xsl-filename, $web-filepath, '../../..')"/>
+  </xsl:function>
+  
+  
+  <!-- Create a map defining a transformation at the issue level. The map is used to 
+    produce an issue index page and a list of contributors. This version allows the 
+    relative path to the DHQ home directory to be set. -->
+  <xsl:function name="dhq:set-up-issue-transformation" as="map(*)">
+    <xsl:param name="journal-node" as="node()"/>
+    <xsl:param name="xsl-filename" as="xs:string"/>
+    <xsl:param name="web-filepath" as="xs:string"/>
+    <xsl:param name="relative-path-home" as="xs:string"/>
     <xsl:map>
       <xsl:map-entry key="'source-node'" select="$toc-source"/>
       <xsl:sequence select="dhq:stylesheet-path-entry($xsl-filename)"/>
@@ -630,7 +629,7 @@
           <xsl:map-entry key="QName( (),'issue')" select="$journal-node/@issue/data()"/>
           <xsl:map-entry key="QName( (),'fpath')" select="$web-filepath"/>
           <xsl:map-entry key="QName( (),'context')" select="$context"/>
-          <xsl:map-entry key="QName( (),'path_to_home')" select="'../../..'"/>
+          <xsl:map-entry key="QName( (),'path_to_home')" select="$relative-path-home"/>
           <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
           <!-- toc.xsl uses <xsl:message> to list every article in the issue. This 
             is useful but too much noise for the static site generation process, so 
