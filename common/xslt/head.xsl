@@ -55,7 +55,7 @@
             </xsl:if>
             
           <!-- what do do about rss? -->
-          <link rel="alternate" type="application/atom+xml"  href="{$path_to_home}feed{$dir-separator}news.xml"/>
+          <link rel="alternate" type="application/atom+xml"  href="{$path_to_home}/feed{$dir-separator}news.xml"/>
 
             <!-- old asset link, before embedding. -->
             <!--   
@@ -67,7 +67,7 @@
           <link href="{concat('data:image/x-icon;base64,',$favicon)}" rel="icon" type="image/x-icon" />
             
             <!-- old asset link, before embedding. -->
-          <script defer="defer" type="text/javascript" src="{$assets-path}js{$dir-separator}javascriptLibrary.js">
+          <script defer="defer" type="text/javascript" src="{$assets-path}js/javascriptLibrary.js">
             <xsl:comment> serialize </xsl:comment>
           </script>
             <!-- 2024-07: Embedding the Javascript below into XHTML caused the JS to be serialized so
