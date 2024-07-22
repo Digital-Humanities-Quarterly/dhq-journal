@@ -702,16 +702,32 @@
             <xsl:call-template name="id"/>
             <xsl:call-template name="assign-class"/>
             <xsl:apply-templates/>
-            <xsl:choose>
-                <xsl:when test="tei:head">
-                    <xsl:apply-templates select="tei:head" mode="caption"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:call-template name="label-no-caption"/>
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:call-template name="make_caption"/>
         </div>
-
+    </xsl:template>
+    
+    <!-- Generate a caption for <table> or <dhq:example>. -->
+    <xsl:template name="make_caption">
+      <xsl:choose>
+          <!-- If this element has a <dhq:caption>, use that as the base for the HTML caption. If 
+            there's also a <head>, that will also be included. A <head> can also be used to generate an 
+            HTML caption when it appears on its own. -->
+          <xsl:when test="exists(dhq:caption) or exists(tei:head)">
+            <div class="caption">
+                <xsl:call-template name="make_label">
+                  <xsl:with-param name="do-process-label" select="true()" tunnel="yes"/>
+                </xsl:call-template>
+                <xsl:apply-templates select="(dhq:caption, tei:head)[1]" mode="caption"/>
+            </div>
+          </xsl:when>
+          <!-- As a fallback, a "caption" and label will be generated using this element's identity, 
+            where it appears in the article, and its <label> (if it has one). -->
+          <xsl:otherwise>
+              <xsl:call-template name="label-no-caption">
+                <xsl:with-param name="do-process-label" select="true()" tunnel="yes"/>
+              </xsl:call-template>
+          </xsl:otherwise>
+      </xsl:choose>
     </xsl:template>
 
     <xsl:template match="tei:gi">
@@ -775,26 +791,19 @@
         <xsl:apply-templates/>
     </xsl:template>
 
-    <xsl:template match="tei:table/tei:head" mode="caption">
-        <div class="caption">
-            <div class="label">
-            <xsl:apply-templates select="." mode="label"/>
-            <xsl:text>.&#160;</xsl:text>
-            <xsl:apply-templates select="./tei:label" mode="figureLabel"/>
-            </div>
-            <xsl:apply-templates/>
-        </div>
+    <xsl:template match="tei:table/tei:head | dhq:example/tei:head" mode="caption">
+        <xsl:apply-templates/>
     </xsl:template>
-
-    <xsl:template match="dhq:example/tei:head" mode="caption">
-        <div class="caption">
-            <div class="label">
-                <xsl:apply-templates select="." mode="label"/>
-                <xsl:text>.&#160;</xsl:text>
-                <xsl:apply-templates select="./tei:label" mode="figureLabel"/>
-            </div>
-            <xsl:apply-templates/>
+    
+    <xsl:template match="tei:table/dhq:caption | dhq:example/dhq:caption" mode="caption">
+      <xsl:variable name="heading" select="preceding-sibling::tei:head" as="node()*"/>
+      <!-- If this table or example has a <head> too, add an additional label to the caption. -->
+      <xsl:if test="exists($heading)">
+        <div class="label">
+          <xsl:apply-templates select="$heading" mode="caption"/>
         </div>
+      </xsl:if>
+      <xsl:apply-templates/>
     </xsl:template>
 
     <xsl:template match="tei:graphic">
@@ -1274,31 +1283,32 @@
         <div>
             <xsl:call-template name="id"/>
             <xsl:attribute name="class">table</xsl:attribute>
-
-
             <table>
                 <xsl:call-template name="assign-class"/>
                 <!--<xsl:call-template name="id"/>-->
                 <xsl:apply-templates select="tei:row"/>
             </table>
-            <xsl:choose>
-                <xsl:when test="tei:head">
-                    <xsl:apply-templates select="tei:head" mode="caption"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:call-template name="label-no-caption"/>
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:call-template name="make_caption"/>
         </div>
     </xsl:template>
 
     <xsl:template name="label-no-caption">
         <div class="caption-no-label">
             <!-- what is the special case for the xsl:if below? -->
-                <div class="label">
-                    <xsl:apply-templates select="." mode="label"/>
-                    <xsl:text>.&#160;</xsl:text>
-                </div>
+            <xsl:call-template name="make_label"/>
+        </div>
+    </xsl:template>
+    
+    <xsl:template name="make_label">
+        <xsl:param name="do-process-label" select="false()" as="xs:boolean" tunnel="yes"/>
+        <div class="label">
+            <xsl:apply-templates select="." mode="label"/>
+            <xsl:text>.&#160;</xsl:text>
+            <!-- Figures don't need to check for <label>s but tables and examples are supposed to. 
+              (NOTE: As of 2024-05-24, no <table> or <dhq:example> actually contains a label.) -->
+            <xsl:if test="$do-process-label">
+              <xsl:apply-templates select="./tei:label" mode="figureLabel"/>
+            </xsl:if>
         </div>
     </xsl:template>
 
