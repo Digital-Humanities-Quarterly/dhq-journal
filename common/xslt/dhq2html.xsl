@@ -34,6 +34,8 @@
       select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']/normalize-space(.)"/>
     <xsl:param name="cssFile"/>
     <xsl:param name="biblioData" select="'../../data/biblio-full.xml'"/>
+    <!-- The relative path from the webpage to the DHQ home directory. -->
+    <xsl:param name="path_to_home" select="'.'" as="xs:string"/>
 
 
     <!-- +++++++ biblio: start                                +++++++ -->

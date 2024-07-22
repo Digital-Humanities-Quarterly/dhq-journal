@@ -252,8 +252,13 @@
         page. The result will be identical to the issue index, but the URL at the 
         bottom will be http://www.digitalhumanities.org/dhq/index.html -->
       <xsl:when test="@current eq 'true'">
-        <xsl:variable name="new-param-map" 
-          select="map:put( $issue-index-map?stylesheet-params, QName( (),'fpath'), 'index.html')"/>
+        <xsl:variable name="new-param-map" as="map(*)">
+          <xsl:variable name="revisedParams" select="map {
+              QName( (),'fpath'): 'index.html',
+              QName( (),'path_to_home'): '.'
+            }"/>
+          <xsl:sequence select="map:merge(($revisedParams, $issue-index-map?stylesheet-params))"/>
+        </xsl:variable>
         <xsl:variable name="index-index-map" 
           select="map:put( $issue-index-map, 'stylesheet-params', $new-param-map )"/>
         <xsl:result-document href="{$static-dir||'/index.html'}">
@@ -611,6 +616,7 @@
           <xsl:map-entry key="QName( (),'issue')" select="$journal-node/@issue/data()"/>
           <xsl:map-entry key="QName( (),'fpath')" select="$web-filepath"/>
           <xsl:map-entry key="QName( (),'context')" select="$context"/>
+          <xsl:map-entry key="QName( (),'path_to_home')" select="'../../..'"/>
           <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
           <!-- toc.xsl uses <xsl:message> to list every article in the issue. This 
             is useful but too much noise for the static site generation process, so 

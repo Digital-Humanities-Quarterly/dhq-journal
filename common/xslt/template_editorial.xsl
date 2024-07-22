@@ -6,7 +6,9 @@
     <xsl:import href="footer.xsl"/>
     <xsl:import href="head.xsl"/>
     <xsl:import href="toc.xsl"/>
+    
     <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
+    
     <xsl:param name="fpath"/>
     <xsl:param name="staticPublishingPathPrefix">
         <xsl:value-of select="'../../toc/'"/>
