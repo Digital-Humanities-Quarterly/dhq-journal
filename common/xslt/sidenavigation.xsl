@@ -1,49 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    version="1.0">
+    exclude-result-prefixes="#all"
+    version="3.0">
     
-    <xsl:param name="staticPublishingPathPrefix"><xsl:value-of select="'../../toc/'"/></xsl:param>
+    <xsl:param name="staticPublishingPathPrefix" select="'../../toc/'"/>
     <xsl:param name="context"/>
+    <!-- The relative path from the webpage to the DHQ home directory. -->
+    <xsl:param name="path_to_home" as="xs:string"/>
     
+    <!-- 2024-07: Replaced links to "/dhq/" with links relative to the home directory. -->
     <xsl:template name="sidenavigation">
+        <xsl:variable name="tocJournals" 
+          select="doc(concat($staticPublishingPathPrefix,'toc.xml'))//journal"/>
         <!--sidenavigation-->
         <div id="leftsidenav">
-            
             <span>Current Issue<br/>
             </span>
             <ul>
                 <li>
-                    <a>
-                        <xsl:attribute name="href">
-                            <xsl:variable name="vol"><xsl:value-of select="document(concat($staticPublishingPathPrefix,'toc.xml'))//journal[@current]/@vol"/></xsl:variable>
-                            <xsl:variable name="issue"><xsl:value-of select="document(concat($staticPublishingPathPrefix,'toc.xml'))//journal[@current]/@issue"/></xsl:variable>
-                            <xsl:value-of select="concat('/',$context,'/vol/',$vol,'/',$issue,'/index.html')"/>
-                        </xsl:attribute>
-                        <xsl:value-of select="document(concat($staticPublishingPathPrefix,'toc.xml'))//journal[@current]/title"/>
+                    <xsl:variable name="currentIssue" select="$tocJournals[@current]"/>
+                    <xsl:variable name="vol" select="$currentIssue/@vol/data(.)"/>
+                    <xsl:variable name="issue" select="$currentIssue/@issue/data(.)"/>
+                    <a href="{$path_to_home}/vol/{$vol}/{$issue}/index.html">
+                        <xsl:value-of select="$currentIssue/title"/>
                         <xsl:text>: </xsl:text>
-                        <xsl:value-of select="document(concat($staticPublishingPathPrefix,'toc.xml'))//journal[@current]/@vol"/>
+                        <xsl:value-of select="$vol"/>
                         <xsl:text>.</xsl:text>
-                        <xsl:value-of select="document(concat($staticPublishingPathPrefix,'toc.xml'))//journal[@current]/@issue"/>
+                        <xsl:value-of select="$issue"/>
                     </a>
                 </li>
             </ul>
             
             <!-- if there are items in the preview, display the link to the section [CRB] -->
-            <xsl:if test="document('../../toc/toc.xml')//journal[@preview]">
+            <xsl:variable name="previewIssue" select="$tocJournals[@preview]"/>
+            <xsl:if test="exists($previewIssue)">
                 <span>Preview Issue<br/>
                 </span>
                 <ul>
                     <li>
-                        <a>
-                            <xsl:attribute name="href">
-                                <xsl:value-of select="concat('/',$context,'/preview/index.html')"/>
-                            </xsl:attribute>
-                            <xsl:value-of select="document(concat($staticPublishingPathPrefix,'toc.xml'))//journal[@preview]/title"/>
+                        <a href="{$path_to_home}/preview/index.html">
+                            <xsl:value-of select="$previewIssue/title"/>
                             <xsl:text>: </xsl:text>
-                            <xsl:value-of select="document(concat($staticPublishingPathPrefix,'toc.xml'))//journal[@preview]/@vol"/>
+                            <xsl:value-of select="$previewIssue/@vol"/>
                             <xsl:text>.</xsl:text>
-                            <xsl:value-of select="document(concat($staticPublishingPathPrefix,'toc.xml'))//journal[@preview]/@issue"/>
+                            <xsl:value-of select="$previewIssue/@issue"/>
                         </a>
                     </li>
                 </ul>
@@ -52,15 +54,12 @@
             <span>Previous Issues<br/>
             </span>
             <ul>
-                <xsl:for-each select="document(concat($staticPublishingPathPrefix,'toc.xml'))//journal[not(@current|@preview|@editorial)]">
-                    <xsl:variable name="vol"><xsl:value-of select="@vol"/></xsl:variable>
-                    <xsl:variable name="issue"><xsl:value-of select="@issue"/></xsl:variable>
+                <xsl:for-each select="$tocJournals[not(@current|@preview|@editorial)]">
+                    <xsl:variable name="vol" select="@vol/data(.)"/>
+                    <xsl:variable name="issue" select="@issue/data(.)"/>
                     <li>
-                        <a>
-                            <xsl:attribute name="href">
-                                <xsl:value-of select="concat('/',$context,'/vol/',$vol,'/',$issue,'/index.html')"/>
-                            </xsl:attribute>
-                            <xsl:value-of select="title"/>
+                        <a href="{$path_to_home}/vol/{$vol}/{$issue}/index.html">
+                            <xsl:value-of select="./title"/>
                             <xsl:value-of select="concat(': ',$vol)"/>
                             <xsl:value-of select="concat('.',$issue)"/>
                         </a>
@@ -76,12 +75,12 @@
             <span>Indexes<br />
             </span>
             <ul>
-                <li><a><xsl:attribute name="href">
-                    <xsl:value-of select="concat('/',$context,'/index/title.html')"/>
-                </xsl:attribute> Title</a></li>
-                <li><a><xsl:attribute name="href">
-                    <xsl:value-of select="concat('/',$context,'/index/author.html')"/>
-                </xsl:attribute> Author</a></li>
+                <li>
+                  <a href="{$path_to_home}/index/title.html">Title</a>
+                </li>
+                <li>
+                  <a href="{$path_to_home}/index/author.html">Author</a>
+                </li>
             </ul>
             
             
@@ -89,7 +88,7 @@
         
         <img>
             <xsl:attribute name="src">
-                <xsl:value-of select="concat('/',$context,'/common/images/lbarrev.png')"/>
+                <xsl:value-of select="concat($path_to_home,'/common/images/lbarrev.png')"/>
             </xsl:attribute>
             <xsl:attribute name="style">
                 <xsl:value-of select="'margin-left : 7px;'"/>
@@ -110,14 +109,14 @@
             <ul>
                 <li>
                     <a><xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/news/news.html#peer_reviews')"
+                        <xsl:value-of select="concat($path_to_home,'/news/news.html#peer_reviews')"
                         />
                     </xsl:attribute>Call for Reviewers</a>
                 </li>
                 <li>
                     <a><xsl:attribute name="href">
                         <xsl:value-of
-                            select="concat('/',$context,'/submissions/index.html#logistics')"/>
+                            select="concat($path_to_home,'/submissions/index.html#logistics')"/>
                     </xsl:attribute>Call for Submissions</a>
                 </li>
             </ul>
