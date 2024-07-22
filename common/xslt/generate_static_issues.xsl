@@ -270,14 +270,28 @@
         nearly identical to their counterparts in "vol/". -->
       <xsl:when test="@preview eq 'true'">
         <!-- Create the index page for the "preview" directory. -->
-        <xsl:variable name="preview-index-map" 
-          select="dhq:set-up-issue-transformation(., 'template_preview.xsl', 'preview/index.html')"/>
+        <xsl:variable name="preview-index-map" as="map(*)">
+          <xsl:variable name="previewMap" 
+            select="dhq:set-up-issue-transformation(., 'template_preview.xsl', 'preview/index.html')"/>
+          <!-- The preview issue index is not served from the `vol/` directory, but 
+            from the `preview/` directory. -->
+          <xsl:variable name="revisedParams" 
+            select="map:put($previewMap?stylesheet-params, QName( (),'path_to_home'), '..')"/>
+          <xsl:sequence select="map:put($previewMap, 'stylesheet-params', $revisedParams)"/>
+        </xsl:variable>
         <xsl:result-document href="{$static-dir||'/preview/index.html'}">
           <xsl:sequence select="transform( $preview-index-map )?output"/>
         </xsl:result-document>
         <!-- Create the contributor bios page for the "preview" directory. -->
-        <xsl:variable name="preview-bios-map"
-          select="dhq:set-up-issue-transformation(., 'template_preview_bios.xsl', 'preview/bios.html')"/>
+        <xsl:variable name="preview-bios-map" as="map(*)">
+          <xsl:variable name="previewMap" 
+            select="dhq:set-up-issue-transformation(., 'template_preview_bios.xsl', 'preview/bios.html')"/>
+          <!-- The preview issue index is not served from the `vol/` directory, but 
+            from the `preview/` directory. -->
+          <xsl:variable name="revisedParams" 
+            select="map:put($previewMap?stylesheet-params, QName( (),'path_to_home'), '..')"/>
+          <xsl:sequence select="map:put($previewMap, 'stylesheet-params', $revisedParams)"/>
+        </xsl:variable>
         <xsl:result-document href="{$static-dir||'/preview/bios.html'}">
           <xsl:call-template name="transform-with-sorting">
             <xsl:with-param name="transform-1-map" select="$preview-bios-map" as="map(*)"/>
