@@ -282,7 +282,7 @@ compressStatic
            validargs="true,false"
 >Do you want to proof the full DHQ site? If so, type "true".
 To proof only the internal preview, hit the return key or type "false".
-To set this value ahead of time, append "-Ddo.proofing.full=VALUE" to your command.</input>
+(To set this value ahead of time, append "-Ddo.proofing.full=VALUE" to your command.)</input>
     <!-- Delete any contents of the proofing directory before beginning. This 
       ensures that the same directory can be re-used for a full site proofing 
       endeavor as for an editorial-only endeavor. -->
@@ -333,19 +333,34 @@ To set this value ahead of time, append "-Ddo.proofing.full=VALUE" to your comma
      description="Create an HTML preview version of a single article.">
     <!-- If the 'article.id' property wasn't already set using the command line, Ant 
       will prompt for it. -->
-    <input unless:set="article.id" 
-       message="Please type the ID of the article you want to preview:" 
-       addproperty="article.id"/>
-    <!-- Test the 'article.id' property to make sure it has 6 digits and doesn't 
-      start with '9'. -->
+    <input unless:set="article.id"
+       addproperty="article.id"
+>Please type the ID of the article you want to preview.
+(To set this value ahead of time, append "-Darticle.id=VALUE" to your command.)</input>
+    <antcall target="zipPreviewArticle" inheritall="true"/>
+    <unzip src="${previewDir}${file.separator}dhq-article-${article.id}.zip" 
+           dest="${previewDir}${file.separator}dhq-article-${article.id}"/>
+    <echo 
+      message="Created article preview at ${previewDir}${file.separator}dhq-article-${article.id}${file.separator}${article.id}.html"/>
+  </target>
+  
+  <target name="zipPreviewArticle"
+     description="Create a ZIP file which contains the HTML preview for a single article.">
+    <!-- If the 'article.id' property wasn't already set using the command line, Ant 
+      will prompt for it. -->
+    <input unless:set="article.id"
+       addproperty="article.id"
+>Please type the ID of the article you want to preview.
+(To set this value ahead of time, append "-Darticle.id=VALUE" to your command.)</input>
     <condition property="article.id.ok" value="${article.id}">
       <matches string="${article.id}" pattern="^[0-8]\d{5,5}$"/>
     </condition>
     <fail unless="article.id.ok"
        message="An article ID must be 6 digits long. It must not start with '9'"/>
-    <!-- Set the assets path if it hasn't already been set. -->
-    <property unless:set="assets.path" name="assets.path" 
-      value="..${file.separator}"/>
+    <!-- For the ZIP, we want the HTML file at the same level as the "common" 
+      directory. -->
+    <property name="assets.path" value=".${file.separator}common${file.separator}"/>
+    <!--<antcall target="previewArticle" inheritall="yes"/>-->
     <!-- If it doesn't exist yet, create the preview directory specified in 
       build-properties.xml. -->
     <mkdir dir="${previewDir}"/>
@@ -362,21 +377,6 @@ To set this value ahead of time, append "-Ddo.proofing.full=VALUE" to your comma
       <param name="dir-separator" expression="${file.separator}"/>
       <param name="doProofing" expression="true"/>
     </xslt>
-    <echo message="Created article preview at ${previewDir}${file.separator}${article.id}.html"/>
-  </target>
-  
-  <target name="zipPreviewArticle"
-     description="Create a ZIP file which contains the HTML preview for a single article.">
-    <!-- If the 'article.id' property wasn't already set using the command line, Ant 
-      will prompt for it. -->
-    <input unless:set="article.id" 
-       message="Please type the ID of the article you want to preview:" 
-       addproperty="article.id"/>
-    <!-- The "previewArticle" task assumes that the common directory is a sibling of 
-      the current one. For the ZIP, we want the HTML file at the same level as the 
-      common directory. -->
-    <property name="assets.path" value=".${file.separator}"/>
-    <antcall target="previewArticle" inheritall="yes"/>
     <zip destfile="${previewDir}${file.separator}dhq-article-${article.id}.zip">
       <fileset dir="." includes="common/css/ common/js/"/>
       <fileset dir=".${file.separator}articles${file.separator}${article.id}" 
