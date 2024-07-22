@@ -103,6 +103,8 @@
             <xsl:map-entry key="QName( (),'direction')" select="$sort-direction"/>
             <xsl:map-entry key="QName( (),'fpath')" select="$filepath"/>
             <xsl:map-entry key="QName( (),'context')" select="$context"/>
+            <xsl:map-entry key="QName( (),'doProofing')" select="true()"/>
+            <xsl:map-entry key="QName( (),'path_to_home')" select="'..'"/>
           </xsl:map>
         </xsl:map-entry>
       </xsl:map>
