@@ -19,9 +19,7 @@
                 <xsl:call-template name="topnavigation"/>
                 <div id="main">
                     <div id="leftsidebar">
-                        <xsl:call-template name="sidenavigation">
-                            <xsl:with-param name="session" select="'true'"/>
-                        </xsl:call-template>
+                        <xsl:call-template name="sidenavigation"/>
                     </div>
                     <div id="mainContent">
                         <xsl:call-template name="sitetitle"/>

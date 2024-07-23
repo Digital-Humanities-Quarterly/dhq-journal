@@ -10,76 +10,57 @@
     <xsl:param name="issue"><xsl:value-of select="toc/journal[@current]/@issue"/></xsl:param>
     <xsl:param name="staticPublishingPath"><xsl:value-of select="'../../articles/'"/></xsl:param>
     <xsl:param name="context"/>
+    <!-- Whether or not to use XSL messages to list all the articles for the given issue. -->
+    <xsl:param name="do-list-articles" select="true()" as="xs:boolean"/>
+    
     <xsl:variable name="apos">'</xsl:variable>
+    <!-- Whether the issue targeted by this transformation is the current issue. -->
+    <xsl:variable name="is-current-issue" 
+      select="exists(toc/journal[@vol eq $vol][@issue eq $issue]/@current)"/>
 
     <xsl:template match="cluster">
         <xsl:apply-templates/>
     </xsl:template>
-
+    
+    <!-- 2024-05-28: AMC restructured this template so there is less repetition and 
+      it's easier to tell what's going on. -->
     <xsl:template match="item">
-        <xsl:choose>
+        <xsl:variable name="articlePath">
+          <xsl:variable name="normalizedId" select="normalize-space(@id)"/>
+          <xsl:value-of select="concat($staticPublishingPath,$normalizedId,'/',$normalizedId,'.xml')"/>
+        </xsl:variable>
+        <!-- Process the article in whatever mode is required. -->
+        <xsl:variable name="processedArticle" as="node()*">
+          <xsl:choose>
             <xsl:when test="ancestor::journal[@preview]">
-                <xsl:choose>
-                    <xsl:when test="parent::cluster">
-                        <div class="cluster">
-                            <xsl:apply-templates
-                                select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI" mode="preview"/>
-                            <xsl:message>
-                                <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                            </xsl:message>
-                        </div>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:apply-templates
-                            select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI" mode="preview"/>
-                        <xsl:message>
-                            <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                        </xsl:message>
-                    </xsl:otherwise>
-                </xsl:choose>
+              <xsl:apply-templates select="document($articlePath)//tei:TEI" mode="preview"/>
             </xsl:when>
             <xsl:when test="ancestor::journal[@editorial]">
-                <xsl:choose>
-                    <xsl:when test="parent::cluster">
-                        <div class="cluster">
-                            <xsl:apply-templates
-                                select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI" mode="editorial"/>
-                            <xsl:message>
-                                <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                            </xsl:message>
-                        </div>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:apply-templates
-                            select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI" mode="editorial"/>
-                        <xsl:message>
-                            <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                        </xsl:message>
-                    </xsl:otherwise>
-                </xsl:choose>
+              <xsl:apply-templates select="document($articlePath)//tei:TEI" mode="editorial"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:choose>
-                    <xsl:when test="parent::cluster">
-                        <div class="cluster">
-                            <xsl:apply-templates
-                                select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI"/>
-                            <xsl:message>
-                                <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                            </xsl:message>
-                        </div>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:apply-templates
-                            select="document(concat($staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml'))//tei:TEI"/>
-                        <xsl:message>
-                            <xsl:value-of select="concat('file: ',$staticPublishingPath,normalize-space(@id),'/',normalize-space(@id),'.xml')"/>
-                        </xsl:message>
-                    </xsl:otherwise>
-                </xsl:choose>
+              <xsl:apply-templates select="document($articlePath)//tei:TEI"/>
             </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <!-- If the article occurs inside a <cluster>, wrap $processedArticle in a 
+          <div class="cluster">. Otherwise, just reproduce $processedArticle. -->
+        <xsl:choose>
+          <xsl:when test="parent::cluster">
+            <div class="cluster">
+              <xsl:sequence select="$processedArticle"/>
+            </div>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:sequence select="$processedArticle"/>
+          </xsl:otherwise>
         </xsl:choose>
-
+        <!-- 2024-05-28: Rather than repeating the <xsl:message> in every branch of 
+          the conditional, we do it once: here, at the end. And then, only if the 
+          $do-list-articles parameter is toggled on. -->
+        <xsl:if test="$do-list-articles">
+          <xsl:message select="concat('file: ',$articlePath)"/>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="list[@id='frontmatter']">
@@ -265,52 +246,59 @@
         </xsl:choose>
     </xsl:template>
 
-
+    <!-- Link to the author biographies for the current issue. -->
     <xsl:template name="index_main_body">
         <div id="toc">
             <xsl:apply-templates select="toc/journal[@vol=$vol and @issue=$issue]"/>
-
             <h2>
+                <!-- 2024-06: Ash changed this to a relative link. -->
                 <a>
                     <xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/vol/',$vol,'/',$issue,'/','bios.html')"/>
+                      <xsl:choose>
+                        <!-- If this issue index serves as the DHQ home page, the 
+                          bios page should appear within the volume and issue's 
+                          directory structure. -->
+                        <xsl:when test="$fpath = 'index.html' and $is-current-issue">
+                          <xsl:value-of select="concat('vol/',$vol,'/',$issue,'/bios.html')"/>
+                        </xsl:when>
+                        <!-- Usually, the bios page appears in the same directory as 
+                          the issue's index. -->
+                        <xsl:otherwise>
+                          <xsl:value-of select="'bios.html'"/>
+                        </xsl:otherwise>
+                      </xsl:choose>
                     </xsl:attribute>
                     <xsl:value-of select="'Author Biographies'"/>
                 </a>
             </h2>
-
         </div>
     </xsl:template>
 
     <xsl:template name="index_main_body_preview">
         <div id="toc">
             <xsl:apply-templates select="toc/journal[@preview]"/>
-
             <h2>
+                <!-- 2024-06: Ash changed this to a relative link. The bios page appears in the same 
+                  directory as the issue's index. -->
                 <a>
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/preview/bios.html')"/>
-                    </xsl:attribute>
+                    <xsl:attribute name="href" select="'bios.html'"/>
                     <xsl:value-of select="'Author Biographies'"/>
                 </a>
             </h2>
-
         </div>
     </xsl:template>
 
     <xsl:template name="index_main_body_editorial">
         <div id="toc">
             <xsl:apply-templates select="toc/journal[@editorial]"/>
-
             <h2>
+                <!-- 2024-06: Ash changed this to a relative link. The bios page appears in the same 
+                  directory as the issue's index. -->
                 <a>
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/editorial/bios.html')"/>
-                    </xsl:attribute>
+                    <xsl:attribute name="href" select="'bios.html'"/>
                     <xsl:value-of select="'Author Biographies'"/>
                 </a>
             </h2>
-
         </div>
     </xsl:template>
 
@@ -336,9 +324,23 @@
                         <span class="monospace">[<xsl:value-of select="@xml:lang"/>]&#160;</span>
                     </xsl:otherwise>
                 </xsl:choose>
-		        <xsl:element name="a">
+		        <a>
+		            <!-- 2024-06: Ash changed this to a relative link. -->
 		            <xsl:attribute name="href">
-		                <xsl:value-of select="concat('/',$context,'/vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
+		              <xsl:variable name="articlePath" select="concat($id,'/',$id,'.html')"/>
+		              <xsl:choose>
+		                <!-- If this issue index serves as the DHQ home page, the article 
+  		                page should appear within the volume and issue's directory 
+  		                structure. -->
+  		              <xsl:when test="$fpath = 'index.html' and $is-current-issue">
+                      <xsl:value-of select="concat('vol/',$vol,'/',$issue,'/',$articlePath)"/>
+                    </xsl:when>
+                    <!-- In most cases, the article page appears in its own folder 
+                      within the current index page's directory. -->
+                    <xsl:otherwise>
+                      <xsl:value-of select="$articlePath"/>
+                    </xsl:otherwise>
+		              </xsl:choose>
 		            </xsl:attribute>
                     <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
                         <xsl:attribute name="onclick">
@@ -346,7 +348,7 @@
                         </xsl:attribute>
                     </xsl:if>
 		            <xsl:apply-templates select="."/>
-		        </xsl:element>
+		        </a>
             </xsl:for-each>
 
           <div style="padding-left:1em; margin:0;text-indent:-1em;">
@@ -641,23 +643,25 @@
 		        <xsl:element name="a">
                 <xsl:choose>
                     <xsl:when test="$vol">
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
-                        </xsl:attribute>
+                        <!-- 2024-06: Ash changed this to a relative link. The 
+                          preview index link must return to the base directory, then 
+                          navigate to the correct volume and issue directory. -->
+                        <xsl:attribute name="href" select="concat('../vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
                         <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
-                        <xsl:attribute name="onclick">
-                            <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
-                        </xsl:attribute>
-                    </xsl:if>
-                        <xsl:apply-templates select="."/>
+                          <xsl:attribute name="onclick">
+                              <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
+                          </xsl:attribute>
+                        </xsl:if>
                     </xsl:when>
                     <xsl:otherwise>
+                        <!-- If $vol hasn't been set, set the article link to a file 
+                          within the preview directory. -->
                         <xsl:attribute name="href">
-                            <xsl:value-of select="concat('/',$context,'/preview/',$id,'.html')"/>
+                            <xsl:value-of select="concat($id,'.html')"/>
                         </xsl:attribute>
-                        <xsl:apply-templates select="."/>
                     </xsl:otherwise>
                 </xsl:choose>
+		            <xsl:apply-templates select="."/>
             </xsl:element>
             </xsl:for-each>
 
@@ -741,9 +745,9 @@
                     </xsl:otherwise>
                 </xsl:choose>
 		        <xsl:element name="a">
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="concat('/',$context,'/editorial/',$id,'/',$id,'.html')"/>
-                    </xsl:attribute>
+                    <!-- 2024-06: Ash changed this to a relative link. An "editorial" article page appears in 
+                      its own folder within the current index page's directory. -->
+                    <xsl:attribute name="href" select="concat($id,'/',$id,'.html')"/>
                     <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
                         <xsl:attribute name="onclick">
                             <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>

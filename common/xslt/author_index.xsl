@@ -38,7 +38,7 @@
                     </div>
                     <div id="mainContent">
                         <xsl:call-template name="sitetitle"/>
-                        <!-- Rest of the document/article is covered in this template - this is a call to dhq2html.xsl -->
+                        <!-- Rest of the document/article is covered in this template, defined in this stylesheet -->
                         <xsl:call-template name="index_main_body"/>
                         <!-- Use the URL generated to pass to the footer -->
                         <xsl:call-template name="footer">
@@ -61,9 +61,9 @@
     <xsl:template match="list|cluster">
         <xsl:for-each select="item[not(ancestor::journal/attribute::editorial)]">
             <xsl:apply-templates select="document(concat($staticPublishingPath,@id,'/',@id,'.xml'))//tei:TEI"/>
-            <xsl:message>
+            <!--<xsl:message>
                 <xsl:value-of select="concat('file: ',$staticPublishingPath,@id,'/',@id,'.xml')"/>
-            </xsl:message>
+            </xsl:message>-->
         </xsl:for-each>
     </xsl:template>
     
