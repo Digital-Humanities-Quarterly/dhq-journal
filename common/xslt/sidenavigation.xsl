@@ -5,12 +5,25 @@
     exclude-result-prefixes="#all"
     version="3.0">
     
+    <!--
+        This stylesheet contains the template "sidenavigation", which generates the 
+        sidebar navigation menu. The navbar contains links to every issue in DHQ.
+        
+        As one of the base DHQ stylesheets, it is imported into other stylesheets 
+        which generate full HTML pages.
+        
+        CHANGES
+          2024-07, AMC: Refactored, and replaced links to "/dhq/" with links 
+            relative to the home directory.
+      -->
+    
     <xsl:param name="staticPublishingPathPrefix" select="'../../toc/'"/>
     <xsl:param name="context"/>
-    <!-- The relative path from the webpage to the DHQ home directory. -->
+    <!-- The relative path from the webpage to the DHQ home directory. The path must 
+      not end with a slash. -->
     <xsl:param name="path_to_home" as="xs:string"/>
     
-    <!-- 2024-07: Replaced links to "/dhq/" with links relative to the home directory. -->
+    
     <xsl:template name="sidenavigation">
         <xsl:variable name="tocJournals" 
           select="doc(concat($staticPublishingPathPrefix,'toc.xml'))//journal"/>
@@ -86,16 +99,8 @@
             
         </div>
         
-        <img>
-            <xsl:attribute name="src">
-                <xsl:value-of select="concat($path_to_home,'/common/images/lbarrev.png')"/>
-            </xsl:attribute>
-            <xsl:attribute name="style">
-                <xsl:value-of select="'margin-left : 7px;'"/>
-            </xsl:attribute>
-            <xsl:attribute name="alt">
-                <xsl:value-of select="''"/>
-            </xsl:attribute>
+        <img alt="" style="margin-left : 7px;">
+            <xsl:attribute name="src" select="concat($path_to_home,'/common/images/lbarrev.png')"/>
         </img>
         
         <!-- issn announcement etc -->
@@ -109,14 +114,12 @@
             <ul>
                 <li>
                     <a><xsl:attribute name="href">
-                        <xsl:value-of select="concat($path_to_home,'/news/news.html#peer_reviews')"
-                        />
+                        <xsl:value-of select="concat($path_to_home,'/news/news.html#peer_reviews')"/>
                     </xsl:attribute>Call for Reviewers</a>
                 </li>
                 <li>
                     <a><xsl:attribute name="href">
-                        <xsl:value-of
-                            select="concat($path_to_home,'/submissions/index.html#logistics')"/>
+                        <xsl:value-of select="concat($path_to_home,'/submissions/index.html#logistics')"/>
                     </xsl:attribute>Call for Submissions</a>
                 </li>
             </ul>
