@@ -90,15 +90,46 @@
           </xsl:apply-templates>
         </xsl:for-each-group>
       </xsl:variable>
-      <xsl:message select="count($individualAuthors)||' to '||count($consolidatedAuthors)"/>
+      <!-- Start generating XHTML for the page. -->
       <div id="authorIndex">
         <h1>Author Index</h1>
-        <!--<table id="a2zNavigation" summary="A to Z navigation bar">
-          <tr><xsl:call-template name="index"/></tr>
-        </table>-->
+        <!-- Create a navigation bar to skip directly to authors whose names start with a given letter. -->
+        <nav id="a2zNavigation" class="index-navbar" role="navigation" aria-label="Authors Navigation">
+          <ul>
+            <!-- For each letter, make sure there are authors associated with that letter. If so, wrap 
+              the letter in an <a>; if not, output the letter as plaintext. As of 2024-07, DHQ has 
+              authors represented in every letter, but there's no harm in covering the fallback behavior. -->
+            <xsl:for-each select="1 to 26">
+              <xsl:variable name="alphabet" select="'abcdefghijklmnopqrstuvwxyz'"/>
+              <xsl:variable name="letter" select="substring($alphabet, ., 1)"/>
+              <li>
+                <xsl:choose>
+                  <xsl:when test="exists($consolidatedAuthors[matches(@data-sort-key, '^'||$letter)])">
+                    <a id="{$letter}_nav" href="#{$letter}_authors" 
+                       aria-label="Names starting with '{$letter}'">
+                      <xsl:value-of select="upper-case($letter)"/>
+                    </a>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="upper-case($letter)"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </li>
+            </xsl:for-each>
+          </ul>
+        </nav>
         <div id="authors">
           <!-- Now, group authors so the index can be navigated alphabetically by letter. -->
-          <xsl:sequence select="$consolidatedAuthors"/>
+          <xsl:for-each-group select="$consolidatedAuthors" group-by="substring(@data-sort-key, 1, 1)" 
+             collation="http://www.w3.org/2013/collation/UCA?strength=primary">
+            <xsl:variable name="letter" select="current-grouping-key()"/>
+            <h2 id="{$letter}_authors" class="index-group">
+              <a href="#{$letter}_nav">
+                <xsl:value-of select="upper-case($letter)"/>
+              </a>
+            </h2>
+            <xsl:sequence select="current-group()"/>
+          </xsl:for-each-group>
         </div>
       </div>
     </xsl:template>
@@ -176,7 +207,8 @@
         <xsl:variable name="linkUrl" as="xs:string?">
           <xsl:choose>
             <xsl:when test="not($vol_no_zeroes = '') and not($issue = '')">
-              <xsl:sequence select="concat($path_to_home,'/vol/',$vol_no_zeroes,'/',$issue,'/',$articleId,'/',$articleId,'.html')"/>
+              <xsl:sequence 
+                select="concat($path_to_home,'/vol/',$vol_no_zeroes,'/',$issue,'/',$articleId,'/',$articleId,'.html')"/>
             </xsl:when>
             <!-- If we don't have a usable volume or issue number, output a debugging message and do NOT 
               generate a link. -->
