@@ -5,6 +5,7 @@
     xmlns:tei="http://www.tei-c.org/ns/1.0"
     xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
     xmlns:dhqf="https://dhq.digitalhumanities.org/ns/functions"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
     exclude-result-prefixes="#all"
     version="3.0">
     
@@ -70,20 +71,34 @@
     
     <!-- Generate the author index page's contents. -->
     <xsl:template name="index_main_body">
-      <!-- First, generate a <p> for each author in each DHQ article. The IDs of these elements will be 
-        used to compile and sort the authors. -->
+      <!-- First, generate a <p> for each author in each DHQ article. -->
       <xsl:variable name="individualAuthors" as="node()*">
         <xsl:apply-templates select="//journal"/>
       </xsl:variable>
+      <!-- Next, consolidate all authors so that there is only one per sort key. -->
+      <xsl:variable name="consolidatedAuthors" as="node()*">
+        <xsl:for-each-group select="$individualAuthors" group-by="@data-sort-key">
+          <!-- While we're here, sort the authors by their keys. -->
+          <xsl:sort select="current-grouping-key()" 
+            collation="http://www.w3.org/2013/collation/UCA?strength=primary"/>
+          <!-- Process only the first <p> for this author, but tunnel in all of the article titles with 
+            which they're associated. -->
+          <xsl:variable name="articleTitles" as="node()*"
+            select="current-group()//xhtml:span[@class eq 'title']"/>
+          <xsl:apply-templates select="current-group()[1]" mode="compilation">
+            <xsl:with-param name="all-titles" select="$articleTitles" tunnel="yes"/>
+          </xsl:apply-templates>
+        </xsl:for-each-group>
+      </xsl:variable>
+      <xsl:message select="count($individualAuthors)||' to '||count($consolidatedAuthors)"/>
       <div id="authorIndex">
-        <!--<h1>Author Index</h1>-->
+        <h1>Author Index</h1>
         <!--<table id="a2zNavigation" summary="A to Z navigation bar">
           <tr><xsl:call-template name="index"/></tr>
         </table>-->
         <div id="authors">
-          <!-- Compile the authors data in $individualAuthors: gather all articles each one is 
-            associated with, and sort the authors alphabetically. -->
-          <xsl:sequence select="$individualAuthors"/>
+          <!-- Now, group authors so the index can be navigated alphabetically by letter. -->
+          <xsl:sequence select="$consolidatedAuthors"/>
         </div>
       </div>
     </xsl:template>
@@ -192,15 +207,11 @@
             </xsl:call-template>
           </xsl:for-each>
         </xsl:variable>
-        
-        <!-- Stopwords filter from Jeni Tennison, http://www.stylusstudio.com/xsllist/200112/post10410.html -->
-        <!--<xsl:variable name="lower">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-        <xsl:variable name="upper">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>-->
         <xsl:variable name="isCoauthor" as="xs:boolean"
           select="count($fileDesc/tei:titleStmt/dhq:authorInfo) > 1"/>
         <xsl:for-each select="$fileDesc/tei:titleStmt/dhq:authorInfo">
             <!-- Generate a sort key for this author. -->
-            <xsl:variable name="sortableAuthorId" as="xs:string?">
+            <xsl:variable name="sortableAuthorKey" as="xs:string?">
               <xsl:variable name="nameParts" as="xs:string*">
                 <xsl:variable name="name" select="dhq:author_name"/>
                 <xsl:choose>
@@ -220,10 +231,10 @@
               </xsl:variable>
               <xsl:sequence select="dhqf:make-sortable-key($nameParts)"/>
             </xsl:variable>
-            <xsl:if test="empty($sortableAuthorId) or $sortableAuthorId eq ''">
+            <xsl:if test="empty($sortableAuthorKey) or $sortableAuthorKey eq ''">
               <xsl:message select="'Could not create an ID for a DHQ author in '||$articleId"/>
             </xsl:if>
-            <p id="{$sortableAuthorId}">
+            <p data-sort-key="{$sortableAuthorKey}">
                 <xsl:call-template name="author"/>
                 <xsl:text> </xsl:text>
                 <span class="title">
@@ -240,6 +251,7 @@
         </xsl:for-each>
     </xsl:template>
     
+    <!-- For each <dhq:authorInfo>, we want to mark the author's name and affiliation. -->
     <xsl:template name="author">
       <span class="author">
         <strong>
@@ -353,4 +365,42 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
+    
+    
+    <!--
+        TEMPLATES, "compilation" MODE
+        
+        Used when combining multiple entries for a single author.
+      -->
+    
+    <!-- Generally we want to keep the XHTML we've already generated as-is. -->
+    <xsl:template match="xhtml:*" mode="compilation">
+      <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="#current"/>
+      </xsl:copy>
+    </xsl:template>
+    
+    <xsl:template match="xhtml:p[@data-sort-key]" mode="compilation">
+      <div class="index_top">
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="#current"/>
+      </div>
+    </xsl:template>
+    
+    <!-- In the place of this entry's singular article title, we place all titles for every article by 
+      this author. -->
+    <xsl:template match="xhtml:span[@class eq 'title']" mode="compilation">
+      <xsl:param name="all-titles" as="node()*" tunnel="yes"/>
+      <xsl:for-each select="$all-titles">
+        <xsl:text> </xsl:text>
+        <p class="index_{ if ( position() eq count($all-titles) ) then
+                            'bottom' 
+                          else 'item' }">
+          <xsl:copy-of select="@* except @class"/>
+          <xsl:apply-templates mode="#current"/>
+        </p>
+      </xsl:for-each>
+    </xsl:template>
+    
 </xsl:stylesheet>

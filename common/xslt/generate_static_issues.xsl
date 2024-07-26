@@ -421,10 +421,11 @@
       </xsl:map>
     </xsl:variable>
     <xsl:result-document href="{$static-dir||'/index/author.html'}">
-      <xsl:call-template name="transform-with-sorting">
+      <!--<xsl:call-template name="transform-with-sorting">
         <xsl:with-param name="transform-1-map" select="$authors-index-map" as="map(*)"/>
         <xsl:with-param name="transform-2-xsl-filename" select="'author_sort.xsl'"/>
-      </xsl:call-template>
+      </xsl:call-template>-->
+      <xsl:sequence select="transform( $authors-index-map )?output"/>
     </xsl:result-document>
   </xsl:template>
   
