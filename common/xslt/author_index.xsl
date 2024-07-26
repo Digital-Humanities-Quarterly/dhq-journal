@@ -119,7 +119,7 @@
     
     <!-- Given 1+ string(s), create a single string that can be used as an HTML identifier as well as a 
       sort key. -->
-    <xsl:function name="dhqf:make-sortable-id" as="xs:string?">
+    <xsl:function name="dhqf:make-sortable-key" as="xs:string?">
       <xsl:param name="base-string" as="xs:string*"/>
       <xsl:choose>
         <xsl:when test="exists($base-string) and count($base-string) eq 1">
@@ -131,7 +131,7 @@
         <xsl:when test="exists($base-string)">
           <xsl:variable name="useStrings" as="xs:string*">
             <xsl:for-each select="$base-string">
-              <xsl:sequence select="dhqf:make-sortable-id(.)"/>
+              <xsl:sequence select="dhqf:make-sortable-key(.)"/>
             </xsl:for-each>
           </xsl:variable>
           <xsl:sequence select="string-join($useStrings, '_')"/>
@@ -199,13 +199,26 @@
         <xsl:variable name="isCoauthor" as="xs:boolean"
           select="count($fileDesc/tei:titleStmt/dhq:authorInfo) > 1"/>
         <xsl:for-each select="$fileDesc/tei:titleStmt/dhq:authorInfo">
-            <!--<xsl:variable name="string"
-              select="translate(concat(normalize-space(dhq:author_name/dhq:family),'_',substring(normalize-space(dhq:author_name),1,1)),$upper,$lower)"/>-->
-            <!-- Generate an identifier for this author using their family name and their first initial. The ID will be used to sort this person. -->
+            <!-- Generate a sort key for this author. -->
             <xsl:variable name="sortableAuthorId" as="xs:string?">
-              <xsl:variable name="familyName" select="dhq:author_name/dhq:family/xs:string(.)"/>
-              <xsl:variable name="initial" select="substring(normalize-space(dhq:author_name),1,1)"/>
-              <xsl:sequence select="dhqf:make-sortable-id(($familyName, $initial))"/>
+              <xsl:variable name="nameParts" as="xs:string*">
+                <xsl:variable name="name" select="dhq:author_name"/>
+                <xsl:choose>
+                  <!-- If this author has a family name, their sort key will be their family name and 
+                    first initial. -->
+                  <xsl:when test="exists($name/dhq:family)">
+                    <xsl:variable name="familyName" select="$name/dhq:family/xs:string(.)"/>
+                    <xsl:variable name="initial" select="substring(normalize-space($name),1,1)"/>
+                    <xsl:sequence select="($familyName, $initial)"/>
+                  </xsl:when>
+                  <!-- If this author doesn't have a family name, their sort key will be the first word 
+                    (bounded by whitespace) in their name. -->
+                  <xsl:otherwise>
+                    <xsl:sequence select="tokenize(normalize-space($name), ' ')[1]"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:variable>
+              <xsl:sequence select="dhqf:make-sortable-key($nameParts)"/>
             </xsl:variable>
             <xsl:if test="empty($sortableAuthorId) or $sortableAuthorId eq ''">
               <xsl:message select="'Could not create an ID for a DHQ author in '||$articleId"/>
