@@ -10,12 +10,20 @@
     version="3.0">
     
     <!--
-        This stylesheet generates a webpage containing a list of all DHQ authors and 
-        the (public) articles they've written. The output of this transformation 
-        should be processed with author_sort.xsl so that the authors appear in 
-        alphabetical order.
+        This stylesheet generates a webpage containing an alphabetically-sorted list 
+        of all DHQ authors and the (published) articles they've written. It should 
+        be run on the DHQ table of contents, toc.xml .
         
         The other index-generating stylesheet is title_index.xsl .
+        
+        CHANGES:
+          2024-07, Ash: Updated to XSLT 3.0 from 1.0, and refactored the stylesheet 
+            for readability and maintainability. The navigation bar was changed from
+            a table to a list inside <nav>, with ARIA labels for accessibility. 
+            Article titles' languages are now marked with @xml:lang and @lang. 
+            Authors are now sorted with the Unicode Collation Algorithm at primary 
+            strength, which means that characters with diacritics will sort 
+            alongside characters that don't have diacritics (e.g. "o" = "ö" = "ŏ").
       -->
     
     <xsl:import href="sidenavigation.xsl"/>
@@ -31,10 +39,18 @@
         <xsl:value-of select="'../../articles/'"/>
     </xsl:param>
     
+    <!--
+      TEMPLATES, #default MODE
+      
+      Most of the stylesheet occurs in default mode. From the articles listed in the TOC, the articles' 
+      XML is used to generate a sequence of author entries. These entries are then made unique and 
+      comprehensive, and sorted to create the full XHTML index.
+      -->
+    
     
     <!-- Suppressed elements. This stylesheet is mostly intentional in processing the specific elements 
-      desired, in the order we expect. However, it is sometimes useful to process things in a 
-      "fall-through" manner, where elements are processed in document order. When we switch to 
+      desired, in the order we expect ("pull" processing). However, it is sometimes useful to process 
+      things in a "push" manner, where elements are processed in document order. When we switch to 
       fall-through behavior, suppressing elements ensures we only get the content we really want. -->
     <xsl:template match="journal//*" priority="-1"/>
     <xsl:template match="dhq:authorInfo/dhq:address"/>
@@ -42,6 +58,7 @@
     <xsl:template match="dhq:authorInfo/dhq:bio"/>
     <xsl:template match="tei:teiHeader/tei:fileDesc/tei:publicationStmt"/>
     
+    <!-- XHTML outer page structure -->
     <xsl:template match="/">
         <html>
             <!-- code to retrieve document title from the html file and pass it to the template -->
@@ -78,11 +95,15 @@
       <!-- Next, consolidate all authors so that there is only one per sort key. -->
       <xsl:variable name="consolidatedAuthors" as="node()*">
         <xsl:for-each-group select="$individualAuthors" group-by="@data-sort-key">
-          <!-- While we're here, sort the authors by their keys. -->
+          <!-- While we're here, do an initial sort of the authors by their keys. With the Unicode 
+            Collation Algorithm at primary strength, characters with diacritics will sort alongside 
+            their base characters. -->
           <xsl:sort select="current-grouping-key()" 
             collation="http://www.w3.org/2013/collation/UCA?strength=primary"/>
-          <!-- Process only the first <p> for this author, but tunnel in all of the article titles with 
-            which they're associated. -->
+          <!-- Transform only the first <p> for this author, tunneling in all of the article titles 
+            with which they're associated. Note that because the TOC is ordered from most recent issue 
+            to the earliest issue, titles will appear in reverse chronological order, and the author's 
+            most recent affiliation will be shown. -->
           <xsl:variable name="articleTitles" as="node()*"
             select="current-group()//xhtml:span[@class eq 'title']"/>
           <xsl:apply-templates select="current-group()[1]" mode="compilation">
@@ -90,8 +111,8 @@
           </xsl:apply-templates>
         </xsl:for-each-group>
       </xsl:variable>
-      <!-- Start generating XHTML for the page. -->
-      <div id="authorIndex">
+      <!-- Start generating XHTML for the main page content. -->
+      <div id="authorIndex" class="index">
         <h1>Author Index</h1>
         <!-- Create a navigation bar to skip directly to authors whose names start with a given letter. -->
         <nav id="a2zNavigation" class="index-navbar" role="navigation" aria-label="Authors Navigation">
@@ -123,11 +144,15 @@
           <xsl:for-each-group select="$consolidatedAuthors" group-by="substring(@data-sort-key, 1, 1)" 
              collation="http://www.w3.org/2013/collation/UCA?strength=primary">
             <xsl:variable name="letter" select="current-grouping-key()"/>
-            <h2 id="{$letter}_authors" class="index-group">
-              <a href="#{$letter}_nav">
-                <xsl:value-of select="upper-case($letter)"/>
-              </a>
-            </h2>
+            <!-- This group only gets a heading if $letter is actually a letter, and NOT, say, an 
+              underscore. -->
+            <xsl:if test="matches($letter, '\p{L}')">
+              <h2 id="{$letter}_authors" class="index-group">
+                <a href="#{$letter}_nav">
+                  <xsl:value-of select="upper-case($letter)"/>
+                </a>
+              </h2>
+            </xsl:if>
             <xsl:sequence select="current-group()"/>
           </xsl:for-each-group>
         </div>
@@ -185,7 +210,10 @@
       </xsl:choose>
     </xsl:function>
     
-    <!--  -->
+    <!-- This template is run on a singular DHQ article. It produces one <p> for every author who 
+      contributed to the article, and includes the article title (represented in all languages 
+      available). These <p>s will later be consolidated such that every author has only one entry for 
+      their presence throughout DHQ. -->
     <xsl:template match="tei:TEI">
         <xsl:param name="issueTitle" as="xs:string?" tunnel="yes"/>
         <xsl:variable name="fileDesc" select="tei:teiHeader/tei:fileDesc"/>
@@ -307,10 +335,13 @@
     </xsl:template>
     
     <xsl:template match="dhq:affiliation">
-      <span class="affiliation">
-        <xsl:text>, </xsl:text>
-        <xsl:value-of select="normalize-space(.)"/>
-      </span>
+      <!-- Only include the author's affiliation if there's content in the element. -->
+      <xsl:if test="normalize-space(.) ne ''">
+        <span class="affiliation">
+          <xsl:text>, </xsl:text>
+          <xsl:value-of select="normalize-space(.)"/>
+        </span>
+      </xsl:if>
     </xsl:template>
     
     <xsl:template match="tei:titleStmt/tei:title | tei:titleStmt/tei:title//*">
@@ -413,9 +444,11 @@
       </xsl:copy>
     </xsl:template>
     
+    <!-- Each author's <p> is replaced with a <div class="index_top">. The data attribute is copied 
+      forward, for debugging purposes. -->
     <xsl:template match="xhtml:p[@data-sort-key]" mode="compilation">
       <div class="index_top">
-        <xsl:copy-of select="@*"/>
+        <xsl:copy-of select="@* except @class"/>
         <xsl:apply-templates mode="#current"/>
       </div>
     </xsl:template>
@@ -426,6 +459,8 @@
       <xsl:param name="all-titles" as="node()*" tunnel="yes"/>
       <xsl:for-each select="$all-titles">
         <xsl:text> </xsl:text>
+        <!-- The last title should get the "index_bottom" class, which provides extra whitespace between 
+          author entries. -->
         <p class="index_{ if ( position() eq count($all-titles) ) then
                             'bottom' 
                           else 'item' }">
