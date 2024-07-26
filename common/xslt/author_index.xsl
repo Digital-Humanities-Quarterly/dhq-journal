@@ -31,15 +31,15 @@
     </xsl:param>
     
     
-    <!-- suppressed elements -->
-    <xsl:template match="journal//*"/>
+    <!-- Suppressed elements. This stylesheet is mostly intentional in processing the specific elements 
+      desired, in the order we expect. However, it is sometimes useful to process things in a 
+      "fall-through" manner, where elements are processed in document order. When we switch to 
+      fall-through behavior, suppressing elements ensures we only get the content we really want. -->
+    <xsl:template match="journal//*" priority="-1"/>
     <xsl:template match="dhq:authorInfo/dhq:address"/>
     <xsl:template match="dhq:authorInfo/tei:email"/>
     <xsl:template match="dhq:authorInfo/dhq:bio"/>
-    <xsl:template match="dhq:authorInfo/dhq:affiliation"/>
     <xsl:template match="tei:teiHeader/tei:fileDesc/tei:publicationStmt"/>
-    <!-- dropped to pull just the first name in dhq:author_name [CRB] -->
-    <xsl:template match="dhq:family"/>
     
     <xsl:template match="/">
         <html>
@@ -68,12 +68,24 @@
         </html>
     </xsl:template>
     
+    <!-- Generate the author index page's contents. -->
     <xsl:template name="index_main_body">
-        <div id="authorIndex">
-            <div id="authors">
-                <xsl:apply-templates select="//journal"/>
-            </div>
+      <!-- First, generate a <p> for each author in each DHQ article. The IDs of these elements will be 
+        used to compile and sort the authors. -->
+      <xsl:variable name="individualAuthors" as="node()*">
+        <xsl:apply-templates select="//journal"/>
+      </xsl:variable>
+      <div id="authorIndex">
+        <!--<h1>Author Index</h1>-->
+        <!--<table id="a2zNavigation" summary="A to Z navigation bar">
+          <tr><xsl:call-template name="index"/></tr>
+        </table>-->
+        <div id="authors">
+          <!-- Compile the authors data in $individualAuthors: gather all articles each one is 
+            associated with, and sort the authors alphabetically. -->
+          <xsl:sequence select="$individualAuthors"/>
         </div>
+      </div>
     </xsl:template>
     
     <!-- Apply templates on the contents of <journal>, but pass on a tunneled parameter with the title 
@@ -89,22 +101,21 @@
     
     <!-- Open a listed article's XML and use the metadata in its <teiHeader> to generate HTML. -->
     <xsl:template match="item">
-      <xsl:apply-templates select="doc(concat($staticPublishingPath,@id,'/',@id,'.xml'))/tei:TEI"/>
+      <xsl:variable name="articlePath" select="concat($staticPublishingPath,@id,'/',@id,'.xml')"/>
+      <xsl:choose>
+        <xsl:when test="doc-available($articlePath)">
+          <xsl:apply-templates select="doc($articlePath)/tei:TEI"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:message select="'Could not find article '||@id||' at '||$articlePath"/>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:template>
     
     <!-- Continue to apply templates on the content of <list>s and <cluster>s. -->
     <xsl:template match="list | cluster">
       <xsl:apply-templates/>
     </xsl:template>
-    
-    <!--<xsl:template match="list|cluster">
-        <xsl:for-each select="item[not(ancestor::journal/@editorial)]">
-            <xsl:apply-templates select="doc(concat($staticPublishingPath,@id,'/',@id,'.xml'))//tei:TEI"/>
-            <!-\-<xsl:message>
-                <xsl:value-of select="concat('file: ',$staticPublishingPath,@id,'/',@id,'.xml')"/>
-            </xsl:message>-\->
-        </xsl:for-each>
-    </xsl:template>-->
     
     <!-- Given 1+ string(s), create a single string that can be used as an HTML identifier as well as a 
       sort key. -->
@@ -217,24 +228,32 @@
     </xsl:template>
     
     <xsl:template name="author">
-      <xsl:variable name="name" as="xs:string">
-        <xsl:apply-templates select="dhq:author_name"/>
-      </xsl:variable>
       <span class="author">
         <strong>
-          <xsl:value-of select="normalize-space(concat(dhq:author_name/dhq:family,', ',normalize-space($name)))"/>
+          <xsl:apply-templates select="dhq:author_name"/>
         </strong>
       </span>
-      <xsl:if test="dhq:affiliation">
-        <span class="affiliation">
-          <xsl:text>, </xsl:text>
-          <xsl:value-of select="normalize-space(dhq:affiliation)"/>
-        </span>
-      </xsl:if>
+      <xsl:apply-templates select="dhq:affiliation"/>
     </xsl:template>
     
+    <!-- If the author name includes a family name, we want it to go first, in "Last, First" format. If 
+      the author name doesn't include a family name (e.g. "DHQ editorial team"), the <dhq:family> 
+      template won't trigger and the name will simply have its whitespace normalized. -->
     <xsl:template match="dhq:author_name">
-      <xsl:value-of select="string-join(text(), '')"/>
+      <xsl:apply-templates select="dhq:family"/>
+      <xsl:value-of select="normalize-space(string-join(text(), ''))"/>
+    </xsl:template>
+    
+    <xsl:template match="dhq:family">
+      <xsl:value-of select="normalize-space(.)"/>
+      <xsl:text>, </xsl:text>
+    </xsl:template>
+    
+    <xsl:template match="dhq:affiliation">
+      <span class="affiliation">
+        <xsl:text>, </xsl:text>
+        <xsl:value-of select="normalize-space(.)"/>
+      </span>
     </xsl:template>
     
     <xsl:template match="tei:titleStmt/tei:title | tei:titleStmt/tei:title//*">
