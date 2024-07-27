@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="3.0">
     <xsl:param name="context"/>
+    <xsl:param name="doProofing" select="false()" as="xs:boolean"/>
+    
     <xsl:template name="topnavigation">
         <div id="top">
             <xsl:call-template name="topbanner"/>
@@ -77,21 +80,26 @@
             <xsl:variable name="imgFile">
                 <xsl:sequence select="unparsed-text('../images/bannerimg/banner29.jpg.base64')"/>
             </xsl:variable>   
-            <img alt="banner" width="100%" height="62px" src="{concat('data:image/jpeg;base64,',$imgFile)}"/>​
+            <img alt="" width="100%" height="62px" src="{concat('data:image/jpeg;base64,',$imgFile)}"/>​
         </div>
         
         <div id="banner">
+            <xsl:if test="$doProofing">
+              <div class="preview-warn">
+                <strong>Proofing copy</strong>
+              </div>
+            </xsl:if>
             <div id="dhqlogo">
                 <xsl:variable name="imgFile">
                     <xsl:sequence select="unparsed-text('../images/dhqlogo.png.base64')"/>
                 </xsl:variable>        
-                <img alt="DHQ Logo" src="{concat('data:image/png;base64,',$imgFile)}" />
+                <img alt="DHQ" src="{concat('data:image/png;base64,',$imgFile)}" />
             </div>
             <div id="longdhqlogo">
                 <xsl:variable name="imgFile">
                     <xsl:sequence select="unparsed-text('../images/dhqlogolonger.png.base64')"/>
                 </xsl:variable>        
-                <img alt="Digital Humanities Quarterly Logo" src="{concat('data:image/png;base64,',$imgFile)}" />
+                <img alt="Digital Humanities Quarterly" src="{concat('data:image/png;base64,',$imgFile)}" />
             </div>
         </div>
     </xsl:template>

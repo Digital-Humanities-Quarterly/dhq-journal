@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:session="http://apache.org/cocoon/session/1.0"
-    exclude-result-prefixes="session" version="1.0">
+    version="1.0">
+    
     <xsl:param name="staticPublishingPathPrefix"><xsl:value-of select="'../../toc/'"/></xsl:param>
     <xsl:param name="context"/>
+    
     <xsl:template name="sidenavigation">
-        <xsl:param name="session"><session:getxml context="request" path="/"/></xsl:param>
         <!--sidenavigation-->
         <div id="leftsidenav">
             
@@ -122,28 +122,7 @@
                 </li>
             </ul>
         </div>
-        <div class="leftsidecontent">
-            
-            <!-- AddThis Button BEGIN -->
-            <script type="text/javascript">addthis_pub  = 'dhq';</script>
-            <a href="http://www.addthis.com/bookmark.php"
-                onmouseover="return addthis_open(this, '', '[URL]', '[TITLE]')"
-                onmouseout="addthis_close()" onclick="return addthis_sendto()">
-                <img src="http://s9.addthis.com/button1-addthis.gif" width="125" height="16" alt="button1-addthis.gif"/>
-            </a>
-            <script type="text/javascript" src="http://s7.addthis.com/js/152/addthis_widget.js"><![CDATA[<!-- Javascript functions -->]]></script>
-            <!-- AddThis Button END -->
-            
-            <!-- Editorial area with logout button if we have a session variable [CRB] -->
-            <!--<br /><br /><span><a href="/dhq/login.html">Editorial Area</a></span>-->
-            
-            <xsl:if test="string($session)">
-                <form method="post">
-                    <xsl:attribute name="action"><xsl:value-of select="concat('/',$context,'/do-logout')"/>
-                    </xsl:attribute><p><input type="submit" value="Logout" style="border: 1px solid black;"/></p></form>
-            </xsl:if>
-        </div>
-        
+      <!-- 2024-07, AMC: Removed AddThis button and Editorial area "logout" button. -->
         
     </xsl:template>
     
