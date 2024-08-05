@@ -147,8 +147,13 @@
             <!-- This group only gets a heading if $letter is actually a letter, and NOT, say, an 
               underscore. -->
             <xsl:if test="matches($letter, '\p{L}')">
-              <h2 id="{$letter}_authors" class="index-group">
-                <a href="#{$letter}_nav">
+              <!-- The link needs an ARIA label because the letter alone isn't descriptive of where the 
+                link goes. However, the link's ARIA label will be used as the heading's label as well, 
+                so we have to provide that as well. 
+                There's probably a more accessible way of linking back to the top. Move the link before 
+                the <h2>, perhaps? -->
+              <h2 id="{$letter}_authors" class="index-group" aria-label="{upper-case($letter)}">
+                <a href="#{$letter}_nav" aria-label="Author navigation, letter {$letter}">
                   <xsl:value-of select="upper-case($letter)"/>
                 </a>
               </h2>
