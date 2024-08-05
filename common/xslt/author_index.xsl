@@ -283,8 +283,8 @@
                   <!-- If this author has a family name, their sort key will be their family name and 
                     first initial. -->
                   <xsl:when test="exists($name/dhq:family)">
-                    <xsl:variable name="familyName" select="$name/dhq:family/xs:string(.)"/>
-                    <xsl:variable name="initial" select="substring(normalize-space($name),1,1)"/>
+                    <xsl:variable name="familyName" select="$name/dhq:family/normalize-space(.)"/>
+                    <xsl:variable name="initial" select="substring($name,1,1)"/>
                     <xsl:sequence select="($familyName, $initial)"/>
                   </xsl:when>
                   <!-- If this author doesn't have a family name, their sort key will be the first word 
@@ -331,7 +331,9 @@
       template won't trigger and the name will simply have its whitespace normalized. -->
     <xsl:template match="dhq:author_name">
       <xsl:apply-templates select="dhq:family"/>
-      <xsl:value-of select="normalize-space(string-join(text(), ''))"/>
+      <xsl:for-each select="text()">
+        <xsl:value-of select="normalize-space(.)"/>
+      </xsl:for-each>
     </xsl:template>
     
     <xsl:template match="dhq:family">
