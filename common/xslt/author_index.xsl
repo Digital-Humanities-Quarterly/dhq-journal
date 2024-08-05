@@ -127,7 +127,7 @@
                 <xsl:choose>
                   <xsl:when test="exists($consolidatedAuthors[matches(@data-sort-key, '^'||$letter)])">
                     <a id="{$letter}_nav" href="#{$letter}_authors" 
-                       aria-label="Names starting with '{$letter}'">
+                       aria-label="Names starting with {$letter}">
                       <xsl:value-of select="upper-case($letter)"/>
                     </a>
                   </xsl:when>
@@ -457,17 +457,20 @@
       this author. -->
     <xsl:template match="xhtml:span[@class eq 'title']" mode="compilation">
       <xsl:param name="all-titles" as="node()*" tunnel="yes"/>
-      <xsl:for-each select="$all-titles">
+      <!-- Using <xsl:for-each-group> ensures that articles aren't listed twice when they appear in more 
+        than one issue (e.g. 000289). -->
+      <xsl:for-each-group select="$all-titles" group-by="tokenize(xhtml:a[1]/@href, '/')[last()]">
+        <xsl:variable name="uniqueTitle" select="current-group()[1]"/>
         <xsl:text> </xsl:text>
         <!-- The last title should get the "index_bottom" class, which provides extra whitespace between 
           author entries. -->
         <p class="index_{ if ( position() eq count($all-titles) ) then
                             'bottom' 
                           else 'item' }">
-          <xsl:copy-of select="@* except @class"/>
-          <xsl:apply-templates mode="#current"/>
+          <xsl:copy-of select="$uniqueTitle/(@* except @class)"/>
+          <xsl:apply-templates select="$uniqueTitle/node()" mode="#current"/>
         </p>
-      </xsl:for-each>
+      </xsl:for-each-group>
     </xsl:template>
     
 </xsl:stylesheet>
