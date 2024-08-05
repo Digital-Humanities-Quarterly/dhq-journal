@@ -29,6 +29,7 @@
       -->
     
     <!--  IMPORTED STYLESHEETS  -->
+    <xsl:import href="common-components.xsl"/>
     <xsl:import href="sidenavigation.xsl"/>
     <xsl:import href="topnavigation.xsl"/>
     <xsl:import href="footer.xsl"/>
@@ -103,8 +104,7 @@
           <!-- While we're here, do an initial sort of the authors by their keys. With the Unicode 
             Collation Algorithm at primary strength, characters with diacritics will sort alongside 
             their base characters. -->
-          <xsl:sort select="current-grouping-key()" 
-            collation="http://www.w3.org/2013/collation/UCA?strength=primary"/>
+          <xsl:sort select="current-grouping-key()" collation="{$sort-collation}"/>
           <!-- Transform only the first <p> for this author, tunneling in all of the article titles 
             with which they're associated. Note that because the TOC is ordered from most recent issue 
             to the earliest issue, titles will appear in reverse chronological order, and the author's 
@@ -147,7 +147,7 @@
         <div id="authors">
           <!-- Now, group authors so the index can be navigated alphabetically by letter. -->
           <xsl:for-each-group select="$consolidatedAuthors" group-by="substring(@data-sort-key, 1, 1)" 
-             collation="http://www.w3.org/2013/collation/UCA?strength=primary">
+             collation="{$sort-collation}">
             <xsl:variable name="letter" select="current-grouping-key()"/>
             <!-- This group only gets a heading if $letter is actually a letter, and NOT, say, an 
               underscore. -->
@@ -197,28 +197,6 @@
     <xsl:template match="list | cluster">
       <xsl:apply-templates/>
     </xsl:template>
-    
-    <!-- Given 1+ string(s), create a single string that can be used as an HTML identifier as well as a 
-      sort key. -->
-    <xsl:function name="dhqf:make-sortable-key" as="xs:string?">
-      <xsl:param name="base-string" as="xs:string*"/>
-      <xsl:choose>
-        <xsl:when test="exists($base-string) and count($base-string) eq 1">
-          <xsl:sequence select="normalize-space($base-string)
-                                => translate(' ', '_')
-                                => lower-case()
-                                => replace('[^\w_-]', '')"/>
-        </xsl:when>
-        <xsl:when test="exists($base-string)">
-          <xsl:variable name="useStrings" as="xs:string*">
-            <xsl:for-each select="$base-string">
-              <xsl:sequence select="dhqf:make-sortable-key(.)"/>
-            </xsl:for-each>
-          </xsl:variable>
-          <xsl:sequence select="string-join($useStrings, '_')"/>
-        </xsl:when>
-      </xsl:choose>
-    </xsl:function>
     
     <!-- This template is run on a singular DHQ article. It produces one <p> for every author who 
       contributed to the article, and includes the article title (represented in all languages 
@@ -421,23 +399,6 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:template>
-    
-    <!-- Create XHTML attributes @xml:lang and @lang to mark the language used. -->
-    <xsl:template name="mark-used-language">
-      <xsl:param name="language-code" as="xs:string" required="yes"/>
-      <xsl:if test="normalize-space($language-code) ne ''">
-        <xsl:attribute name="xml:lang" select="$language-code"/>
-        <xsl:attribute name="lang" select="$language-code"/>
-      </xsl:if>
-    </xsl:template>
-    
-    
-    <!-- Remove leading zeroes from a volume or article number. 
-      (Previously a template named "get-vol".) -->
-    <xsl:function name="dhqf:remove-leading-zeroes">
-      <xsl:param name="number" as="xs:string"/>
-      <xsl:sequence select="replace(normalize-space($number), '^0+', '')"/>
-    </xsl:function>
     
     
     <!--
