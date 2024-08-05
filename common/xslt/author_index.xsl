@@ -24,8 +24,11 @@
             Authors are now sorted with the Unicode Collation Algorithm at primary 
             strength, which means that characters with diacritics will sort 
             alongside characters that don't have diacritics (e.g. "o" = "ö" = "ŏ").
+            The work previously done in author_sort.xsl has been folded into this 
+            stylesheet.
       -->
     
+    <!--  IMPORTED STYLESHEETS  -->
     <xsl:import href="sidenavigation.xsl"/>
     <xsl:import href="topnavigation.xsl"/>
     <xsl:import href="footer.xsl"/>
@@ -33,11 +36,13 @@
     
     <xsl:output method="xhtml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
     
+    <!--  PARAMETERS  -->
     <xsl:param name="context"/>
     <xsl:param name="fpath"/>
     <xsl:param name="staticPublishingPath">
         <xsl:value-of select="'../../articles/'"/>
     </xsl:param>
+    
     
     <!--
       TEMPLATES, #default MODE
@@ -224,14 +229,8 @@
         <xsl:variable name="fileDesc" select="tei:teiHeader/tei:fileDesc"/>
         <xsl:variable name="vol"
           select="normalize-space($fileDesc/tei:publicationStmt/tei:idno[@type='volume'])"/>
-        <xsl:variable name="vol_no_zeroes">
-            <xsl:variable name="use_vol">
-              <xsl:call-template name="get-vol">
-                  <xsl:with-param name="vol" select="$vol"/>
-              </xsl:call-template>
-            </xsl:variable>
-            <xsl:value-of select="normalize-space($use_vol)"/>
-        </xsl:variable>
+        <xsl:variable name="vol_no_zeroes" 
+          select="dhqf:remove-leading-zeroes($vol) => normalize-space()"/>
         <xsl:variable name="issue"
           select="normalize-space($fileDesc/tei:publicationStmt/tei:idno[@type='issue'])"/>
         <xsl:variable name="articleId"
@@ -391,7 +390,10 @@
         <!-- If there's no value for $link-url and this <title> is NOT in English, we wrap the article 
           title in <span> so we can mark the language in use. We can't, however, link to the article.  -->
         <xsl:when test="empty($link-url)">
-          <span xml:lang="{$titleLang}" lang="{$titleLang}">
+          <span>
+            <xsl:call-template name="mark-used-language">
+              <xsl:with-param name="language-code" select="$titleLang"/>
+            </xsl:call-template>
             <xsl:apply-templates select="."/>
           </span>
         </xsl:when>
@@ -410,8 +412,9 @@
             <!-- If this <title> is not in English, we need to mark which language is in use, for 
               accessibility. -->
             <xsl:if test="not($thisTitleIsInEnglish)">
-              <xsl:attribute name="xml:lang" select="$titleLang"/>
-              <xsl:attribute name="lang" select="$titleLang"/>
+              <xsl:call-template name="mark-used-language">
+                <xsl:with-param name="language-code" select="$titleLang"/>
+              </xsl:call-template>
             </xsl:if>
             <xsl:apply-templates select="."/>
           </a>
@@ -419,22 +422,22 @@
       </xsl:choose>
     </xsl:template>
     
-    
-    <xsl:template name="get-vol">
-        <xsl:param name="vol"/>
-        <xsl:choose>
-            <xsl:when test="substring($vol,1,1) = '0'">
-                <xsl:call-template name="get-vol">
-                    <xsl:with-param name="vol">
-                        <xsl:value-of select="substring($vol,2)"/>
-                    </xsl:with-param>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$vol"/>
-            </xsl:otherwise>
-        </xsl:choose>
+    <!-- Create XHTML attributes @xml:lang and @lang to mark the language used. -->
+    <xsl:template name="mark-used-language">
+      <xsl:param name="language-code" as="xs:string" required="yes"/>
+      <xsl:if test="normalize-space($language-code) ne ''">
+        <xsl:attribute name="xml:lang" select="$language-code"/>
+        <xsl:attribute name="lang" select="$language-code"/>
+      </xsl:if>
     </xsl:template>
+    
+    
+    <!-- Remove leading zeroes from a volume or article number. 
+      (Previously a template named "get-vol".) -->
+    <xsl:function name="dhqf:remove-leading-zeroes">
+      <xsl:param name="number" as="xs:string"/>
+      <xsl:sequence select="replace(normalize-space($number), '^0+', '')"/>
+    </xsl:function>
     
     
     <!--
