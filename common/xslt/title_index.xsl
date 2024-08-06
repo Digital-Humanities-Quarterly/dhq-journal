@@ -1,19 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:tei="http://www.tei-c.org/ns/1.0"
-    xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"  
-    exclude-result-prefixes="tei dhq" version="1.0">
+    xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+    xmlns:dhqf="https://dhq.digitalhumanities.org/ns/functions"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    exclude-result-prefixes="#all" 
+    version="3.0">
+    
+    <!--
+        This stylesheet generates a webpage containing a list of all (public) 
+        articles in DHQ, sorted alphabetically by title. The stylesheet should be 
+        run on the DHQ table of contents, toc.xml .
+        
+        The other index-generating stylesheet is author_index.xsl .
+      -->
+    
+    
+    <xsl:output method="xhtml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
+    
+    <!--  IMPORTED STYLESHEETS  -->
+    <xsl:import href="common-components.xsl"/>
     <xsl:import href="sidenavigation.xsl"/>
     <xsl:import href="topnavigation.xsl"/>
     <xsl:import href="footer.xsl"/>
     <xsl:import href="head.xsl"/>
+    
+    <!--  PARAMETERS  -->
     <xsl:param name="context"/>
     <xsl:param name="fpath"/>
-    <xsl:param name="staticPublishingPath">
-        <xsl:value-of select="'../../articles/'"/>
-    </xsl:param>
+    <xsl:param name="staticPublishingPath" select="'../../articles/'"/>
     
+    
+    <!--
+      TEMPLATES, #default MODE
+      
+      Most of the stylesheet occurs in default mode. From the articles listed in the TOC, the articles' 
+      XML is used to generate a sequence of author entries. These entries are then made unique and 
+      comprehensive, and sorted to create the full XHTML index.
+      -->
+    
+    <!-- Suppressed elements. This stylesheet is mostly intentional in processing the specific elements 
+      desired, in the order we expect ("pull" processing). However, it is sometimes useful to process 
+      things in a "push" manner, where elements are processed in document order. When we switch to 
+      fall-through behavior, suppressing elements ensures we only get the content we really want. -->
+    <xsl:template match="journal//*" priority="-1"/>
+    <xsl:template match="dhq:authorInfo/dhq:address
+                        |dhq:authorInfo/tei:email
+                        |tei:teiHeader/tei:fileDesc/tei:publicationStmt"/>
+    
+    <!-- XHTML outer page structure -->
     <xsl:template match="/">
         <html>
             <!-- code to retrieve document title from the html file and pass it to the template -->
@@ -41,149 +78,153 @@
         </html>
     </xsl:template>
     
+    <!-- Generate the title index page's contents. -->
     <xsl:template name="index_main_body">
-        <div id="titleIndex">
-            <div id="titles">
-                <xsl:apply-templates select="//list|//cluster"/>
-            </div>
+      <!-- First, generate a <p> for each DHQ article's title(s). -->
+      <xsl:variable name="individualTitles" as="node()*">
+        <xsl:apply-templates select="//journal"/>
+      </xsl:variable>
+      <!-- Start generating XHTML for the main page content. -->
+      <div id="titleIndex">
+        <div id="titles">
+          <xsl:sequence select="$individualTitles"/>
         </div>
+      </div>
     </xsl:template>
     
-    <xsl:template match="list|cluster">
-        <xsl:for-each select="item[not(ancestor::journal/attribute::editorial)]">
-            <xsl:apply-templates select="document(concat($staticPublishingPath,@id,'/',@id,'.xml'))//tei:TEI"/>
-            <!--<xsl:message>
-                <xsl:value-of select="concat('file: ',$staticPublishingPath,@id,'/',@id,'.xml')"/>
-            </xsl:message>-->
-        </xsl:for-each>
+    <!-- Apply templates on the contents of <journal>, but pass on a tunneled parameter with the title 
+      of the issue, if one exists. -->
+    <xsl:template match="journal">
+      <xsl:apply-templates>
+        <xsl:with-param name="issueTitle" select="title/normalize-space(.)" tunnel="yes"/>
+      </xsl:apply-templates>
     </xsl:template>
     
+    <!-- Skip any items in the Internal Preview area of the TOC. -->
+    <xsl:template match="journal[@editorial]" priority="5"/>
+    
+    <!-- Open a listed article's XML and use the metadata in its <teiHeader> to generate HTML. -->
+    <xsl:template match="item">
+      <xsl:variable name="articlePath" select="concat($staticPublishingPath,@id,'/',@id,'.xml')"/>
+      <xsl:choose>
+        <xsl:when test="doc-available($articlePath)">
+          <xsl:apply-templates select="doc($articlePath)/tei:TEI"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:message select="'Could not find article '||@id||' at '||$articlePath"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
+    
+    <!-- Continue to apply templates on the content of <list>s and <cluster>s. -->
+    <xsl:template match="list | cluster">
+      <xsl:apply-templates/>
+    </xsl:template>
+    
+    <!-- This template is run on a singular DHQ article. -->
     <xsl:template match="tei:TEI">
-        <xsl:param name="vol"><xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume'])"/></xsl:param>
-        <xsl:param name="vol_no_zeroes">
-            <xsl:variable name="use_vol">
-              <xsl:call-template name="get-vol">
-                  <xsl:with-param name="vol" select="$vol"/>
-              </xsl:call-template>
-            </xsl:variable>
-            <xsl:value-of select="normalize-space($use_vol)"/>
+        <xsl:param name="issueTitle" as="xs:string?" tunnel="yes">
+          <!--<xsl:apply-templates select="document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes and @issue=$issue]/title"/>-->
         </xsl:param>
-        <xsl:param name="issue"><xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue'])"/></xsl:param>
-        <xsl:param name="id">
-            <xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id'])"/>
-        </xsl:param>
-        <xsl:param name="issueTitle"><xsl:apply-templates select="document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes and @issue=$issue]/title"/></xsl:param>
+        <xsl:variable name="fileDesc" select="tei:teiHeader/tei:fileDesc"/>
+        <xsl:variable name="vol" 
+          select="normalize-space($fileDesc/tei:publicationStmt/tei:idno[@type='volume'])"/>
+        <xsl:variable name="issue"
+          select="normalize-space($fileDesc/tei:publicationStmt/tei:idno[@type='issue'])"/>
+        <xsl:variable name="articleId" 
+          select="normalize-space($fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id'])"/>
+        <xsl:variable name="vol_no_zeroes" 
+          select="dhqf:remove-leading-zeroes($vol) => normalize-space()"/>
+        <!-- Try to generate a URL to use for this article. -->
+        <xsl:variable name="linkUrl" as="xs:string?">
+          <xsl:choose>
+            <xsl:when test="not($vol_no_zeroes = '') and not($issue = '')">
+              <xsl:sequence 
+                select="concat($path_to_home,'/vol/',$vol_no_zeroes,'/',$issue,'/',$articleId,'/',$articleId,'.html')"/>
+            </xsl:when>
+            <!-- If we don't have a usable volume or issue number, output a debugging message and do NOT 
+              generate a link. -->
+            <xsl:otherwise>
+              <xsl:message terminate="no">
+                <xsl:text>Article </xsl:text>
+                <xsl:value-of select="$articleId"/>
+                <xsl:text> has a volume of '</xsl:text>
+                <xsl:value-of select="$vol"/>
+                <xsl:text>' and an issue of '</xsl:text>
+                <xsl:value-of select="$issue"/>
+                <xsl:text>'</xsl:text>
+              </xsl:message>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
         
-        <xsl:for-each select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title">
-            <xsl:variable name="title">
-                <xsl:value-of select="normalize-space(.)"/>
-            </xsl:variable>
-            <!-- Stopwords filter from Jeni Tennison, http://www.stylusstudio.com/xsllist/200112/post10410.html -->
-            <xsl:variable name="lower">0123456789abcdefghijklmnopqrstuvwxyz</xsl:variable>
+        <xsl:for-each select="$fileDesc/tei:titleStmt/tei:title">
+          <xsl:variable name="title" as="node()*">
+            <xsl:variable name="hasTitleNotInEnglish" as="xs:boolean" 
+              select="exists($fileDesc/tei:titleStmt/tei:title[@xml:lang ne 'en'])"/>
+            <xsl:call-template name="get-article-title">
+              <xsl:with-param name="link-url" select="$linkUrl"/>
+              <xsl:with-param name="article-has-non-english-title" select="$hasTitleNotInEnglish"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <!-- Stopwords filter from Jeni Tennison, http://www.stylusstudio.com/xsllist/200112/post10410.html -->
+          <!--<xsl:variable name="lower">0123456789abcdefghijklmnopqrstuvwxyz</xsl:variable>
             <xsl:variable name="upper">0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
             <xsl:variable name="punctuation">[/\].,+-=*~@#$%^(){}`"“”'!?&amp;&lt;&gt;</xsl:variable>
             <xsl:variable name="stoplist" select="document('../../toc/stoplist.xml')/stoplist/ignore" />
             <xsl:variable name="string"><xsl:value-of select="substring(translate($title, $punctuation, ''),
-                string-length(
-                $stoplist[starts-with(
-                translate($title,
-                concat($lower, $punctuation),
-                $upper),
-                translate(., $lower, $upper))]) + 1)"/></xsl:variable>
-            <xsl:variable name="apos">'</xsl:variable>
-            <p>
-                <xsl:attribute name="class">title</xsl:attribute>
+            string-length(
+            $stoplist[starts-with(
+            translate($title,
+            concat($lower, $punctuation),
+            $upper),
+            translate(., $lower, $upper))]) + 1)"/></xsl:variable>-->
+          <xsl:variable name="apos">'</xsl:variable>
+          <p class="title" data-sort-key="{dhqf:make-sortable-key($title)}">
+            <xsl:sequence select="$title"/>
+            <xsl:text>, </xsl:text>
+            <xsl:value-of select="$issueTitle"/>
+            <xsl:text>: v</xsl:text>
+            <xsl:value-of select="$vol_no_zeroes"/>
+            <xsl:text> n</xsl:text>
+            <xsl:value-of select="$issue"/>
+            <div class="authors">
+              <xsl:for-each select="../dhq:authorInfo">
+                <xsl:value-of select="normalize-space(dhq:author_name)"/>
+                <xsl:if test="dhq:affiliation">
+                  <xsl:value-of select="', '"/>
+                </xsl:if>
+                <xsl:value-of select="normalize-space(dhq:affiliation)"/>
+                <xsl:if test="not(position() = last())">
+                  <xsl:value-of select="'; '"/>
+                </xsl:if>
+              </xsl:for-each>
+            </div>
+          </p>
+          <!-- Below is currently unused? -->
+          <xsl:if test="tei:text/tei:front/dhq:abstract/child::tei:p != ''">
+            <div class="viewAbstract">
+              <div style="display:inline">
                 <xsl:attribute name="id">
-                    <xsl:value-of select="translate($string,$upper,$lower)"/>
+                  <xsl:value-of select="concat('abstractExpanderabstract',$articleId)"/>
                 </xsl:attribute>
-                <xsl:choose>
-                    <xsl:when test="@xml:lang='en' or string-length(@xml:lang)=0">
-                        
-                        <xsl:if test="//tei:title/@xml:lang != 'en'">
-                            <span class="monospace">[en]</span>
-                        </xsl:if>
-                        <!--
-                        <span class="monospace">[en]</span>
-                        -->
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <span class="monospace">[<xsl:value-of select="@xml:lang"/>]</span>
-                    </xsl:otherwise>
-                </xsl:choose>
-                
-                <xsl:element name="a">
-                    <xsl:choose>
-                      <!-- If the article has no volume or issue information, do not include @href. -->
-                      <xsl:when test="$vol_no_zeroes = '' or $issue = ''">
-                        <xsl:message terminate="no">
-                          <xsl:text>Article </xsl:text>
-                          <xsl:value-of select="$id"/>
-                          <xsl:text> has a volume of '</xsl:text>
-                          <xsl:value-of select="$vol"/>
-                          <xsl:text>' and an issue of '</xsl:text>
-                          <xsl:value-of select="$issue"/>
-                          <xsl:text>'</xsl:text>
-                        </xsl:message>
-                        <!-- The attributes below are an inelegant hack to make sure that this link 
-                          appears not to be actionable. A better solution would be to just display the 
-                          text of the title instead, sans <a>. However, XSLT 1 and the need to 
-                          accommodate different languages makes this difficult to do at this time.
-                          See https://css-tricks.com/how-to-disable-links/ for more on "disabling" links. -->
-                        <xsl:attribute name="aria-disabled">true</xsl:attribute>
-                        <xsl:attribute name="style">color:currentColor;text-decoration:none;</xsl:attribute>
-                      </xsl:when>
-                      <xsl:otherwise>
-                        <xsl:attribute name="href">
-                          <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',$id,'.html')"/>
-                        </xsl:attribute>
-                      </xsl:otherwise>
-                    </xsl:choose>
-                    <xsl:if test="//tei:title/@xml:lang != 'en'">
-                        <xsl:attribute name="onclick">
-                            <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
-                        </xsl:attribute>
-                    </xsl:if>
-                    <xsl:apply-templates select="."/>
-                </xsl:element>
-                <xsl:text>, </xsl:text><xsl:value-of select="$issueTitle"/><xsl:text>: v</xsl:text><xsl:value-of select="$vol_no_zeroes"/><xsl:text> n</xsl:text><xsl:value-of select="$issue"/>
-                <div class="authors">
-                    <xsl:for-each select="../dhq:authorInfo">
-                        <xsl:value-of select="normalize-space(dhq:author_name)"/>
-                        <xsl:if test="dhq:affiliation">
-                            <xsl:value-of select="', '"/>
-                        </xsl:if>
-                        <xsl:value-of select="normalize-space(dhq:affiliation)"/>
-                        <xsl:if test="not(position() = last())">
-                            <xsl:value-of select="'; '"/>
-                        </xsl:if>
-                    </xsl:for-each>
-                </div>
-            </p>
-            <xsl:if test="tei:text/tei:front/dhq:abstract/child::tei:p != ''">
-                <div class="viewAbstract">
-                    <div style="display:inline">
-                        <xsl:attribute name="id">
-                            <xsl:value-of select="concat('abstractExpanderabstract',$id)"/>
-                        </xsl:attribute>
-                        <a title="View Abstract" class="expandCollapse">
-                            <xsl:attribute name="href">
-                                <xsl:value-of
-                                    select="concat('javascript:expandAbstract(',$apos,'abstract',$id,$apos,')')"/>
-                            </xsl:attribute>
-                            <xsl:value-of select="'[+] '"/>
-                        </a>
-                        <xsl:text>View Abstract</xsl:text>
-                        
-                    </div>
-                    
-                </div>
-                <div style="display:none" class="abstract">
-                    <xsl:attribute name="id">
-                        <xsl:value-of select="concat('abstract',$id)"/>
-                    </xsl:attribute>
-                    <xsl:apply-templates select="tei:text/tei:front/dhq:abstract"/>
-                </div>
-            </xsl:if>
+                <a title="View Abstract" class="expandCollapse">
+                  <xsl:attribute name="href">
+                    <xsl:value-of
+                      select="concat('javascript:expandAbstract(',$apos,'abstract',$articleId,$apos,')')"/>
+                  </xsl:attribute>
+                  <xsl:value-of select="'[+] '"/>
+                </a>
+                <xsl:text>View Abstract</xsl:text>
+              </div>
+            </div>
+            <div style="display:none" class="abstract">
+              <xsl:attribute name="id">
+                <xsl:value-of select="concat('abstract',$articleId)"/>
+              </xsl:attribute>
+              <xsl:apply-templates select="tei:text/tei:front/dhq:abstract"/>
+            </div>
+          </xsl:if>
         </xsl:for-each>
     </xsl:template>
     
@@ -197,22 +238,5 @@
     <xsl:template match="dhq:authorInfo/dhq:affiliation">
         <xsl:value-of select="normalize-space(.)"/>
     </xsl:template>
-    
-    <xsl:template match="dhq:authorInfo/dhq:address|dhq:authorInfo/tei:email|tei:teiHeader/tei:fileDesc/tei:publicationStmt"/>
-    
-    <xsl:template name="get-vol">
-        <xsl:param name="vol"/>
-        <xsl:choose>
-            <xsl:when test="substring($vol,1,1) = '0'">
-                <xsl:call-template name="get-vol">
-                    <xsl:with-param name="vol">
-                        <xsl:value-of select="substring($vol,2)"/>
-                    </xsl:with-param>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$vol"/>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
+  
 </xsl:stylesheet>
