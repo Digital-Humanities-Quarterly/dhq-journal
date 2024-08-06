@@ -332,6 +332,49 @@
       <xsl:apply-templates/>
     </xsl:template>
     
+    <!-- Output quotation marks inside an article title. -->
+    <xsl:template match="tei:titleStmt/tei:title//tei:q 
+                       | tei:titleStmt/tei:title//tei:*[@rend eq 'quotes']" priority="2">
+      <xsl:variable name="quotePair" select="dhqf:get-quotes(.)"/>
+      <xsl:value-of select="$quotePair[1]"/>
+      <xsl:apply-templates mode="#current"/>
+      <xsl:value-of select="$quotePair[2]"/>
+    </xsl:template>
+    
+    <!-- Mark a change of language within an article title. -->
+    <xsl:template match="tei:titleStmt/tei:title//tei:*[@xml:lang]" priority="3">
+      <span>
+        <xsl:call-template name="mark-used-language">
+          <xsl:with-param name="language-code" select="@xml:lang"/>
+        </xsl:call-template>
+        <!-- When an element triggers both quotation marks and a language change, we want this template 
+          to trigger first, then the template that will introduce quotation marks. -->
+        <xsl:next-match/>
+      </span>
+    </xsl:template>
+    
+    <!-- Output text nodes within an article title. Any whitespace at the end of the last descendant 
+      text node is removed. -->
+    <xsl:template match="tei:titleStmt/tei:title//text()">
+      <xsl:choose>
+        <!-- If this text node has a following sibling text node, we don't need to do any calculations. 
+          We can just output the node as-is. -->
+        <xsl:when test="following-sibling::text()">
+          <xsl:value-of select="."/>
+        </xsl:when>
+        <!-- If there is no following sibling text node, we need to check if this text node is the last 
+          one inside the article's <title>. If so, we remove whitespace from the end of the node. (If 
+          this text node is all whitespace, <xsl:value-of> will output an empty string.) -->
+        <xsl:otherwise>
+          <xsl:variable name="titleTextNodes" 
+            select="ancestor::tei:title[parent::tei:titleStmt]//text()"/>
+          <xsl:value-of select="if ( . is $titleTextNodes[last()] ) then
+                                  replace(., '\s+$', '')
+                                else ."/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
+    
     
     <xsl:template name="get-article-title">
       <!-- The URL to use for this article. -->

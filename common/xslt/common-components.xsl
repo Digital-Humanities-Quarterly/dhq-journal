@@ -46,6 +46,51 @@
    -->
   
   
+  <!-- Returns a pair of quote marks appropriate to the language and nesting level.
+    This function was originally dhq:quotes() in dhq2html.xsl. -->
+  <xsl:function name="dhqf:get-quotes" as="xs:string+">
+    <xsl:param name="who" as="node()"/>
+    <!-- $langspec is either $who's nearest ancestor w/ xml:lang, or the root element if no @xml:lang is found.
+         The point of $langspec is *only* to determine the scope of counting levels. -->
+    <xsl:variable name="langspec" select="$who/ancestor-or-self::*[exists(@xml:lang)][last()]"/>
+    <!-- $nominal-lang is the value of xml:lang given ('fr','de','jp' etc etc.) or 'en' if none is found (with deference) -->
+    <xsl:variable name="nominal-lang" select="if (exists($langspec)) then ($langspec/@xml:lang) else 'en'"/>
+    
+    <!-- $levels are counted among (inline) ancestors that 'toggle' quotes. -->
+    <!-- An intervening $langspec has the effect of turning levels off. So a French quote inside an English
+         quote restarts with guillemets, while an English quote inside French restarts with double quote. -->
+    <!-- Note in this implementation, we exploit the overlapping requirement between French and English to optimize.
+         More languages may require more logic. -->
+    
+    <!--tei:quote[@rend = 'inline']|tei:called|tei:title[@rend = 'quotes']|tei:q|tei:said|tei:soCalled-->
+    <xsl:variable name="scope" select="($langspec | $who/ancestor-or-self::tei:note)[last()]"/>
+    <xsl:variable name="levels" select="$who/( ancestor::tei:quote[@rend eq 'inline']
+                                             | ancestor::tei:called
+                                             | ancestor::soCalled
+                                             | ancestor::tei:q
+                                             | ancestor::said
+                                             | ancestor::tei:title[@rend eq 'quotes']
+                                             )[ancestor-or-self::* intersect $scope]"/>
+    <!-- $level-count is 0 for an outermost quote; we increment it unless the language is French -->
+    <xsl:variable name="level-count" select="count($levels) + (if (starts-with($nominal-lang,'fr')) then 0 else 1) "/>
+    <!-- Now level 0 gets guillemet, while odd-numbered levels get double quotes -->
+    <xsl:choose>
+      <!-- Note we emit pairs of xsl:text b/c we actually want discrete strings, returning a pair -->
+      <xsl:when test="$level-count = 0">
+        <xsl:text>«</xsl:text>
+        <xsl:text>»</xsl:text>
+      </xsl:when>
+      <xsl:when test="$level-count mod 2 (: odds :)">
+        <xsl:text>“</xsl:text>
+        <xsl:text>”</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>‘</xsl:text>
+        <xsl:text>’</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
   <!-- Given 1+ string(s), create a single string that can be used as an HTML identifier as well as a 
     sort key. -->
   <xsl:function name="dhqf:make-sortable-key" as="xs:string?">
