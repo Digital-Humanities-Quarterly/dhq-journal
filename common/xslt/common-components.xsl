@@ -39,6 +39,85 @@
     </xsl:if>
   </xsl:template>
   
+  <!-- Create a version of the article title suitable for XHTML display. The title is wrapped in an <a> 
+    if a link URL is passed in, or if it can be generated from the article metadata. Languages are 
+    marked visually and with the appropriate attributes.
+    This template is intended to be run from `//titleStmt/title`; for example, as part of a 
+    <xsl:for-each>. If called from elsewhere, you should pass in the $title-element manually.
+  -->
+  <!-- This template (and those in "dhq-article-title" mode) were taken from the revised author_index.xsl -->
+  <xsl:template name="get-article-title">
+    <xsl:param name="title-element" select=".[self::tei:title]" as="node()"/>
+    <!-- The URL to use for this article. -->
+    <xsl:param name="link-url" as="xs:string?"/>
+    <!-- Whether the article has any title that isn't in English. A default value is set here, but we 
+      can save a bit of processing by using a value calculated once at the <TEI> level, instead of 
+      calculating per `//fileDesc/titleStmt/title`. -->
+    <xsl:param name="article-has-non-english-title" as="xs:boolean" 
+      select="exists($title-element/../tei:title/@xml:lang[. ne 'en'])"/>
+    <xsl:if test="empty($title-element[self::tei:title[parent::tei:titleStmt]])">
+      <xsl:message terminate="yes"
+        select="'Template get-article-title should have access to a `//titleStmt/title`!'"/>
+    </xsl:if>
+    <xsl:variable name="titleLang" select="data($title-element/@xml:lang)"/>
+    <xsl:variable name="thisTitleIsInEnglish" as="xs:boolean" 
+      select="$titleLang eq 'en' or string-length($titleLang) eq 0"/>
+    <!-- Add any language indicators for this <title>. If this title is in English, we only say so if 
+      the article also has a title that is NOT in English. -->
+    <xsl:choose>
+      <xsl:when test="$thisTitleIsInEnglish and $article-has-non-english-title">
+        <span class="monospace">[en]</span>
+        <xsl:text> </xsl:text>
+      </xsl:when>
+      <xsl:when test="$thisTitleIsInEnglish">
+        <!--<span class="monospace">[en]</span>-->
+      </xsl:when>
+      <xsl:otherwise>
+        <span class="monospace">[<xsl:value-of select="$titleLang"/>]</span>
+        <xsl:text> </xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:choose>
+      <!-- If there's no value for $link-url and this <title> is in English, process the element as 
+        plaintext. -->
+      <xsl:when test="empty($link-url) and $thisTitleIsInEnglish">
+        <xsl:apply-templates select="." mode="dhq-article-title"/>
+      </xsl:when>
+      <!-- If there's no value for $link-url and this <title> is NOT in English, we wrap the article 
+        title in <span> so we can mark the language in use. We can't, however, link to the article.  -->
+      <xsl:when test="empty($link-url)">
+        <span>
+          <xsl:call-template name="mark-used-language">
+            <xsl:with-param name="language-code" select="$titleLang"/>
+          </xsl:call-template>
+          <xsl:apply-templates select="$title-element" mode="dhq-article-title"/>
+        </span>
+      </xsl:when>
+      <!-- If there's a URL we can use, output an HTML <a> for navigation. -->
+      <xsl:otherwise>
+        <a href="{$link-url}">
+          <!-- If there is a non-English language title in this article, include some Javascript to 
+            set the user's page language in localStorage on click (?) -->
+          <xsl:if test="$article-has-non-english-title">
+            <xsl:attribute name="onclick">
+              <xsl:text>localStorage.setItem('pagelang', '</xsl:text>
+              <xsl:value-of select="$titleLang"/>
+              <xsl:text>');</xsl:text>
+            </xsl:attribute>
+          </xsl:if>
+          <!-- If this <title> is not in English, we need to mark which language is in use, for 
+            accessibility. -->
+          <xsl:if test="not($thisTitleIsInEnglish)">
+            <xsl:call-template name="mark-used-language">
+              <xsl:with-param name="language-code" select="$titleLang"/>
+            </xsl:call-template>
+          </xsl:if>
+          <xsl:apply-templates select="$title-element" mode="dhq-article-title"/>
+        </a>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
   
   
  <!--
@@ -120,5 +199,60 @@
     <xsl:param name="number" as="xs:string"/>
     <xsl:sequence select="replace(normalize-space($number), '^0+', '')"/>
   </xsl:function>
+  
+  
+  
+  <!--
+      SUPPORT TEMPLATES
+    -->
+  
+
+  <xsl:template match="tei:titleStmt/tei:title | tei:titleStmt/tei:title//*" mode="dhq-article-title">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  <!-- Output quotation marks inside an article title. -->
+  <xsl:template match="tei:titleStmt/tei:title//tei:q 
+                     | tei:titleStmt/tei:title//tei:*[@rend eq 'quotes']" priority="2" mode="dhq-article-title">
+    <xsl:variable name="quotePair" select="dhqf:get-quotes(.)"/>
+    <xsl:value-of select="$quotePair[1]"/>
+    <xsl:apply-templates mode="#current"/>
+    <xsl:value-of select="$quotePair[2]"/>
+  </xsl:template>
+  
+  <!-- Mark a change of language within an article title. -->
+  <xsl:template match="tei:titleStmt/tei:title//tei:*[@xml:lang]" priority="3" mode="dhq-article-title">
+    <span>
+      <xsl:call-template name="mark-used-language">
+        <xsl:with-param name="language-code" select="@xml:lang"/>
+      </xsl:call-template>
+      <!-- When an element triggers both quotation marks and a language change, we want this template 
+        to trigger first, then the template that will introduce quotation marks. -->
+      <xsl:next-match/>
+    </span>
+  </xsl:template>
+  
+  <!-- Output text nodes within an article title. Any whitespace at the end of the last descendant 
+    text node is removed. -->
+  <xsl:template match="tei:titleStmt/tei:title//text()" mode="dhq-article-title">
+    <xsl:choose>
+      <!-- If this text node has a following sibling text node, we don't need to do any calculations. 
+        We can just output the node as-is. -->
+      <xsl:when test="following-sibling::text()">
+        <xsl:value-of select="."/>
+      </xsl:when>
+      <!-- If there is no following sibling text node, we need to check if this text node is the last 
+        one inside the article's <title>. If so, we remove whitespace from the end of the node. (If 
+        this text node is all whitespace, <xsl:value-of> will output an empty string.) -->
+      <xsl:otherwise>
+        <xsl:variable name="titleTextNodes" 
+          select="ancestor::tei:title[parent::tei:titleStmt]//text()"/>
+        <xsl:value-of select="if ( . is $titleTextNodes[last()] ) then
+                                replace(., '\s+$', '')
+                              else ."/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
   
 </xsl:stylesheet>

@@ -28,6 +28,9 @@
             stylesheet.
       -->
     
+    
+    <xsl:output method="xhtml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
+    
     <!--  IMPORTED STYLESHEETS  -->
     <xsl:import href="common-components.xsl"/>
     <xsl:import href="sidenavigation.xsl"/>
@@ -35,14 +38,10 @@
     <xsl:import href="footer.xsl"/>
     <xsl:import href="head.xsl"/>
     
-    <xsl:output method="xhtml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
-    
     <!--  PARAMETERS  -->
     <xsl:param name="context"/>
     <xsl:param name="fpath"/>
-    <xsl:param name="staticPublishingPath">
-        <xsl:value-of select="'../../articles/'"/>
-    </xsl:param>
+    <xsl:param name="staticPublishingPath" select="'../../articles/'"/>
     
     
     <!--
@@ -326,121 +325,6 @@
           <xsl:value-of select="normalize-space(.)"/>
         </span>
       </xsl:if>
-    </xsl:template>
-    
-    <xsl:template match="tei:titleStmt/tei:title | tei:titleStmt/tei:title//*">
-      <xsl:apply-templates/>
-    </xsl:template>
-    
-    <!-- Output quotation marks inside an article title. -->
-    <xsl:template match="tei:titleStmt/tei:title//tei:q 
-                       | tei:titleStmt/tei:title//tei:*[@rend eq 'quotes']" priority="2">
-      <xsl:variable name="quotePair" select="dhqf:get-quotes(.)"/>
-      <xsl:value-of select="$quotePair[1]"/>
-      <xsl:apply-templates mode="#current"/>
-      <xsl:value-of select="$quotePair[2]"/>
-    </xsl:template>
-    
-    <!-- Mark a change of language within an article title. -->
-    <xsl:template match="tei:titleStmt/tei:title//tei:*[@xml:lang]" priority="3">
-      <span>
-        <xsl:call-template name="mark-used-language">
-          <xsl:with-param name="language-code" select="@xml:lang"/>
-        </xsl:call-template>
-        <!-- When an element triggers both quotation marks and a language change, we want this template 
-          to trigger first, then the template that will introduce quotation marks. -->
-        <xsl:next-match/>
-      </span>
-    </xsl:template>
-    
-    <!-- Output text nodes within an article title. Any whitespace at the end of the last descendant 
-      text node is removed. -->
-    <xsl:template match="tei:titleStmt/tei:title//text()">
-      <xsl:choose>
-        <!-- If this text node has a following sibling text node, we don't need to do any calculations. 
-          We can just output the node as-is. -->
-        <xsl:when test="following-sibling::text()">
-          <xsl:value-of select="."/>
-        </xsl:when>
-        <!-- If there is no following sibling text node, we need to check if this text node is the last 
-          one inside the article's <title>. If so, we remove whitespace from the end of the node. (If 
-          this text node is all whitespace, <xsl:value-of> will output an empty string.) -->
-        <xsl:otherwise>
-          <xsl:variable name="titleTextNodes" 
-            select="ancestor::tei:title[parent::tei:titleStmt]//text()"/>
-          <xsl:value-of select="if ( . is $titleTextNodes[last()] ) then
-                                  replace(., '\s+$', '')
-                                else ."/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:template>
-    
-    
-    <xsl:template name="get-article-title">
-      <!-- The URL to use for this article. -->
-      <xsl:param name="link-url" as="xs:string?"/>
-      <!-- Whether the article has any title that isn't in English. A default value is set here, but we 
-        can save a bit of processing by using a value calculated once at the <TEI> level, instead of 
-        calculating per `//fileDesc/titleStmt/title`. -->
-      <xsl:param name="article-has-non-english-title" as="xs:boolean" 
-        select="exists(../tei:title/@xml:lang != 'en')"/>
-      <xsl:variable name="titleLang" select="data(@xml:lang)"/>
-      <xsl:variable name="thisTitleIsInEnglish" as="xs:boolean" 
-        select="@xml:lang='en' or string-length(@xml:lang)=0"/>
-      <!-- Add any language indicators for this <title>. If this title is in English, we only say so if 
-        the article also has a title that is NOT in English. -->
-      <xsl:choose>
-        <xsl:when test="$thisTitleIsInEnglish and $article-has-non-english-title">
-          <span class="monospace">[en]</span>
-          <xsl:text> </xsl:text>
-        </xsl:when>
-        <xsl:when test="$thisTitleIsInEnglish">
-          <!--<span class="monospace">[en]</span>-->
-        </xsl:when>
-        <xsl:otherwise>
-          <span class="monospace">[<xsl:value-of select="$titleLang"/>]</span>
-          <xsl:text> </xsl:text>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:choose>
-        <!-- If there's no value for $link-url and this <title> is in English, process the element as 
-          plaintext. -->
-        <xsl:when test="empty($link-url) and $thisTitleIsInEnglish">
-          <xsl:apply-templates select="."/>
-        </xsl:when>
-        <!-- If there's no value for $link-url and this <title> is NOT in English, we wrap the article 
-          title in <span> so we can mark the language in use. We can't, however, link to the article.  -->
-        <xsl:when test="empty($link-url)">
-          <span>
-            <xsl:call-template name="mark-used-language">
-              <xsl:with-param name="language-code" select="$titleLang"/>
-            </xsl:call-template>
-            <xsl:apply-templates select="."/>
-          </span>
-        </xsl:when>
-        <!-- If there's a URL we can use, output an HTML <a> for navigation. -->
-        <xsl:otherwise>
-          <a href="{$link-url}">
-            <!-- If there is a non-English language title in this article, include some Javascript to 
-              set the user's page language in localStorage on click (?) -->
-            <xsl:if test="$article-has-non-english-title">
-              <xsl:attribute name="onclick">
-                <xsl:text>localStorage.setItem('pagelang', '</xsl:text>
-                <xsl:value-of select="@xml:lang"/>
-                <xsl:text>');</xsl:text>
-              </xsl:attribute>
-            </xsl:if>
-            <!-- If this <title> is not in English, we need to mark which language is in use, for 
-              accessibility. -->
-            <xsl:if test="not($thisTitleIsInEnglish)">
-              <xsl:call-template name="mark-used-language">
-                <xsl:with-param name="language-code" select="$titleLang"/>
-              </xsl:call-template>
-            </xsl:if>
-            <xsl:apply-templates select="."/>
-          </a>
-        </xsl:otherwise>
-      </xsl:choose>
     </xsl:template>
     
     
