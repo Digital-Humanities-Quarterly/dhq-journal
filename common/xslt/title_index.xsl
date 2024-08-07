@@ -99,6 +99,11 @@
     
     <!-- Generate the title index page's contents. -->
     <xsl:template name="index_main_body">
+      <!-- Test that dhqf:remove-leading-stopwords() works when the first significant child has the @xml:lang. -->
+      <xsl:variable name="testTitle" as="element()">
+        <tei:title xml:lang="en"><tei:q xml:lang="es">La luz es tiempo</tei:q>: Acevedo's <tei:title rend="quotes">Exquisite cadaver</tei:title></tei:title>
+      </xsl:variable>
+      <xsl:message select="dhqf:remove-leading-stopwords($testTitle, ())"/>
       <!-- First, generate a <p> for each DHQ article's title(s). -->
       <xsl:variable name="individualTitles" as="node()*">
         <xsl:apply-templates select="//journal"/>
@@ -168,7 +173,7 @@
             </xsl:call-template>
           </xsl:variable>
           <xsl:variable name="sortTitle" 
-            select="dhqf:remove-leading-stopwords(xs:string(.), @xml:lang/data(.))
+            select="dhqf:remove-leading-stopwords(., @xml:lang/data(.))
                     => dhqf:make-sortable-key()"/>
           <xsl:variable name="apos">'</xsl:variable>
           <p class="title" data-sort-key="{$sortTitle}">
@@ -235,14 +240,26 @@
       FUNCTIONS
     -->
     
-    <!-- Given a string and a language code, produce a version of the string suitable for sorting, by 
+    <!-- Given an element and a language code, produce a version of the string suitable for sorting, by
       lower-casing it, normalizing its whitespace, and finally, removing its leading stopwords. -->
     <xsl:function name="dhqf:remove-leading-stopwords" as="xs:string">
-      <xsl:param name="string" as="xs:string"/>
+      <xsl:param name="element" as="node()"/>
       <xsl:param name="language-code" as="xs:string?"/>
-      <!-- If $language-code isn't provided, fallback on English. -->
-      <xsl:variable name="useLang" select="($language-code, 'en')[1]"/>
+      <!-- If $language-code isn't provided, fallback on any @xml:lang on $element, then on English. -->
+      <xsl:variable name="useLang" select="($language-code, $element/@xml:lang/data(.), 'en')[1]"/>
+      <!-- If $element's first child with non-whitespace content is an element with @xml:lang on it, 
+        we'll need to run this function on that element instead. -->
+      <xsl:variable name="childWithLang" 
+        select="$element/node()[normalize-space(.) ne ''][1][self::*][@xml:lang]"/>
+      <xsl:variable name="string" select="xs:string($element)" as="xs:string"/>
       <xsl:choose>
+        <!-- If $childWithLang exists, run this function on that element, and concatenate the result 
+          with the rest of $element. -->
+        <xsl:when test="exists($childWithLang)">
+          <xsl:sequence 
+              select="dhqf:remove-leading-stopwords($childWithLang, $childWithLang/@xml:lang/data(.))
+                      || string-join($childWithLang/following-sibling::node(), '')"/>
+        </xsl:when>
         <!-- If the provided language code matches one of those in $stopword-map, we have stopwords that 
           may be removed from the beginning of the input string. -->
         <xsl:when test="$language-code = map:keys($stopword-map)">
