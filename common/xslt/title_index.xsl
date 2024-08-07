@@ -15,7 +15,22 @@
         articles in DHQ, sorted alphabetically by title. The stylesheet should be 
         run on the DHQ table of contents, toc.xml .
         
-        The other index-generating stylesheet is author_index.xsl .
+        The other index-generating stylesheet is author_index.xsl . Both stylesheets 
+        share a lot of similar code. If you make a change in one, you should check
+        if the change would be revelant in the other stylesheet.
+        
+        CHANGES:
+          2024-08, Ash: Updated to XSLT 3.0 from 1.0, and refactored the stylesheet 
+            for readability and maintainability. The navigation bar was changed from
+            a table to a list inside <nav>, with ARIA labels for accessibility. 
+            Article titles' languages are now marked with @xml:lang and @lang. 
+            Titles are now sorted with the Unicode Collation Algorithm at primary 
+            strength, which means that characters with diacritics will sort 
+            alongside characters that don't have diacritics (e.g. "o" = "ö" = "ŏ").
+            Also, stopwords for Spanish, Portuguese, French, and German are removed 
+            from each title's sort key (depending on the relevant @xml:lang). The 
+            work previously done in title_sort.xsl has been folded into this 
+            stylesheet.
       -->
     
     
@@ -119,7 +134,27 @@
         <h1>Title Index</h1>
         <!-- Create a navigation bar to skip directly to authors whose names start with a given letter. -->
         <nav id="a2zNavigation" class="index-navbar" role="navigation" aria-label="Titles Navigation">
-          
+          <ul>
+            <!-- For each letter, make sure there are articles associated with that letter. If so, wrap 
+              the letter in an <a>; if not, output the letter as plaintext. -->
+            <xsl:for-each select="1 to 26">
+              <xsl:variable name="alphabet" select="'abcdefghijklmnopqrstuvwxyz'"/>
+              <xsl:variable name="letter" select="substring($alphabet, ., 1)"/>
+              <li>
+                <xsl:choose>
+                  <xsl:when test="exists($uniqueTitles[matches(@data-sort-key, '^'||$letter)])">
+                    <a id="{$letter}_nav" href="#{$letter}_titles" 
+                       aria-label="Titles starting with {$letter}">
+                      <xsl:value-of select="upper-case($letter)"/>
+                    </a>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="upper-case($letter)"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </li>
+            </xsl:for-each>
+          </ul>
         </nav>
         <div id="titles">
           <!-- Now, group and sort the XHTML $individualTitles so the index can be navigated 
@@ -130,8 +165,8 @@
               the top, before any headings. -->
             <xsl:sort select="matches(current-grouping-key(), '[a-z]')" collation="{$sort-collation}"/>
             <xsl:variable name="letter" select="current-grouping-key()"/>
-            <!-- This group only gets a heading if $letter is actually a letter, and NOT, say, an 
-              underscore. -->
+            <!-- This group only gets a heading if $letter is a Latin letter corresponding to a link in 
+              the index navbar. -->
             <xsl:if test="matches($letter, '[a-z]')">
               <!-- The link needs an ARIA label because the letter alone isn't descriptive of where the 
                 link goes. However, the link's ARIA label will be used as the heading's label as well, 

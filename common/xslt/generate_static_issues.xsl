@@ -400,10 +400,6 @@
       </xsl:map>
     </xsl:variable>
     <xsl:result-document href="{$static-dir||'/index/title.html'}">
-      <!--<xsl:call-template name="transform-with-sorting">
-        <xsl:with-param name="transform-1-map" select="$titles-index-map" as="map(*)"/>
-        <xsl:with-param name="transform-2-xsl-filename" select="'title_sort.xsl'"/>
-      </xsl:call-template>-->
       <xsl:sequence select="transform( $titles-index-map )?output"/>
     </xsl:result-document>
     <!-- Generate the index of all DHQ contributors. -->
