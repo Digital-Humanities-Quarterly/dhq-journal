@@ -126,6 +126,9 @@
             alphabetically by letter. -->
           <xsl:for-each-group select="$uniqueTitles" group-by="substring(@data-sort-key, 1, 1)" 
              collation="{$sort-collation}">
+            <!-- Make sure that articles starting with letters that aren't the Latin A to Z appear at 
+              the top, before any headings. -->
+            <xsl:sort select="matches(current-grouping-key(), '[a-z]')" collation="{$sort-collation}"/>
             <xsl:variable name="letter" select="current-grouping-key()"/>
             <!-- This group only gets a heading if $letter is actually a letter, and NOT, say, an 
               underscore. -->
