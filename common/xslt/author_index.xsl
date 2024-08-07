@@ -213,27 +213,8 @@
         <xsl:variable name="articleId"
           select="normalize-space($fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id'])"/>
         <!-- Try to generate a URL to use for this article. -->
-        <xsl:variable name="linkUrl" as="xs:string?">
-          <xsl:choose>
-            <xsl:when test="not($vol_no_zeroes = '') and not($issue = '')">
-              <xsl:sequence 
-                select="concat($path_to_home,'/vol/',$vol_no_zeroes,'/',$issue,'/',$articleId,'/',$articleId,'.html')"/>
-            </xsl:when>
-            <!-- If we don't have a usable volume or issue number, output a debugging message and do NOT 
-              generate a link. -->
-            <xsl:otherwise>
-              <xsl:message terminate="no">
-                <xsl:text>Article </xsl:text>
-                <xsl:value-of select="$articleId"/>
-                <xsl:text> has a volume of '</xsl:text>
-                <xsl:value-of select="$vol"/>
-                <xsl:text>' and an issue of '</xsl:text>
-                <xsl:value-of select="$issue"/>
-                <xsl:text>'</xsl:text>
-              </xsl:message>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
+        <xsl:variable name="linkUrl" as="xs:string?" 
+          select="dhqf:link-to-article($articleId, $vol, $issue)"/>
         <!-- Generate the text description of this article. It will be reproduced for each author. -->
         <xsl:variable name="articleTitles" as="node()*">
           <xsl:variable name="hasTitleNotInEnglish" as="xs:boolean" 

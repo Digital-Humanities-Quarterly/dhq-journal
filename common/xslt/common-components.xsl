@@ -16,6 +16,12 @@
     Initially compiled by Ash Clark in 2024.
   -->
   
+  <!--  PARAMETERS  -->
+  
+  <!-- The relative path from the webpage to the DHQ home directory. -->
+  <xsl:param name="path_to_home" select="'.'" as="xs:string"/>
+  
+  
  <!--
       GLOBAL VARIABLES
    -->
@@ -166,6 +172,37 @@
       <xsl:otherwise>
         <xsl:text>‘</xsl:text>
         <xsl:text>’</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
+  <!-- Given a volume, issue, and article number, generate a link to an article. This function uses the 
+    value of the $path_to_home parameter to return to the DHQ home directory. -->
+  <xsl:function name="dhqf:link-to-article" as="xs:string?">
+    <!-- The article ID is placed first because there could be a use for a 1-parameter version of this 
+      function which generates a link using information from the TOC. -->
+    <xsl:param name="article-id" as="xs:string"/>
+    <xsl:param name="volume" as="xs:string?"/>
+    <xsl:param name="issue" as="xs:string?"/>
+    <xsl:choose>
+      <!-- If we don't have a usable volume or issue number, output a debugging message and do NOT 
+        generate a link. -->
+      <xsl:when test="empty($volume) or normalize-space($volume) eq ''
+                    or empty($issue) or normalize-space($issue) eq ''">
+        <xsl:message terminate="no">
+          <xsl:text>Article </xsl:text>
+          <xsl:value-of select="$article-id"/>
+          <xsl:text> has a volume of '</xsl:text>
+          <xsl:value-of select="$volume"/>
+          <xsl:text>' and an issue of '</xsl:text>
+          <xsl:value-of select="$issue"/>
+          <xsl:text>'</xsl:text>
+        </xsl:message>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="vol_no_zeroes" select="dhqf:remove-leading-zeroes($volume)"/>
+        <xsl:sequence 
+          select="concat($path_to_home,'/vol/',$vol_no_zeroes,'/',$issue,'/',$article-id,'/',$article-id,'.html')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>

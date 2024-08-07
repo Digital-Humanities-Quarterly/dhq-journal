@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:map="http://www.w3.org/2005/xpath-functions/map"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:tei="http://www.tei-c.org/ns/1.0"
@@ -31,6 +32,24 @@
     <xsl:param name="context"/>
     <xsl:param name="fpath"/>
     <xsl:param name="staticPublishingPath" select="'../../articles/'"/>
+    
+    <!--  GLOBAL VARIABLES  -->
+    <!-- Lower-cased words which, for sorting purposes, should be removed from the beginning of titles. 
+      If the stopword is a full word, add a space after it. Articles like "l'" should have no space 
+      after. -->
+    <xsl:variable name="stopword-map" as="map(*)">
+      <xsl:variable name="apos" as="xs:string">'</xsl:variable>
+      <xsl:sequence select="map {
+                              'de': ( 'der ', 'die ', 'das ', 'ein ', 'eine ' ),
+                              'en': ( 'the ', 'an ', 'a ' ),
+                              'es': ( 'el ', 'la ', 'los ', 'las ', 
+                                      'un ', 'una ', 'unos ', 'unas ' ),
+                              'fr': ( 'le ', 'la ', 'l'||$apos, 'les ', 
+                                      'un ', 'une ', 'des ' ),
+                              'pt': ( 'o ', 'a ', 'os ', 'as ',
+                                      'um ', 'uma ', 'uns', 'umas ' )
+                            }"/>
+    </xsl:variable>
     
     
     <!--
@@ -136,27 +155,8 @@
         <xsl:variable name="vol_no_zeroes" 
           select="dhqf:remove-leading-zeroes($vol) => normalize-space()"/>
         <!-- Try to generate a URL to use for this article. -->
-        <xsl:variable name="linkUrl" as="xs:string?">
-          <xsl:choose>
-            <xsl:when test="not($vol_no_zeroes = '') and not($issue = '')">
-              <xsl:sequence 
-                select="concat($path_to_home,'/vol/',$vol_no_zeroes,'/',$issue,'/',$articleId,'/',$articleId,'.html')"/>
-            </xsl:when>
-            <!-- If we don't have a usable volume or issue number, output a debugging message and do NOT 
-              generate a link. -->
-            <xsl:otherwise>
-              <xsl:message terminate="no">
-                <xsl:text>Article </xsl:text>
-                <xsl:value-of select="$articleId"/>
-                <xsl:text> has a volume of '</xsl:text>
-                <xsl:value-of select="$vol"/>
-                <xsl:text>' and an issue of '</xsl:text>
-                <xsl:value-of select="$issue"/>
-                <xsl:text>'</xsl:text>
-              </xsl:message>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
+        <xsl:variable name="linkUrl" as="xs:string?" 
+          select="dhqf:link-to-article($articleId, $vol, $issue)"/>
         
         <xsl:for-each select="$fileDesc/tei:titleStmt/tei:title">
           <xsl:variable name="title" as="node()*">
@@ -167,20 +167,11 @@
               <xsl:with-param name="article-has-non-english-title" select="$hasTitleNotInEnglish"/>
             </xsl:call-template>
           </xsl:variable>
-          <!-- Stopwords filter from Jeni Tennison, http://www.stylusstudio.com/xsllist/200112/post10410.html -->
-          <!--<xsl:variable name="lower">0123456789abcdefghijklmnopqrstuvwxyz</xsl:variable>
-            <xsl:variable name="upper">0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-            <xsl:variable name="punctuation">[/\].,+-=*~@#$%^(){}`"“”'!?&amp;&lt;&gt;</xsl:variable>
-            <xsl:variable name="stoplist" select="document('../../toc/stoplist.xml')/stoplist/ignore" />
-            <xsl:variable name="string"><xsl:value-of select="substring(translate($title, $punctuation, ''),
-            string-length(
-            $stoplist[starts-with(
-            translate($title,
-            concat($lower, $punctuation),
-            $upper),
-            translate(., $lower, $upper))]) + 1)"/></xsl:variable>-->
+          <xsl:variable name="sortTitle" 
+            select="dhqf:remove-leading-stopwords(xs:string(.), @xml:lang/data(.))
+                    => dhqf:make-sortable-key()"/>
           <xsl:variable name="apos">'</xsl:variable>
-          <p class="title" data-sort-key="{dhqf:make-sortable-key($title)}">
+          <p class="title" data-sort-key="{$sortTitle}">
             <xsl:sequence select="$title"/>
             <xsl:text>, </xsl:text>
             <xsl:value-of select="$issueTitle"/>
@@ -238,5 +229,33 @@
     <xsl:template match="dhq:authorInfo/dhq:affiliation">
         <xsl:value-of select="normalize-space(.)"/>
     </xsl:template>
+    
+    
+  <!--
+      FUNCTIONS
+    -->
+    
+    <!-- Given a string and a language code, produce a version of the string suitable for sorting, by 
+      lower-casing it, normalizing its whitespace, and finally, removing its leading stopwords. -->
+    <xsl:function name="dhqf:remove-leading-stopwords" as="xs:string">
+      <xsl:param name="string" as="xs:string"/>
+      <xsl:param name="language-code" as="xs:string?"/>
+      <!-- If $language-code isn't provided, fallback on English. -->
+      <xsl:variable name="useLang" select="($language-code, 'en')[1]"/>
+      <xsl:choose>
+        <!-- If the provided language code matches one of those in $stopword-map, we have stopwords that 
+          may be removed from the beginning of the input string. -->
+        <xsl:when test="$language-code = map:keys($stopword-map)">
+          <xsl:variable name="cleanerStr" select="lower-case(normalize-space($string))"/>
+          <xsl:variable name="langStopwordSeq" select="map:get($stopword-map, $language-code)"/>
+          <xsl:variable name="regex" select="'^('||string-join($langStopwordSeq, '|')||')'"/>
+          <xsl:sequence select="replace($cleanerStr, $regex, '')"/>
+        </xsl:when>
+        <!-- By default, simply return the input string as-is. -->
+        <xsl:otherwise>
+          <xsl:sequence select="$string"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:function>
   
 </xsl:stylesheet>
