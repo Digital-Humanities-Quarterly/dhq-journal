@@ -125,13 +125,22 @@
             </p>
          </dhq:abstract>
          <dhq:teaser>
-            <p></p>
+            <p>Working from an anti-racist approach, this article examines how the CivicScape code calculates which neighborhoods to recommend for 
+               heavy policing. In doing so, the authors make a case for the public release of all legislative operational source code for scrutiny 
+               under the principles of the Freedom of Information Act.
+            </p>
          </dhq:teaser>
       </front>
       <body>
         <div>
           <head></head>
-            <p>Over the past decade, governments have begun using machine learning software to guide decisions, including how to allocate police resources. In response, scholars and advocates of anti-racism have called for a critical examination of the algorithms used to make these decisions. In theory, the use of software in public policy seems to facilitate resource allocation decisions as they seem to offer computational efficacy and precision with relatively low-cost processes (Yuill 2019). However, in practice, the application of these software tends to circumvent public scrutiny. The code for many tools of predictive policing are in “black boxes,” or hidden from public scrutiny, something Sun-Ha Hong describes as “prediction as a source of opacity.” Since algorithms like those used in predictive policing are already being used to govern our lives, we who are policed by them — or for whom policing decisions are made — should have access to their code and its workings. Previous scholars have approached predictive policing software by discussing its related data, both inputs and outputs (e.g., Richardson, Schultz, &amp; Crawford, 2019 and Sankin et al. 2021). In contrast, we selected one of the only open-source examples and used the methods of Critical Code Studies (CCS) to close-read the source code itself. What follows is an analysis based on some preliminary discoveries.</p>
+            <p>Over the past decade, governments have begun using machine learning software to guide decisions, including how to allocate police 
+               resources. In response, scholars and advocates of anti-racism have called for a critical examination of the algorithms used to make these 
+               decisions. In theory, the use of software in public policy seems to facilitate resource allocation decisions by offering computational 
+               efficacy and precision with relatively low-cost processes <ptr target="#yuill2019"/>. However, in practice, the application of these 
+               software tends to circumvent public scrutiny. The code for many tools of predictive policing are in <q>black boxes</q>, or hidden from 
+               public scrutiny, something <name>Sun-Ha Hong</name> describes as <quote rend="inline">prediction as a source of opacity</quote> 
+               <ptr target="#hong2015"/>. Since algorithms like those used in predictive policing are already being used to govern our lives, we who are policed by them — or for whom policing decisions are made — should have access to their code and its workings. Previous scholars have approached predictive policing software by discussing its related data, both inputs and outputs (e.g., Richardson, Schultz, &amp; Crawford, 2019 and Sankin et al. 2021). In contrast, we selected one of the only open-source examples and used the methods of Critical Code Studies (CCS) to close-read the source code itself. What follows is an analysis based on some preliminary discoveries.</p>
             <p>By definition all machine learning tools involve some form of discrimination (judgments based on weighted values) and even, arguably, prejudice. However, by examining one example closely, we hope to better understand and perhaps challenge the decisions made in the creation of this discriminatory tool. We also hope to press this examination beyond the more narrow critique of ethics, in alignment with calls from scholars from Ruha Benjamin to Matthew Fuller, into broader realms of politics, such as State control.  Such an expansion, Fuller argues, would allow for a broader critique of power in code, whether it be governmental or corporate power, as it processes subjects (Codefest 2021). </p>
             <p>Our method, Critical Code Studies, names the interpretation of the extra-functional significance of computer source code. Rather than an end to an investigation, code serves as the starting point for a larger discussion of technoculture (Marino 2006; Marino 2020). The goal is not to find a secret key to the software in the code but instead to explore the signs of code for evidence and insights into how the code works, how it was made, and more importantly how it communicates and, in this case, polices civic spaces. In this paper, we attempt to demonstrate the kinds of decision-making processes, or computational policies, that can be brought to light by reading the code, and we argue that releasing the source code for these systems should be subject to existing freedom of information rights that apply to other tools of governance. </p>
         </div>
@@ -168,15 +177,75 @@
             <p>Although we cannot include a full review of the code in the small span of this paper, we take one portion of it as a demonstration of a CCS reading. For our reading, we are focusing on a sample of the code from the “Training_and_Testing” folder, specifically, the code that processes data from a 311 telephone line in Philadelphia. Philadelphia’s 311 number, or Philly311, is a line “for non-emergency inquiries. Requests for service.”<note><ref target="https://github.com/dkg/CivicScape/blob/2059d278fbed162c0c1746111bbc4fec83180495/">https://github.com/dkg/CivicScape/blob/2059d278fbed162c0c1746111bbc4fec83180495/ Training_and_Testing/02.Code/philadelphia_pa/40.create_311.sql</ref></note>  In addition to calling the phone number, citizens can make reports through mobile and web apps. The Philly311 phone app allows anyone to report broken street lamps or abandoned cars in the moment by taking a photo and uploading it to their app with location services on, and also to form neighborhood watch groups. (Dozens of 311 reports are added per hour, and you can view a real-time map of the reports.)  CivicScape uses this data in order to create models of neighborhoods to determine the relative need for police presence.</p>
             <p>By drawing upon these 311 calls, the logic of CivicScape follows the logic of city governments repairing windows to stop crime, except in this case, rather than proactively looking for fractured windows, the system processes received complaints to determine where more policing is needed. According to the Broken Window theory, first introduced by Kelling and Wilson (1982), “One unrepaired broken window is a signal that no one cares, and so breaking more windows costs nothing.” However, the authors of this influential theory claim that the panhandler is “the first broken window”: “Muggers and robbers, whether opportunistic or professional, believe they reduce their chances of being caught or even identified if they operate on streets where potential victims are already intimidated by prevailing conditions.” Despite many challenges to the merits of these claims, this model of CivicScape uses the data to profile neighborhoods.<note> Again, we note that this released code is for journalistic review and does not reveal the modified versions of the code as it is implemented, but we do this reading as a “good faith” exercise in reviewing what is available (as the gesture of an open-source predictive policing algorithm suggests) to indicate the kinds of readings we could perform if the implemented code were made available on the grounds of transparency, which we argue it should be.</note> When CivicScape trains its algorithm on 311 complaints, it is compiling a whole litany of broken windows, indirect indicators of a neglected neighborhood or, to put it another way, signs that a neighborhood is ripe for crime. </p>
             <p>Consider the following passage of SQL code:</p>
-            <!-- Insert EG 1 -->
+            <eg lang="sql">
+            create view t311
+            FROM
+            (
+            select
+            case when cell_id is not null then '4' else '4' end as city
+            , cell_id
+            , date_trunc('hour', "Requested Date/Time") as hr
+            , case when t311_all."Service Name" = 'Graffiti Removal' then 1 else 0 end as graf
+            , case when t311_all."Service Name" = 'Illegal Dumping' then 1 else 0 end as illdumping
+            , case when t311_all."Service Name" = 'Maintenance Residential or Commercial' then 1 else 0 end as bldgmaint
+            --, null as streetsw
+            --, null as electrical
+            , case when t311_all."Service Name" = 'Sanitation / Dumpster Violation' then 1 else 0 end as sanitation
+            --, null as recycling
+            , case when t311_all."Service Name" = 'Street Trees' then 1 else 0 end as tree
+            , case when t311_all."Service Name" = 'Traffic (Other)' then 1 else 0 end as traffic
+            , case when t311_all."Service Name" = ' Vacant House or Commercial' then 1 else 0 end as vac_bldg
+            , case when t311_all."Service Name" = 'Abandoned Vehicle' then 1 else 0 end as vac_vehicle
+            , case when t311_all."Service Name" = 'Street Light Outage' then 1 else 0 end as stlghts
+            , case when t311_all."Service Name" = 'Alley Light Outage ' then 1 else 0 end as alleylghts
+            --, null as potholes
+            , case when t311_all."Service Name" = 'Rubbish/Recyclable Material Collection' then 1 else 0 end as garbage_pickup
+            --, null as rodent
+            --, null as sidewalk
+            </eg>
             <p>CivicsScape first uses “create view t311” to create a virtual table from the 311 call data.</p>
-            <!-- Insert EG 2 -->
+            <eg lang="sql">
+            FROM
+            (
+            select
+            case when cell_id is not null then '4' else '4' end as city
+            , cell_id
+            , date_trunc('hour', "Requested Date/Time") as hr
+            , case when t311_all."Service Name" = 'Graffiti Removal' then 1 else 0 end as graf
+            , case when t311_all."Service Name" = 'Illegal Dumping' then 1 else 0 end as illdumping
+            , case when t311_all."Service Name" = 'Maintenance Residential or Commercial' then 1 else 0 
+            end as bldgmaint  
+            </eg>
             <p>Here is the first set of notifications CivicScape tabulates: graffiti removal, illegal dumping, and maintenance. If there was a record of a call on any of these items, the program will register it with a value of one. While the first two of these notifications may relate to crimes, the third one is ambiguous and seems more closely related to “broken windows,” with only an implied correlation with criminal activity, presumably as a setting or signal of low oversight as we discussed earlier.</p>
-            <!-- Insert EG 3 -->
+            <eg lang="sql">
+            --, null as streetsw
+            --, null as electrical
+            </eg>
             <p>Notice that neither street sweeping calls nor electrical calls are listed, so there is some exclusion happening here. In other words, not every type of call to 311 is included in this training data. Apparently, there are limits to what counts as a broken window. The next set offers the reset of the data being included or excluded.</p>
-            <!-- Insert EG 4 -->
+            <eg lang="sql">
+            , case when t311_all."Service Name" = 'Sanitation / Dumpster Violation' then 1 else 0 end as sanitation
+            --, null as recycling
+            , case when t311_all."Service Name" = 'Street Trees' then 1 else 0 end as tree
+            , case when t311_all."Service Name" = 'Traffic (Other)' then 1 else 0 end as traffic
+            , case when t311_all."Service Name" = ' Vacant House or Commercial' then 1 else 0 end as vac_bldg
+            , case when t311_all."Service Name" = 'Abandoned Vehicle' then 1 else 0 end as vac_vehicle
+            , case when t311_all."Service Name" = 'Street Light Outage' then 1 else 0 end as stlghts
+            , case when t311_all."Service Name" = 'Alley Light Outage ' then 1 else 0 end as alleylghts
+            --, null as potholes
+            , case when t311_all."Service Name" = 'Rubbish/Recyclable Material Collection' then 1 else 0 end as garbage_pickup
+            --, null as rodent
+            --, null as sidewalk
+            </eg>
             <p>CivicScape will judge a neighborhood's policing needs based on sanitation/dumpster violations, street trees, traffic, vacant buildings, abandoned vehicles, and street or alley light outages but not on potholes, rodents, or sidewalk complaints, presumably unless they involve something else from the former list. CivicScape then adds up all of these complaints as a representation of the area.</p>
-            <!-- Insert EG 5 -->
+            <eg lang="sql">
+            AS
+            select city, cell_id, hr, sum(graf) as graf, sum(illdumping) as illdumping, sum(bldgmaint) as bldgmaint
+            , sum(sanitation) as sanitation, sum(traffic) as traffic, sum(vac_bldg) as vac_bldg
+            , sum(vac_vehicle) as vac_vehicle, sum(stlghts) as stlghts, sum(alleylghts) as alleylghts
+            , sum(garbage_pickup) as garbage_pickup
+            , sum(graf) + sum(illdumping) + sum(bldgmaint) + sum(sanitation) + sum(traffic) + sum(vac_bldg) + sum(vac_vehicle) + sum(stlghts) + sum(alleylghts) + sum(garbage_pickup)
+            as t311Events
+            </eg>
             <p>Note how each complaint is tallied in this equation and in particular the way each complaint, from illegal dumping to a category simply called “traffic,” are given equal weight (a value of 1) in this equation.  Calls for vacated vehicles, sum(vac_vehicle), and street lights, sum(stlghts), are merely summed and added together. There are no multipliers to affect the way each complaint is weighted. At this point, we might begin to ask why some of these complaints are even being considered as part of the training data for identifying problem neighborhoods. Perhaps abandoned cars are a problem correlated with other factors related to crime or at least poverty or lax parking enforcement, but is traffic a sign of anything in particular other than perhaps a sign of population density or proximity to an urban center?</p>
             <p>Stepping back, we can ask questions about the sources of the data. Who is making these calls? Are they made by entitled citizens who are used to having their complaints answered? Or are they made by exasperated citizens who are merely frustrated with the lack of response of civic leaders?  Or are they made by citizens who have time to walk around and notice their neighborhood, which could be seen as a positive? And most importantly, are any of these factors the crimes that increased policing would counteract? Perhaps so in the case of complaints about graffiti, but what will an increased police presence do to alleviate traffic. In fact, it could have just the opposite effect, since increased police presence might arrest the flow of traffic. Such a line of inquiry reveals that this training data does not directly correlate to the policing needs of the community but instead merely to an area where many complaints are made.</p>
             <p>In our review of this code, one particular piece of data has caught our attention: complaints about street trees. In urban neighborhoods, communities have historically planted trees to provide shade and to beautify. However, these trees become objects of complaint when their roots break up the pavement or when their branches threaten power lines. However, what makes a troublesome street tree a necessary indicator of a neighborhood in need of increased police presence?<note> Street trees are admittedly a kind of input into this system.  However, since they are part of the training data, we would not have known of their role in the formation of this system without looking at the lines of code. </note> Considering that question, led us to the roots of the problem plaguing the implementation of this software. </p>
@@ -184,7 +253,9 @@
         <div>
           <head>On street trees</head>
             <p>How are street trees harbingers of bad neighborhoods? When examining the correlation between sidewalk or parkway trees and crime in Portland, one study (Donovan and Prestemon 2010) was not conclusive. Instead, their findings were “consistent with the principles underlying the broken windows theory: attributes of a neighborhood may provide information to criminals about the effectiveness of authority. Specifically, the presence of street trees may indicate that a neighborhood is more cared for and, therefore, a potential criminal is more likely to be observed by an authority.” Thus, the mere presence of street trees may suggest police presence is already high, though perhaps complaints about street trees offset this connection.</p>
-            <!-- Insert EG 6 -->
+            <eg lang="sql">
+            , case when t311_all."Service Name" = 'Street Trees' then 1 else 0 end as tree
+            </eg>
             <p>In this line, when the program encounters a notification for “Street Trees,” it logs the value 1.</p>
             <p>The presence of the street trees in the training data, raises the question: Who logs complaints against street trees?  Who has the time not only to notice their need for tending but also to call in a complaint?  What demographic feels confident such a complaint will be heeded?  Is a 311 call even necessarily indicating a specific complaint, as a call about a fallen tree branch or a call about a tree in need of tending would receive the same representation in this system. Moreover, at least one review of the Portland tree initiative (Burley, 2018) suggests that the increased planting of street trees, all of which might yield calls for tending and care, correlates with a reduction in violent crime. It may very well be that these problematic trees reduce crime more than increased police presence. Perhaps CivicScape could be used to determine which neighborhoods require better arboriculture, rather than more surveillance.</p>
             <p>The inclusion of calls about street trees in this training code for CivicScape reveals four important aspects of the software.  First, a street tree is not a sign of criminal activity along the lines of vandalism.  Second, the data does not include any indication of the nature of the complaint about these trees.  Thirdly, it is unlikely that the people who call in the complaint are aware that they are identifying their neighborhood as a “bad neighborhood” or one in need of more police presence; those users in Philadelphia who are reporting 311 are not, when they are submitting their picture of an abandoned car, actively thinking about how they are constructing a dataset for a future algorithm, let alone a policing algorithm. This leads us to our fourth point, that those concerned about the status of their street trees are, by contrast, more likely to be interested in and part of a community that is concerned about its holistic well being, from environmental health to safety to aesthetics, suggesting the relative health of that neighborhood.  In many ways, an expression of concern about a street tree is the opposite of a complaint about vandalism.  It reflects concern for as opposed to revulsion at. Such a distinction shows the way the training schema of CivicScape takes an uncritical approach to correlation that compounds our misunderstanding of the nature of our cities, the nature in our cities, and the nature of our citizens. </p>
@@ -324,21 +395,63 @@
           <bibl xml:id="mcpherson2013" label="McPherson 2013">McPherson, T. (2013) <title rend="italic">U.S. operating systems at mid-century: The 
              intertwining of race and UNIX: Race after the internet</title>. London: Routledge.
           </bibl>
-          <bibl xml:id="marino2006" label="Marino 2006"></bibl>
-          <bibl xml:id="marino2020" label="Marino 2020"></bibl>
-          <bibl xml:id="meijer_etal2019" label="Meijer and Wessels 2019"></bibl>
-          <bibl xml:id="nick2017" label="nick898 2017"></bibl>
-          <bibl xml:id="noone2021" label="Noone 2021"></bibl>
-          <bibl xml:id="odonnell2019" label="O'Donnell 2019"></bibl>
-          <bibl xml:id="polack2020" label="Polack 2020"></bibl>
-          <bibl xml:id="richardson_etal2019" label="Richardson, Schultz, and Crawford 2019"></bibl>
-          <bibl xml:id="sandhu_etal2021" label="Sandhu and Fussey 2021"></bibl>
-          <bibl xml:id="sankin_etal" label="Sankin et al. n.d."></bibl>
-          <bibl xml:id="schellenberg1997" label="Schellenberg 1997"></bibl>
-          <bibl xml:id="sheehey2019" label="Sheehey 2019"></bibl>
-          <bibl xml:id="walker2020" label="Walker 2020"></bibl>
-          <bibl xml:id="wood2019" label="Wood 2019"></bibl>
-          <bibl xml:id="yuill2019" label="Yuill 2019"></bibl>
+          <bibl xml:id="marino2006" label="Marino 2006">Marino, M. C. (2006) <title rend="quotes">Critical code studies</title>, 
+             <title rend="italic">electronic book review</title>, 4 December. Available at: 
+             <ref target="https://electronicbookreview.com/essay/critical-code-studies/">https://electronicbookreview.com/essay/critical-code-studies/</ref>.
+          </bibl>
+          <bibl xml:id="marino2020" label="Marino 2020">Marino, M. C. (2020) <title rend="italic">Critical code studies</title>. Cambridge, MA:
+             The MIT Press.
+          </bibl>
+          <bibl xml:id="meijer_etal2019" label="Meijer and Wessels 2019">Meijer, A. and Wessels, M. (2019) <title rend="quotes">Predictive policing: 
+             Review of benefits and drawbacks</title>, <title rend="italic">International Journal Of Public Administration</title>, 42(12), pp. 1031–1039.
+          </bibl>
+          <bibl xml:id="nick2017" label="nick898 2017">nick898 (2017) <title rend="quotes">Predictive policing model released by CivicScape</title>, 
+             <title rend="italic">Reddit</title>, 27 March. Available at:
+             <ref target="https://www.reddit.com/r/datascience/comments/61p9tx/predictive_policing_model_released_by_civicscape/">https://www.reddit.com/r/datascience/comments/61p9tx/predictive_policing_model_released_by_civicscape/</ref>.       
+          </bibl>
+          <bibl xml:id="noone2021" label="Noone 2021">Noone, G. (2021) <title rend="quotes">The case against predictive policing</title>, 
+             <title rend="italic">Tech Monitor</title>, 1 July. Available at: 
+             <ref target="https://techmonitor.ai/technology/ai-and-automation/case-against-predictive-policing">https://techmonitor.ai/technology/ai-and-automation/case-against-predictive-policing</ref>.
+          </bibl>
+          <bibl xml:id="odonnell2019" label="O'Donnell 2019">O'Donnell, R. M. (2019) <title rend="quotes">Challenging racist predictive policing 
+             algorithms under the Equal Protection Clause notes</title>, <title rend="italic">New York University Law Review</title>, 94(3). Available at: 
+             <ref target="https://www.nyulawreview.org/wp-content/uploads/2019/06/NYULawReview-94-3-ODonnell.pdf">https://www.nyulawreview.org/wp-content/uploads/2019/06/NYULawReview-94-3-ODonnell.pdf</ref>.
+          </bibl>
+          <bibl xml:id="polack2020" label="Polack 2020">Polack, P. (2020) <title rend="quotes">“Beyond algorithmic reformism: Forward engineering 
+             the designs of algorithmic systems</title>, <title rend="italic">Big Data &amp; Society</title>, 7(1). 
+             <ref target="https://doi.org/10.1177/2053951720913064">https://doi.org/10.1177/2053951720913064</ref>.
+          </bibl>
+          <bibl xml:id="richardson_etal2019" label="Richardson, Schultz, and Crawford 2019">Richardson, R., Schultz, J., and Crawford, K. (2019) 
+             <title rend="italic">Dirty data, bad predictions: How civil rights violations impact police data, predictive policing systems, and 
+             justice</title>. Available at: <ref target="https://papers.ssrn.com/abstract=3333423">https://papers.ssrn.com/abstract=3333423</ref>.
+          </bibl>
+          <bibl xml:id="sandhu_etal2021" label="Sandhu and Fussey 2021">Sandhu, A. and Fussey, P. (2021) <title rend="quotes">“The 
+             <quote rend="inline">Uberization of policing</quote>? How police negotiate and operationalise predictive policing technology</title>, 
+             <title rend="italic">Policing and Society</title>, 31(1), pp. 66–81.
+          </bibl>
+          <bibl xml:id="sankin_etal2021" label="Sankin et al. 2021">Sankin, A. et al. (2021) <title rend="quotes">Crime prediction software promised to 
+             be free of biases. New data shows it perpetuates them</title>, <title rend="italic">The Markup</title>, 2 December. Available at: 
+             <ref target="https://themarkup.org/prediction-bias/2021/12/02/crime-prediction-software-promised-to-be-free-of-biases-new-data-shows-it-perpetuates-them">https://themarkup.org/prediction-bias/2021/12/02/crime-prediction-software-promised-to-be-free-of-biases-new-data-shows-it-perpetuates-them</ref>.
+          </bibl>
+          <bibl xml:id="schellenberg1997" label="Schellenberg 1997">Schellenberg, K. (1997) <title rend="quotes">Police information systems, information 
+             practices and individual privacy</title>, <title rend="italic">Canadian Public Policy / Analyse de Politiques</title>, 23(1), pp. 23–39. 
+             <ref target="https://doi.org/10.2307/3552129">https://doi.org/10.2307/3552129</ref>.
+          </bibl>
+          <bibl xml:id="sheehey2019" label="Sheehey 2019">Sheehey, B. (2019) <title rend="quotes">Algorithmic paranoia: The temporal governmentality 
+             of predictive policing</title>, <title rend="italic">Ethics and Information Technology</title>, 21, pp. 49–58.
+          </bibl>
+          <bibl xml:id="walker2020" label="Walker 2020">Walker, J. W. (2020) <title rend="quotes">51 years after Stonewall, New York's queer 
+             liberation march faces police violence</title>, <title rend="italic">The Nation</title>, 3 July. Available at: 
+             <ref target="https://www.thenation.com/article/society/queer-liberation-march-police-violence/">https://www.thenation.com/article/society/queer-liberation-march-police-violence/</ref>.
+          </bibl>
+          <bibl xml:id="wood2019" label="Wood 2019">Wood, S. E. (2019) <title rend="quotes">Policing through platform</title>, 
+             <title rend="italic">Computational Culture</title>, 7. Available at: 
+             <ref target="http://computationalculture.net/policing-through-platform/">http://computationalculture.net/policing-through-platform/</ref>.
+          </bibl>
+          <bibl xml:id="yuill2019" label="Yuill 2019">Yuill, S. (2019) <title rend="quotes">Critical approaches to computational law</title>, 
+             <title rend="italic">Computational Culture</title>, 7. Available at: 
+             <ref target="http://computationalculture.net/section-editorial-critical-approaches-to-computational-law/">http://computationalculture.net/section-editorial-critical-approaches-to-computational-law/</ref>.
+          </bibl>
         </listBibl>
       </back>
    </text>
