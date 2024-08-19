@@ -1,0 +1,1352 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
+<?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:cc="http://web.resource.org/cc/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dhq="http://www.digitalhumanities.org/ns/dhq">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <!-- Author should supply the title and personal information. Change the value of xml:lang if not English.-->
+                <title type="article" xml:lang="en">libEscansión: A Recursive Precedence Approach to
+                    Metrical Scansion</title>
+                <dhq:authorInfo>
+                    <!-- Include a separate <ndhq:authorInfo> element for each author -->
+                    <dhq:author_name>Fernando <dhq:family>Sanz-Lázaro</dhq:family></dhq:author_name>
+                    <idno type="ORCID">https://orcid.org/0000-0002-8815-6741</idno>
+                    <dhq:affiliation>Austrian Academy of Sciences</dhq:affiliation>
+                    <email>fernando.sanz-lazaro@oeaw.ac.at</email>
+                    <dhq:bio>
+                        <p>Fernando Sanz-Lázaro is a research data engineer at the Austrian Centre
+                            for Digital Humanities and Cultural Heritage of the Austrian Academy of
+                            Sciences. He has a background in German, English and Spanish studies and
+                            holds a PhD in Romance Studies from the University of Vienna with a
+                            thesis on digital methods for the analysis of early modern Spanish
+                            plays.</p>
+                    </dhq:bio>
+                </dhq:authorInfo>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>Alliance of Digital Humanities Organizations</publisher>
+                <publisher>Association for Computers and the Humanities</publisher>
+                <idno type="DHQarticle-id">000739</idno>
+                <idno type="volume">018</idno>
+                <idno type="issue">3</idno>
+                <date when="2024-07-19">19 July 2024</date>
+                <dhq:articleType>case study</dhq:articleType>
+                <availability status="CC-BY-ND">
+                    <cc:License rdf:about="http://creativecommons.org/licenses/by-nd/2.5/"/>
+                </availability>
+            </publicationStmt>
+            <sourceDesc>
+                <p>This is the source</p>
+            </sourceDesc>
+        </fileDesc>
+        <encodingDesc>
+            <classDecl>
+                <taxonomy xml:id="dhq_keywords">
+                    <bibl>DHQ classification scheme; full list available at <ref
+                            target="http://www.digitalhumanities.org/dhq/taxonomy.xml"
+                            >http://www.digitalhumanities.org/dhq/taxonomy.xml</ref>
+                    </bibl>
+                </taxonomy>
+                <taxonomy xml:id="authorial_keywords">
+                    <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
+                </taxonomy>
+                <taxonomy xml:id="project_keywords">
+                    <bibl>DHQ project registry; full list available at <ref
+                            target="http://www.digitalhumanities.org/dhq/projects.xml"
+                            >http://www.digitalhumanities.org/dhq/projects.xml</ref>
+                    </bibl>
+                </taxonomy>
+            </classDecl>
+        </encodingDesc>
+        <profileDesc>
+            <langUsage>
+                <language ident="en" extent="original"/>
+                <!--add <language> with appropriate @ident for any additional languages-->
+            </langUsage>
+            <textClass>
+                <keywords scheme="#dhq_keywords">
+                    <!--Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors-->
+                    <!--Enter keywords below preceeded by a "#". Create a new term element for each-->
+                    <term corresp="#performance"/>
+                    <term corresp="#nlp"/>
+                    <term corresp="#language_studies"/>
+                </keywords>
+                <keywords scheme="#authorial_keywords">
+                    <!--Authors may include one or more keywords of their choice-->
+                    <list type="simple">
+                        <item>Metrical Scansion</item>
+                        <item>Automatic Scansion</item>
+                        <item>Spanish Metre</item>
+                    </list>
+                </keywords>
+                <keywords scheme="#project_keywords">
+                    <list type="simple">
+                        <item/>
+                    </list>
+                </keywords>
+            </textClass>
+        </profileDesc>
+        <revisionDesc>
+            <!-- Replace "NNNNNN" in the @target of ref below with the appropriate DHQarticle-id value. -->
+            <change>The version history for this file can be found on <ref
+                    target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/000739/000739.xml">GitHub</ref>
+            </change>
+        </revisionDesc>
+    </teiHeader>
+    <!-- If a translation is added to the original article, add an enclosing <text> and <group> element -->
+    <text xml:lang="en" type="original">
+        <front>
+            <dhq:abstract>
+                <!-- Include a brief abstract of the article -->
+                <p>In recent years, there has been impressive progress in the automatic analysis of
+                    Spanish verse. However, despite the excellent results of previous attempts,
+                    there is still room for improvement, as this article shows. It presents
+                    libEscansión, a new automatic scansion tool that, although initially designed
+                    for analysing the verses of plays, outperforms all its predecessors in the
+                    scansion of fixed-meter poetry. The library uses two novel approaches to achieve
+                    this result: linguistically, it uses Castilian syllabification instead of the
+                    more diphthong-prone American syllabic division. It uses a dedicated module that
+                    can also be run independently. Methodologically, the library resolves metrical
+                    ambiguities using a perceptibility-based recursive prioritisation system. The
+                    combination of both allows libEscansión to perform a scansion 0.78% more
+                    accurately than the best of its peers against a gold standard corpus, reaching
+                    an accuracy of 97.01% (99.50% discarding non-erroneous disagreements).</p>
+            </dhq:abstract>
+            <dhq:teaser>
+                <p>libEscansión is a Python library for automatic scansion of Spanish verse, with an
+                    accuracy of 97.01%.</p>
+            </dhq:teaser>
+        </front>
+        <body>
+            <div>
+                <head>Introduction and motivation</head>
+                <p>Spanish Golden Age plays are composed in verse, and their analysis requires
+                    considering their metrical features. A noteworthy property of these works is
+                    their polymetry – that is, they combine sections of different metres without a
+                    solution of continuity –, although octosyllables are predominant. Nevertheless,
+                    there are further challenges beyond the polymetry as the ortho-typography may be
+                    unorthodox, intercalations of words, verses, or even whole stanzas in different
+                    languages are not uncommon, and, most importantly, the poetic creation serves
+                    the speech and not the other way around. Spoken language is, thus, the actual
+                    gold standard to which we have to aspire. Unfortunately, working with recordings
+                    turns out to be a difficult endeavour, as it raises several practical challenges
+                    but, in the first place, involves theoretical issues regarding sample
+                    representativity <ptr target="#sanchez2017"/>. Therefore, we have opted for a
+                    simplified model, which phonology fulfils in the case of speech, even if
+                    assuming some general metrical principles.</p>
+                <p>Digital approaches to classical Spanish theatre have experienced a small golden
+                    age in recent years, largely thanks to the role played by stylometry in the
+                    attribution to Lope de Vega of the obscure play <title rend="italic"
+                        xml:lang="es">La francesa Laura</title> as a result of research by Álvaro
+                    Cuéllar and Germán Vega García-Luengos <ptr target="#cuellarvega2023a"/>. This
+                    groundbreaking discovery brought worldwide media attention to digital
+                    methodologies applied to philological studies. However, such an astonishing
+                    finding is not an isolated event but the culmination of the rapid development of
+                    Digital Humanities in the literary studies of the Spanish Golden Age theatre.
+                    Studies dedicated to this historical genre with digital methodologies have
+                    flourished over the last decade, making them a mainstream tool in the field.
+                    This has spilt over effects on other areas, timidly opening the door to their
+                    adoption, notwithstanding the commendable work of some notable scholars
+                    dedicated to other periods and genres <ptr target="#calvo2021"/> of Hispanic
+                    literature within the digital humanistic field - some even renowned pioneers of
+                    Spanish digital philology <ptr target="#fradejas2010"/> – and a well-grounded
+                    theoretical scaffolding on Digital Humanities in in general <ptr
+                        target="#rio2022"/>. However, in spite of these almost isolated, albeit
+                    fruitful, efforts, the convergence of research groups in these other areas has
+                    not, in general, reached a critical mass that would give it a momentum
+                    comparable to that enjoyed by the theatre of the Golden Age, which has already
+                    come to the the point where even well-informed self-reflection takes place <ptr
+                        target="#hernandez2020"/>.</p>
+                <p>Recent developments in digital philology focused on Spanish Early Modern theatre
+                    should be understood in their context and, more specifically, considering a
+                    crucial factor that has prompted such an explosion: the relative availability of
+                    well-curated editions. The colossal annotated edition by Presotto <ptr
+                        target="#vega"/>, which sets the quality standards that further attempts
+                    should pursue, has found worthy successors in project Prolope <ptr
+                        target="#prolope"/>, DICAT <ptr target="#dicat"/> or ISTAE <ptr
+                        target="#istae"/>. Even though they have more modest pretensions than their
+                    predecessor, as the resources are shared among multiple plays, they provide a
+                    fixated text with enough enrichments to perform distant analyses of multiple
+                    types on it. </p>
+                <p>These projects have paved the way for further endeavours in the field of digital
+                    humanities by providing qualitative editions ready to be used as subjects for
+                    computer-assisted analysis. Stylometry, together with digital editions, is
+                    arguably the spearhead of this advance <ptr target="#calvo2016"/><ptr
+                        target="#cuellar2024"/><ptr target="#cuellarvega2023b"/>, which undoubtedly
+                    benefits from recent advances in palaeographic text recognition <ptr
+                        target="#rosacuellarlehmann2024"/><ptr target="#cuellar2023b"/>, metrical
+                    analysis of plays <ptr target="#krollsanz2022"/><ptr target="#krollsanz2023"
+                        /><ptr target="#sanzlazaro2024b"/>, and dramatic analysis <ptr
+                        target="#ehrlicheretal2020"/>.</p>
+                <p>Even if in a more modest way, several new approaches have arisen in recent years
+                    to facilitate automatic metrical scansion of Spanish verses. The ways they
+                    tackle ambiguity resolution are diverse, but, in most cases, the outcomes are
+                    fairly positive as they tend to fall into the narrow margin of human
+                    inter-annotator agreement. In other words, they perform as well as their human
+                    counterparts. However, this also means that bias among human annotators may
+                    produce a more tolerant gold standard and increase the margin of the
+                    inter-annotator agreement. This seems to happen with the corpus of sonnets ADSO
+                    100 <ptr target="#navarrocoloradoetal2016"/> used by precedent studies as a gold
+                    standard <ptr target="#marcogonzalo2021"/>. Therefore, we have some grounds to
+                    believe that the 96% inter-annotator agreement Navarro-Colorado <ptr
+                        target="#navarrocolorado2017"/> reported may be an underestimation.
+                    Consequently, we considered whether metrical analysis could benefit from another
+                    take on the issue, especially regarding the two primary sources of
+                    inconsistencies: syllabification and verse ambiguities.</p>
+                <p>The particular issues raised by a play must be adequately addressed to analyse
+                    Golden Age theatre as such pieces are intended for the stage and, consequently,
+                    an adequate interpretation leaves little place for orthographical idealisations.
+                    On the other hand, speech follows phonological rules to solve the interaction
+                    between neighbouring sounds. Indeed, one such situation is when vowels interact
+                    between word boundaries, a prominent Spanish verse adjustment device. Therefore,
+                    phonological rules apply. However, staged Golden Age plays substantially differ
+                    from ordinary speech, as they are intended not to be ordinarily spoken but
+                    declaimed. Consequently, the most extreme assimilation issues typical of rapid
+                    and careless speech in everyday conversation are virtually nonexistent in the
+                    genre. Conversely, plays provide additional information that poetry lacks, which
+                    allows informed guesses on the length of particular verses.</p>
+                <p>Considering those premises, we have designed a tool for theatre-analysis
+                    purposes, which produces state-of-the-art outcomes when tested against fixed
+                    metres. We aimed to produce a reusable library to scan Spanish verses that is
+                    able to cope with all the shortcomings stated above. That is, the result should
+                    be robust enough to handle orthographic and linguistic irregularities, consider
+                    phonological exceptions, and solve ambiguities in the best way possible. We have
+                    built on previous works, considering that Navarro-Colorado's <ptr
+                        target="#navarrocolorado2017"/> PoS-tag/syllabification model is
+                    conceptually sound and the nearest to manual analysis. Posterior developments of
+                    the idea <ptr target="#rosaetal2020b"/> have succeeded by focusing on those
+                    areas more prone to be the culprit of scansion errors, setting the right track
+                    to follow. The result is three Python libraries for syllabification <ptr
+                        target="#sanzlazaro2021b"/>, phonological transcription <ptr
+                        target="#sanzlazaro2021a"/>, and metrical scansion <ptr
+                        target="#sanzlazaro2023b"/>.</p>
+            </div>
+            <div>
+                <head>Related work</head>
+                <p>Studies on automatic metrical scansion of Spanish verse have already yielded
+                    significant payoffs. There were promising results already at the very beginning
+                    of the 2000s when Gervás <ptr target="#gervas2000"/> conducted a groundbreaking
+                    study on the matter. He primarily used a dictionary approach to syllabification,
+                    resorting to rules only for those words lacking a matching key in the
+                    dictionary. This process provides a list of syllables, the syllable count,
+                    prosodic stresses and rhyme. As with any pioneer method, this one presented
+                    various shortcomings that must be addressed. The first issue arises due to
+                    stress identification, as it only considers orthography. As a result, unstressed
+                    syllables such as, for instance, the determiners <foreign xml:lang="es"
+                        >la</foreign> and <foreign xml:lang="es">mi</foreign> are marked as
+                    stressed. Therefore, the first verse of Quevedo's famous sonnet <title
+                        xml:lang="es">Amor constante más allá de la muerte</title>, with which
+                    Gervás illustrates its paper, would be parsed as in <ref target="#example01"
+                        >Example 1</ref> below.</p>
+                <dhq:example xml:id="example01">
+                    <p><foreign xml:lang="es">Cerrar podrá mis ojos la postrera</foreign></p>
+                    <p><foreign xml:lang="es">ce rrár po drá mís ójos lá pos tré ra</foreign></p>
+                    <p>- + - + + + - + - + -</p>
+                </dhq:example>
+                <p>Even though the classification of this particular verse in one of the four major
+                    hendecasyllabic types – which is Gervás' approach – would not be affected, a
+                    more fine-grained analysis of the verse shows the problem: this short heroic
+                        <note>We use Varela Merino, Moíno Sánchez and Jauralde Pou <ptr
+                            target="#varelaetal2005"/> systematics here for convenience. The library
+                        libEscansión aims to describe the features of the verse and considers the
+                        criteria used by Varela Merino, Moíno Sánchez, and Jauralde Pou as well as
+                        Navarro Tomás <ptr target="#navarrotomas2015"/> in their respective
+                        taxonomies. It provides enough elements of judgment to classify a verse
+                        according to both systems but does not perform the classification
+                        itself.</note> verse would be classified as a long one. Furthermore,
+                    improper stresses may alter even the primary classification if located on one of
+                    the first four syllables. The second issue is related to the sequential way
+                    Gervás analyses synaloephas. The resolution is straightforward if the number of
+                    supernumerary syllables equals the potential synaloephas. However, if the
+                    numbers do not match, parsing the verse from left to right one potential
+                    synaloepha at a time may place a synaloepha between the wrong pair of vowels.
+                    Moreover, Gervás acknowledges that his programme does not offer a satisfactory
+                    method to solve ambiguities derived from tropes such as synaereses and hiatuses.
+                    In any case, the author reported an 88.73% accuracy against ADSO 100 <ptr
+                        target="#navarrocoloradoetal2016"/>, a corpus of 100 manually annotated
+                    sonnets that has become the gold standard for fixed-metre scansion in the last
+                    years <ptr target="#marcoetal2021"/>.</p>
+                <p>Navarro-Colorado <ptr target="#navarrocolorado2015"/> noted those shortcomings,
+                    which led him to develop a more sophisticated method. In order to improve stress
+                    identification, the words are first PoS-tagged – that is, they are annotated
+                    with information regarding their grammatical category – to decide whether they
+                    are stressed. Roughly described, classes such as, for instance, verbs or nouns
+                    carry prosodic stress in Spanish, while prepositions or conjunctions do not, ,
+                    regardless of the word's intrinsic lexical stress <ptr target="#quilis2013"/>.
+                    The next step is syllabifying and placing prosodic stresses only in those words
+                    with the appropriate PoS-tag. If the syllable count is eleven, a hendecasyllabic
+                    verse is solved. Otherwise, the programme launches an adjusting module. If it
+                    produces multiple potential results, it calls a disambiguation module to
+                    consider all possible alternatives in the corpus. This approach solves Gervas'
+                    stress placement problem and substantially improves ambiguity resolution, which
+                    raises the accuracy to 94.44% <ptr target="#marcoetal2021"/> against the same
+                    test corpus.</p>
+                <p>Some years later, Agirrezabal, Alegría, and Hulden <ptr
+                        target="#agirrezabaletal2017"/> approached the issue by employing neural
+                    networks, with a reported accuracy of 90.84%. However, the best results have not
+                    been obtained until the current decade. More concretely, Rantanplan <ptr
+                        target="#rosaetal2020b"/> reaches 96.22% against ADSO 100 <ptr
+                        target="#marcoetal2021"/> following Navarro-Colorado's classic approach,
+                    making this last project the most accurate up to the present date. Furthermore,
+                    it reduces the processing time from 40 min to 3s. Almost simultaneously, another
+                    team at the same university developed a new approach, Jumper <ptr
+                        target="#marcogonzalo2021"/>, which neither syllabifies the words nor relies
+                    on PoS-tagging. These innovations improve the scansion speed even more with
+                    minimal accuracy loss, reaching an astounding 94.97% in 0.31s analysing
+                    Navarro-Colorado's corpus. </p>
+            </div>
+            <div>
+                <head>Verse analyisis</head>
+                <p>As previous methods do, we have divided metrical scansion into two stages: naive
+                    analysis and syllabic adjustment, but we approach the latter in a different
+                    fashion. Firstly, we perform the syllabification and PoS-tagging of the words.
+                    Then, we try to adjust the verse if it does not match the expected syllable
+                    count. Our library introduces two novelties – apart from the phonological
+                    transcription, which is for convenience rather than conceptual – namely, full
+                    exceptions-handling in the syllabification and its approach to ambiguity
+                    resolution (see <ref target="#figure01">Figure 1</ref>).</p>
+                <figure xml:id="figure01">
+                    <figDesc>Modular structure.</figDesc>
+                    <graphic url="resources/images/figure01.svg"/>
+                </figure>
+                <div>
+                    <head>Naive analysis</head>
+                    <p>The first step is a word-wise analysis of the verse by the libEscansión class
+                            <code>PlayLine</code>, whose practical usage is explained <ref
+                            target="#usage">below</ref>. It consists of dividing the words into
+                        syllables and determining whether a particular word carries prosodic stress.
+                        The former task is carried out by the library Fonemas <ptr
+                            target="#sanzlazaro2021a"/>, whilst the latter resorts to Stanza <ptr
+                            target="#qietal2020"/> PoS-tagger to determine the grammatical category
+                        and whether it is stressed. This class has two public attributes: a string
+                        containing the verse and a list of its words, each of whose elements is, in
+                        turn, another list with the corresponding word syllables, which are marked
+                        if they carry metric stress.</p>
+                </div>
+                <div>
+                    <head>Syllabification</head>
+                    <p>Even though a phonological transcription is not strictly necessary to analyse
+                        a verse, it is convenient for diverse reasons. Firstly, using IPA notation
+                        with a single Unicode character for each phoneme expedites the
+                        straightforward handling of syllabic division, as we can treat each
+                        character equally without exceptions<note>A SAMPA transcription, for
+                            instance, would share the disadvantages of the orthographic text in this
+                            regard.</note>. Spanish digraphs (<foreign xml:lang="es">ch, rr, ll, qu,
+                            gu</foreign>) or multiple phonemes represented by a single grapheme
+                        (e.g., <foreign xml:lang="es">x</foreign>) are no longer required. Second,
+                        the output allows an out-of-the-box rhyme analysis as the relation
+                        phoneme-character is biunivocal, which spares a special treatment for
+                        ambiguous graphemes (<emph>b, v, c, z, g</emph>). In this step, the text is
+                        not only transcribed but also preprocessed. Stranded letters are
+                        transliterated to their spelling (e.g., <emph>B</emph> would become
+                            <emph>be</emph>) as well as non-Spanish diacritics (e.g., Catalan
+                            <foreign xml:lang="cat">què</foreign> would become <emph>ké</emph>);
+                        other potential sources of errors are also handled here (e.g., typographic
+                        ligatures). Finally, it allows a straightforward treatment of vowel
+                        clusters, as syllabic and non-syllabic vocalic allophones do not share a
+                        common representation.</p>
+                    <p>The syllabification proper is carried out by the independent library
+                        Silabeador, called by the transcriber. First, the programme looks for
+                        non-transliterated Latin words and tries to transliterate them according to
+                        the Spanish orthographic rules. Contrary to other foreign words, Latin words
+                        are not phonologically adapted and tend to respect not only stress positions
+                        contradicting Spanish rules but also the original syllabic division, which
+                        may also differ from Spanish due to the disparate sets of diphthongs of both
+                        languages. Then, the programme marks forced syllabic divisions where an
+                        exception should occur according to an external file. This file consists of
+                        two columns with <term>regular expression</term> substitutions; the first
+                        field contains a matching pattern, and the second corresponds to its
+                        substitution, including an underscore where a syllabic division must be
+                        forced. These phonological exceptions include ubiquitous words whose
+                        Castillian pronunciatiation differs from the orthographic hyphenation. To
+                        name some extremely common in any kind of speech, this rule matches the
+                        hiatuses of verbs in <foreign xml:lang="es">-iar, -uar, -uir</foreign>
+                        <ptr target="#quilis2019"/>, <foreign xml:lang="es">-eir</foreign>, and
+                            <foreign xml:lang="es">-oir</foreign>
+                        <ptr target="#rios1999"/>, adjectives in -uoso <ptr target="#quilis2019"/>,
+                        some particular nouns <ptr target="#navarrotomas1957"/>, and other words
+                            <ptr target="#canelladamadsen1987"/>. Adjectives in <foreign
+                            xml:lang="es">-mente</foreign> are also exceptional since they carry
+                        secondary stress <ptr target="#quilis2013"/>, which Spanish phonology
+                        otherwise lacks. They are marked too in the morpheme, and the
+                        syllabification module receives the lexeme alone; finally, both parts are
+                        rejoined after their separate treatment.</p>
+                    <p>There are ambiguous words, such as <foreign xml:lang="es">juez</foreign>,
+                            <foreign xml:lang="es">suave</foreign> or <foreign xml:lang="es"
+                            >fiel</foreign>
+                        <ptr target="#dominguez2012"/>, in which the diphthong is often broken in
+                        Spanish Golden Age verses. They might be typographically marked with a
+                        diaeresis (<foreign xml:lang="es">ï</foreign> or <foreign xml:lang="es"
+                            >ü</foreign>) by the editor of the source, in which case they are parsed
+                        as usual, but this may not be the case. Therefore, these ambiguous clusters
+                        are marked as a diaresis, although their sinaeresis will be given priority
+                        later.</p>
+                    <p>The resulting text is divided in its syllabic nuclei, arranging the
+                        diphthongs except for those explicitly separated in the previous step.
+                        Non-syllabic vowels – the non-nuclear sounds in a vocalic glide – are marked
+                        as such by substituting them for the character representing the
+                        corresponding allophone. The outcome is a list of syllabic nuclei and free
+                        consonants. Finally, those free consonants are assigned to the proper
+                        syllable on coda or onset according to Spanish phonological rules <ptr
+                            target="#quilis2019"/>. The output is a list of phonological transcribed
+                        syllables and the prosodic stress on the due ones.</p>
+                </div>
+                <div>
+                    <head>Stress assignment</head>
+                    <p>Word stress does not correspond to metric stress exactly<note>To use a simile
+                            with similar effects in verse - with all their differences - think of
+                            the full and reduced forms of function words in English.</note> as some
+                        word classes are considered unstressed regardless of their pronunciation in
+                        isolation <ptr target="#quilis2013"/>. The class <code>VerseMetre</code> of
+                        libEscansión determines which words carry metric stress. It takes a verse as
+                        an argument, cleans it, and divides its words into syllables using the
+                        library Fonemas. It also uses Stanza <ptr target="#qietal2020"/> to PoS-tag
+                        each word. After this, it decides whether a particular word carries stress
+                        according to its PoS-tag, but also considering the relation to neighbouring
+                        words when forming a compound as it may deprive from their prosodic stress
+                        to otherwise stressed words (e.g. <foreign xml:lang="es">Santo
+                            Tomás</foreign> /san.to toˈmas/ but <foreign xml:lang="es">el santo
+                            padre</foreign> /el ˈsan.to ˈpa.dɾe/ or <foreign xml:lang="es"
+                            >cuarenta</foreign> /kwaˈɾen.ta/ but <foreign xml:lang="es">cuarenta y
+                            dos</foreign> /kwa.ɾen.tai̯ˈdos/), in a similar fashion as it occurs,
+                        for example, with English numerals.</p>
+                    <p>PoS-tagging may produce consistent errors or not be detailed enough. It can
+                        be bypassed in such situations by marking the words according to lists of
+                        stressed or unstressed occurrences. Undetected errors, however, are still
+                        possible. The greatest difficulty is detecting when an unstressed word
+                        should not carry prosodic stress as it involves several open word classes,
+                        whilst unstressed words belong to close ones. Therefore, a relatively high
+                        proportion of wrongly tagged words has no impact on the outcome as long as
+                        the tag represents an equivalent class in terms of stress.</p>
+                </div>
+            </div>
+            <div>
+                <head>Syllabic adjustment</head>
+                <p>The syllabic adjustment resorts to libEscansión class <code>VerseMetre</code>, a
+                    child of <code>PlayLine</code>. This class takes a sorted list of possible
+                    numbers of syllables apart from the verse as an argument. For a play, a
+                    reasonable value for the list would be at least <code>[8, 11, 7, 6]</code> as
+                    most verses are octosyllabic, but hendecasyllables or these mixed with
+                    heptasyllables, hexasyllables for sung verses, and even more exotic combinations
+                    may appear. On the other hand, regular sonnets would encounter no problem with a
+                    list with one element <code>[11]</code>.</p>
+                <p>The syllables are then parsed considering word boundaries by the private method
+                        <code>__adjust_metre()</code>, which takes a list of words and a sorted list
+                    of potential metres. Firstly, it tests whether the syllabic count plus the
+                    rhyme-stress correction (in other words, adding a syllable if the rhyming word
+                    is oxytonic or subtracting one if it is proparoxytonic) matches the first
+                    element of the list, which would be a trivial solution. Otherwise, it tries to
+                    adjust the metre.</p>
+                <p>The function has subroutines to search for potential synaloephas, hiatuses, and
+                    epentheses and apply them when necessary. If the verse length equals the number
+                    of orthographic syllables minus the number of potential synaloephas, it applies
+                    the synaloephas to the list of words. If this is not the case, it tries to do
+                    the same, but removing potential epentheses this time. In the opposite
+                    situation, if the orthographic syllables count is lower than the expected
+                    number, the function tries to apply hiatuses in suitable positions.</p>
+                <p>Finally, the function checks whether the corrected length matches the expected
+                    one more time. If this is the case, it returns the list of words flattened to a
+                    list of syllables. Otherwise, it calls itself recursively passing the list of
+                    expected lengths after removing its first element. Consequently, in the next
+                    recursion level, the method repeats the same process but regarding the second
+                    element of the original list as the expected length.</p>
+                <p>Syllabic splitting and joining are done with equivalent procedures. Placing
+                    synaloephas and synaereses or hiatuses and diaereses follows the same steps.
+                    First, a function locates all potential instances of the trope in question and
+                    produces a list of potential positions. Second, another function assesses and
+                    ranks those instances according to a system of preferences. Finally, another
+                    function applies the figure according to each position's rank until it matches
+                    the expected verse length. The three functions are invoked sequentially by a
+                    recursive function. With the sorted list of potential adjustments, the function
+                    applies the first one and invokes itself for the new list of words.</p>
+                <p>Let us illustrate it with the synaloephas and synaereses as the process involves
+                    additional steps. Finding potential syllabic mergers involves finding pairs of
+                    vowels in syllabic boundaries, providing they are compatible according to the
+                    perceptibility scale <ptr target="#navarrotomas1957"/>. That means finding those
+                    combinations in which the perceptibility decreases in both directions of the
+                    nucleus.</p>
+                <table xml:id="table01">
+                    <head>Perceptibility scale</head>
+                    <row role="label">
+                        <cell>w</cell>
+                        <cell>j</cell>
+                        <cell>e̯</cell>
+                        <cell>o̯</cell>
+                        <cell>a̯</cell>
+                        <cell/>
+                        <cell>a̯</cell>
+                        <cell>o̯</cell>
+                        <cell>e̯</cell>
+                        <cell>i̯</cell>
+                        <cell>u̯</cell>
+                    </row>
+                    <row role="data">
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell>-</cell>
+                        <cell>
+                            <hi rend="bold">a</hi>
+                        </cell>
+                        <cell>-</cell>
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell>x</cell>
+                    </row>
+                    <row role="data">
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell>-</cell>
+                        <cell>
+                            <hi rend="bold">o</hi>
+                        </cell>
+                        <cell/>
+                        <cell>-</cell>
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell/>
+                    </row>
+                    <row role="data">
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell>-</cell>
+                        <cell/>
+                        <cell>
+                            <hi rend="bold">e</hi>
+                        </cell>
+                        <cell/>
+                        <cell/>
+                        <cell>-</cell>
+                        <cell>x</cell>
+                        <cell>x</cell>
+                        <cell/>
+                    </row>
+                    <row role="data">
+                        <cell>x</cell>
+                        <cell>-</cell>
+                        <cell/>
+                        <cell/>
+                        <cell>
+                            <hi rend="bold">i</hi>
+                        </cell>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                        <cell>-</cell>
+                        <cell>x</cell>
+                        <cell/>
+                    </row>
+                    <row role="data">
+                        <cell>x</cell>
+                        <cell>-</cell>
+                        <cell/>
+                        <cell/>
+                        <cell>
+                            <hi rend="bold">u</hi>
+                        </cell>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                        <cell/>
+                        <cell>-</cell>
+                        <cell/>
+                    </row>
+                </table>
+                <p>That validates the transcription Example 2a and Example 2b, as its long vocalic
+                    is built around a nucleus <emph>o</emph> with higher perceptibility than the
+                    non-syllabic semiconsonant at its side in Example 2a or semivowel in Example 2b.
+                    Conversely, Example 2c and Example 2d contradict the Spanish phonology, as
+                        <emph>o</emph> is the vowel of highest perceptibility in this example and,
+                    therefore, cannot follow a less perceptible <emph>u</emph>. In the best case,
+                    three words can join in a five-vowel synaloepha, such as <foreign xml:lang="es"
+                        >envidio a Eustaquio</foreign> (/j̯o̯ae̯u̯/).</p>
+                <dhq:example xml:id="example02">
+                    <p><foreign xml:lang="es">uno u otro</foreign></p>
+                    <p>Example 2a. /ˈu.no ˈwo.tɾo/</p>
+                    <p>Example 2b. /ˈu.nou̯ ˈo.tɾo/</p>
+                    <p>Example 2c. /ˈu ˈnou̯o̯.tɾo/</p>
+                    <p>Example 2d. /ˈu ˈno̯wo.tɾo/</p>
+                </dhq:example>
+                <p>With the list of potential synaloephas, each element is evaluated and given
+                    points according to the prosodic circumstances colluding <ptr
+                        target="#canelladamadsen1987"/> and their relative position according to the
+                    perceptibility scale and the Spanish preference for crescent diphthongs <ptr
+                        target="#alarcos1964"/>. Potential synaloephas between hemistichs have a
+                    penalisation – exceptional cases such as the conjunctions <foreign xml:lang="es"
+                        >y</foreign> and <foreign xml:lang="es">o</foreign> need to be addressed
+                    individually. Additionally, a correction to potentially aspirated <emph>h</emph>
+                    is added. The latter responds to the poets' custom of making it aspirated (/h/)
+                    when in need of breaking a synaloepha, despite having become mute in the regular
+                    speech a long time ago and being kept in the orthography on pure etymological
+                    grounds <ptr target="#lapesa2008"/>. Once the inter-word boundaries are parsed,
+                    the same is done with the in-word syllables, not without adding an offset to
+                    prioritise synaloephas over synaereses. The list of positions is sorted
+                    according to their scores.</p>
+                <p>Finally, another function rearranges the list of syllables by joining words where
+                    required. This step involves not only moving phonemes and joining syllables but
+                    also marking non-syllabic vowels as such in the newly created clusters.</p>
+                <p>Diaereses are solved in a similar fashion. Firstly, the programme composes a list
+                    of potential divisions. Then, it assigns priorities and applies them recursively
+                    until meeting the expected count, or it tries with the next length value of the
+                    list if no suitable arrangement can be found.</p>
+            </div>
+            <div>
+                <head>Mixed verse scansion</head>
+                <p>Using a sorted list of expected verse lengths confers great flexibility to
+                    libEscansión. For example, our approach to parsing plays consists of creating an
+                    instance of <code>VerseMetre</code>, providing an initial list with typical
+                    lengths such as <code>[8, 11, 7, 6, 5, 4]</code>. The verses usually are
+                    octosyllabic, so we put <code>8</code> in the first position. However, if a
+                    hendecasyllabic appears, the new instance of <code>VerseMetre</code> for the
+                    next verse will be given a list with <code>11</code> on top. We also know that
+                    poetic forms composed of hendecasyllabic and heptasyllabic verses are common.
+                    Therefore, we relegate <code>8</code> to the third position. Furthermore, as we
+                    work with parsed plays, we can use additional data to infer the length. For
+                    example, if the speaker is a musician or plainly <code>MUSIC</code>, it would
+                    probably be a popular form in hexasyllabic verses rather than a more
+                    prescriptive one; thus, we could parse that particular verse directly with
+                        <code>6</code> on top.</p>
+                <p>For example, the first <term xml:lang="es">estrambote</term> verse of Quevedo’s
+                        <title rend="quotes">Pintando la vida de un señor mal ocupado</title> has
+                    seven syllables instead of eleven (<foreign xml:lang="es">Ca.ba.lle.ros
+                        chan.flo.nes</foreign>). We pass <code>[11, 7, 8, 6]</code> to the
+                    disambiguation module when analysing sonnets. After confirming that there are no
+                    possible divisions to obtain eleven syllables, the module calls itself removing
+                    the first element of the list of lengths and passing <code>[7, 8, 6]</code> to
+                    the next recursion level. As <code>7</code> is indeed possible, it returns this
+                    resolution.</p>
+                <p>In addition to attributes for syllables and rhythm, the class
+                        <code>VerseMetre</code> provides others for full and partial rhymes,
+                    syllabic nuclei, and ambiguity. The last one takes an integer value and can be
+                    used for a second pass to improve mixed-verse results.</p>
+            </div>
+            <div>
+                <head>Evaluation</head>
+                <div>
+                    <head>Syllabification</head>
+                    <p>We have tested the syllabification accuracy against the 106,362 words corpus
+                        EDFU <ptr target="#rosaperez2020"/>. Using an <emph>American</emph>
+                        configuration as the corpus does, that is, without non-orthographic hiatuses
+                        and the group <emph>tl</emph> as an indivisible onset (<foreign
+                            xml:lang="es">trans-a-tlán-tico</foreign> instead of <foreign
+                            xml:lang="es">trans-at-lán-ti-co</foreign>), the syllabification module
+                        achieves 99.92% accuracy. This improves Agirrezabals's <ptr
+                            target="#agirrezabaletal2017"/> 98.06% and Navarro-Colorado's <ptr
+                            target="#navarrocolorado2015"/> 98.35%. However, at first sight, it lies
+                        behind 99.99% of Rantanplan <ptr target="#rosaetal2020a"/>. That is,
+                        disregarding errors like improper diphthongs in the corpus, such as <foreign
+                            xml:lang="es">amambaiense</foreign>
+                        <foreign xml:lang="es">a-mam-baien-se</foreign> instead of <foreign
+                            xml:lang="es">a-mam-ba-ien-se</foreign>. All in all, 86 words differ
+                        from the corpus. From those, after a visual inspection, 37 differences are
+                        wrongly syllabified in the corpus, 41 have alternative yet acceptable
+                        differing syllabifications, and our programme wrongly syllabifies eight
+                        words <ref target="#table02">Table 2</ref>.</p>
+                    <table xml:id="table02">
+                        <head>Syllabification errors</head>
+                        <row role="label">
+                            <cell/>
+                            <cell>Word</cell>
+                        </row>
+                        <row role="data">
+                            <cell>1</cell>
+                            <cell>alz-hei-mer</cell>
+                        </row>
+                        <row role="data">
+                            <cell>2</cell>
+                            <cell>alz-héi-mer</cell>
+                        </row>
+                        <row role="data">
+                            <cell>3</cell>
+                            <cell>em-men-thal</cell>
+                        </row>
+                        <row role="data">
+                            <cell>4</cell>
+                            <cell>in-ter-vi-ú</cell>
+                        </row>
+                        <row role="data">
+                            <cell>5</cell>
+                            <cell>o-ui-ja</cell>
+                        </row>
+                        <row role="data">
+                            <cell>6</cell>
+                            <cell>pen-thou-se</cell>
+                        </row>
+                        <row role="data">
+                            <cell>7</cell>
+                            <cell>s-pas-pag-het-ti</cell>
+                        </row>
+                        <row role="data">
+                            <cell>8</cell>
+                            <cell>s-pin-ning</cell>
+                        </row>
+                    </table>
+                    <p>The words <emph>penthouse</emph> and <emph>ouija</emph> do not obey the
+                        Spanish rules and are syllabified by approximating the original phonology,
+                        which would require to treat them as an exception. Since this would not be
+                        productive, we have opted to accept this kind of error. When considering
+                        only these eight proper errors, the accuracy rises to 99.99%.</p>
+                </div>
+                <div>
+                    <head>Metrical scansion</head>
+                    <p>To test the accuracy<note>The script used is available in libEscansion
+                            development Git repository <ptr target="#sanzlazaro2024a"/> in the
+                            subdirectory <code>utils</code>. </note>, we downloaded the corpus ADSO
+                        100 <ptr target="#navarrocolorado2017"/> using the tool Averell <ptr
+                            target="#diazetal2021"/> to compare our results with previous studies,
+                        which is the gold standard they used. ADSO 100 is the only manually
+                        annotated corpus of its size with a reported inter-annotator agreement. It
+                        comprises 1,404 verses.<note> The reason of this figure rather than 1,400 is
+                            Quevedo's inclusion of four additional verses, a <term xml:lang="es"
+                                >estrambote</term>, in <title rend="quotes">Pintando la vida de un
+                                señor mal ocupado</title>.</note>. Our hardware was an Intel® Core™
+                        i5-3470 CPU @ 3.20GHz, 16 GB of DDR4 RAM and a GPU NVIDIA GeForce GTX 1060
+                        with 6GB. The PoS-tagging module ran on the GPU. For the syllabification,
+                        the options for Castilian prosody have been enabled, as well as epentheses.
+                        The analysis takes 87 seconds (±1.5 s) in all cases (running Stanza on the
+                        GPU), disregarding the approximately 7 seconds Stanza takes to load.</p>
+                    <p>In short, libEscansión scores 97.01% accuracy against the corpus when running
+                        with its standard settings (<emph>Castilian</emph> syllabification), an
+                        improvement over previous scansion engines (<ref target="#table02">Table
+                            3</ref>). The American syllabification renders slightly worse results,
+                        with 96.51%. However, as noted above, this corpus considers interjections
+                        such as <foreign xml:lang="es">oh</foreign> and <foreign xml:lang="es"
+                            >ay</foreign> as unstressed, whilst our library does not. This behaviour
+                        can be reproduced with an ad hoc three-line hack in the code, in which case
+                        the accuracy would reach 98.65% for the standard setting and 98.15% for the
+                        American syllabification. We have considered inconsistencies in the corpus
+                        notation for the test as some proparoxytonic verses of the corpus are marked
+                        by omitting one of the last two unstressed syllables.</p>
+                    <table xml:id="table03">
+                        <head>Scores on Navarro-Colorado’s 100 sonnets corpus as reported by Marco
+                            et al. <ptr target="#marcoetal2021"/>. Best scores in bold.</head>
+                        <row role="label">
+                            <cell>Method</cell>
+                            <cell>Accuracy</cell>
+                        </row>
+                        <row role="data">
+                            <cell>Gervás</cell>
+                            <cell>70.88</cell>
+                        </row>
+                        <row role="data">
+                            <cell>Agirrezabal</cell>
+                            <cell>90.84</cell>
+                        </row>
+                        <row role="data">
+                            <cell>Navarro-Colorado</cell>
+                            <cell>94.45</cell>
+                        </row>
+                        <row role="data">
+                            <cell>Jumper</cell>
+                            <cell>94.97</cell>
+                        </row>
+                        <row role="data">
+                            <cell>Rantanplan</cell>
+                            <cell>96.23</cell>
+                        </row>
+                        <row role="data" style="bold">
+                            <cell>libEscansión (ours)</cell>
+                            <cell>97.01</cell>
+
+                        </row>
+                    </table>
+                    <p>Apart from the disagreements due to interjections, there are 19 disparate
+                        verses left for other reasons and another with disagreements beyond the
+                        interjections (<ref target="#table04">Table 4, row 18</ref>). There are ten
+                        disagreements due to spelling deviations (rows 1–5) and annotator mistakes
+                        (rows 6–12). In the first case, the manual annotation reflects the
+                        pronunciation despite the lack of accents, such as in words like <foreign
+                            xml:lang="es">Príamo</foreign> and the more subtle diacritics of
+                            <foreign xml:lang="es">aún</foreign> and <foreign xml:lang="es"
+                            >dó</foreign>. Consequently, humans have an advantage over machines as
+                        the former can recognise the proper pronunciation despite the spelling. The
+                        second case ranges from non-marked stresses in content words, disregarding
+                        the primary stress of an adverb in <foreign xml:lang="es">-mente</foreign>
+                        or an adjective, or the opposite, stressing an unstressed syllable like in
+                        an honorary title preceding a noun or the locution <foreign xml:lang="es">ya
+                            que</foreign>.</p>
+
+                    <p>Two disagreements (rows 18–19) deserve a special mention. The first is due to
+                        a PoS-tagging mistake, as <foreign xml:lang="es">para</foreign> has been
+                        tagged as a preposition due to the lack of a vocative comma, which
+                        illustrates what we said above. Even though other potential errors of a
+                        similar kind have been intercepted, ambiguities resembling row 18 cannot be
+                        bypassed since the PoS-tagger has operated as expected, and it is unviable
+                        to predict any potential typo or edition mistake. The second mistake (row
+                        19) is rather interesting. The syllabificator breaks the diphthong, but
+                            <code>VerseMetre</code>, after pondering all the options, joins the
+                        vowels again as it prioritises placing the caesura between words when
+                        keeping editorial diareses is not explictly forced.</p>
+
+                    <table xml:id="table04">
+                        <head>Differing annotations. In 13-17, corpus in bold, LibScansión in
+                            italics</head>
+                        <row role="label">
+                            <cell/>
+                            <cell>Verse</cell>
+                        </row>
+                        <row role="data">
+                            <cell>1</cell>
+                            <cell>falte a <hi rend="bold">Pri</hi>amo tierra y falte fuego.</cell>
+                        </row>
+                        <row role="data">
+                            <cell>2</cell>
+                            <cell>Si rico, ¿<hi rend="bold">do</hi> tus bienes vinculados?</cell>
+                        </row>
+                        <row role="data">
+                            <cell>3</cell>
+                            <cell><hi rend="bold">aun</hi> no pudo, de lástima, dar muerte,</cell>
+                        </row>
+                        <row role="data">
+                            <cell>4</cell>
+                            <cell><hi rend="bold">aun</hi> le quedaba brío y lozanía.</cell>
+                        </row>
+                        <row role="data">
+                            <cell>5</cell>
+                            <cell>del muerto Lilio es; que <hi rend="bold">aun</hi> no
+                                perdona</cell>
+                        </row>
+                        <row role="data">
+                            <cell>6</cell>
+                            <cell>quien <hi rend="bold">promete</hi> buen fin a mi viaje,</cell>
+                        </row>
+                        <row role="data">
+                            <cell>7</cell>
+                            <cell>trocó mi mal en <hi rend="bold">bien</hi>, mi pena en
+                                gloria.</cell>
+                        </row>
+                        <row role="data">
+                            <cell>8</cell>
+                            <cell>este que, siendo <hi rend="bold">solamente</hi> cero,</cell>
+                        </row>
+                        <row role="data">
+                            <cell>9</cell>
+                            <cell>del <hi rend="bold">señor</hi> Amadís, como tú hiciste </cell>
+                        </row>
+                        <row role="data">
+                            <cell>10</cell>
+                            <cell><hi rend="bold">ya que</hi> no se conserva, se previene</cell>
+                        </row>
+                        <row role="data">
+                            <cell>11</cell>
+                            <cell>¡Oh <hi rend="bold">san</hi>to bodegón! ¡Oh picardía!</cell>
+                        </row>
+                        <row role="data">
+                            <cell>12</cell>
+                            <cell>Llámasme, <hi rend="italic">gran</hi> Señor; nunca
+                                respondo.</cell>
+                        </row>
+                        <row role="data">
+                            <cell>13</cell>
+                            <cell>con<hi rend="bold">fia</hi><hi rend="italic">da en</hi> la vista
+                                vencedora,</cell>
+                        </row>
+                        <row role="data">
+                            <cell>14</cell>
+                            <cell><hi rend="bold">Maes</hi><hi rend="italic">tro e</hi>ra de esgrima
+                                Campuzano,</cell>
+                        </row>
+                        <row role="data">
+                            <cell>15</cell>
+                            <cell>Yo <hi rend="bold">vi u</hi>nos ojos bellos, <hi rend="italic">que
+                                    hi</hi>rieron</cell>
+                        </row>
+                        <row role="data">
+                            <cell>16</cell>
+                            <cell>Quien <hi rend="italic">no, hu</hi><hi rend="bold">ya y no
+                                es</hi>cuche mi lamento,</cell>
+                        </row>
+                        <row role="data">
+                            <cell>17</cell>
+                            <cell>Lo cadu<hi rend="bold">co es</hi><hi rend="italic">ta ur</hi>na
+                                peregrina,</cell>
+                        </row>
+                        <row role="data">
+                            <cell>18</cell>
+                            <cell><hi rend="italic">Para</hi> cochero. El coche está en
+                                palacio.</cell>
+                        </row>
+                        <row role="data">
+                            <cell>19</cell>
+                            <cell>amenazando una total r<hi rend="italic">üi</hi>na</cell>
+                        </row>
+                    </table>
+
+                    <p>If we leave the remaining inter-annotator disagreements, be they errors or
+                        different yet valid takes on the verse, libEscansión reaches a 99.50%
+                        accuracy.</p>
+                </div>
+            </div>
+            <div xml:id="usage">
+                <head>Requirements, installation and use</head>
+                <p>libEscansión was intended to be an internal part of a more complex mechanism. As
+                    the aim was to parse hundreds of thousands of verses from various sources
+                    automatically <ptr target="#sanzlazaro2023c"/>, the verse was the last step
+                    after digging into œuvre, play, and act. Therefore, it was conceived as a Python
+                    library to be called by the programmes in charge of working at a higher level
+                        <ptr target="#sanzlazaro2023a"/>. Nonetheless, it can be used as a
+                    standalone tool even if lacking knowledge of Python or programming, as long as a
+                    Python 3.9 or later distribution is installed on the computer. It has been
+                    released under the Free Software GNU LGPL licence, making it available for
+                    embedding in other software without requiring an equivalent licence as long as
+                    the library's code remains unmodified; otherwise, Free Software licencing would
+                    be required.</p>
+                <p>As libEscansión relies on several libraries, these must also be installed (see
+                        <ref target="#example3">Example 3</ref>).</p>
+                <dhq:example xml:id="example3">
+                    <eg lang="code-general"><![CDATA[
+pip install silabeador fonemas stanza==1.7.0 libEscansion
+]]></eg>
+                </dhq:example>
+                <p>In order to carry the PoS-tagging properly, language models for Spanish should be
+                    available. In our case, we have used Stanza for the task, which provides
+                    functions to download them. In short, after importing the library within the
+                    Python environment should be executed (see <ref target="#example4">Example
+                        4</ref>).</p>
+                <dhq:example xml:id="example4">
+                    <eg lang="code-general"><![CDATA[
+import stanza
+stanza.download(lang="es",
+                package=None,
+                processors={"ner": "ancora",
+                            "tokenize": "ancora",
+                            "pos": "ancora",
+                            "lemma": "ancora",
+                            "mwt":"ancora",
+                            "constituency":"combined_charlm",
+                            "depparse": "ancora", 
+                            "sentiment": "tass2020"})
+]]></eg>
+                </dhq:example>
+                <p>To deploy libEscansión, the library must first be imported into the Python
+                    environment. Then, an instance of the class <code>VerseMetre</code> can be
+                    created, passing the verse to scan as a parameter. For convenience, the class
+                        <code>VerseMetre</code> can be imported independently. The resulting object
+                    possesses a number of attributes to represent verse features. Even though IPA
+                    notation has been preserved to a great extent – and thus, Unicode support is
+                    required for optimal visualisation – the main concern was automating tasks. To
+                    simplify text processing, stressed syllables have upper-case letters as their
+                    nuclear vowel instead of the IPA stress symbol. A typical workflow is
+                    represented in <ref target="#figure02">Figure 2</ref>.</p>
+                <figure xml:id="figure02">
+                    <figDesc>Example of use.</figDesc>
+                    <graphic url="resources/images/figure02.png"/>
+                </figure>
+            </div>
+            <div>
+                <head>Limitations</head>
+                <p>The library libEscansión has been designed with Spanish Golden Age theatrical
+                    verses in mind. Consequently, it has been modelled according to the usual metres
+                    in such pieces. The aforementioned manually annotated corpus of sonnets was the
+                    only one providing inter-annotator agreement, but it fulfilled the project's
+                    purposes. That means that no tests have been carried out with other types of
+                    verse, such as Alexandrines, regardless of their popularity and usage prior to
+                    and after the period, and further tests are required to measure libEscansion's
+                    accuracy beyond the Spanish Golden Age theatre versifying customs.</p>
+                <p>Furthermore, the tool was implemented as a means to build a data frame rather
+                    than a standalone tool. Therefore, speed has not been considered, and the
+                    processing time reflects it. Even though the hardware substantially differs from
+                    that used by Marco et al. <ptr target="#marcoetal2021"/> to carry out their
+                    tests, the processing time is still two orders of magnitude higher than the
+                    fastest method's score.</p>
+                <p>A weak spot is a dependency on a reliable PoS-tagger to mark prosodic stresses,
+                    which, in turn, depends on a language model. Consequently, erroneous tags have
+                    to be intercepted to bypass the PoS-tagging. This is not always possible, as
+                    some errors are unpredictable, and creating an exception for others would
+                    provoke side effects.</p>
+            </div>
+            <div>
+                <head>Conclusions and further work</head>
+                <p>We have presented a new library for analysing Spanish verses that surpasses other
+                    automatic scansion tools for Spanish fixed-metre verses. The contribution of
+                    this work is twofold, as it involves different linguistic choices and a novel
+                    approach to ambiguity resolution. On the one hand, we have opted for Castilian
+                    syllabification rather than the more diphthong-prone American (and
+                    orthographical) varieties. According to the results, this may be a sensible
+                    choice as it outperforms the latter under identical conditions. On the other
+                    hand, we have presented a perceptibility-based recursive prioritisation system,
+                    which, combined with the Peninsular syllabification, raises the score of
+                    libEscansión well above its peers.</p>
+                <p>Additionally, working with Unicode-based phonological transcriptions removes
+                    layers of abstraction and the necessity of mapping correspondences to go back
+                    and forth from written to spoken text. This dramatically simplifies the handling
+                    of vocalic clusters since it explicitly discriminates between syllabic and
+                    non-syllabic vowels.</p>
+                <p>The high degree of modularisation of the tools, with separate libraries for
+                    syllabification, phonological transcription and scansion, extends the range of
+                    uses beyond metrical analysis, as the lower layers can be used independently for
+                    different purposes. Syllabification and phonological transcription undoubtedly
+                    have uses beyond the narrow spectrum of historical theatre, in fields such as
+                    linguistics and language teaching.</p>
+                <p>With regard to poetry, which is the main focus of this work, there are many
+                    examples of the library being used in a real-life scenario. It has been
+                    developed primarily to provide a corpus for remote reading analyses, taking into
+                    account metric features. The corpus annotated with a previous version of
+                    libEscansión is available under a Creative Commons BY licence as an SQL database
+                        <ptr target="#krollsanz2024"/>, which is also hosted online and available
+                    for external queries through a graphical interface <ptr target="#sound2022"
+                    />.</p>
+                <p>There is plenty of room for further improvement. However, comprehensive testing
+                    requires manually annotated corpora. Hopefully, in the near future, manually
+                    annotated corpora of polymetric pieces and other poetic forms besides the sonnet
+                    used here will be prepared. This would allow for further testing, which would
+                    undoubtedly reveal shortcomings and help improve libEscansión. </p>
+                <p>Although libEscansión was conceived as an auxiliary tool, it has transcended its
+                    original purpose. However, its interface limits it to a specialised niche with
+                    some technical knowledge. A graphical interface could help a broad public to
+                    access the capabilities of libEscansión without coding. As for users familiar
+                    with programming, thanks to the Free Software licence, libEscansión can be
+                    integrated into new developments – including third-party frontends – and its
+                    code can be adapted for new purposes.</p>
+            </div>
+            <div type="appendix">
+                <head>libEscansión Resources</head>
+                <p>The library libEscansión, documentation, and associated materials for
+                    installation and use may be found at <ref
+                        target="https://pypi.org/project/libEscansion/"
+                        >https://pypi.org/project/libEscansion/</ref> and on GitHub at <ref
+                        target="https://github.com/fsanzl/libEscansion"
+                        >https://github.com/fsanzl/libEscansion</ref>.</p>
+            </div>
+            <div type="appendix">
+                <head>Funding</head>
+                <p>This work is part of the project <title>Sound and Meaning in Spanish Golden Age
+                        Literature</title>, funded by the Austrian Science Fund (FWF P 32563). <ref
+                        target="https://doi.org/10.55776/P32563"
+                        >https://doi.org/10.55776/P32563</ref></p>
+                <p>This work was supported by the project <title>The Interpretation of Childbirth in
+                        Early Modern Spain</title>, funded by the Austrian Science Fund (FWF P
+                    32263). <ref target="https://doi.org/10.55776/P32263"
+                        >https://doi.org/10.55776/P32263</ref></p>
+
+            </div>
+        </body>
+        <back>
+            <listBibl>
+                <bibl xml:id="agirrezabaletal2017" label="Agirrezabal, Alegría and Hulden 2017">
+                    Agirrezabal, Manex, Iñaki Alegría and Mans Hulden. <title rend="quotes">A
+                        comparison of feature-based and neural scansion of poetry</title>. In <title
+                        rend="italic">RANLP 2017 – Recent Advances in Natural Language
+                        Processing</title>, 18–23. 2017. <ref
+                        target="https://doi.org/10.26615/978-954-452-049-6_003"
+                        >https://doi.org/10.26615/978-954-452-049-6_003</ref>. </bibl>
+                <bibl xml:id="alarcos1964" label="Alarcos 1964"> Alarcos Llorach, Emilio. <title
+                        rend="italic">Fonología española</title>. Madrid: Gredos, 1964. </bibl>
+                <bibl xml:id="calvo2021" label="Calvo Tello 2021"> Calvo Tello, José. <title
+                        rend="quotes">Corpus de novelas de la Edad de Plata, en XML-TEI</title>.
+                        <title rend="italic">Signa: Revista de la Asociación Española de
+                        Semiótica</title> vol. 30 (2021): 83–107. <ref
+                        target="https://doi.org/10.5944/signa.vol30.2021.29299 "
+                        >https://doi.org/10.5944/signa.vol30.2021.29299</ref>
+                </bibl>
+                <bibl xml:id="calvo2016" label="Calvo Tello 2016"> Calvo Tello, José. <title
+                        rend="quotes">Entendiendo Delta desde las humanidades</title>. <title
+                        rend="italic">Caracteres. Estudios culturales y críticos de la esfera
+                        digital</title> vol. 5.1 (2016): 140–176. <ref
+                        target="https://doi.org/10.5944/signa.vol30.2021.29299 "
+                        >https://doi.org/10.5944/signa.vol30.2021.29299</ref>
+                </bibl>
+                <bibl xml:id="canelladamadsen1987" label="Canellada and Madsen 1987"> Canellada,
+                    María Josefa and John K. Madsen. <title rend="italic">Pronunciación del español.
+                        Lengua hablada y literaria</title>. Barcelona: Castalia, 1987. </bibl>
+                <bibl xml:id="cuellar2024" label="Cuéllar 2024"> Cuéllar, Álvaro. <title
+                        rend="quotes">Stylometry and Spanish Golden Age theatre: An evaluation of
+                        authorship attribution in a control group of one hundred undisputed
+                        plays</title>. In <title rend="italic">Digital stylistics in Romance Studies
+                        and beyond</title>, edited by Robert Hesselbach, José Calvo Tello, Ulrike
+                    Henny-Krahmer, Christof Schöch and Daniel Daniel. Heidelberg: Heidelberg
+                    University Press, 2024. <ref
+                        target="https://www.academia.edu/53262871/Stylometry_and_Spanish_Golden_Age_Theatre_An_Evaluation_of_Authorship_Attribution_in_a_Control_Group_of_Undisputed_Plays"
+                        >
+                        https://www.academia.edu/53262871/Stylometry_and_Spanish_Golden_Age_Theatre_An_Evaluation_of_Authorship_Attribution_in_a_Control_Group_of_Undisputed_Plays
+                    </ref>. [preprint]. Accessed 09 February 2024.</bibl>
+                <bibl xml:id="cuellar2023a" label="Cuéllar 2023a"> Cuéllar, Álvaro. <title
+                        rend="quotes">Cronología y estilometría: datación automática de comedias de
+                        Lope de Vega</title>. <title rend="italic">Anuario Lope de Vega. Texto,
+                        literatura, cultura</title>, vol. 29 (2023): 97-130. <ref
+                        target="https://doi.org/10.5565/rev/anuariolopedevega.483"
+                        >https://doi.org/10.5565/rev/anuariolopedevega.483</ref>. </bibl>
+                <bibl xml:id="cuellar2023b" label="Cuéllar 2023b"> Cuéllar, Álvaro. <title
+                        rend="quotes">La Inteligencia Artificial al rescate del Siglo de Oro.
+                        Transcripción y modernización automática de mil trescientos impresos y
+                        manuscritos teatrales</title>. <title rend="italic">Hipogrifo. Revista de
+                        literatura y cultura del Siglo de Oro</title>, vol. 11.1 (2023): 101–115.
+                        <ref target="https://doi.org/10.13035/H.2023.11.01.08"
+                        >https://doi.org/10.13035/H.2023.11.01.08</ref>. </bibl>
+                <bibl xml:id="cuellarvega2023a" label="Cuéllar and Vega García-Luengos 2023a">
+                    Cuéllar, Álvaro and Germán Vega García-Luengos. <title rend="quotes"><foreign
+                            xml:lang="es"><title rend="italic">La francesa Laura</title>. El
+                            hallazgo de una nueva comedia del Lope de Vega</foreign></title>. <title
+                        rend="italic">Anuario Lope de Vega</title>, vol. 29 (2023): 131–198. <ref
+                        target="https://doi.org/10.5565/rev/anuariolopedevega.492"
+                        >https://doi.org/10.5565/rev/anuariolopedevega.492</ref>. </bibl>
+                <bibl xml:id="cuellarvega2023b" label="Cuéllar and Vega García-Luengos 2023b">
+                    Cuéllar, Álvaro and Germán Vega García-Luengos. <title rend="quotes">Un nuevo
+                        repertorio dramático para Andrés de Claramonte</title>. <title rend="italic"
+                        >Hipogrifo. Revista de literatura y cultura del Siglo de Oro</title>, vol.
+                    11.1 (2023): 117–172. <ref target="https://doi.org/10.13035/H.2023.11.01.09"
+                        >https://doi.org/10.13035/H.2023.11.01.09</ref>. </bibl>
+                <bibl xml:id="diazetal2021" label="Díaz et al. 2021"> Díaz Medina, Aitor, Álvaro
+                    Pérez Pozo and Javier de la Rosa. <title rend="italic">Averell: A corpus
+                        management tool to transform poetic corpora into a JSON format compliant
+                        with the POSTDATA ontology, 2021. v1.2.2</title>
+                    <ref target="https://doi.org/10.5281/zenodo.5702404"
+                        >https://doi.org/10.5281/zenodo.5702404</ref>
+                </bibl>
+                <bibl xml:id="dicat" label="DICAT 2024"> DICAT. <title rend="italic">DICAT. Grupo de
+                        investigación teatral</title>. <ref
+                        target="https://dicat.uv.es/elgrupodicat"
+                        >https://dicat.uv.es/elgrupodicat</ref>
+                </bibl>
+                <bibl xml:id="dominguez2012" label="Domínguez 2012"> Domínguez Caparrós, José.
+                        <title rend="quotes">Prosodia rítmica de vocales contiguas en interior de
+                        palabra</title>. <title rend="italic">Rhythmica. Revista Española de Métrica
+                        Comparada</title> vol. 10 (2012): 11–44. <ref
+                        target="https://doi.org/10.5944/rhythmica.13067"
+                        >https://doi.org/10.5944/rhythmica.13067</ref>
+                </bibl>
+                <bibl xml:id="ehrlicheretal2020" label="Ehrlicher et al. 2020"> Ehrlicher Hanno,
+                    Jörg Lehmann, Nils Reiter and Marcus Willand. <title rend="quotes">La poética
+                        dramática desde una perspectiva cuantitativa: la obra de Calderón de la
+                        Barca</title>. <title rend="italic">Revista de Humanidades Digitales</title>
+                    vol. 5 (2020): 1–25 <ref target="https://doi.org/10.5944/rhd.vol.5.2020.27716"
+                        >https://doi.org/10.5944/rhd.vol.5.2020.27716</ref>
+                </bibl>
+                <bibl xml:id="fradejas2010" label="Fradejas Rueda 2010"> Fradejas Rueda, José
+                    Manuel. <title rend="quotes">La codificación XML/TEI de textos
+                        medievales</title>. <title rend="italic">Memorabilia</title> vol. 12 (2010):
+                    219–247. <ref target="http://dx.doi.org/10.17613/M6DH35"
+                        >http://dx.doi.org/10.17613/M6DH35</ref>
+                </bibl>
+
+                <bibl xml:id="fradejas2016" label="Fradejas Rueda 2016"> Fradejas Rueda, José
+                    Manuel. <title rend="quotes">El análisis estilométrico aplicado a la literatura
+                        española: las novales policiacas e históricas</title>. <title rend="italic"
+                        >Caracteres. Estudios culturales y críticos de la esfera digital</title>
+                    vol. 5.2 (2016): 196-245. <ref target="http://dx.doi.org/10.17613/M6J66F"
+                        >http://dx.doi.org/10.17613/M6J66F</ref>
+                </bibl>
+                <bibl xml:id="gervas2000" label="Gervás 2000"> Gervás, Pablo. <title rend="quotes">A
+                        logic programming application for the analysis of Spanish verse</title>. In
+                        <title rend="italic">Computational Logic - CL 2000, First International
+                        Conference</title>, 1330–1344. Berlin: Springer, 2000. <ref
+                        target="https://doi.org/10.1007/3-540-44957-4_89"
+                        >https://doi.org/10.1007/3-540-44957-4_89</ref>
+                </bibl>
+                <bibl xml:id="hernandez2020" label="Hernández Lorenzo 2020"> Hernández Lorenzo,
+                    Laura. <title rend="quotes">Humanidades Digitales y Literatura española: 50 años
+                        de repaso histórico y panorámica de proyectos representativos</title>.
+                        <title rend="italic">Janus: estudios sobre el Siglo de Oro</title> vol. 9
+                    (2020): 562–595. <ref target="https://www.janusdigital.es/articulo.htm?id=154"
+                        >https://www.janusdigital.es/articulo.htm?id=154</ref>
+                </bibl>
+                <bibl xml:id="istae" label="Istae 2024"> ISTAE. <title rend="italic">ISTAE. Impresos
+                        sueltos del teatro antiguo español</title>. <ref
+                        target="https://istae.uv.es/">https://istae.uv.es/</ref>
+                </bibl>
+                <bibl xml:id="krollsanz2024" label="Kroll and Sanz-Lázaro 2024"> Kroll, Simon and
+                    Fernando Sanz-Lázaro. <title rend="italic">Versos y estructuras teatrales
+                        áureos. A corpus of Spanish plays with dramatic and metric
+                        information</title>. 2024 <ref target="https://doi.org/10.25365/phaidra.471"
+                        >https://doi.org/10.25365/phaidra.471</ref>
+                </bibl>
+
+                <bibl xml:id="krollsanz2022" label="Kroll and Sanz-Lázaro 2023">Kroll, Simon and
+                    Fernando Sanz-Lázaro. <title rend="quotes">Ritmo, autoría y género: nuevas
+                        perspectivas sobre teatro lopesco desde las humanidades digitales</title>.
+                        <title rend="italic">Anuario Lope de Vega</title> vol. 29 (2023): 351–375.
+                        <ref target="https://doi.org/10.5565/rev/anuariolopedevega.491"
+                        >https://doi.org/10.5565/rev/anuariolopedevega.491</ref>
+                </bibl>
+                <bibl xml:id="krollsanz2023" label="Kroll and Sanz-Lázaro 2022">Kroll, Simon and
+                    Fernando Sanz-Lázaro. <title rend="quotes">Romances teatrales entre Mira de
+                        Amescua, Calderón y Lope: ritmo, asonancia y cuestiones de autoría</title>.
+                        <title rend="italic">Revista de Humanidades Digitales</title> vol. 7.1
+                    (2022): 1–18. <ref target="https://doi.org/10.5944/rhd.vol.7.2022.31620"
+                        >https://doi.org/10.5944/rhd.vol.7.2022.31620</ref>
+                </bibl>
+                <bibl xml:id="lapesa2008" label="Lapesa 2008"> Lapesa, Rafael. <title rend="italic"
+                        >Historia de la lengua española</title>. Madrid: Gredos, 2008. </bibl>
+                <bibl xml:id="marcoetal2021" label="Marco et al. 2021"> Marco, Guillermo, Javier de
+                    la Rosa, Julio Gonzalo, Salvador Ros, and Elena González-Blanco. <title
+                        rend="quotes">Automated Metric Analysis of Spanish Poetry: Two Complementary
+                        Approaches</title>. <title rend="italic">IEEE Access</title> vol. 9 (2021):
+                    51734–51746. <ref target="https://doi.org/10.1109/ACCESS.2021.3069635"
+                        >https://doi.org/10.1109/ACCESS.2021.3069635</ref>
+                </bibl>
+                <bibl xml:id="marcogonzalo2021" label="Marco and Gonzalo 2021"> Marco, Guillermo and
+                    Julio Gonzalo. <title rend="quotes">Escansión automática de poesía española sin
+                        silabación</title>. <title rend="italic">Procesamiento del Lenguaje
+                        Natural</title> vol. 66 (2021): 77–87. <ref
+                        target="https://doi.org10.26342/2021-66-6"
+                        >https://doi.org10.26342/2021-66-6</ref>
+                </bibl>
+                <bibl xml:id="navarrocolorado2017" label="Navarro-Colorado 2017"> Navarro-Colorado,
+                    Borja. <title rend="quotes">A metrical scansion system for fixed-metre Spanish
+                        poetry</title>. <title rend="italic">Digital Scholarship in the
+                        Humanities</title> vol. 33.1 (2017): 112–127. <ref
+                        target="https://doi.org/10.1093/llc/fqx009"
+                        >https://doi.org/10.1093/llc/fqx009</ref>
+                </bibl>
+                <bibl xml:id="navarrocolorado2015" label="Navarro-Colorado 2015"> Navarro-Colorado,
+                    Borja. <title rend="quotes">A computational linguistic approach to Spanish
+                        Golden Age Sonnets: Metrical and semantic aspects</title>. In <title
+                        rend="italic">Proceedings of NAACL-HLT Fourth Workshop on Computational
+                        Linguistics for Literature</title>, 105–13. Denver, CO: Association for
+                    Computational Linguistics, 2015. <ref
+                        target="https://doi.org/10.3115/v1/W15-0712"
+                        >https://doi.org/10.3115/v1/W15-0712</ref>
+                </bibl>
+                <bibl xml:id="navarrocoloradoetal2016" label="Navarro-Colorado et al. 2016">
+                    Navarro-Colorado, Borja, María Ribes, and Noelia Sánchez. <title rend="quotes"
+                        >Metrical annotation of a large corpus of Spanish sonnets: representation,
+                        scansion and evaluation</title>. <title rend="italic">10th edition of the
+                        Language Resources and Evaluation Conference 2016 Portorož,
+                    Slovenia</title>, 2016. <ref
+                        target="http://www.dlsi.ua.es/~borja/navarro2016_MetricalPatternsBank.pdf"
+                        >http://www.dlsi.ua.es/~borja/navarro2016_MetricalPatternsBank.pdf</ref>
+                </bibl>
+                <bibl xml:id="navarrotomas2015" label="Navarro Tomás 2015"> Navarro Tomás, Tomás.
+                        <title rend="quotes">El octosílabo y sus modalidades</title>. In <title
+                        rend="italic">Los poetas en sus versos: desde Jorge Manrique a García
+                        Lorca</title>, 35–66. Madrid: Centro para la edición de los clásicos
+                    españoles, 2014. </bibl>
+                <bibl xml:id="navarrotomas1957" label="Navarro 1957"> Navarro Tomás, Tomás. <title
+                        rend="italic">Manual de pronunciación española</title>. Madrid: Consejo
+                    Superior de Investigaciones Científicas, 1957. </bibl>
+                <bibl xml:id="prolope" label="Prolope 2024"> Prolope. <title rend="italic">Prolope.
+                        Grupo de investigación sobre Lope de Vega de la Universidad Autónoma de
+                        Barcelona</title>. 2024. <ref target="https://prolope.uab.cat/"
+                        >https://prolope.uab.cat/</ref>
+                </bibl>
+                <bibl xml:id="qietal2020" label="Qi et al. 2020"> Qi, Peng, Yuhao Zhang, Yuhui
+                    Zhang, Jason Bolton, and Christopher D. Manning. <title rend="quotes">Stanza: A
+                        Python Natural Language Processing Toolkit for Many Human Languages</title>.
+                    In <title rend="italic">Proceedings of the 58th Annual Meeting of the
+                        Association for Computational Linguistics: System Demonstrations</title>.
+                    2020. <ref target="https://nlp.stanford.edu/pubs/qi2020stanza.pdf"
+                        >https://nlp.stanford.edu/pubs/qi2020stanza.pdf</ref>
+                </bibl>
+                <bibl xml:id="quilis2019" label="Quilis 2019"> Quilis, Antonio. <title rend="italic"
+                        >Tratado de fonología y fonética españolas</title>. Madrid: Gredos, 2019. </bibl>
+                <bibl xml:id="quilis2013" label="Quilis 2013"> Quilis, Antonio. <title rend="italic"
+                        >Métrica españolas</title>. Barcelona: Ariel, 2013. </bibl>
+                <bibl xml:id="rio2022" label="Río Riande 2022"> Río Riande, Jimena del. <title
+                        rend="quotes">Humanidades Digitales o las Humanidades en la intersección de
+                        lo digital, lo público, lo mínimo y lo abierto</title>
+                    <title rend="italic">Publicaciones de la Asociación Argentina de Humanidades
+                        Digitales</title>. vol. 33 (2022). <ref
+                        target="https://doi.org/10.24215/27187470e038"
+                        >https://doi.org/10.24215/27187470e038 </ref>
+                </bibl>
+                <bibl xml:id="rios1999" label="Ríos 1999"> Ríos Mestre, Antonio. <title
+                        rend="quotes">La transcripción fonética automática del diccionario
+                        electrónico de formas simples flexivas del español: estudio fonológico en el
+                        léxico</title>. <title rend="italic">Estudios de Lingüística del
+                        Español</title> vol. 4 (1999): 1–2. <ref
+                        target="http://elies.rediris.es/elies4/"
+                        >http://elies.rediris.es/elies4/</ref>
+                </bibl>
+                <bibl xml:id="rosaperez2020" label="Rosa and Pérez 2020"> Rosa, Javier de la and
+                    Álvaro Pérez. <title rend="italic">linhd-postdata/edfu: First version of EDFU
+                        syllabification corpus</title>. 2020. <ref
+                        target="https://zenodo.org/record/3898684"
+                        >https://zenodo.org/record/3898684</ref>
+                </bibl>
+                <bibl xml:id="rosacuellarlehmann2024" label="Rosa, Cuéllar and Lehmann 2024"> Rosa,
+                    Javier de la, Álvaro Cuéllar and Jörg Lehmann. <title rend="quotes">El proyecto
+                        Moderniſa: modernización ortográfica del teatro del Siglo de Oro con modelos
+                        de lenguaje</title>. <title rend="italic">Anuario Lope de Vega</title> vol
+                    30 (2024): 410–425. <ref
+                        target="https://doi.org/10.5565/rev/anuariolopedevega.530"
+                        >https://doi.org/10.5565/rev/anuariolopedevega.530</ref>
+                </bibl>
+                <bibl xml:id="rosaetal2020a" label="Rosa et al. 2020a"> Rosa, Javier de la, Álvaro
+                    Pérez, Laura Hernández, Salvador Ros, Elena González-Blanco. <title
+                        rend="italic">PoetryLab: An open source toolkit for the analysis of Spanish
+                        poetry corpora</title>. 2020. <ref
+                        target="https://postdata.linhd.uned.es/results/poetrylab/poetrylab-app/"
+                        >https://postdata.linhd.uned.es/results/poetrylab/poetrylab-app/</ref>
+                </bibl>
+                <bibl xml:id="rosaetal2020b" label="Rosa et al. 2020b"> Rosa, Javier de la, Álvaro
+                    Pérez, Laura Hernández, Salvador Ros, and Elena González-Blanco. <title
+                        rend="quotes">Rantanplan, fast and accurate syllabification and scansion of
+                        Spanish poetry</title>. <title rend="italic">Procesamiento del Lenguaje
+                        Natural</title> vol. 65 (2020): 83–90. <ref
+                        target="https://doi.org/10.26342/2020-65-10"
+                        >https://doi.org/10.26342/2020-65-10</ref>
+                </bibl>
+                <bibl xml:id="sanchez2017" label="Sánchez Jiménez 2017"> Sánchez Jiménez, Antonio.
+                        <title rend="quotes">Acentos contiguos en los romances de la
+                            <emph>Arcadia</emph> (1598), de Lope de Vega</title>. <title
+                        rend="italic">Atalanta. Revista de las letras barrocas</title> vol. 5.1
+                    (2017): 5–61. <ref target="https://doi.org/10.14643/51A"
+                        >https://doi.org/10.14643/51A</ref>
+                </bibl>
+                <bibl xml:id="sanzlazaro2024a" label="Sanz-Lázaro 2024"> Sanz-Lázaro, Fernando.
+                        <title rend="italic">libEscansión</title>. 2024 <ref
+                        target="https://github.com/fsanzl/libEscansion"
+                        >https://github.com/fsanzl/libEscansion</ref>
+                </bibl>
+                <bibl xml:id="sanzlazaro2024b" label="Sanz-Lázaro 2024b"> Sanz-Lázaro, Fernando.
+                        <title rend="italic">Ritmo y estructura de la comedia áurea: posibilidades y
+                        límites del análisis digital automático del teatro español clásico</title>
+                    [PhD thesis]. University of Vienna, 2024. <ref
+                        target="https://doi.org/10.25365/thesis.75102"
+                        >https://doi.org/10.25365/thesis.75102</ref></bibl>
+
+                <bibl xml:id="sanzlazaro2023a" label="Sanz-Lázaro 2023a"> Sanz-Lázaro, Fernando.
+                        <title rend="quotes">Del fonema al verso: una caja de herramientas digitales
+                        de escansión teatral</title>. <title rend="italic">Revista de Humanidades
+                        Digitales</title> vol. 8 (2023): 74–89. <ref
+                        target="https://doi.org/10.5944/rhd.vol.8.2023.37830"
+                        >https://doi.org/10.5944/rhd.vol.8.2023.37830</ref>
+                </bibl>
+                <bibl xml:id="sanzlazaro2023b" label="Sanz-Lázaro 2023b"> Sanz-Lázaro, Fernando.
+                        <title rend="italic">libEscansión</title>. 2023 <ref
+                        target="https://doi.org/10.25365/phaidra.465"
+                        >https://doi.org/10.25365/phaidra.465</ref>
+                </bibl>
+                <bibl xml:id="sanzlazaro2023c" label="Sanz-Lázaro 2023c"> Sanz-Lázaro, Fernando.
+                        <title rend="quotes">Planteamientos digitales del drama aurisecular:
+                        automatización de la escansión métrica de obras teatrales</title>. In <title
+                        rend="italic">La escritura en el tiempo: investigaciones en torno a la
+                        literatura hispánica</title>, edited by Inés González Cabeza, Érika
+                    Redruello Vidal and Raquel de la Varga Llamazares, pp 109–126, León: Universidad
+                    de León, 2023. </bibl>
+                <bibl xml:id="sanzlazaro2021a" label="Sanz-Lázaro 2021a"> Sanz-Lázaro, Fernando.
+                        <title rend="italic">Fonemas/</title>. 2021a <ref
+                        target="https://doi.org/10.25365/phaidra.466"
+                        >https://doi.org/10.25365/phaidra.466</ref>
+                </bibl>
+                <bibl xml:id="sanzlazaro2021b" label="Sanz-Lázaro 2021b"> Sanz-Lázaro, Fernando.
+                        <title rend="italic">Silabeador</title>. 2021b <ref
+                        target="https://doi.org/10.25365/phaidra.467"
+                        >https://doi.org/10.25365/phaidra.467</ref>
+                </bibl>
+                <bibl xml:id="sound2022" label="Sound and Meaning 2022"> Sound and Meaning in
+                    Spanish Golden Age Literature. <title rend="italic">Search corpus</title>. 2022
+                        <ref target="https://soundandmeaning.univie.ac.at/?page_id=175"
+                        >https://soundandmeaning.univie.ac.at/?page_id=175</ref>
+                </bibl>
+                <bibl xml:id="varelaetal2005" label="Varela Merino, Moíno Sánchez and Jauralde Pou">
+                    Varela Merino, Elena, Pablo Moíno Sánchez and Pablo Jauralde Pou. <title
+                        rend="italic">Manual de métrica española</title>. Madrid: Castalia, 2005. </bibl>
+                <bibl xml:id="vega" label="Vega 2015"> Lope de Vega, Félix <title rend="italic">La
+                        dama boba</title>, edited by Marco Presotto. Collab. Sònia Boadas, Eugenio
+                    Maggi and Aurèlia Pessarrodona. Barcelona/Bologne: Prolope/Alma Mater Studiorum
+                    - Università di Bologna, 2015. <ref
+                        target="https://doi.org/10.6092/UNIBO/LADAMABOBA"
+                        >https://doi.org/10.6092/UNIBO/LADAMABOBA</ref>
+                </bibl>
+            </listBibl>
+        </back>
+    </text>
+</TEI>
