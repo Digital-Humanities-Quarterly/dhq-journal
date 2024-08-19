@@ -171,33 +171,31 @@
 
     <rule abstract="true" id="target-uri-constraints">
       <assert test="normalize-space(@target)"><name/>/@target is empty</assert>
-      <assert test="@target castable as xs:anyURI"><name/>/@target is not a
-      URI</assert>
-      <assert role="warning" test="matches(@target,'#|/')"><name/>/@target
-        appears suspect: it has neither '#' nor '/'</assert>
+      <assert test="@target castable as xs:anyURI"><name/>/@target is not a URI</assert>
+      <assert role="warning" test="matches(@target,'#|/')"><name/>/@target appears suspect: it has neither '#' nor '/'</assert>
     </rule>
         
-        <!--checks to see when @target begins with a '#' AND does not point to an @xml:id-->
-        <rule context="tei:ref[starts-with(normalize-space(@target),'#')]">
-                <assert role="warning" test="substring(normalize-space(@target), 2) = //@xml:id">
-                        The @target of <name/> does not reference an @xml:id in this document</assert>
-        </rule>
-        
-        <!-- warns if @target seems to point externally and is missing a protocol or is missing a '#'; 
-        removed because this rule causes the one below not to work properly (line 197)-->
-                <!--<rule context="*[@target]">
-                <assert role="warning"
-                        test="starts-with(@target, 'http://') or
-                                                starts-with(@target, 'https://') or
-                                                starts-with(@target, '#')">
-                        @target should begin with 'http://' or 'https://' if it points to an external source.
-                </assert>
-    </rule>-->
+    <!--checks to see when @target begins with a '#' AND does not point to an @xml:id-->
+    <rule context="tei:ref[starts-with(normalize-space(@target),'#')]">
+      <assert role="warning" test="substring(normalize-space(@target), 2) = //@xml:id">
+        The @target of <name/> ("<value-of select="@target"/>") does not reference an @xml:id in this document
+      </assert>
+    </rule>
+    
+    <!-- warns if @target seems to point externally and is missing a protocol or is missing a # -->
+    <rule context="*[ @target  and  not( starts-with( normalize-space(@target), '#') ) ]">
+      <assert role="warning"
+              test="starts-with( normalize-space(@target), 'http://') or
+                    starts-with( normalize-space(@target), 'https://')" >
+        @target should begin with 'http://' or 'https://' if it points to an external source.
+      </assert>
+    </rule>
 
-    <rule context="tei:ptr[starts-with(@target,'#')]">
+    <rule context="tei:ptr[ starts-with( normalize-space(@target), '#')]">
       <extends rule="target-uri-constraints"/>
-      <assert test="replace(@target,'^#','') = //tei:bibl/@xml:id"
-        role="warning"><name/> does not reference a bibl</assert>
+      <assert test="substring(normalize-space(@target), 2) = //tei:bibl/@xml:id" role="warning">
+        The @target of <name/> ("<value-of select="@target"/>") does not reference a bibl in this document
+      </assert>
         <!-- Removing the checks on @loc; actual values are too complex to model/constrain with Schematron. 
                 Retaining the code in case we want it later.
       <!- $d is an arabic natural number (one or more digits not starting with 0) 
