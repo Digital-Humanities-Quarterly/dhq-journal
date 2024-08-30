@@ -9,7 +9,12 @@
     <xsl:import href="bios.xsl"/>
     
     <xsl:param name="fpath"/>
-    <!-- The relative path from the webpage to the DHQ home directory. -->
+    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+      slash. This value is used by head.xsl and other stylesheets to construct links relative, if not 
+      directly from the current page, then from the DHQ home directory.
+      Here, by default, the "Internal Preview" biographies page appears one folder below the home 
+      directory, at
+          editorial/bios.html -->
     <xsl:param name="path_to_home" select="'..'"/>
     
     <xsl:template match="/">

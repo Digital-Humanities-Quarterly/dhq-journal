@@ -19,9 +19,12 @@
     
     <xsl:param name="staticPublishingPathPrefix" select="'../../toc/'"/>
     <xsl:param name="context"/>
-    <!-- The relative path from the webpage to the DHQ home directory. The path must 
-      not end with a slash. -->
-    <xsl:param name="path_to_home" as="xs:string"/>
+    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+      slash. This value is used by this and other stylesheets to construct links relative, if not 
+      directly from the current page, then from the DHQ home directory. Because this stylesheet is used for 
+      pages throughout DHQ, the value of $path_to_home should be provided by an stylesheet which imports 
+      this one. -->
+    <xsl:param name="path_to_home" select="''" as="xs:string"/>
     
     
     <xsl:template name="sidenavigation">

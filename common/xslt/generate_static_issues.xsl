@@ -394,6 +394,7 @@
             <xsl:map-entry key="QName( (),'fpath')" select="'index/title.html'"/>
             <xsl:map-entry key="QName( (),'context')" select="$context"/>
             <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
+            <!-- The index appears one directory below the DHQ main directory. -->
             <xsl:map-entry key="QName( (),'path_to_home')" select="'..'"/>
           </xsl:map>
         </xsl:map-entry>
@@ -412,6 +413,7 @@
             <xsl:map-entry key="QName( (),'fpath')" select="'index/author.html'"/>
             <xsl:map-entry key="QName( (),'context')" select="$context"/>
             <xsl:map-entry key="QName( (),'doProofing')" select="$do-proofing"/>
+            <!-- The index appears one directory below the DHQ main directory. -->
             <xsl:map-entry key="QName( (),'path_to_home')" select="'..'"/>
           </xsl:map>
         </xsl:map-entry>

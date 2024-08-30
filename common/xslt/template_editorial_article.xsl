@@ -25,7 +25,11 @@
     <!--    <xsl:param name="source" select="''"/>-->
     <xsl:param name="context"/>
     <xsl:param name="fpath"/>
-    <!-- The relative path from the webpage to the DHQ home directory. -->
+    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+      slash. This value is used by head.xsl and other stylesheets to construct links relative, if not 
+      directly from the current page, then from the DHQ home directory.
+      Here, by default, an "Internal Preview" article appears two folders below the home directory, e.g. at
+          editorial/999882/999882.html -->
     <xsl:param name="path_to_home" select="'../..'"/>
     
     

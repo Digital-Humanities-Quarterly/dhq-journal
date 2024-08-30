@@ -32,7 +32,11 @@
     <xsl:param name="staticPublishingPath">
         <xsl:value-of select="'../../articles/'"/>
     </xsl:param>
-    <!-- The relative path from the webpage to the DHQ home directory. -->
+    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+      slash. This value is used by head.xsl and other stylesheets to construct links relative, if not 
+      directly from the current page, then from the DHQ home directory.
+      Here, by default, an article appears four folders below the home directory, e.g. at
+          vol/1/1/000001/000001.html -->
     <xsl:param name="path_to_home" select="'../../../..'"/>
     
     <xsl:template match="/">

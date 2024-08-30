@@ -6,8 +6,12 @@
     version="2.0">
     
     <xsl:param name="context"/>
-    <!-- The relative path from the webpage to the DHQ home directory. -->
-    <xsl:param name="path_to_home" select="'.'" as="xs:string"/>
+    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+      slash. This value is used by this and other stylesheets to construct links relative, if not 
+      directly from the current page, then from the DHQ home directory. Because this stylesheet is used for 
+      pages throughout DHQ, the value of $path_to_home should be provided by an stylesheet which imports 
+      this one. -->
+    <xsl:param name="path_to_home" select="''" as="xs:string"/>
     <xsl:param name="assets-path" select="concat($path_to_home,'/common/')"/>
     <!-- The character used to separate directories in filepaths. This is only used 
       for linking to local CSS and Javascript, so that a preview webpage is styled 

@@ -16,7 +16,7 @@
         
         The other index-generating stylesheet is title_index.xsl . Both stylesheets 
         share a lot of similar code. If you make a change in one, you should check
-        if the change would be revelant in the other stylesheet.
+        if the change would be relevant in the other stylesheet.
         
         CHANGES:
           2024-07, Ash: Updated to XSLT 3.0 from 1.0, and refactored the stylesheet 

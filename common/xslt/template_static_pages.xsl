@@ -25,7 +25,12 @@
         <xsl:value-of select="concat($fdir,$dir-separator,$fname)"/>
       </xsl:if>
     </xsl:param>
-    <!-- The relative path from the webpage to the DHQ home directory. -->
+    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+      slash. This value is used by head.xsl and other stylesheets to construct links relative, if not 
+      directly from the current page, then from the DHQ home directory.
+      Here, by default, a "static" page appears one folder below the home directory, e.g. at
+          about/about.html
+      As of 2024-08, there are no subdirectories within these folders. -->
     <xsl:param name="path_to_home" select="'..'"/>
     
     <xsl:template match="/">
