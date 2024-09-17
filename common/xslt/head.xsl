@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+    exclude-result-prefixes="#all"
+    version="2.0">
     
     <xsl:param name="context"/>
-    <xsl:param name="assets-path" select="concat('/',$context,'/')"/>
+    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+      slash. This value is used by this and other stylesheets to construct links relative, if not 
+      directly from the current page, then from the DHQ home directory. Because this stylesheet is used for 
+      pages throughout DHQ, the value of $path_to_home should be provided by an stylesheet which imports 
+      this one. -->
+    <xsl:param name="path_to_home" select="''" as="xs:string"/>
+    <xsl:param name="assets-path" select="concat($path_to_home,'/common/')"/>
     <!-- The character used to separate directories in filepaths. This is only used 
       for linking to local CSS and Javascript, so that a preview webpage is styled 
       appropriately on Windows computers. -->
@@ -53,7 +61,7 @@
             </xsl:if>
             
           <!-- what do do about rss? -->
-          <link rel="alternate" type="application/atom+xml"  href="{$assets-path}feed{$dir-separator}news.xml"/>
+          <link rel="alternate" type="application/atom+xml"  href="{$path_to_home}/feed{$dir-separator}news.xml"/>
 
             <!-- old asset link, before embedding. -->
             <!--   
@@ -65,14 +73,15 @@
           <link href="{concat('data:image/x-icon;base64,',$favicon)}" rel="icon" type="image/x-icon" />
             
             <!-- old asset link, before embedding. -->
-            <!--             
-          <script defer="defer" type="text/javascript" src="{$assets-path}common{$dir-separator}js{$dir-separator}javascriptLibrary.js">
+          <script defer="defer" type="text/javascript" src="{$assets-path}js/javascriptLibrary.js">
             <xsl:comment> serialize </xsl:comment>
           </script>
-          -->
-            <script defer="defer" type="text/javascript">
+            <!-- 2024-07: Embedding the Javascript below into XHTML caused the JS to be serialized so
+              browsers couldn't execute it (less-than symbols could not be parsed). -->
+            <!--<script defer="defer" type="text/javascript">
                 <xsl:sequence select="unparsed-text('../js/javascriptLibrary.js')"/>
-            </script>
+            </script>-->
+            
             <!-- Google Analytics -->
             <script type="text/javascript">
 
