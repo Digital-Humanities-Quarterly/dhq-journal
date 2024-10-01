@@ -9,7 +9,7 @@
   <!-- 
     See build-properties.xml for the settings used in this file. When referenced, 
     properties look like this:
-      ${toDir}
+      ${toDir.base}
     For more information, see https://ant.apache.org/manual/Tasks/xmlproperty.html
   -->
   <xmlproperty file="build-properties.xml" keepRoot="false"/>
@@ -17,11 +17,15 @@
   <!-- Define the relative path from the DHQ repository (this directory) to the 
     directory which will hold the directory of generated static site files, as well 
     as the full compressed site and derived Ant build file. -->
-  <property name="toDir.base" value="..${file.separator}${toDir}"/>
+  <property name="toDir.base.path" value="..${file.separator}${toDir.base}"/>
   
   <!-- Within ${toDir.base}, individually generated static site files will be 
     written to the ${context} directory. -->
-  <property name="toDir.static" value="${toDir.base}${file.separator}${context}"/>
+  <property name="toDir.static.path" value="${toDir.base.path}${file.separator}${toDir.static}"/>
+  
+  <!-- Within ${toDir.base}, the proofing version of the site will be written to the 
+    "dhq-proofing" directory. -->
+  <property name="toDir.proofing.path" value="${toDir.base.path}${file.separator}${toDir.proofing}"/>
   
   <!-- Check for the XML Resolver Java class, as it is a dependency for using the 
     Saxon HE processor. From the Saxon documentation on XSLT with Ant:
@@ -35,9 +39,9 @@
   <available classname="org.xmlresolver.Resolver" property="has.xmlresolver"/>
   
   
-  <!-- 
-    ANT TASKS
-  -->
+  <!--
+      ANT TASKS
+    -->
   
   <!-- If the XML Resolver JAR file is not already loaded, provide instructions for 
     running Ant with the "lib" command line option. Ant <target>s that use Saxon HE 
@@ -52,79 +56,98 @@ is loaded when Ant starts up. Please run Ant again like this:
     <echo level="info">OK</echo>
   </target>
   
-  <target name="help">
-    <echo>** DHQ static site generation build process **</echo>
-    <echo></echo>
-    <echo>General format:</echo>
-    <echo>  ant [-lib common${file.separator}lib${file.separator}saxon] [-Dprop=val ...] [target ...]</echo>
-    <echo>Where:</echo>
-    <echo>-lib common${file.separator}lib${file.separator}saxon</echo>
-    <echo>  is required if the chosen target performs XSL transformations, optional otherwise.</echo>
-    <echo>-Dprop=val</echo>
-    <echo>  is how you send parameters (which ant calls “properties”) to the process; typically</echo>
-    <echo>  used to say which specific article file to work on, e.g. “-Darticle.id=000370”.</echo>
-    <echo>  (The “...” just means that you can use multiple -Dprop=val, as needed.)</echo>
-    <echo>target</echo>
-    <echo>  indicates what you want done. For a list of possible targets with short</echo> 
-    <echo>  descriptions, issue `ant -projecthelp`. For longer descriptions, read on.</echo>
-    <echo/>
-    <echo>Targets:</echo>
-    <echo>       (Note that the “...” above means you can execute multiple targets at</echo>
-    <echo>        once; however, this should rarely be necessary or even particularly</echo>
-    <echo>        helpful in the DHQ case.)</echo>
-    <echo>help</echo>
-    <echo>  What you are reading now, and the default target.</echo>
-    <echo>previewArticle</echo>
-    <echo>  transform one article XML file (specified via its 6-digit number with -Darticle.id=,</echo>
-    <echo>  or via a prompt) into HTML. The output file is placed in the ${previewDir}${file.separator} subdirect-</echo>
-    <echo>  ory. It has relative links to assets in this main directory (not the subdirectory),</echo>
-    <echo>  and thus should be suitable for viewing on your local machine. (And may not be suit-</echo>
-    <echo>  able for use on the server.)</echo>
-    <echo>zipPreviewArticle</echo>
-    <echo>  similar to 'previewArticle', but: a) The output HTML file *and* its assets are</echo>
-    <echo>  archived together into a single ZIP file. b) The output HTML file uses relative</echo>
-    <echo>  links to the assets in the same directory, as would happen when the ZIP file is</echo>
-    <echo>  unzipped. Both the HTML file and the ZIP file are put in the ${previewDir}${file.separator} sub-</echo>
-    <echo>  directory, overwriting any previous version there.</echo>
-    <echo>generateIssues</echo>
-    <echo>  generates the index pages and HTML for each issue listed in the toc${file.separator}toc.xml file,</echo>
-    <echo>  including the article itself, the author biographies, and the “landing” page. The</echo>
-    <echo>  output is placed in the ${toDir.static}${file.separator} directory, i.e. in a sibling to this</echo>
-    <echo>  directory, overwriting any previous version. (Some temporary files are also placed</echo>
-    <echo>  in ${toDir.base}${file.separator}.) The output is designed to be viewed from a server, both because</echo>
-    <echo>  it uses absolute filepaths to its assets, and because the search functionality re-</echo>
-    <echo>  quires a server. Thus it will not work properly (and will look ugly) if viewed on</echo>
-    <echo>  your local machine.</echo>
-    <echo>generateSite</echo>
-    <echo>  As "generateIssues" above, but also copies over each article’s resources, various web</echo>
-    <echo>  assets, and the required bits of the submissions${file.separator} &amp; common${file.separator} subdirectories; obtains</echo>
-    <echo>  the XHTML 1.0 strict DTD; adds headers &amp; footers to static pages; and creates a ZIP</echo>
-    <echo>  file of only the article XML files in ${toDir.static}${file.separator}data${file.separator}dhq-xml.zip. Note that,</echo>
-    <echo>  as with "generateIssues", files use absolute filepaths.</echo>
-    <echo>generateSiteToGo</echo>
-    <echo>  As "generateSite" above, but then also creates a compressed archive of the generated</echo>
-    <echo>  output to make it easy to transfer (e.g., to a server). The output file can be found</echo>
-    <echo>  at ${toDir.base}${file.separator}${context}.zip.</echo>
-    <echo>generateSearchable</echo>
-    <echo>  As "generateSite" above, but then also uses (our copy of) the University of</echo>
-    <echo>  Victoria Endings Project StaticSearch tool to generate search capability. A</echo>
-    <echo>  separate JSON index file is created for every word found, and the search page</echo>
-    <echo>  at ${toDir.static}${file.separator}dhq${file.separator}vol${file.separator}search.html uses these for very fast searching.</echo>
-    <echo>  However, Those files that are not well-formed XML have to be excluded; thus this</echo>
-    <echo>  build process temporarily renames them (to *.NOTxhtml) and then renames them back.</echo>
-    <echo>generateSearchableToGo</echo>
-    <echo>  As "generateSearchable" above, but then also creates a compressed archive of the</echo>
-    <echo>  generated output to make it easy to transfer (e.g., to a server). The output file</echo>
-    <echo>  can be found at ${toDir.base}${file.separator}${context}.zip.</echo>
+  <!-- Documentation for the targets defined by this Ant build file. -->
+  <target name="help" description="Documentation on how to use DHQ Ant build targets.">
+    <echo>** DHQ static site generation build process **${line.separator}
+General format:
+  ant [-lib common${file.separator}lib${file.separator}saxon] [-Dprop=val ...] [target ...]
+Where:
+-lib common${file.separator}lib${file.separator}saxon
+  is required if the chosen target performs XSL transformations, but is optional otherwise.
+-Dprop=val
+  is how you send parameters (which ant calls “properties”) to the process; typically
+  used to say which specific article file to work on, e.g. “-Darticle.id=000370”.
+  (The “...” just means that you can use multiple -Dprop=val, as needed.)
+target
+  indicates what you want done. For a list of possible targets with short descriptions,
+  issue `ant -projecthelp`. For longer descriptions, read on.
+
+Targets:
+       (Note that the “...” above means you can execute multiple targets at once;
+        however, this should rarely be necessary or even particularly helpful in
+        the DHQ case.)
+help                                     (this is the default target)
+  What you are reading now.
+previewArticle
+  Transform one article XML file (specified via its 6-digit number with
+  -Darticle.id=, or via a prompt) into HTML. The output file is placed
+  in the ${previewDir}${file.separator} subdirectory. It has relative links to assets in
+  this main directory (not the subdirectory), and thus should be
+  suitable for viewing on your local machine. (And may not be suitable
+  for use on the server.)
+zipPreviewArticle
+  Similar to 'previewArticle', but: a) The output HTML file _and_ its
+  assets are archived together into a single ZIP file. b) The output
+  HTML file uses relative links to the assets in the same directory,
+  as would happen when the ZIP file is unzipped. Both the HTML file
+  and the ZIP file are put in the ${previewDir}${file.separator} subdirectory,
+  overwriting any previous version there.
+makeInternalPreview
+  Generate a proofing copy of all unpublished articles in the “editorial”
+  section of the toc${file.separator}toc.xml file. You will be given the option to 
+  generate a full copy of the DHQ static site _as well as_ the internal 
+  preview. The output is placed in the ${toDir.proofing.path}${file.separator} 
+  directory, i.e. inside a sibling to this directory. Any existing files 
+  inside ${toDir.proofing}${file.separator} will be deleted first. HTML for the unpublished 
+  articles will be found inside the ${toDir.proofing.path}${file.separator}editorial${file.separator} 
+  directory.
+generateIssues
+  Generate all parts of the static site that are derived from the DHQ TOC 
+  (toc${file.separator}toc.xml): article HTML, issue indexes, author biographies, and full 
+  journal indexes. This target generally does _not_ need to be run on its 
+  own — the `generateSite` target will run this one automatically.
+generateSite
+  Run `generateIssues` as described above, then compile the rest of the 
+  DHQ static site. XML, images, and other files are copied from this main 
+  directory to the ${toDir.static.path}${file.separator} directory. XHTML snippets are 
+  also transformed into full DHQ webpages. The output is placed in the 
+  ${toDir.static.path}${file.separator} directory, i.e. inside a sibling to this directory.
+  Important caveats: (a) Older files inside ${toDir.static.path}${file.separator} may be 
+  overwritten, but are not deleted. (b) HTML links to other pages within 
+  DHQ may not work, unless hosted on a web server at `URL/${context}`.
+generateSiteToGo
+  As "generateSite" above, but then also creates a compressed archive of the generated
+  output to make it easy to transfer (e.g., to a server). The output file can be found
+  at ${toDir.base}${file.separator}${context}.zip.
+generateSearchable
+  As "generateSite" above, but then also uses (our copy of) the University of
+  Victoria Endings Project StaticSearch tool to generate search capability. A
+  separate JSON index file is created for every word found, and the search page
+  at ${toDir.static}${file.separator}dhq${file.separator}vol${file.separator}search.html uses these for very fast searching.
+  However, Those files that are not well-formed XML have to be excluded; thus this
+  build process temporarily renames them (to *.NOTxhtml) and then renames them back.
+generateSearchableToGo
+  As "generateSearchable" above, but then also creates a compressed archive of the
+  generated output to make it easy to transfer (e.g., to a server). The output file
+  can be found at ${toDir.base}${file.separator}${context}.zip.
+    </echo>
   </target>
 
   <!-- Generate static HTML versions of the DHQ issues (articles, bios, & indices). -->
   <target name="generateIssues" depends="checkXmlResolver" 
      description="Generate static HTML versions of the DHQ issues.">
-    <mkdir dir="${toDir.static}${file.separator}vol"/>
+    <!-- By default, we want to use the standard directory for the static site. 
+      However, we can override it by setting the property first elsewhere — either 
+      on the command line, or in another Ant target that calls this one. This method 
+      of falling back lets us use this target to generate a proofing copy of DHQ as 
+      well as the publication-ready version. -->
+    <property name="toDir.use" value="${toDir.static.path}" unless:set="${toDir.use}"/>
+    <property name="do.proofing" value="false" unless:set="${do.proofing}"/>
+    <property name="do.proofing.full" value="true" unless:set="${do.proofing.full}"/>
+    <mkdir dir="${toDir.use}${file.separator}vol"/>
     <!-- Use XSLT to transform issues using the DHQ table of contents. -->
     <xslt in="toc${file.separator}toc.xml" 
-          out="${toDir.base}${file.separator}article-map.xml"
+          out="${toDir.base.path}${file.separator}article-map.xml"
           style="common${file.separator}xslt${file.separator}generate_static_issues.xsl"
           classpath="${processor.location}"
           force="true"
@@ -132,9 +155,12 @@ is loaded when Ant starts up. Please run Ant again like this:
       <factory name="${processor.name}"/>
       <param name="context" expression="${context}"/>
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
-        the output file's directory, ${toDir}. -->
-      <param name="static-dir" expression="${context}"/>
+        the output file's directory, ${toDir.base}. -->
+      <param name="static-dir" expression="${toDir.use}"/>
+      <param name="do-proofing" expression="${do.proofing}"/>
+      <param name="do-proofing-full" expression="${do.proofing.full}"/>
     </xslt>
+    <!--<echo message="${toDir.use}"/>-->
   </target>
 
   <!-- Generate a static version of the DHQ website. -->
@@ -143,10 +169,10 @@ is loaded when Ant starts up. Please run Ant again like this:
     <mkdir dir="${toDir.static}"/>
     <!-- Use the Ant build file created in "generateIssues" to copy articles' 
       resources to the right static directories. -->
-    <ant antfile="${toDir.base}${file.separator}article-map.xml" 
+    <ant antfile="${toDir.base.path}${file.separator}article-map.xml" 
          target="copyArticleResources" inheritRefs="true"/>
     <!-- Copy specific files in the base directory. -->
-    <copy todir="${toDir.static}">
+    <copy todir="${toDir.use}">
       <filelist dir=".">
         <file name="flow.js"/>
         <file name="robots.txt"/>
@@ -155,72 +181,70 @@ is loaded when Ant starts up. Please run Ant again like this:
       </filelist>
     </copy>
     <!-- Copy text files in the submissions directory. -->
-    <copy todir="${toDir.static}${file.separator}submissions">
+    <copy todir="${toDir.use}${file.separator}submissions">
       <fileset dir="submissions" includes="*.txt *.xml"/>
     </copy>
     <!-- Copy web assets. -->
-    <copy todir="${toDir.static}${file.separator}common">
+    <copy todir="${toDir.use}${file.separator}common">
       <fileset dir="common" excludes="lib/ tests/"/>
     </copy>
     <!-- Create a generic error page. (HTTP status 500) -->
     <xslt in="toc${file.separator}toc.xml" 
-          out="${toDir.static}${file.separator}500.html"
+          out="${toDir.use}${file.separator}500.html"
           style="common${file.separator}xslt${file.separator}template_article.xsl"
           classpath="${processor.location}"
           failonerror="false">
       <factory name="${processor.name}"/>
       <param name="context" expression="${context}"/>
+      <!-- Note that the "doProofing" parameter will prevent the XSLT from checking 
+        the TOC and possibly generating the error page we want, so we don't include 
+        it here. -->
       <param name="error" expression="true"/>
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
-        the output file's directory, ${toDir}. -->
-      <param name="static-dir" expression="${context}"/>
+        the output file's directory, ${toDir.base}. -->
+      <param name="static-dir" expression="${toDir.use}"/>
     </xslt>
     <!-- Create a page for "not found" errors. (HTTP status 404) -->
     <xslt in="toc${file.separator}toc.xml" 
-          out="${toDir.static}${file.separator}404.html"
+          out="${toDir.use}${file.separator}404.html"
           style="common${file.separator}xslt${file.separator}template_article.xsl"
           classpath="${processor.location}"
           failonerror="false">
       <factory name="${processor.name}"/>
       <param name="context" expression="${context}"/>
+      <!-- Note that the "doProofing" parameter will prevent the XSLT from checking 
+        the TOC and possibly generating the error page we want, so we don't include 
+        it here. -->
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
-        the output file's directory, ${toDir}. -->
-      <param name="static-dir" expression="${context}"/>
-    </xslt>
-    <!-- Transform the test file.
-      TODO: is this still necessary? -->
-    <xslt in="common${file.separator}tests${file.separator}starter.xml" 
-          out="${toDir.static}${file.separator}starter.html"
-          style="common${file.separator}tests${file.separator}test2.xsl"
-          classpath="${processor.location}">
-      <factory name="${processor.name}"/>
-      <param name="fpath" expression="starter.html"/>
+        the output file's directory, ${toDir.base}. -->
+      <param name="static-dir" expression="${toDir.use}"/>
     </xslt>
     <!-- Create the Atom news feed. -->
     <xslt in="toc${file.separator}toc.xml" 
-          out="${toDir.static}${file.separator}feed${file.separator}news.xml"
+          out="${toDir.use}${file.separator}feed${file.separator}news.xml"
           style="feed${file.separator}atomnews.xsl"
           classpath="${processor.location}"
           failonerror="false">
       <factory name="${processor.name}"/>
       <param name="context" expression="${context}"/>
+      <param name="doProofing" expression="${do.proofing}"/>
       <!-- A relative path in <xsl:result-document> will be calculated relative to 
-        the output file's directory, ${toDir}. -->
-      <param name="static-dir" expression="${context}"/>
+        the output file's directory, ${toDir.base}. -->
+      <param name="static-dir" expression="${toDir.use}"/>
     </xslt>
     <!-- Download a copy of the W3C XHTML 1.0 Strict DTD, and its supporting 
       character entity files. If these are already present in the dhq-static 
       directory, nothing is downloaded. -->
     <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
-         dest="${toDir.base}" skipexisting="true"/>
+         dest="${toDir.base.path}" skipexisting="true"/>
     <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent"
-         dest="${toDir.base}" skipexisting="true"/>
+         dest="${toDir.base.path}" skipexisting="true"/>
     <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent"
-         dest="${toDir.base}" skipexisting="true"/>
+         dest="${toDir.base.path}" skipexisting="true"/>
     <get src="https://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent"
-         dest="${toDir.base}" skipexisting="true"/>
+         dest="${toDir.base.path}" skipexisting="true"/>
     <!-- Add headers and footers to static pages. -->
-    <xslt destdir="${toDir.static}"
+    <xslt destdir="${toDir.use}"
           style="common${file.separator}xslt${file.separator}template_static_pages.xsl"
           filenameparameter="fname"
           filedirparameter="fdir"
@@ -230,7 +254,7 @@ is loaded when Ant starts up. Please run Ant again like this:
         the DTD. -->
       <xmlcatalog>
         <dtd publicId="-//W3C//DTD XHTML 1.0 Strict//EN"
-             location="${toDir.base}${file.separator}xhtml1-strict.dtd"/>
+             location="${toDir.base.path}${file.separator}xhtml1-strict.dtd"/>
       </xmlcatalog>
       <mapper>
         <!-- You can find the regular expression for the XHTML pages to be 
@@ -240,13 +264,14 @@ is loaded when Ant starts up. Please run Ant again like this:
       </mapper>
       <factory name="${processor.name}"/>
       <param name="assets-path" expression="..${file.separator}"/>
-      <param name="context" expression="dhq"/>
+      <param name="context" expression="${context}"/>
+      <param name="doProofing" expression="${do.proofing}"/>
     </xslt>
     <!-- Generate the ZIP file of all articles' XML. -->
-    <mkdir dir="${toDir.static}${file.separator}data"/>
+    <mkdir dir="${toDir.use}${file.separator}data"/>
     <!-- Use the Ant build file created in "generateIssues" to zip up all article 
       XML. -->
-    <ant antfile="${toDir.base}${file.separator}article-map.xml" dir="${basedir}" 
+    <ant antfile="${toDir.base.path}${file.separator}article-map.xml" dir="${basedir}" 
          target="zipArticleXml" inheritRefs="true"/>
   </target>
 
@@ -256,15 +281,25 @@ is loaded when Ant starts up. Please run Ant again like this:
     <antcall target="compressStatic"/>
   </target>
 
+  <!--
+toDir=${toDir}
+toDir.base=dhq-static
+toDir.use=../dhq-static/dhq
+toDir.base.path
+toDir.static=dhq
+toDir.static.path=../dhq-static/dhq
+-->
+  
   <target name="generateSearchable" depends="generateSite"
           description="Generate a searchable static non-standalone copy of DHQ.">
     <!-- Copy a few needed files over -->
-    <copy todir="${toDir.static}/data/uvepss">
+    <copy todir="${toDir.static.path}/data/uvepss">
       <fileset dir="data/uvepss"/>
     </copy>
-    <!--
-    <copy file="${toDir.static}/data/uvepss/search.html" todir="${toDir.static}/vol"/>
-    -->
+    <!-- instead of
+	 copy file="${toDir.static.path}/data/uvepss/search.html" todir="${toDir.static.path}/vol"
+	 here, we are going to process with template_static_pages
+	 later. / -->
     <echo> ... renaming ill-formed files (which would make this process crash) out of the way</echo>
     <!--
         UVEPSS will only operate on well-formed XHTML 5 files. This, I
@@ -289,8 +324,8 @@ is loaded when Ant starts up. Please run Ant again like this:
         space in the filename.
         — Syd, 2024-02-19
     -->
-    <move todir="${toDir.static}/vol">
-      <fileset dir="${toDir.static}/vol">
+    <move todir="${toDir.static.path}/vol">
+      <fileset dir="${toDir.static.path}/vol">
         <!-- Set of ill-formed files last updated 2024-05-09 -->
         <include name="9/2/000216/queerfemnotes.html"/>
         <include name="9/2/000216/resources/html/queerfemnotes.html"/>
@@ -311,14 +346,16 @@ is loaded when Ant starts up. Please run Ant again like this:
       </fileset>
       <mapper type="glob" from="*" to="*.NOT"/>
     </move>
+    <echo>create dhq-flavored search page at ${toDir.static}/vol/search.html (by running ./common/xslt/template_static_pages.xsl on ${toDir.static.path}/data/uvepss/search.html) for later processing; basedir=${basedir}</echo>
     <!-- create dhq-flavored search.html page for later processing. -->
-    <xslt in="common/search/search.html"
-    	  out="${toDir.static}/vol/search.html"
-          style="common${file.separator}xslt${file.separator}template_static_pages.xsl"
+    <xslt in="${toDir.static.path}/data/uvepss/search.html"
+    	  out="${toDir.static.path}/vol/search.html"
+          style="common/xslt/template_static_pages.xsl"
     	  classpath="${processor.location}"
           force="true"
 	  failonerror="false"/>
-
+    <copy file="${toDir.static.path}/vol/search.html" todir="/tmp"/>
+    <echo>DEBUG: just copied the newly-created ${toDir.static.path}/vol/search.html to /tmp/search.html</echo>
     <!--
         The article-map.xml ant file created by the "generateSite"
         target copies over all of the potential assets for each
@@ -332,10 +369,10 @@ is loaded when Ant starts up. Please run Ant again like this:
         they will get inappropriately indexed for searching;
         furthermore, if the preview shares the same filename as the
         actual article (which most, but not all, do), UVEPSS will find
-        the preview but not the real article.  So, at least for now,
+        the preview but not the real article. So, at least for now,
         the method of handling this is just to erase them. What I
         would like to do is just $ rm $(grep -Flr '<title>[PREVIEW]
-        DHQ: Digital Humanities Quarterly' ${toDir.static}/vol/) but I
+        DHQ: Digital Humanities Quarterly' ${toDir.static.path}/vol/) but I
         do not know how to develop a fileset in ant based on the
         contents of files rather than metadata about them (like names
         & paths). Also don’t know what the equivalent of the above
@@ -347,7 +384,7 @@ is loaded when Ant starts up. Please run Ant again like this:
         this.
     -->
     <echo> ... removing PREVIEW files</echo>
-    <property name="preview.list.file" location="${toDir.base}/list_of_preview_files_to_erase.txt"/>
+    <property name="preview.list.file" location="${toDir.static.path}/list_of_preview_files_to_erase.txt"/>
     <xslt in="common/xslt/list_preview_files.xslt" 
           out="${preview.list.file}"
           style="common/xslt/list_preview_files.xslt"
@@ -356,39 +393,57 @@ is loaded when Ant starts up. Please run Ant again like this:
           failonerror="false">
       <factory name="${processor.name}"/>
     </xslt>
+    <echo> ... removing PREVIEW files, DEBUG props: toDir=${toDir}, toDir.base=${toDir.base}, toDir.use=${toDir.use}, toDir.base.path toDir.static=${toDir.static}, toDir.static.path=${toDir.static.path}</echo>
+    <echo> ... removing PREVIEW files, DEBUG IN: ${preview.list.file}=</echo>
+    <concat fixlastline="yes"> <fileset file="${preview.list.file}"/> </concat>
     <replaceregexp
         file="${preview.list.file}"
-        match="^file:.*${toDir.base}/"
+        match="^file:.*${toDir.static.path}/"
         replace=""
         flags="gm"/>
+    <echo> ... removing PREVIEW files, DEBUG OUT: ${preview.list.file}=</echo>
+    <concat fixlastline="yes"> <fileset file="${preview.list.file}"/> </concat>
+    <echo> ... removing PREVIEW files, DEBUG LIST pre-del= (find /home/syd/Documents/dhq-static/dhq/vol -name *.xhtml)</echo>
+    <exec executable="/usr/bin/find">
+      <arg value="/home/syd/Documents/dhq-static/dhq/vol"/>
+      <arg value="-name"/>
+      <arg value="*.xhtml"/>
+    </exec>
     <delete>
-      <fileset dir="${toDir.base}" includesfile="${preview.list.file}"/>
+      <fileset dir="${toDir.static.path}" includesfile="${preview.list.file}"/>
     </delete>
+    <echo> ... removing PREVIEW files, DEBUG LIST postdel= (find /home/syd/Documents/dhq-static/dhq/vol -name *.xhtml)</echo>
+    <exec executable="/usr/bin/find">
+      <arg value="/home/syd/Documents/dhq-static/dhq/vol"/>
+      <arg value="-name"/>
+      <arg value="*.xhtml"/>
+    </exec>
     <!-- Convert path to config file from relative path to absolute path: -->
-    <property name="absolute.config.file" location="${toDir.static}/data/uvepss/config.xml"/>
+    <property name="absolute.config.file" location="${toDir.static.path}/data/uvepss/config.xml"/>
+    <echo level="info">Debug: call UVEPSS with dir=${uvepssDir} and ssConfigFile=${absolute.config.file}</echo>
     <ant dir="${uvepssDir}" antfile="build.xml">
       <property name="ssConfigFile" value="${absolute.config.file}"/>
     </ant>
     <echo> ... renaming ill-formed files back</echo>
-    <move todir="${toDir.static}/vol">
-      <fileset dir="${toDir.static}/vol">
+    <move todir="${toDir.static.path}/vol">
+      <fileset dir="${toDir.static.path}/vol">
         <filename name="**/*.NOT"/>
       </fileset>
       <mapper type="glob" from="*.NOT" to="*"/>
     </move>
     <echo> ... tweaking UVEPSS search page</echo>
-    <xslt in="${toDir.static}/vol/search.html"
-          out="${toDir.static}/vol/search_tweaked.html"
-          style="${toDir.static}/common/xslt/uvepss_post_process_search_page.xslt"
+    <xslt in="${toDir.static.path}/vol/search.html"
+          out="${toDir.static.path}/vol/search_tweaked.html"
+          style="${toDir.static.path}/common/xslt/uvepss_post_process_search_page.xslt"
           classpath="${processor.location}"
           force="true"
           failonerror="false">
       <factory name="${processor.name}"/>
     </xslt>    
-    <move file="${toDir.static}/vol/search.html"
-	  tofile="${toDir.static}/vol/search_orig.html"/>
-    <move file="${toDir.static}/vol/search_tweaked.html"
-	  tofile="${toDir.static}/vol/search.html"/>
+    <move file="${toDir.static.path}/vol/search.html"
+	  tofile="${toDir.static.path}/vol/search_orig.html"/>
+    <move file="${toDir.static.path}/vol/search_tweaked.html"
+	  tofile="${toDir.static.path}/vol/search.html"/>
   </target>
   
   <target name="generateSearchableToGo" depends="generateSearchable"
@@ -397,10 +452,61 @@ is loaded when Ant starts up. Please run Ant again like this:
     <antcall target="compressStatic"/>
   </target>
   
+  <!-- Generate a copy of the site for proofing. -->
+  <target name="makeInternalPreview"
+     description="Generate a proofing copy of unpublished articles listed in the DHQ TOC.">
+    <!-- The preview version of the DHQ site must be stored separately from the 
+      regular, public site. To manage this, we set the "toDir.use" property before 
+      the "generateIssues" target can. -->
+    <property name="toDir.use" value="${toDir.proofing.path}"/>
+    <property name="do.proofing" value="true"/>
+    <input unless:set="${do.proofing.full}"
+           addproperty="do.proofing.full" defaultvalue="false"
+           validargs="true,false"
+>Do you want to proof the full DHQ site? If so, type "true".
+To proof only the internal preview, hit the return key or type "false".</input>
+    <!-- Delete any contents of the proofing directory before beginning. This 
+      ensures that the same directory can be re-used for a full site proofing 
+      endeavor as for an editorial-only endeavor. -->
+    <delete includeemptydirs="true"
+            failonerror="false">
+      <fileset dir="${toDir.proofing.path}" includes="**/*"/>
+    </delete>
+    <!-- If we're only generating the Internal Preview, run "generateIssues". Then, 
+      use the generated Ant build file to copy articles' resources to the right 
+      static directories. -->
+    <antcall unless:true="${do.proofing.full}" target="generateIssues"/>
+    <ant unless:true="${do.proofing.full}"
+         antfile="${toDir.base.path}${file.separator}article-map.xml" 
+         target="copyArticleResources" inheritRefs="true"/>
+    <!-- Since "generateIssues" creates the "vol" directory, we delete it if we are 
+      only generating the editorial section. -->
+    <delete unless:true="${do.proofing.full}" 
+            dir="${toDir.proofing.path}${file.separator}vol"/>
+    <!-- Generate the sorted article lists hosted alongside `editorial/index.html`. -->
+    <echo>Generating list of DHQ articles from TOC</echo>
+    <xslt in="toc${file.separator}toc.xml"
+          out="${toDir.base.path}${file.separator}article-list.xml"
+          style="common${file.separator}xslt${file.separator}article_list_all.xsl"
+          classpath="${processor.location}"
+          force="true"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+      <param name="context" expression="${context}"/>
+      <param name="proofing-dir" expression="${toDir.use}"/>
+    </xslt>
+    <!-- Remove the file "article-list.xml" created from the last transformation. It 
+      will be empty; the XSLT produces no direct output. -->
+    <delete file="${toDir.base.path}${file.separator}article-list.xml"/>
+    <!-- If we're generating a proofing copy of the entire site, run "generateSite". -->
+    <antcall if:true="${do.proofing.full}" target="generateSite"/>
+  </target>
+  
   <!-- Compress the static site's files for backup and transportation. -->
-  <target name="compressStatic">
-    <zip destfile="${toDir.base}${file.separator}${context}.zip">
-      <fileset dir="${toDir.static}"/>
+  <target name="compressStatic"
+          description="Compress the static site for backup or upload.">
+    <zip destfile="${toDir.base.path}${file.separator}${context}.zip">
+      <fileset dir="${toDir.static.path}"/>
     </zip>
   </target>
 

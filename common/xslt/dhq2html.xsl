@@ -28,8 +28,10 @@
     <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
     <xsl:param name="vol" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume']!string()"/>
     <xsl:param name="vol_no_zeroes" select="replace( $vol, '^0+', '')"/>
-    <xsl:param name="issue" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']"/>
-    <xsl:param name="id" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']"/>
+    <xsl:param name="issue" 
+      select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']/normalize-space(.)"/>
+    <xsl:param name="id" 
+      select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']/normalize-space(.)"/>
     <xsl:param name="cssFile"/>
     <xsl:param name="biblioData" select="'../../data/biblio-full.xml'"/>
 
@@ -130,13 +132,18 @@
          </xsl:when>
         <xsl:otherwise>
         -->
+        <!-- 2024-06, Ash: Rather than running the "toolbar" template twice, we do 
+          it once and place a copy in both places we expect it to be. -->
+        <xsl:variable name="toolbar" as="node()*">
+          <xsl:call-template name="toolbar"/>
+        </xsl:variable>
         <div class="DHQarticle">
             <xsl:call-template name="pubInfo"/>
-            <xsl:call-template name="toolbar"/>
+            <xsl:sequence select="$toolbar"/>
             <xsl:apply-templates/>
             <xsl:call-template name="notes"/>
             <xsl:call-template name="bibliography"/>
-            <xsl:call-template name="toolbar"/>
+            <xsl:sequence select="$toolbar"/>
             <xsl:call-template name="recommendations"/>
             <xsl:call-template name="license"/>
         </div>
@@ -190,14 +197,31 @@
                 matches($tfidf-recs-tsv, $articleIdRegex, 'm')"/>
     </xsl:variable>
 
+    <!-- used to strip extra zeroes on volume number [CRB] -->
+    <xsl:template name="get-vol">
+        <xsl:param name="vol"/>
+        <xsl:choose>
+            <xsl:when test="substring($vol,1,1) = '0'">
+                <xsl:call-template name="get-vol">
+                    <xsl:with-param name="vol">
+                        <xsl:value-of select="substring($vol,2)"/>
+                    </xsl:with-param>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$vol"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
     <xsl:template name="toolbar">
       <div class="toolbar">
         <a>
           <xsl:choose>
             <xsl:when test="$published">
-              <xsl:attribute name="href">
-                <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
-              </xsl:attribute>
+              <!-- 2024-06, Ash: Changed this to a relative link. The issue index 
+                should be one directory above the one containing this article's HTML. -->
+              <xsl:attribute name="href" select="'../index.html'"/>
               <xsl:value-of select="$assigned-issue/title"/>
               <xsl:value-of select="concat(' ',$vol_no_zeroes,'.',$issue)"/>
               <!--
@@ -206,18 +230,18 @@
               -->
             </xsl:when>
             <xsl:otherwise>
-              <xsl:attribute name="href">
-                <xsl:value-of select="concat('/',$context,'/preview/index.html')"/>
-              </xsl:attribute>
+              <!-- 2024-06, Ash: Changed this to a relative link. The path must 
+                return to the base directory, then the "preview" directory. -->
+              <xsl:attribute name="href" select="'../../../../preview/index.html'"/>
               <xsl:text>Preview</xsl:text>
             </xsl:otherwise>
           </xsl:choose>
         </a>
         <xsl:text>&#x0A;|&#x0A;</xsl:text>
         <a rel="external">
-          <xsl:attribute name="href">
-            <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
-          </xsl:attribute>
+          <!-- 2024-06, Ash: Changed this to a relative link. Currently (oddly), 
+            article XML is stored in the directory above this article's HTML. -->
+          <xsl:attribute name="href" select="concat('../',$id,'.xml')"/>
           <xsl:text>XML</xsl:text>
         </a>
         <xsl:text>&#x0A;|&#x0A;</xsl:text>
@@ -248,8 +272,26 @@
         <xsl:variable name="identifiedRow" select="$rows[starts-with(., $tabs[$num])]"/>
         <!-- Select the chosen matching row -->
         <xsl:variable name="inner_tabs" select="tokenize($identifiedRow[1], '\t')" />
-        <!-- Editing the url to get the relative url path. index 16 is the url-->
-        <xsl:variable name="path" select="substring-after($inner_tabs[17], 'org')" />
+        <!-- Editing the url to get the relative url path. index 17 is the url-->
+        <xsl:variable name="path">
+          <xsl:variable name="fullUrl" select="$inner_tabs[17]"/>
+          <!-- Regex to find both new and old styles of DHQ URL. -->
+          <xsl:variable name="removeFromUrl"
+            select="'^(https://digitalhumanities\.org/dhq|https://dhq.digitalhumanities\.org)/'"/>
+          <!-- Replace the website host with a relative path back to the root directory. -->
+          <xsl:choose>
+            <xsl:when test="matches($fullUrl, $removeFromUrl)">
+              <xsl:sequence select="replace($fullUrl, $removeFromUrl, '../../../../')"/>
+            </xsl:when>
+            <!-- If the URL doesn't contain either of the base URLs in 
+              $removeFromUrl, it's likely that this XSLT has gone out of sync with 
+              the columns in the TSVs. Output a message to let people know. -->
+            <xsl:otherwise>
+              <xsl:message 
+                select="'URL to recommended article '||$tabs[$num]||' not found in recommendations TSV'"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
         <!-- Now we pull from the tabs of the selected row. 6 is the name of the article -->
         <!-- Setting up the url and its <a> tag-->
         <a href="{$path}"><xsl:value-of select="$inner_tabs[6]"/></a>,
@@ -373,6 +415,7 @@
       </div>
     </xsl:template>
 
+    <!-- 2024-06: Template below is unused? -->
     <xsl:template name="toolbar_top">
       <div class="toolbar">
         <form id="taporware" action="get">
@@ -460,7 +503,11 @@
                 <xsl:attribute name="href" select="concat($bioFile,'#',$bios)"/>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:attribute name="href" select="concat('/',$context,'/preview/',$bioFile,'#',$bios)"/>
+                <!-- 2024-06, Ash: Made this a relative link. To get back to the 
+                  preview file, we need to go through the volume and issue 
+                  directories back to the base directory. -->
+                <xsl:attribute name="href" 
+                  select="concat('../../../../preview/',$bioFile,'#',$bios)"/>
               </xsl:otherwise>
             </xsl:choose>
             <xsl:apply-templates select="dhq:author_name"/>
@@ -507,7 +554,10 @@
                 <xsl:attribute name="href" select="concat($bioFile,'#',$bios)"/>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:attribute name="href" select="concat('/',$context,'/preview/',$bioFile,'#',$bios)"/>
+                <!-- 2024-06, Ash: Made this a relative link. To get back to the 
+                  preview file, we need to go through the volume and issue 
+                  directories back to the base directory. -->
+                <xsl:attribute name="href" select="concat('../../../../preview/',$bioFile,'#',$bios)"/>
               </xsl:otherwise>
             </xsl:choose>
             <xsl:apply-templates select="dhq:translator_name"/>
