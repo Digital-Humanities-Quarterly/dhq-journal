@@ -57,9 +57,9 @@
             <div id="search">
                 <!-- append '+AND+idno%40type%3ADHQarticle-id' on form action to limit search to articles [CRB] -->
 		    <form id="searchForm" method="get" action="/dhq/vol/search.html" enctype="application/x-www-form-urlencoded" accept-charset="utf-8">
-	<div id="search" title="Press the Go! button to get to the advanced search page.">
-		<input id="q" type="text" name="q" value="" placeholder="Search"/>
-		<input id="searchSubmit" type="submit" value="Go!"/>
+	<div id="search" title="Press the go! button to get to the advanced search page.">
+		<input id="q" type="text" name="q" value="" placeholder="search"/>
+		<input id="searchSubmit" type="submit" value="go!"/>
 	</div>
 </form>
             </div>
