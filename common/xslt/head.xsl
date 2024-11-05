@@ -5,17 +5,33 @@
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+		exclude-result-prefixes="#all"
                 >
-  
-  <xsl:param name="context"/>
-  <xsl:param name="assets-path" select="concat('/',$context,'/')"/>
 
+  <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+       slash. This value is used by this and other stylesheets to construct links relative, if not 
+       directly from the current page, then from the DHQ home directory. Because this stylesheet is used for 
+       pages throughout DHQ, the value of $path_to_home should be provided by an stylesheet which imports 
+       this one. -->
+  <xsl:param name="path_to_home" select="''" as="xs:string"/>
+  <xsl:param name="assets-path" select="concat($path_to_home,'/common/')"/>
+  <!-- The character used to separate directories in filepaths. This is only used 
+       for linking to local CSS and Javascript, so that a preview webpage is styled 
+       appropriately on Windows computers. -->
+  <xsl:param name="dir-separator" select="'/'"/>
+  <xsl:param name="doProofing" select="false()" as="xs:boolean"/>
+  
   <xsl:template name="head">
     <xsl:param name="title" as="xs:string"/>
     <head>
       <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
       <title>
-        <xsl:value-of select="concat('DHQ: Digital Humanities Quarterly: ', $title )"/>
+        <!-- Articles can have more than one <title> in <titleStmt> if more 
+             than one language is represented. By default, this stylesheet will 
+             take the first one offered. To ensure that the expected title is 
+             used, check for multiple <title>s and choose one before calling 
+             the "head" template. -->
+        <xsl:value-of select="concat('DHQ: Digital Humanities Quarterly: ',$title[1])"/>
       </title>
       <!-- old asset link, before embedding. -->
       <!--link rel="stylesheet" type="text/css" href="{$assets-path}common/css/dhq.css"/-->
@@ -23,7 +39,7 @@
         <xsl:sequence select="unparsed-text('../css/dhq.css')"/>
       </style>
       <!-- old asset link, before embedding. -->
-      <!--link rel="stylesheet" type="text/css" media="screen"  href="{$assets-path}common/css/dhq_screen.css"/-->
+      <!--link rel="stylesheet" type="text/css" media="screen"  href="{$assets-path}common{$dir-separator}css{$dir-separator}dhq_screen.css"/-->
       <style type="text/css" media="screen">
         <xsl:sequence select="unparsed-text('../css/dhq_screen.css')"/>
       </style>
@@ -40,23 +56,26 @@
         </style>
       </xsl:if>
       
-      <!-- what to do about rss? -->
-      <link rel="alternate" type="application/atom+xml"  href="{$assets-path}feed/news.xml"/>
-      
+      <!-- what do do about rss? -->
+      <link rel="alternate" type="application/atom+xml" href="{$assets-path}/feed/news.xml"/><!-- maybe should be path_to_home? -->
+
       <!-- old asset link, before embedding. -->
       <!--link rel="shortcut icon" href="{$assets-path}common/images/favicon.ico"/-->
       <xsl:variable name="favicon" as="xs:string">
         <xsl:sequence select="unparsed-text('../images/favicon.ico.base64')"/>
       </xsl:variable>        
-      <link href="{concat('data:image/x-icon;base64,', $favicon )}" rel="icon" type="image/x-icon" />
+      <link href="{concat('data:image/x-icon;base64,',$favicon)}" rel="icon" type="image/x-icon" />
       
       <!-- old asset link, before embedding. -->
-      <!--script defer="defer" type="text/javascript" src="{$assets-path}common/js/javascriptLibrary.js">
-          <xsl:comment> serialize </xsl:comment>
-          </script-->
-      <script defer="defer" type="text/javascript">
-        <xsl:sequence select="unparsed-text('../js/javascriptLibrary.js')"/>
+      <script defer="defer" type="text/javascript" src="{$assets-path}js/javascriptLibrary.js">
+        <xsl:comment> serialize </xsl:comment>
       </script>
+      <!-- 2024-07: Embedding the Javascript below into XHTML caused the JS to be serialized so
+           browsers couldn't execute it (less-than symbols could not be parsed). -->
+      <!--<script defer="defer" type="text/javascript">
+          <xsl:sequence select="unparsed-text('../js/javascriptLibrary.js')"/>
+          </script>-->
+      
       <!-- Google Analytics -->
       <script type="text/javascript">
  var _gaq = _gaq || [];
@@ -114,6 +133,7 @@ s.parentNode.insertBefore(ga, s);
       <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
       
       <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"><xsl:comment>Gimme some comment!</xsl:comment></script>
+      <!-- Insert any special-case code defined by the caller: -->
       <xsl:call-template name="customHead"/> 
       
       <!--
@@ -147,12 +167,16 @@ s.parentNode.insertBefore(ga, s);
            -->
         <meta name="docTitle" class="staticSearch_docTitle"
               content="{$srcHeader/tei:fileDesc/tei:titleStmt/tei:title[1]!normalize-space(.)}"/>
-        <script type="text/javascript" src="../../../uvepss/ssHighlight.js"/>
+
+	<!-- If we are generating a full searchable site, allow highlighting of search results -->
+	<xsl:if test="not( $doProofing )">
+          <script type="text/javascript" src="../../../uvepss/ssHighlight.js"/>
+	</xsl:if>
       </xsl:if>
             
     </head>
   </xsl:template>
-    
+
   <!--
       customHead template (below) may be overridden in
       the article-specific XSLT (which is the file

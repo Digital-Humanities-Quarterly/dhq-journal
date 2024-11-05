@@ -81,17 +81,14 @@ help                                     (this is the default target)
 previewArticle
   Transform one article XML file (specified via its 6-digit number with
   -Darticle.id=, or via a prompt) into HTML. The output file is placed
-  in the ${previewDir}${file.separator} subdirectory. It has relative links to assets in
-  this main directory (not the subdirectory), and thus should be
-  suitable for viewing on your local machine. (And may not be suitable
-  for use on the server.)
+  in the ${previewDir}${file.separator} subdirectory, along with any CSS, 
+  Javascript, or images required to render the page. This target also
+  generates a ZIP file, as described in 'zipPreviewArticle'.
 zipPreviewArticle
-  Similar to 'previewArticle', but: a) The output HTML file _and_ its
-  assets are archived together into a single ZIP file. b) The output
-  HTML file uses relative links to the assets in the same directory,
-  as would happen when the ZIP file is unzipped. Both the HTML file
-  and the ZIP file are put in the ${previewDir}${file.separator} subdirectory,
-  overwriting any previous version there.
+  Similar to 'previewArticle'. The output HTML file and its web assets are 
+  archived together into a single ZIP file. The HTML file and the ZIP file 
+  are put in the ${previewDir}${file.separator} subdirectory, overwriting 
+  any previous version there.
 makeInternalPreview
   Generate a proofing copy of all unpublished articles in the “editorial”
   section of the toc${file.separator}toc.xml file. You will be given the option to 
@@ -112,9 +109,8 @@ generateSite
   directory to the ${toDir.static.path}${file.separator} directory. XHTML snippets are 
   also transformed into full DHQ webpages. The output is placed in the 
   ${toDir.static.path}${file.separator} directory, i.e. inside a sibling to this directory.
-  Important caveats: (a) Older files inside ${toDir.static.path}${file.separator} may be 
-  overwritten, but are not deleted. (b) HTML links to other pages within 
-  DHQ may not work, unless hosted on a web server at `URL/${context}`.
+  An important caveat: Older files inside ${toDir.static.path}${file.separator} may be 
+  overwritten, but are not deleted.
 generateSiteToGo
   As "generateSite" above, but then also creates a compressed archive of the generated
   output to make it easy to transfer (e.g., to a server). The output file can be found
@@ -160,15 +156,19 @@ generateSearchableToGo
       <param name="do-proofing" expression="${do.proofing}"/>
       <param name="do-proofing-full" expression="${do.proofing.full}"/>
     </xslt>
+    <!-- Copy web assets and DHQ schemas. -->
+    <copy todir="${toDir.use}${file.separator}common">
+      <fileset dir="common" excludes="schema/ lib/ tests/"/>
+    </copy>
     <!--<echo message="${toDir.use}"/>-->
   </target>
 
   <!-- Generate a static version of the DHQ website. -->
   <target name="generateSite" depends="checkXmlResolver,generateIssues"
-     description="Generate a static copy of DHQ (without search capability) intended for the DHQ server. This is NOT a standalone copy.">
-    <mkdir dir="${toDir.static}"/>
+     description="Generate a static copy of DHQ (without search capability) intended for the DHQ server.">
+    <mkdir dir="${toDir.static}"/> <!-- not sure if this should maybe be ${toDir.use} or not -->
     <!-- Use the Ant build file created in "generateIssues" to copy articles' 
-      resources to the right static directories. -->
+	 resources to the right static directories. -->
     <ant antfile="${toDir.base.path}${file.separator}article-map.xml" 
          target="copyArticleResources" inheritRefs="true"/>
     <!-- Copy specific files in the base directory. -->
@@ -183,10 +183,6 @@ generateSearchableToGo
     <!-- Copy text files in the submissions directory. -->
     <copy todir="${toDir.use}${file.separator}submissions">
       <fileset dir="submissions" includes="*.txt *.xml"/>
-    </copy>
-    <!-- Copy web assets. -->
-    <copy todir="${toDir.use}${file.separator}common">
-      <fileset dir="common" excludes="lib/ tests/"/>
     </copy>
     <!-- Create a generic error page. (HTTP status 500) -->
     <xslt in="toc${file.separator}toc.xml" 
@@ -263,9 +259,12 @@ generateSearchableToGo
           handledirsep="yes"/>
       </mapper>
       <factory name="${processor.name}"/>
-      <param name="assets-path" expression="..${file.separator}"/>
       <param name="context" expression="${context}"/>
       <param name="doProofing" expression="${do.proofing}"/>
+      <!-- This parameter assumes that all static pages are exactly one directory 
+        below the home directory. This is the case as of 2024-07, but may not always 
+        be so. -->
+      <param name="path_to_home" expression=".."/>
     </xslt>
     <!-- Generate the ZIP file of all articles' XML. -->
     <mkdir dir="${toDir.use}${file.separator}data"/>
@@ -464,7 +463,8 @@ toDir.static.path=../dhq-static/dhq
            addproperty="do.proofing.full" defaultvalue="false"
            validargs="true,false"
 >Do you want to proof the full DHQ site? If so, type "true".
-To proof only the internal preview, hit the return key or type "false".</input>
+To proof only the internal preview, hit the return key or type "false".
+(To set this value ahead of time, append "-Ddo.proofing.full=VALUE" to your command.)</input>
     <!-- Delete any contents of the proofing directory before beginning. This 
       ensures that the same directory can be re-used for a full site proofing 
       endeavor as for an editorial-only endeavor. -->
@@ -512,22 +512,35 @@ To proof only the internal preview, hit the return key or type "false".</input>
 
   <!-- Create an HTML preview version of a single article. -->
   <target name="previewArticle" depends="checkXmlResolver" 
-     description="Create an HTML preview version of a single article.">
+     description="Create the HTML preview version of a single article.">
     <!-- If the 'article.id' property wasn't already set using the command line, Ant 
       will prompt for it. -->
-    <input unless:set="article.id" 
-       message="Please type the ID of the article you want to preview:" 
-       addproperty="article.id"/>
-    <!-- Test the 'article.id' property to make sure it has 6 digits and doesn't 
-      start with '9'. -->
+    <input unless:set="article.id"
+       addproperty="article.id"
+>Please type the ID of the article you want to preview.
+(To set this value ahead of time, append "-Darticle.id=VALUE" to your command.)</input>
+    <antcall target="zipPreviewArticle" inheritall="true"/>
+    <unzip src="${previewDir}${file.separator}dhq-article-${article.id}.zip" 
+           dest="${previewDir}${file.separator}dhq-article-${article.id}"/>
+    <echo 
+      message="Created article preview at ${previewDir}${file.separator}dhq-article-${article.id}${file.separator}${article.id}.html"/>
+  </target>
+  
+  <target name="zipPreviewArticle"
+     description="Create a ZIP file which contains the HTML preview for a single article.">
+    <!-- If the 'article.id' property wasn't already set using the command line, Ant 
+      will prompt for it. -->
+    <input unless:set="article.id"
+       addproperty="article.id"
+>Please type the ID of the article you want to preview.
+(To set this value ahead of time, append "-Darticle.id=VALUE" to your command.)</input>
     <condition property="article.id.ok" value="${article.id}">
       <matches string="${article.id}" pattern="^[0-8]\d{5,5}$"/>
     </condition>
-    <fail unless="article.id.ok"
-       message="An article ID must be 6 digits long, and must not start with '9'"/>
+    <fail unless="article.id.ok" message="An article ID must be 6 digits long, and must not start with '9'"/>
     <!-- Set the assets path if it hasn't already been set. -->
-    <property unless:set="assets.path" name="assets.path" 
-      value="..${file.separator}"/>
+    <property unless:set="assets.path" name="assets.path" value="./common/"/>
+    <!--<antcall target="previewArticle" inheritall="yes"/>-->
     <!-- If it doesn't exist yet, create the preview directory specified in 
       build-properties.xml. -->
     <mkdir dir="${previewDir}"/>
@@ -544,21 +557,7 @@ To proof only the internal preview, hit the return key or type "false".</input>
       <param name="dir-separator" expression="${file.separator}"/>
       <param name="doProofing" expression="true"/>
     </xslt>
-    <echo message="Created article preview at ${previewDir}${file.separator}${article.id}.html"/>
-  </target>
-  
-  <target name="zipPreviewArticle"
-     description="Create a ZIP file which contains the HTML preview for a single article.">
-    <!-- If the 'article.id' property wasn't already set using the command line, Ant 
-      will prompt for it. -->
-    <input unless:set="article.id" 
-       message="Please type the ID of the article you want to preview:" 
-       addproperty="article.id"/>
-    <!-- The "previewArticle" task assumes that the common directory is a sibling of 
-      the current one. For the ZIP, we want the HTML file at the same level as the 
-      common directory. -->
-    <property name="assets.path" value=".${file.separator}"/>
-    <antcall target="previewArticle" inheritall="yes"/>
+    <!-- Compress the article HTML along with useful web assets. -->
     <zip destfile="${previewDir}${file.separator}dhq-article-${article.id}.zip">
       <fileset dir="." includes="common/css/ common/js/"/>
       <fileset dir=".${file.separator}articles${file.separator}${article.id}" 
@@ -567,6 +566,9 @@ To proof only the internal preview, hit the return key or type "false".</input>
         <filename name="${article.id}.html"/>
       </fileset>
     </zip>
+    <!-- Once the HTML is included in the ZIP, we can delete it. Its links won't 
+      work in the preview directory anyway. -->
+    <delete file="${previewDir}${file.separator}${article.id}.html"/>
   </target>
   
 </project>

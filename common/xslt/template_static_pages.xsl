@@ -4,10 +4,12 @@
     xmlns:xdoc="http://www.pnp-software.com/XSLTdoc"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     exclude-result-prefixes="xdoc xhtml" version="1.0">
+    
     <xsl:import href="sidenavigation.xsl"/>
     <xsl:import href="topnavigation.xsl"/>
     <xsl:import href="footer.xsl"/>
     <xsl:import href="head.xsl"/>
+    
     <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
     
     <xdoc:doc type="stylesheet">
@@ -15,6 +17,7 @@
         <xdoc:copyright>Copyright 2008 John A. Walsh</xdoc:copyright>
         <xdoc:short>XSLT stylesheet to transform DHQ static pages to XHTML.</xdoc:short>
     </xdoc:doc>
+    
     <xsl:param name="fname"/>
     <xsl:param name="fdir"/>
     <xsl:param name="fpath">
@@ -22,6 +25,13 @@
         <xsl:value-of select="concat($fdir,'/',$fname)"/>
       </xsl:if>
     </xsl:param>
+    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+      slash. This value is used by head.xsl and other stylesheets to construct links relative, if not 
+      directly from the current page, then from the DHQ home directory.
+      Here, by default, a "static" page appears one folder below the home directory, e.g. at
+          about/about.html
+      As of 2024-08, there are no subdirectories within these folders. -->
+    <xsl:param name="path_to_home" select="'..'"/>
     
     <xsl:template match="/">
         <xsl:param name="basicurl" select="'http://www.digitalhumanities.org/dhq/'"/>

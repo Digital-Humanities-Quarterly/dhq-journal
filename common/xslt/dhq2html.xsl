@@ -34,6 +34,12 @@
       select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']/normalize-space(.)"/>
     <xsl:param name="cssFile"/>
     <xsl:param name="biblioData" select="'../../data/biblio-full.xml'"/>
+    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+      slash. This value is used by this and other stylesheets to construct links relative, if not 
+      directly from the current page, then from the DHQ home directory. Because this stylesheet is used 
+      for pages throughout DHQ, the value of $path_to_home should be provided by an stylesheet which 
+      imports this one. -->
+    <xsl:param name="path_to_home" select="''" as="xs:string"/>
 
 
     <!-- +++++++ biblio: start                                +++++++ -->
@@ -341,7 +347,7 @@
             <h2>Recommendations</h2>
             <p>DHQ is testing out three new article recommendation methods! Please explore the links below to find articles that are related in different ways to the one you just read. 
             We are interested in how these methods work for readers—if you would like to share feedback with us, please complete our short evaluation survey. 
-            You can also visit our <a href="/dhq/explore/explore.html">documentation</a> for these recommendation methods to learn more.</p>
+            You can also visit our <a href="../../../../explore/explore.html">documentation</a> for these recommendation methods to learn more.</p>
             
             <!-- Check if the article's ID has recommendations, only display if it does -->
             <xsl:if test="$my_spector_row">  
@@ -415,7 +421,8 @@
       </div>
     </xsl:template>
 
-    <!-- 2024-06: Template below is unused? -->
+    <!-- Template below is used in the custom stylesheet for article 000150 (see 
+      ../articles/000150/resources/xslt/000150.xsl ). It may be used in other places too. -->
     <xsl:template name="toolbar_top">
       <div class="toolbar">
         <form id="taporware" action="get">
@@ -423,7 +430,7 @@
             <a>
               <xsl:choose>
                 <xsl:when test="$published">
-                  <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
+                  <xsl:attribute name="href" select="concat($path_to_home,'/vol/',$vol_no_zeroes,'/',$issue,'/index.html')"/>
                   <xsl:value-of select="$assigned-issue/title"/>
                   <xsl:value-of select="concat('&#x20;',$vol_no_zeroes,'.',$issue)"/>
                   <!--
@@ -432,14 +439,14 @@
                   -->
                 </xsl:when>
                 <xsl:otherwise>
-                  <xsl:attribute name="href" select="concat('/',$context,'/preview/index.html')"/>
+                  <xsl:attribute name="href" select="concat($path_to_home,'/preview/index.html')"/>
                   <xsl:text>Preview</xsl:text>
                 </xsl:otherwise>
               </xsl:choose>
             </a>
             <xsl:text>&#x0A;|&#x0A;</xsl:text>
             <a rel="external">
-              <xsl:attribute name="href" select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
+              <xsl:attribute name="href" select="concat($path_to_home,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'.xml')"/>
               <xsl:text>XML</xsl:text>
             </a>
             <!--
@@ -1911,10 +1918,10 @@
         <p>
           <xsl:apply-templates/>
           <xsl:if test="@next">
-            The <a href="{concat('/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',substring-before($id,'_'),'/',@next,'.html')}">revised version</a> is available.
+            The <a href="{concat(@next,'.html')}">revised version</a> is available.
           </xsl:if>
           <xsl:if test="@previous">
-            The <a href="{concat('/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',@previous,'.html')}">previous version of the article</a> will remain available.
+            The <a href="{concat(@previous,'.html')}">previous version of the article</a> will remain available.
           </xsl:if>
         </p>
       </div>

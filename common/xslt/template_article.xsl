@@ -6,6 +6,7 @@
     xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
     xmlns:m="http://www.w3.org/1998/Math/MathML"
     exclude-result-prefixes="tei dhq xdoc" version="1.0">
+    
     <xsl:import href="comments.xsl"/>
     <xsl:import href="commentscount.xsl"/>
     <xsl:import href="sidenavigation.xsl"/>
@@ -13,12 +14,15 @@
     <xsl:import href="footer.xsl"/>
     <xsl:import href="head.xsl"/> 
     <xsl:import href="dhq2html.xsl"/>
+    
     <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
+    
     <xdoc:doc type="stylesheet">
         <xdoc:author>John A. Walsh</xdoc:author>
         <xdoc:copyright>Copyright 2006 John A. Walsh</xdoc:copyright>
         <xdoc:short>XSLT stylesheet to transform DHQauthor documents to XHTML.</xdoc:short>
     </xdoc:doc>
+    
     <xsl:param name="context"/>
     <!-- $vol, $issue, and $id are parameters set in dhq2html.xsl . -->
     <xsl:param name="fpath" select="concat('vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
@@ -28,6 +32,12 @@
     <xsl:param name="staticPublishingPath">
         <xsl:value-of select="'../../articles/'"/>
     </xsl:param>
+    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
+      slash. This value is used by head.xsl and other stylesheets to construct links relative, if not 
+      directly from the current page, then from the DHQ home directory.
+      Here, by default, an article appears four folders below the home directory, e.g. at
+          vol/1/1/000001/000001.html -->
+    <xsl:param name="path_to_home" select="'../../../..'"/>
     
     <xsl:template match="/">
         <!-- Check to see if article exists [CRB] -->
