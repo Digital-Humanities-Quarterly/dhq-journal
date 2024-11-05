@@ -1,28 +1,28 @@
 
- There should be a directory in this directory called staticSearch/;
- however (as of this writing), there is no such directory in the
- repository itself. Thus, to get static search capability to work for
- now, you will need to create a symbolic link (or the Windows
- equivalent) named staticSearch/ which points to staticSearch-1.4.7/,
- or rename staticSearch-1.4.7/ to staticSearch/.
+ The staticSearch/ directory herein is version 1.4.9 downloaded from
+ the UVEPSS releases page.[1]
 
- This is done because we are currently experimenting with different
- releases of the University of Victoria Endings Project StaticSearch
- utility (hereafter “UVEPSS”), and it is easier to use a symlink to
- the desired specific directory than renaming things constantly. So,
- e.g., one might clone the repository, which has staticSearch-1.4.7/,
- and then install the current latest version as staticSearch-1.5.1/
- (or whatever), and then install the development version as
- staticSearch_gitHub/; then select which one to use by establishing a
- symbolic link between staticSearch/ and the desired version-specific
- directory.
-
- However, we have *slight* modifications to UVEPSS which need to be
- reflected in the copy here. So to install a new or different version
- of UVEPSS for DHQ, after obtaining the desired UVEPSS installation
- directory (for which see
- https://endings.uvic.ca/staticSearch/docs/howDoIGetIt.html), make the
- following changes:
+ However, we have made minor modifications to UVEPSS which need to be
+ reflected in the copy here. So if you download a new version, after
+ obtaining the desired UVEPSS installation directory (for which see
+ fhttps://endings.uvic.ca/staticSearch/docs/howDoIGetIt.html), make
+ the following changes:
   * In file js/ssUtilities.js change the value of
       ss.captions.get('en').strScore
-    from "Score:" to " hits:".
+    from "Score:" to " hits:". (Note that starts with U+00A0.)
+  * In file xsl/captions.xsl change the values of the various "en"
+    mappings from being capitalized to being all lower case, e.g.:
+                'ssDoSearch': 'search',
+                'ssSearching': 'Searching...',
+                'ssLoading': 'Loading...',
+                'ssClear': 'clear',
+                'ssPoweredBy': 'Powered by',
+                'ssStartTyping': 'start typing...',
+                'ssSearchIn': 'search only in',
+                'ssScriptRequired': 'This page requires JavaScript.'
+  * Update this file to reflect the new version number and location
+    from where it was obtained.
+    
+Notes
+-----
+[1] https://github.com/projectEndings/staticSearch/releases
