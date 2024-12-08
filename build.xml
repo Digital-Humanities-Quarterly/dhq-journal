@@ -166,7 +166,8 @@ generateSearchableToGo
   <!-- Generate a static version of the DHQ website. -->
   <target name="generateSite" depends="checkXmlResolver,generateIssues"
      description="Generate a static copy of DHQ (without search capability) intended for the DHQ server.">
-    <mkdir dir="${toDir.static}"/> <!-- not sure if this should maybe be ${toDir.use} or not -->
+    <!-- No need to make the ${toDir.static} or ${toDir.use} directory
+         here, as "generateIssues" should have already done so. -->
     <!-- Use the Ant build file created in "generateIssues" to copy articles' 
 	 resources to the right static directories. -->
     <ant antfile="${toDir.base.path}${file.separator}article-map.xml" 
@@ -275,22 +276,13 @@ generateSearchableToGo
   </target>
 
   <target name="generateSiteToGo" depends="generateSite"
-          description="Generate a static copy of DHQ (without search capability), and ZIP it for easy transfer to a server. This is NOT a standalone copy.">
+          description="Generate a static copy of DHQ (without search capability), and ZIP it for easy transfer to a server.">
     <!-- Generate the ZIP file of the entire static site. -->
     <antcall target="compressStatic"/>
   </target>
-
-  <!--
-toDir=${toDir}
-toDir.base=dhq-static
-toDir.use=../dhq-static/dhq
-toDir.base.path
-toDir.static=dhq
-toDir.static.path=../dhq-static/dhq
--->
   
   <target name="generateSearchable" depends="generateSite"
-          description="Generate a searchable static non-standalone copy of DHQ.">
+          description="Generate a searchable static copy of DHQ.">
     <!-- Copy a few needed files over -->
     <copy todir="${toDir.static.path}/data/uvepss">
       <fileset dir="data/uvepss"/>
@@ -345,16 +337,17 @@ toDir.static.path=../dhq-static/dhq
       </fileset>
       <mapper type="glob" from="*" to="*.NOT"/>
     </move>
-    <echo>create dhq-flavored search page at ${toDir.static}/vol/search.html (by running ./common/xslt/template_static_pages.xsl on ${toDir.static.path}/data/uvepss/search.html) for later processing; basedir=${basedir}</echo>
-    <!-- create dhq-flavored search.html page for later processing. -->
+    <echo>Creating dhq-flavored search page at ${toDir.static}/vol/search.html ...</echo>
+    <!-- We are creating the dhq-flavored search.html page here for
+         later processing. We do it by running
+         ./common/xslt/template_static_pages.xsl on
+         ${toDir.static.path}/data/uvepss/search.html). -->
     <xslt in="${toDir.static.path}/data/uvepss/search.html"
     	  out="${toDir.static.path}/vol/search.html"
           style="common/xslt/template_static_pages.xsl"
     	  classpath="${processor.location}"
           force="true"
 	  failonerror="false"/>
-    <copy file="${toDir.static.path}/vol/search.html" todir="/tmp"/>
-    <echo>DEBUG: just copied the newly-created ${toDir.static.path}/vol/search.html to /tmp/search.html</echo>
     <!--
         The article-map.xml ant file created by the "generateSite"
         target copies over all of the potential assets for each
