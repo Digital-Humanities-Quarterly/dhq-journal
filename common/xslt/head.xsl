@@ -166,7 +166,7 @@ s.parentNode.insertBefore(ga, s);
 
 	<!-- If we are generating a full searchable site, allow highlighting of search results -->
 	<xsl:if test="not( $doProofing )">
-          <script type="text/javascript" src="../../../uvepss/ssHighlight.js"/>
+          <script type="text/javascript" src="{$path_to_home}/vol/uvepss/ssHighlight.js"/>
 	</xsl:if>
       </xsl:if>
             
