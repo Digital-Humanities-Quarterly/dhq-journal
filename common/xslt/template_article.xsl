@@ -38,6 +38,40 @@
       Here, by default, an article appears four folders below the home directory, e.g. at
           vol/1/1/000001/000001.html -->
     <xsl:param name="path_to_home" select="'../../../..'"/>
+
+    <!-- Override the "customHead" template defined in head.xsl, 
+         thus inserting the following metadata for the Univerity of
+         Victoria Endings Project Static Search (UVEPSS) system into
+         the the <html:head> of our output.
+	 —Syd, 2024-12-20 per suggestion Ash. -->
+    <xsl:template name="customHead">
+      <xsl:variable name="srcHeader" select="/tei:TEI/tei:teiHeader"/>
+      <meta name="article type" class="staticSearch_desc" content="{$srcHeader//dhq:articleType}"/>
+      <meta name="date of publication" class="staticSearch_date" content="{$srcHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when}"/>
+      <meta name="volume" class="staticSearch_num" content="{$srcHeader//tei:idno[@type eq 'volume']}"/>
+      <meta name="issue"  class="staticSearch_num" content="{$srcHeader//tei:idno[@type eq 'issue']}"/>
+      <!--
+          As of the original writing of this code (2024-02-21) —
+          * There are no .xml files with 0 /*/teiHeader/fileDesc/titleStmt/title (of course not, that would be invalid)
+          * There are no .xml files with > 2 /*/teiHeader/fileDesc/titleStmt/title
+          * There are 49 .xml files that have 2 /*/teiHeader/fileDesc/titleStmt/title (the other 1,355 have 1)
+          * All 98 of those <title> elements (2 for each of the 49 files) have both @type and @xml:lang
+          * All 98 of those title/@type have value 'article'
+          * Of the 1,355 .xml files that have 1 <title>:
+          -  1105 type=article
+          -   245 [no @type]
+          -     4 type=issue
+          -     1 type=editorial
+          * So I think, in the absence of being given a preferential natural language,
+            the only way to get the title is to take the first <title>.
+      -->
+      <meta name="docTitle" class="staticSearch_docTitle"
+            content="{$srcHeader/tei:fileDesc/tei:titleStmt/tei:title[1]!normalize-space(.)}"/>
+      <!-- If we are generating a full searchable site, allow highlighting of search results -->
+      <xsl:if test="not( $doProofing )">
+	<script type="text/javascript" src="{$path_to_home}/vol/uvepss/ssHighlight.js"/>
+      </xsl:if>
+    </xsl:template>
     
     <xsl:template match="/">
         <!-- Check to see if article exists [CRB] -->

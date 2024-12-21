@@ -130,45 +130,7 @@ s.parentNode.insertBefore(ga, s);
       
       <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"><xsl:comment>Gimme some comment!</xsl:comment></script>
       <!-- Insert any special-case code defined by the caller: -->
-      <xsl:call-template name="customHead"/> 
-      
-      <!--
-          Metadata for the Univerity of Victoria Endings Project
-          Static Search (UVEPSS). This template seems to be called
-          from 15 different places (in 13 different files), but on
-          quick review the only contexts it is called from are the
-          document node, <tei:TEI>, and <search:results>. I do not
-          think that last one will ever occur in the static world.
-      -->
-      <xsl:variable name="srcHeader" as="element(tei:teiHeader)?" select="/tei:TEI/tei:teiHeader"/>
-      <xsl:if test="$srcHeader//dhq:*">
-        <meta name="article type" class="staticSearch_desc" content="{$srcHeader//dhq:articleType}"/>
-        <meta name="date of publication" class="staticSearch_date" content="{$srcHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when}"/>
-        <meta name="volume" class="staticSearch_num" content="{$srcHeader//tei:idno[@type eq 'volume']}"/>
-        <meta name="issue"  class="staticSearch_num" content="{$srcHeader//tei:idno[@type eq 'issue']}"/>
-        <!--
-            As of this writing (2024-02-21) —
-            * There are no .xml files with 0 /*/teiHeader/fileDesc/titleStmt/title (of course not, that would be invalid)
-            * There are no .xml files with > 2 /*/teiHeader/fileDesc/titleStmt/title
-            * There are 49 .xml files that have 2 /*/teiHeader/fileDesc/titleStmt/title (the other 1,355 have 1)
-            * All 98 of those <title> elements (2 for each of the 49 files) have both @type and @xml:lang
-            * All 98 of those title/@type have value 'article'
-            * Of the 1,355 .xml files that have 1 <title>:
-              -  1105 type=article
-              -   245 [no @type]
-              -     4 type=issue
-              -     1 type=editorial
-            * So I think, in the absence of being given a preferential natural language,
-              the only way to get the title is to take the first <title>.
-           -->
-        <meta name="docTitle" class="staticSearch_docTitle"
-              content="{$srcHeader/tei:fileDesc/tei:titleStmt/tei:title[1]!normalize-space(.)}"/>
-
-	<!-- If we are generating a full searchable site, allow highlighting of search results -->
-	<xsl:if test="not( $doProofing )">
-          <script type="text/javascript" src="{$path_to_home}/vol/uvepss/ssHighlight.js"/>
-	</xsl:if>
-      </xsl:if>
+      <xsl:call-template name="customHead"/>       
             
     </head>
   </xsl:template>
