@@ -129,7 +129,7 @@
         <xsl:choose>
             <xsl:when test="ancestor::cluster">
                 <div class="cluster">
-                	<xsl:if test="not(title)">
+                        <xsl:if test="not(title)">
                     <h3>Articles</h3>
                     </xsl:if>
                     <xsl:apply-templates/>
@@ -163,7 +163,7 @@
         <xsl:choose>
             <xsl:when test="ancestor::cluster">
                 <div class="cluster">
-               	  <xsl:if test="not(title)">
+                  <xsl:if test="not(title)">
                     <h3>Reviews</h3>
                   </xsl:if>
                   <xsl:apply-templates/>
@@ -180,7 +180,7 @@
         <xsl:choose>
             <xsl:when test="ancestor::cluster">
                 <div class="cluster">
-               	    <xsl:if test="not(title)">
+                    <xsl:if test="not(title)">
                      <h3>Posters</h3>
                     </xsl:if>
                     <xsl:apply-templates/>
@@ -193,22 +193,36 @@
         </xsl:choose>
     </xsl:template>
 
+
+    <!--
+        Note on both <title>s and <specialTitle>s, i.e. the following
+        2 templates.
+        
+        The schema for our input (toc/toc-xml.rnc) does not permit the
+        @xml:lang attribute anywhere within the TOC. Thus I have not
+        added processing of @xml:lang to the (defaulted) @select of
+        the <apply-templates>s below, unlike most other <apply-
+        templates>s that process text nodes in this set of
+        stylesheets. Thus they deliberately handle only child nodes,
+        and in particular do not handle the @xml:lang attribute.
+
+        This avoids the appearance that a title (special or otherwise)
+        could be in a language other than English (since the entire
+        TOC is in English).
+
+        —Syd, 2024-12-20
+    -->
     <xsl:template match="specialTitle">
-      <h1>
-	<!-- At the moment there is only 1 special title, and it is in
-	     English, so I am not worrying about @xml:lang here.
-	     —Syd, 2024-03-21 -->
-        <xsl:apply-templates/>
-      </h1>
+      <h1><xsl:apply-templates/></h1>
     </xsl:template>
 
     <xsl:template match="title">
         <xsl:choose>
-        	<xsl:when test="(parent::list[@id='articles'] or parent::list[@id='case_studies'] or parent::list[@id='issues'] or parent::list[@id='reviews'] or parent::list[@id='field_reports'])  and ancestor::cluster">
-        		<h3>
-        			<xsl:apply-templates/>
-        		</h3>
-			</xsl:when>
+                <xsl:when test="(parent::list[@id='articles'] or parent::list[@id='case_studies'] or parent::list[@id='issues'] or parent::list[@id='reviews'] or parent::list[@id='field_reports'])  and ancestor::cluster">
+                        <h3>
+                                <xsl:apply-templates/>
+                        </h3>
+                        </xsl:when>
             <xsl:when test="ancestor::cluster">
                 <h2>
                     <xsl:apply-templates/>
@@ -310,11 +324,11 @@
             <xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id'])"/>
         </xsl:param>
         <div class="articleInfo" style="margin:0 0 1em 0;">
-	        <xsl:for-each select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title">
+                <xsl:for-each select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title">
                 <xsl:if test="position() > 1"><br/></xsl:if>
                 <xsl:choose>
                     <xsl:when test="not(@xml:lang) or @xml:lang='en' or string-length(@xml:lang)=0">
-						<!--
+                                                <!--
                         <xsl:if test="//tei:title/@xml:lang != 'en'">
                         <span class="monospace">[en]&#160;</span>
                         </xsl:if>
@@ -327,15 +341,15 @@
                         <span class="monospace">[<xsl:value-of select="@xml:lang"/>]&#160;</span>
                     </xsl:otherwise>
                 </xsl:choose>
-		        <a>
-		            <!-- 2024-06: Ash changed this to a relative link. -->
-		            <xsl:attribute name="href">
-		              <xsl:variable name="articlePath" select="concat($id,'/',$id,'.html')"/>
-		              <xsl:choose>
-		                <!-- If this issue index serves as the DHQ home page, the article 
-  		                page should appear within the volume and issue's directory 
-  		                structure. -->
-  		              <xsl:when test="$fpath = 'index.html' and $is-current-issue">
+                        <a>
+                            <!-- 2024-06: Ash changed this to a relative link. -->
+                            <xsl:attribute name="href">
+                              <xsl:variable name="articlePath" select="concat($id,'/',$id,'.html')"/>
+                              <xsl:choose>
+                                <!-- If this issue index serves as the DHQ home page, the article 
+                                page should appear within the volume and issue's directory 
+                                structure. -->
+                              <xsl:when test="$fpath = 'index.html' and $is-current-issue">
                       <xsl:value-of select="concat('vol/',$vol,'/',$issue,'/',$articlePath)"/>
                     </xsl:when>
                     <!-- In most cases, the article page appears in its own folder 
@@ -343,28 +357,28 @@
                     <xsl:otherwise>
                       <xsl:value-of select="$articlePath"/>
                     </xsl:otherwise>
-		              </xsl:choose>
-		            </xsl:attribute>
+                              </xsl:choose>
+                            </xsl:attribute>
                     <xsl:if test="//tei:titleStmt/tei:title/@xml:lang != 'en'">
                         <xsl:attribute name="onclick">
                             <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
                         </xsl:attribute>
                     </xsl:if>
-		            <xsl:apply-templates select="."/>
-		        </a>
+                            <xsl:apply-templates select="."/>
+                        </a>
             </xsl:for-each>
 
           <div style="padding-left:1em; margin:0;text-indent:-1em;">
-	        <xsl:for-each select="tei:teiHeader/tei:fileDesc/tei:titleStmt/dhq:authorInfo">
-	            <xsl:value-of select="normalize-space(dhq:author_name)"/>
-	            <xsl:if test="dhq:affiliation">
-	                <xsl:value-of select="', '"/>
-	            </xsl:if>
-	            <xsl:value-of select="normalize-space(dhq:affiliation)"/>
-	            <xsl:if test="not(position() = last())">
-	                <xsl:value-of select="'; '"/>
-	            </xsl:if>
-	        </xsl:for-each>
+                <xsl:for-each select="tei:teiHeader/tei:fileDesc/tei:titleStmt/dhq:authorInfo">
+                    <xsl:value-of select="normalize-space(dhq:author_name)"/>
+                    <xsl:if test="dhq:affiliation">
+                        <xsl:value-of select="', '"/>
+                    </xsl:if>
+                    <xsl:value-of select="normalize-space(dhq:affiliation)"/>
+                    <xsl:if test="not(position() = last())">
+                        <xsl:value-of select="'; '"/>
+                    </xsl:if>
+                </xsl:for-each>
         </div>
         <xsl:if test="//dhq:abstract/child::tei:p != ''">
             <span class="viewAbstract">Abstract
@@ -454,7 +468,7 @@
         <xsl:for-each select="tei:titleStmt/dhq:authorInfo">
             <!-- All Authors' names -->
             <xsl:text>rft.au=</xsl:text>
-	<!-- line below breaks if there is are two text nodes in dhq:author_name, for instance from white space after dhq:family. So I added [1] after text() -->
+        <!-- line below breaks if there is are two text nodes in dhq:author_name, for instance from white space after dhq:family. So I added [1] after text() -->
             <xsl:value-of select="normalize-space(dhq:author_name/text()[1])"/>%20<xsl:value-of
                 select="normalize-space(dhq:author_name/dhq:family)"/>
             <xsl:if test="not(position() = last())">
@@ -643,7 +657,7 @@
                         <span class="monospace">[<xsl:value-of select="@xml:lang"/>]&#160;</span>
                     </xsl:otherwise>
                 </xsl:choose>
-		        <xsl:element name="a">
+                        <xsl:element name="a">
                 <xsl:choose>
                     <xsl:when test="$vol">
                         <!-- 2024-06: Ash changed this to a relative link. The 
@@ -664,7 +678,7 @@
                         </xsl:attribute>
                     </xsl:otherwise>
                 </xsl:choose>
-		            <xsl:apply-templates select="."/>
+                            <xsl:apply-templates select="."/>
             </xsl:element>
             </xsl:for-each>
 
@@ -747,7 +761,7 @@
                         <span class="monospace">[<xsl:value-of select="@xml:lang"/>]&#160;</span>
                     </xsl:otherwise>
                 </xsl:choose>
-		        <xsl:element name="a">
+                        <xsl:element name="a">
                     <!-- 2024-06: Ash changed this to a relative link. An "editorial" article page appears in 
                       its own folder within the current index page's directory. -->
                     <xsl:attribute name="href" select="concat($id,'/',$id,'.html')"/>
@@ -756,8 +770,8 @@
                             <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
                         </xsl:attribute>
                     </xsl:if>
-		            <xsl:apply-templates select="."/>
-		        </xsl:element>
+                            <xsl:apply-templates select="."/>
+                        </xsl:element>
             </xsl:for-each>
             <div style="padding-left:1em; margin:0;text-indent:-1em;">
             <xsl:for-each select="tei:teiHeader/tei:fileDesc/tei:titleStmt/dhq:authorInfo">

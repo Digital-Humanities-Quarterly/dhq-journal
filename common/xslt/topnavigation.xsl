@@ -48,11 +48,11 @@
         </span>
       </div>
       <div id="search">
-        <!-- append '+AND+idno%40type%3ADHQarticle-id' on form action to limit search to articles [CRB] -->
 	<form id="searchForm" method="get" action="{$path_to_home}/vol/search.html"
 	      enctype="application/x-www-form-urlencoded" accept-charset="utf-8">
-	  <div id="search" title="Press the go! button to get to the advanced search page.">
-	    <input id="q" type="text" name="q" value="" placeholder="search"/>
+	  <div id="search">
+	    <label for="q">Search</label>
+	    <input id="q" type="text" name="q" value="" placeholder="keyword"/>
 	    <input id="searchSubmit" type="submit" value="go!"/>
 	  </div>
 	</form>
