@@ -291,52 +291,15 @@ generateSearchableToGo
 	 copy file="${toDir.static.path}/data/uvepss/search.html" todir="${toDir.static.path}/vol"
 	 here, we are going to process with template_static_pages
 	 later. / -->
-    <echo> ... renaming ill-formed files (which would make this process crash) out of the way</echo>
     <!--
-        UVEPSS will only operate on well-formed XHTML 5 files. This, I
-        think, is a good thing; a feature, not a bug. But as it is
-        indexing, if it comes across an ill-formed HTML file the
-        entire process dies. This, I think is not the right way to do
-        this; a bug. It should (IMHO) instead issue a strongly worded
-        error message, skip the ill-formed file, and continue. But I
-        do not get to make that call. (Although I do plan to submit a
-        bug report to see if this can be changed.) So for now, here we
-        need to work around this problem. So what we do is rename each
-        of the ill-formed files within the target directory to an
-        extension that UVEPSS will ignore, and rename it back when we
-        are done.
-        You can’t just use `ant wf` (in those branches that have it)
-        to discover which files are ill-formed, because that command
-        only looks at article files, not ancillary files. So I used
-        $ for f in $(find dhq/vol -name '*ml') ; do xmlwf $f ; done
-        It would be better to use
-        $ find dhq/vol -type f -name '*ml' -print0 | while read -d $'\0' f; do xmlwf "$f" ; done
-        because the file "dhq/vol/16/3/000636/losh .xhtml" contains a
-        space in the filename.
-        — Syd, 2024-02-19
+	Note: At this point in the processing, if there are any
+	ill-formed HTML files they need to moved out of the way for
+	UVEPSS processing, because the staticSearch build process
+	depends on each file read being well-formed — an ill-formed
+	file breaks the entire process. For a method of doing so
+	(which involves listing ill-formed files by hand) see versions
+	of this file *prior* to 2025-01-08. —Syd
     -->
-    <move todir="${toDir.static.path}/vol">
-      <fileset dir="${toDir.static.path}/vol">
-        <!-- Set of ill-formed files last updated 2024-05-09 -->
-        <include name="9/2/000216/queerfemnotes.html"/>
-        <include name="9/2/000216/resources/html/queerfemnotes.html"/>
-        <include name="17/2/000652/resources/webmap_code/figure11/Figure_11.html"/>
-        <include name="17/2/000652/resources/webmap_code/figure10/figure10.html"/>
-        <include name="17/3/000720/000720_ko.xml"/>
-        <include name="11/2/000285/resources/images/333-1962-1-SP.html"/>
-        <include name="11/2/000285/resources/html/prototype.html"/>
-        <!--
-            Note: these last 2 files are ill-formed in at least two ways:
-            1) SYSTEM identifier of "http://www.w3.org/TR/html4/strict.dtd",
-               which is NOT an XML DTD;
-            2) <meta> start-tag on 7 or 13 (depending on whether or not you
-               count those crazy ^M chars) does not have an end-tag.
-        -->
-        <include name="7/1/000149/resources/source/000149.html"/>
-        <include name="7/1/000149/resources/source/ss.html"/>
-      </fileset>
-      <mapper type="glob" from="*" to="*.NOT"/>
-    </move>
     <echo>Creating dhq-flavored search page at ${toDir.static}/vol/search.html ...</echo>
     <!-- We are creating the dhq-flavored search.html page here for
          later processing. We do it by running
@@ -416,13 +379,11 @@ generateSearchableToGo
     <ant dir="${uvepssDir}" antfile="build.xml">
       <property name="ssConfigFile" value="${absolute.config.file}"/>
     </ant>
-    <echo> ... renaming ill-formed files back</echo>
-    <move todir="${toDir.static.path}/vol">
-      <fileset dir="${toDir.static.path}/vol">
-        <filename name="**/*.NOT"/>
-      </fileset>
-      <mapper type="glob" from="*.NOT" to="*"/>
-    </move>
+    <!--
+	Note: IF any ill-formed files were moved out of the way,
+	above, they should be moved them back here. For code that did
+	this see versions of this file prior to 2025-01-08. —Syd
+    -->
     <echo> ... tweaking UVEPSS search page</echo>
     <xslt in="${toDir.static.path}/vol/search.html"
           out="${toDir.static.path}/vol/search_tweaked.html"
