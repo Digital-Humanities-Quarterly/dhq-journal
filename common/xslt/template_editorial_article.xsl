@@ -37,9 +37,9 @@
         <!-- base url to which vol issue id to be attached -->
         
         <html>
-            <!-- code to retrieve document title from the html file and pass it to the template -->
+            <!-- code to retrieve document title from the TEI file and pass it to the template -->
             <xsl:call-template name="head">
-                <xsl:with-param name="title" select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title"/>
+                <xsl:with-param name="title" select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]"/>
             </xsl:call-template>
             
             <body>
@@ -113,9 +113,7 @@
     </xsl:template>
     
     <xsl:template name="toolbar">
-        <xsl:param name="vol_no_zeroes"><xsl:call-template name="get-vol">
-            <xsl:with-param name="vol"><xsl:value-of select="$vol"/></xsl:with-param></xsl:call-template>
-        </xsl:param>
+        <xsl:param name="vol_no_zeroes" select="replace( $vol, '^0+', '')"/>
         <div class="toolbar">
             <!-- 2024-06: Ash changed this to a relative link. The index page for the Internal Preview 
               site is in the directory above this article's. -->

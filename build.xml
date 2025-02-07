@@ -57,8 +57,7 @@ is loaded when Ant starts up. Please run Ant again like this:
   </target>
   
   <!-- Documentation for the targets defined by this Ant build file. -->
-  <target name="help"
-          description="Documentation on how to use DHQ Ant build targets.">
+  <target name="help" description="Documentation on how to use DHQ Ant build targets.">
     <echo>** DHQ static site generation build process **${line.separator}
 General format:
   ant [-lib common${file.separator}lib${file.separator}saxon] [-Dprop=val ...] [target ...]
@@ -112,11 +111,22 @@ generateSite
   ${toDir.static.path}${file.separator} directory, i.e. inside a sibling to this directory.
   An important caveat: Older files inside ${toDir.static.path}${file.separator} may be 
   overwritten, but are not deleted.
-compressStatic
-  Compress the entire ${toDir.static.path}${file.separator} directory to make it easy to 
-  transfer (e.g., to a server). The output file can be found at
-  ${toDir.base.path}${file.separator}${context}.zip.
-</echo>
+generateSiteToGo
+  As "generateSite" above, but then also creates a compressed archive of the generated
+  output to make it easy to transfer (e.g., to a server). The output file can be found
+  at ${toDir.base}${file.separator}${context}.zip.
+generateSearchable
+  As "generateSite" above, but then also uses (our copy of) the University of
+  Victoria Endings Project StaticSearch tool to generate search capability. A
+  separate JSON index file is created for every word found, and the search page
+  at ${toDir.static}${file.separator}dhq${file.separator}vol${file.separator}search.html uses these for very fast searching.
+  However, Those files that are not well-formed XML have to be excluded; thus this
+  build process temporarily renames them (to *.NOTxhtml) and then renames them back.
+generateSearchableToGo
+  As "generateSearchable" above, but then also creates a compressed archive of the
+  generated output to make it easy to transfer (e.g., to a server). The output file
+  can be found at ${toDir.base}${file.separator}${context}.zip.
+    </echo>
   </target>
 
   <!-- Generate static HTML versions of the DHQ issues (articles, bios, & indices). -->
@@ -155,10 +165,11 @@ compressStatic
 
   <!-- Generate a static version of the DHQ website. -->
   <target name="generateSite" depends="checkXmlResolver,generateIssues"
-     description="Generate a full static copy of DHQ intended for the DHQ server.">
-    <mkdir dir="${toDir.use}"/>
+     description="Generate a static copy of DHQ (without search capability) intended for the DHQ server.">
+    <!-- No need to make the ${toDir.static} or ${toDir.use} directory
+         here, as "generateIssues" should have already done so. -->
     <!-- Use the Ant build file created in "generateIssues" to copy articles' 
-      resources to the right static directories. -->
+	 resources to the right static directories. -->
     <ant antfile="${toDir.base.path}${file.separator}article-map.xml" 
          target="copyArticleResources" inheritRefs="true"/>
     <!-- Copy specific files in the base directory. -->
@@ -262,8 +273,145 @@ compressStatic
       XML. -->
     <ant antfile="${toDir.base.path}${file.separator}article-map.xml" dir="${basedir}" 
          target="zipArticleXml" inheritRefs="true"/>
-    <echo>Done!</echo>
-    <echo>To zip up the entire static site directory, use the "compressStatic" build target.</echo>
+  </target>
+
+  <target name="generateSiteToGo" depends="generateSite"
+          description="Generate a static copy of DHQ (without search capability), and ZIP it for easy transfer to a server.">
+    <!-- Generate the ZIP file of the entire static site. -->
+    <antcall target="compressStatic"/>
+  </target>
+  
+  <target name="generateSearchable" depends="generateSite"
+          description="Generate a searchable static copy of DHQ.">
+    <!-- Copy a few needed files over -->
+    <copy todir="${toDir.static.path}/data/uvepss">
+      <fileset dir="data/uvepss"/>
+    </copy>
+    <!-- instead of
+	 copy file="${toDir.static.path}/data/uvepss/search.html" todir="${toDir.static.path}/vol"
+	 here, we are going to process with template_static_pages
+	 later. / -->
+    <!--
+	Note: At this point in the processing, if there are any
+	ill-formed HTML files they need to moved out of the way for
+	UVEPSS processing, because the staticSearch build process
+	depends on each file read being well-formed — an ill-formed
+	file breaks the entire process. For a method of doing so
+	(which involves listing ill-formed files by hand) see versions
+	of this file *prior* to 2025-01-08. —Syd
+    -->
+    <echo>Creating dhq-flavored search page at ${toDir.static}/vol/search.html ...</echo>
+    <!-- We are creating the dhq-flavored search.html page here for
+         later processing. We do it by running
+         ./common/xslt/template_static_pages.xsl on
+         ${toDir.static.path}/data/uvepss/search.html). -->
+    <xslt in="${toDir.static.path}/data/uvepss/search.html"
+    	  out="${toDir.static.path}/vol/search.html"
+          style="common/xslt/template_static_pages.xsl"
+    	  classpath="${processor.location}"
+          force="true"
+	  failonerror="false"/>
+    <!--
+        The article-map.xml ant file created by the "generateSite"
+        target copies over all of the potential assets for each
+        article, i.e. all of the other files in the article’s
+        directory. Problem is, sometimes this includes a copy of a
+        preview edition of the article (usually, but not always, named
+        ${article.id}.xhtml; as far as I can tell always having a
+        <title> that starts with “[PREVIEW] DHQ: Digital Humanities
+        Quarterly:”, and sometimes has other stuff after that). If we
+        leave these files in the output dhq-static/dhq/vol/ hierarchy
+        they will get inappropriately indexed for searching;
+        furthermore, if the preview shares the same filename as the
+        actual article (which most, but not all, do), UVEPSS will find
+        the preview but not the real article. So, at least for now,
+        the method of handling this is just to erase them. What I
+        would like to do is just $ rm $(grep -Flr '<title>[PREVIEW]
+        DHQ: Digital Humanities Quarterly' ${toDir.static.path}/vol/) but I
+        do not know how to develop a fileset in ant based on the
+        contents of files rather than metadata about them (like names
+        & paths). Also don’t know what the equivalent of the above
+        command is in Windows, so it seems <exec> is out of
+        reach. Thus I wrote a tiny little XSLT program that lists the
+        files of interest; after tweaking that file to use relative
+        paths instead of URLs, we delete everything in that
+        list. Sigh. Seems like a really stupid, inefficient way to do
+        this.
+    -->
+    <echo> ... removing PREVIEW files</echo>
+    <!-- NOTE:
+	 The code that runs XSLT to create a list of files to be
+	 removed and then removes them should be system-indepen-
+	 dant. Some of the debugging code in this section relies on
+	 /usr/bin/find, and thus will only work on a *nix system that
+	 has such a command. Thus the debugging code is currently
+	 commented out.
+    -->
+    <property name="preview.list.file" location="${toDir.static.path}/list_of_preview_files_to_erase.txt"/>
+    <xslt in="common/xslt/list_preview_files.xslt" 
+          out="${preview.list.file}"
+          style="common/xslt/list_preview_files.xslt"
+          classpath="${processor.location}"
+          force="true"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+    </xslt>
+    <replaceregexp
+        file="${preview.list.file}"
+        match="^file:.*${toDir.static.path}/"
+        replace=""
+        flags="gm"/>
+    <!-- <echo> ... DEBUG, ${toDir.static.path}/data/uvepss/ now contains, 05:</echo> <!-\-PPDMN2BR4W-\-> -->
+    <!-- <exec executable="/usr/bin/find">                                            <!-\-PPDMN2BR4W-\-> -->
+    <!--   <arg value="${toDir.static.path}/data/uvepss"/>                            <!-\-PPDMN2BR4W-\-> -->
+    <!-- </exec>                                                                      <!-\-PPDMN2BR4W-\-> -->
+    <!-- <echo> ... removing PREVIEW files, DEBUG OUT: ${preview.list.file}=</echo>   <!-\-PPDMN2BR4W-\-> -->
+    <!-- <concat fixlastline="yes"> <fileset file="${preview.list.file}"/> </concat>  <!-\-PPDMN2BR4W-\-> -->
+    <!-- <echo> ... removing PREVIEW files, DEBUG LIST pre-del= (find ${toDir.static.path}/vol/ -name *.xhtml)</echo> <!-\-PPDMN2BR4W-\-> -->
+    <!-- <exec executable="/usr/bin/find">                                            <!-\-PPDMN2BR4W-\-> -->
+    <!--   <arg value="${toDir.static.path}/vol"/>                                    <!-\-PPDMN2BR4W-\-> -->
+    <!--   <arg value="-name"/>                                                       <!-\-PPDMN2BR4W-\-> -->
+    <!--   <arg value="*.xhtml"/>                                                     <!-\-PPDMN2BR4W-\-> -->
+    <!-- </exec>                                                                      <!-\-PPDMN2BR4W-\-> -->
+    <delete>
+      <fileset dir="${toDir.static.path}" includesfile="${preview.list.file}"/>
+    </delete>
+    <!-- <echo> ... removing PREVIEW files, DEBUG LIST postdel= (find ${toDir.static.path}/vol/ -name *.xhtml)</echo> <!-\-PPDMN2BR4W-\-> -->
+    <!-- <exec executable="/usr/bin/find">                                            <!-\-PPDMN2BR4W-\-> -->
+    <!--   <arg value="${toDir.static.path}/vol"/>                                    <!-\-PPDMN2BR4W-\-> -->
+    <!--   <arg value="-name"/>                                                       <!-\-PPDMN2BR4W-\-> -->
+    <!--   <arg value="*.xhtml"/>                                                     <!-\-PPDMN2BR4W-\-> -->
+    <!-- </exec>                                                                      <!-\-PPDMN2BR4W-\-> -->
+    <!-- Convert path to config file from relative path to absolute path: -->
+    <property name="absolute.config.file" location="${toDir.static.path}/data/uvepss/config.xml"/>
+    <echo level="info">Debug: call UVEPSS with dir=${uvepssDir} and ssConfigFile=${absolute.config.file}</echo>
+    <ant dir="${uvepssDir}" antfile="build.xml">
+      <property name="ssConfigFile" value="${absolute.config.file}"/>
+    </ant>
+    <!--
+	Note: IF any ill-formed files were moved out of the way,
+	above, they should be moved them back here. For code that did
+	this see versions of this file prior to 2025-01-08. —Syd
+    -->
+    <echo> ... tweaking UVEPSS search page</echo>
+    <xslt in="${toDir.static.path}/vol/search.html"
+          out="${toDir.static.path}/vol/search_tweaked.html"
+          style="${toDir.static.path}/common/xslt/uvepss_post_process_search_page.xslt"
+          classpath="${processor.location}"
+          force="true"
+          failonerror="false">
+      <factory name="${processor.name}"/>
+    </xslt>    
+    <move file="${toDir.static.path}/vol/search.html"
+	  tofile="${toDir.static.path}/vol/search_orig.html"/>
+    <move file="${toDir.static.path}/vol/search_tweaked.html"
+	  tofile="${toDir.static.path}/vol/search.html"/>
+  </target>
+  
+  <target name="generateSearchableToGo" depends="generateSearchable"
+          description="Generate a searchable static non-standalone copy of DHQ, and ZIP it for easy transfer to server.">
+    <!-- Generate the ZIP file of the entire static site. -->
+    <antcall target="compressStatic"/>
   </target>
   
   <!-- Generate a copy of the site for proofing. -->
@@ -324,7 +472,7 @@ To proof only the internal preview, hit the return key or type "false".
       <fileset dir="${toDir.static.path}"/>
     </zip>
   </target>
-  
+
   <!-- Create an HTML preview version of a single article. -->
   <target name="previewArticle" depends="checkXmlResolver" 
      description="Create the HTML preview version of a single article.">
@@ -352,11 +500,7 @@ To proof only the internal preview, hit the return key or type "false".
     <condition property="article.id.ok" value="${article.id}">
       <matches string="${article.id}" pattern="^[0-8]\d{5,5}$"/>
     </condition>
-    <fail unless="article.id.ok"
-       message="An article ID must be 6 digits long. It must not start with '9'"/>
-    <!-- For the ZIP, we want the HTML file at the same level as the "common" 
-      directory. -->
-    <property name="assets.path" value=".${file.separator}common${file.separator}"/>
+    <fail unless="article.id.ok" message="An article ID must be 6 digits long, and must not start with '9'"/>
     <!--<antcall target="previewArticle" inheritall="yes"/>-->
     <!-- If it doesn't exist yet, create the preview directory specified in 
       build-properties.xml. -->
@@ -369,7 +513,6 @@ To proof only the internal preview, hit the return key or type "false".
           force="true"
           failOnTransformationError="false">
       <factory name="${processor.name}"/>
-      <param name="assets-path" expression="${assets.path}"/>
       <param name="context" expression="dhq"/>
       <param name="dir-separator" expression="${file.separator}"/>
       <param name="doProofing" expression="true"/>

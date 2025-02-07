@@ -131,20 +131,7 @@
         
     </xsl:template>
     
-    <xsl:template name="taportool"> 
-        <!-- Div statement remove because the content is now inline -->
-        <!--         <div class="leftsidecontent"> -->
-        <!--         <div class="toolbar"> -->
-        <form name="taporware">
-            <select name="taportools" onchange="gototaporware()">
-                <option>Taporware Tools</option>
-                <option value="listword">List Words</option>
-                <option value="findtext">Find Text</option>
-                <option value="colloc">Collocation</option>
-            </select>
-        </form>
-        <!--        </div> -->
-    </xsl:template>
+    
     
     <xsl:template name="sitetitle">
         <div id="printSiteTitle">DHQ: Digital Humanities Quarterly</div>

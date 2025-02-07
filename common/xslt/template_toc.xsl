@@ -17,7 +17,7 @@
     
     <xsl:template match="/">
         <html>
-            <!-- code to retrieve document title from the html file and pass it to the template -->
+            <!-- code to retrieve document title from the TOC file and pass it to the template -->
             <xsl:call-template name="head">
                 <xsl:with-param name="title" select="toc/journal[@vol=$vol and @issue=$issue]/title"/>
             </xsl:call-template>
