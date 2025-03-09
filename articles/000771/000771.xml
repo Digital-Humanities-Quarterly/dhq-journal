@@ -134,7 +134,7 @@
              <div>
              <head>1. Introduction</head>
                  <p>In an article on the <title rend="quotes">Genealogy of Distant Reading</title> <name>Ted Underwood</name> made the valid point that distant reading as a form of 
-                     <quote rend="inline">macroscopic literary inquiry” did not originate with digital text</quote> <ptr target="#underwood2017"/>. Still, all DH methods, by definition, process digital data, and most can only be applied effectively only within a computational setting. 
+                     <quote rend="inline">macroscopic literary inquiry</quote> did not originate with digital text <ptr target="#underwood2017"/>. Still, all DH methods, by definition, process digital data, and most can only be applied effectively only within a computational setting. 
                      While some methods (e.g. markup or GIS) extend analog practice (such as editing or cartography) into the digital, others are digital natives.
                      Topic modeling is one of the computational methods that over the last twenty years have made their way from Natural Language Processing <ptr target="#blei_etal2003"/> into the Digital Humanities. 
                      It has been consistently associated with distant reading. In the introduction to a special issue on topic modeling in the Journal of the Digital Humanities the editors even called it 
@@ -182,19 +182,26 @@
                         
                         <list type="ordered">
                             <item>Indian-Chinese: This consists of all 661 originally Indian texts in the CBETA corpus that were translated into Buddhist Chinese between 500 and 800 CE. Total number of characters: 17,959,037.</item>
-                            <item>Chinese-Chinese: This corpus consists of all 293 texts in the CBETA corpus that were composed directly in Buddhist Chinese between 500 and 800 CE. Total number of characters: 21,136,841.
-                                Both corpora might include material from before 500 CE. Obviously, the Indian-Chinese texts are translations and might have been authored before 500 CE. </item>
+                            <item>Chinese-Chinese: This corpus consists of all 293 texts in the CBETA corpus that were composed directly in Buddhist Chinese between 500 and 800 CE. Total number of characters: 21,136,841.</item>
                         </list>
+                        Both corpora might include material from before 500 CE. Obviously, the Indian-Chinese texts are translations and might have been authored before 500 CE. 
                         But the Chinese-Chinese corpus too, although authored between 500 and 800 CE, contains commentaries on older texts and thus includes material (and topics) from earlier periods. 
                         This caveat notwithstanding the corpora represent two different modes of textual production in Chinese Buddhism during that period and an experiment in modeling is justified and might yield new insights. 
                         In Section 4 we will try to interpret select topics guided by the hypothesis that the topics in these two corpora differ meaningfully. It should be understood that the topic modeling workflow we implemented does not process the two corpora separately. 
-                        Whether a topic is aligned with the Indian-Chinese or the Chinese-Chinese corpus is determined by its monochromaticity (s. Sec. 3).
+                        Whether a topic is aligned with the Indian-Chinese or the Chinese-Chinese corpus is determined by its monochromaticity (s. Sec. 3). For the topic modeling pipeline described here we use these texts in the tokenized, segmented version produced by <name>Yu-chun Wang</name> (making use of the Conditional Random Field (CRF) model he describes in <ptr target="#wang2020"/>).  
+                        
+                        <note> A large part of the CBETA corpus of Buddhist texts is available in this tokenized form here: <ref target="https://github.com/DILA-edu/word-segment">https://github.com/DILA-edu/word-segment</ref> (accessed 2024-09).</note>
+                        
+                        This is currently the most consistently segmented available corpus for Buddhist Chinese.
                     </p>
                     <p>We use the term “Buddhist Chinese” here for the particular idiom (or set of idioms) in which pre-modern Buddhist texts were composed. Needless to say, across 1700 years there was a lot of variation. 
                         The translation of Indian Buddhist texts into Chinese was never standardized and there exists a many-to-many relationship in the translation of terms: One Indian word could be rendered by different Chinese characters, 
                         and the same Chinese character was used for different Indian terms. Chinese-Chinese Buddhist texts were generally closer to the classical idiom of literary Chinese than translated texts, but they share features with translated texts 
                         that sets them apart from the usual “classical Chinese” written in that period. Among these features are the morphology of Buddhist vocabulary which makes words more likely to be compounds of two more more characters, 
                         instead of the preferred one-character = one-semantic-unit equivalence of “classical classical Chinese.”
+                        
+                        <note>The high-brow, civil examination style of classical Chinese that was modeled on the thirteen Confucian classics and other works of the Zhou, Qin, and Han dynasties. 
+                            While this style of writing was used until the early 20th century in certain genres, other, more vernacular, styles existed that were closer to spoken Chinese where many words are multimorphemic.</note>
                     </p>
                     <p>The reason why there are more than twice as many Indian-Chinese than Chinese-Chinese texts is because in the eight century a large number of short dhāraṇī text were translated, or in fact rather transcribed. The main component of such texts is the <foreign xml:lang="sa">dhāraṇī</foreign> itself: 
                         a Sanskrit invocation or spell, which was used in the context of esoteric ritual (see also Sec. 4). Although longer than a mantra, dhāraṇīs could not be too long as many of them were supposed to be remembered by heart, but within esoteric Buddhism they were popular. 
@@ -207,7 +214,12 @@
                      
                      <note>As of 2023-11 a web of science search returned 49 articles and 13 proceeding papers with “BERTopic” in the title or abstract.</note> 
                      
-                     We use our own variation of the BERTopic pipeline, which we make available at <ref target="https://github.com/mbingenheimer/cbetaCorpusSorted">https://github.com/mbingenheimer/cbetaCorpusSorted</ref>. 
+                     We use our own variation of the BERTopic pipeline, which we make available at <ref target="https://github.com/mbingenheimer/cbetaCorpusSorted">https://github.com/mbingenheimer/cbetaCorpusSorted</ref>.
+                     
+                     <note>The pre-segmented version was originally produced by Yu-chun Wang and forked from the larger repository (which includes more texts from the Taishō canon) at https://github.com/DILA-edu/word-segment. 
+                         The version we used for the experiment is available (together with our code) at <ref target="https://github.com/mbingenheimer/cbetaCorpusSorted/tree/main/bertopic/word-segment-main">https://github.com/mbingenheimer/cbetaCorpusSorted/tree/main/bertopic/word-segment-main</ref>.</note>
+                     
+                     
                      Specifically, our implementation involves the following steps:
                      <list type="ordered">
                          <item>Using a large language model trained on classical Chinese (Koichi Yasuoka’s variant of GuwenBERT), we embed every sentence in our corpus into a high dimensional vector space.</item>
@@ -219,8 +231,8 @@
                      </list>
                      </p>
                  <p>The main idea of BERTopic is to take advantage of the capacity of modern neural networks to create sentence embeddings which respect semantic similarity, meaning that linguistic elements with similar meaning should be embedded close to each other in the target vector space. 
-                     While many previous techniques are based on mapping language elements to vectors (with word2vec probably being the best-known), encoder-only models like BERT have the advantage of embedding language in a way that is sensitive to semantics. In particular the embedding of a multivalent word (e.g. bank) is dependent on the surrounding sentence. 
-                     Thus homonyms can be disambiguated in the embedding. At the same time synonyms like happy and joyful that have a similar probability of occurring at a particular position in a sentence are defined with similar embeddings. As a result, any BERT model can be expected to display some degree of identifying semantic similarity. 
+                     While many previous techniques are based on mapping language elements to vectors (with word2vec probably being the best-known), encoder-only models like BERT have the advantage of embedding language in a way that is sensitive to semantics. In particular the embedding of a multivalent word <emph>bank</emph> is dependent on the surrounding sentence. 
+                     Thus homonyms can be disambiguated in the embedding. At the same time synonyms like <emph>happy</emph> and <emph>joyful</emph> that have a similar probability of occurring at a particular position in a sentence are defined with similar embeddings. As a result, any BERT model can be expected to display some degree of identifying semantic similarity. 
                      Specifically, these models operate by learning how to predict missing tokens (e.g. words) from a natural language sentence. To be successful, the model has to learn the probabilities associated with various possible words at a specific point in the sentence. 
                      This will necessarily entail disambiguating homonyms – if it would represent all instances of the word bank in the same way then it could not correctly learn the context-dependent likelihoods of the words money and river occurring elsewhere in the sentence. 
                      Similarly, it would be helpful (if not strictly necessary) for synonyms to have close embeddings; this would allow them to automatically treat their influence on the rest of the sentence similarly. 
@@ -391,7 +403,7 @@
              </div>
              
              <div type="appendix">
-                 <head>Appendix: Topics as virtual paragraphs</head>
+                 <head>Appendix A: Topics as virtual paragraphs</head>
                  <p>In order to communicate our findings to those who have neglected their study of medieval Chinese Buddhist texts in recent years, we have in the following created “virtual paragraphs” for ten of the more monochromatic and coherent topics that were stable across different iterations of our BERTopic pipeline. 
                      The current workflow outputs more than 750 topics, so this is only a small sample. All the Chinese terms are as they appear in the topic and follow their English translation. Their syntactic relationship is invented freely, but informed by our domain knowledge, i.e. in the context of medieval Buddhism. 
                      The idea is to use such artificial paragraphs to demonstrate to a non-specialist readership that these topics indeed constitute intelligible semantic fields. The numbering does not imply any ranked order.
@@ -406,11 +418,15 @@
                         </item>
                    
                         <item xml:id="a2"><label>A2 Chanting <foreign xml:lang="zh">誦</foreign> Mantras <foreign xml:lang="zh">真言</foreign></label> Three times circulambulating <foreign xml:lang="zh">三匝</foreign> altars, stupas, or images one chants (e.g.) the Mantra <foreign xml:lang="zh">真言</foreign> of the King of Fury <foreign xml:lang="zh">奮怒王</foreign>. 
-                            One recites rapidly <foreign xml:lang="xh">緊捷誦</foreign>, sometimes using the 108 一<foreign xml:lang="zh">百八</foreign> beads of the rosary <foreign xml:lang="zh">念珠</foreign>. 
+                            One recites rapidly <foreign xml:lang="zh">緊捷誦</foreign>, sometimes using the 108 一<foreign xml:lang="zh">百八</foreign> beads of the rosary <foreign xml:lang="zh">念珠</foreign>. 
                             One recites and memorizes <foreign xml:lang="zh">誦持</foreign> a thousand times 一<foreign xml:lang="zh">千 遍</foreign>, imprinting the mind-seal 心印, until one can recite the secret <foreign xml:lang="zh">誦密</foreign> spells in one’s mind <foreign xml:lang="zh">誦心 </foreign>/ <foreign xml:lang="zh">祕密心</foreign>, thereby creating and gaining blessings <foreign xml:lang="zh">加持</foreign>.
                         </item>
                         
-                        <item xml:id="a3"><label>A3 In Yama Heaven <foreign xml:lang="zh">夜摩天</foreign></label> The King of Yama Heaven <foreign xml:lang="zh">夜摩天</foreign> is *Musulundha <foreign xml:lang="zh">牟修樓陀</foreign>. There the goddesses <foreign xml:lang="zh">天女 </foreign>play <foreign xml:lang="zh">遊戲</foreign> in the parks <foreign xml:lang="zh">園林</foreign>, singing and dancing <foreign xml:lang="zh">歌舞</foreign>, 
+                        <item xml:id="a3"><label>A3 In Yama Heaven <foreign xml:lang="zh">夜摩天</foreign></label> The King of Yama Heaven <foreign xml:lang="zh">夜摩天</foreign> is *Musulundha <foreign xml:lang="zh">牟修樓陀</foreign>.
+                            
+                            <note>Musulundha as Sanskrit for 牟修樓陀 is suggested by <ptr target="#lin1949" loc="61"/>.</note> 
+                            
+                            There the goddesses <foreign xml:lang="zh">天女 </foreign>play <foreign xml:lang="zh">遊戲</foreign> in the parks <foreign xml:lang="zh">園林</foreign>, singing and dancing <foreign xml:lang="zh">歌舞</foreign>, 
                             between ponds <foreign xml:lang="zh">池</foreign> and groves <foreign xml:lang="zh">林</foreign>. The mountains <foreign xml:lang="zh">山峯</foreign> are full of many-colored <foreign xml:lang="zh">雜色</foreign> birds <foreign xml:lang="zh">鳥</foreign>. 
                             The gods in Yama Heaven sport <foreign xml:lang="zh">娛樂</foreign> in an lovely <foreign xml:lang="zh">可愛</foreign> environment filled with the seven precious materials <foreign xml:lang="zh">七寶</foreign> such as silver <foreign xml:lang="zh">白銀</foreign>, beryl <foreign xml:lang="zh">毘琉璃</foreign>, crystal <foreign xml:lang="zh">頗梨</foreign>. There also are bees <foreign xml:lang="zh">蜂</foreign>.
                         </item>
@@ -460,8 +476,23 @@
                      </list>
                  </div>
              </div>
+             <div type="appendix">
+                 <head>Appendix B:  Workflow - Technical Details</head>
+                 <p>Below the specific parameters that we used in our instantiation of the BERTopic pipeline. All computational work was performed on a Gentoo Linux workstation with a Xeon W-2295 CPU, 
+                     an Nvidia A6000 GPU and 512GB of memory.
+                 </p>
+                 <p>Our corpus was already pre-segmented, we therefore did not use automatic segmentation tools like jieba.  As explained above, the segmentation was performed by researchers at the Dharma Drum Institute of Liberal Arts as part of a project on using conditional random fields for automatic segmentation (for details see Wang 2020). 
+                     The sentence embeddings are then produced using Yasuoka’s version of GuwenBERT.  This itself was wrapped in a SentenceTransformers instance to extract the embedding of the [CLS] token to get an embedding that represents the sentence as a whole (Reimers 2019). This produces 2037769 embedded sentences, each of which in 1024-dimensional space.
+                 </p>
+                 <p>From here, we apply UMAP to create 3-dimensional embeddings which respect relative closeness of embedded sentences by projecting the 1024-dimensional points onto a 3-dimensional manifold.  For this, we use the CUDA-enabled version of UMAP provided by the NVIDIA cuML library (Raschka 2020).  
+                     We used the default parameters for the reduction, only specifying that the output should be 3-dimensional.
+                 </p>
+                 <p>For the clustering, we used hdscan, again using the CUDA-enabled version from cuML.  We set three parameters for the clustering algorithm, using 750 for the minimal number of clusters 100 for the minimal number of samples.  The first parameter indicates that we want the algorithm to produce at least 750 clusters, 
+                     while the second indicates that very small clusters (<100 sentences) should not be counted.
+                 </p>
+             </div>
              <div>
-                 <head>Acknonwledgments</head>
+                 <head>Acknowledgments</head>
                  <p>Research on this paper was funded by the “Anatomy of Agency” project (Nichols, PI; 1003) via the “Launching Experimental Philosophy of Religion” grant (Ian Church, PI; 61886), itself supported by the John Templeton Foundation. 
                      We give special thanks to Robert Buswell, Nicholaos Jones, Song Wang, and Michael Radich for comments and correspondence leading to the improvement of this project.
                  </p>
@@ -469,7 +500,7 @@
         </body>
         <back>
             <listBibl>
-                <bibl xml:id="bingenheimer2021" label="Bigenheimer 2021">Bigenheimer, M. (2021) <title rend="quotes">The historical social network of Chinese Buddhism</title>, <title rend="italic">Journal of Historical Network Review</title>, 5: 233-257. Available at: <ref target="https://doi.org/10.25517/jhnr.v5i1.119">https://doi.org/10.25517/jhnr.v5i1.119</ref>
+                <bibl xml:id="bingenheimer2021" label="Bigenheimer 2021">Bingenheimer, M. (2021) <title rend="quotes">The historical social network of Chinese Buddhism</title>, <title rend="italic">Journal of Historical Network Review</title>, 5: 233-257. Available at: <ref target="https://doi.org/10.25517/jhnr.v5i1.119">https://doi.org/10.25517/jhnr.v5i1.119</ref>
                 </bibl>
                 <bibl xml:id="blei2012" label="Blei 2012">Blei, D. M. (2021) <title rend="quotes">Topic modeling and digital humanities</title>, <title rend="italic">Journal of Digital Humanities </title>, 2.1. Available at: <ref target="https://journalofdigitalhumanities.org/2-1/topic-modeling-and-digital-humanities-by-david-m-blei/">https://journalofdigitalhumanities.org/2-1/topic-modeling-and-digital-humanities-by-david-m-blei/</ref>.
                     (Accessed November 2023.)</bibl>
