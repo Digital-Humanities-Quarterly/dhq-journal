@@ -5,15 +5,13 @@
     xmlns:tei="http://www.tei-c.org/ns/1.0"
     xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
     xmlns:m="http://www.w3.org/1998/Math/MathML"
-    xmlns:xhtml="http://www.w3.org/1999/xhtml"
-    exclude-result-prefixes="tei dhq xdoc xhtml" version="1.0">
+    exclude-result-prefixes="tei dhq xdoc" version="1.0">
     
     <xsl:import href="sidenavigation.xsl"/>
     <xsl:import href="topnavigation.xsl"/>
     <xsl:import href="footer.xsl"/>
     <xsl:import href="head.xsl"/>
     <xsl:import href="dhq2html.xsl"/>
-    
     <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
     
     <xdoc:doc type="stylesheet">
@@ -21,25 +19,16 @@
         <xdoc:copyright>Copyright 2006 John A. Walsh</xdoc:copyright>
         <xdoc:short>XSLT stylesheet to transform DHQauthor documents to XHTML.</xdoc:short>
     </xdoc:doc>
-    
     <!--    <xsl:param name="source" select="''"/>-->
     <xsl:param name="context"/>
     <xsl:param name="fpath"/>
-    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
-      slash. This value is used by head.xsl and other stylesheets to construct links relative, if not 
-      directly from the current page, then from the DHQ home directory.
-      Here, by default, an "Internal Preview" article appears two folders below the home directory, e.g. at
-          editorial/999882/999882.html -->
-    <xsl:param name="path_to_home" select="'../..'"/>
-    
-    
     <xsl:template match="tei:TEI">
         <!-- base url to which vol issue id to be attached -->
         
         <html>
-            <!-- code to retrieve document title from the TEI file and pass it to the template -->
+            <!-- code to retrieve document title from the html file and pass it to the template -->
             <xsl:call-template name="head">
-                <xsl:with-param name="title" select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]"/>
+                <xsl:with-param name="title" select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title"/>
             </xsl:call-template>
             
             <body>
@@ -48,7 +37,9 @@
                 <xsl:call-template name="topnavigation"/>
                 <div id="main">
                     <div id="leftsidebar">
-                        <xsl:call-template name="sidenavigation"/>
+                        <xsl:call-template name="sidenavigation">
+                            <xsl:with-param name="session" select="'true'"/>
+                        </xsl:call-template>
                         <!-- moved tapor toolbar to the article level toolbar in dhq2html xslt -->
                         <!--                        <xsl:call-template name="taportool"/> -->
                     </div>
@@ -75,15 +66,14 @@
         <!-- Using lower-case of author's last name + first initial to sort [CRB] -->
         <xsl:variable name="lower">abcdefghijklmnopqrstuvwxyz</xsl:variable>
         <xsl:variable name="upper">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-        <!-- 2024-06: The ID generated for the bios page does not always match the ID generated here! -->
         <xsl:variable name="bios">
             <xsl:value-of select="translate(concat(translate(dhq:author_name/dhq:family,' ',''),'_',substring(normalize-space(dhq:author_name),1,1)),$upper,$lower)"/>
         </xsl:variable>
         <div class="author">
-            <!-- 2024-06: Ash changed this to a relative link. The bios page for the Internal Preview 
-              site is in the directory above this article's. -->
             <a rel="external">
-                <xsl:attribute name="href" select="concat('../bios.html','#',$bios)"/>
+                <xsl:attribute name="href">
+                    <xsl:value-of select="concat('/',$context,'/editorial/bios.html','#',$bios)"/>
+                </xsl:attribute>
                 <xsl:apply-templates select="dhq:author_name"/>
             </a>
             <xsl:if test="normalize-space(child::dhq:affiliation)">
@@ -113,18 +103,21 @@
     </xsl:template>
     
     <xsl:template name="toolbar">
-        <xsl:param name="vol_no_zeroes" select="replace( $vol, '^0+', '')"/>
+        <xsl:param name="vol_no_zeroes"><xsl:call-template name="get-vol">
+            <xsl:with-param name="vol"><xsl:value-of select="$vol"/></xsl:with-param></xsl:call-template>
+        </xsl:param>
         <div class="toolbar">
-            <!-- 2024-06: Ash changed this to a relative link. The index page for the Internal Preview 
-              site is in the directory above this article's. -->
             <a>
-                <xsl:attribute name="href" select="'../index.html'"/>
+                <xsl:attribute name="href">
+                    <xsl:value-of select="concat('/',$context,'/editorial/index.html')"/>
+                </xsl:attribute>
                 <xsl:text>Editorial</xsl:text>
             </a>
             &#x00a0;|&#x00a0;
-            <!-- 2024-06: The XML for this article is in this directory. -->
             <a>
-                <xsl:attribute name="href" select="concat($id,'.xml')"/>
+                <xsl:attribute name="href">
+                    <xsl:value-of select="concat('/',$context,'/editorial/',$id,'/',$id,'.xml')"/>
+                </xsl:attribute>
                 <xsl:text>XML</xsl:text>
             </a>
             |&#x00a0;
@@ -141,16 +134,17 @@
             <form id="taporware" action="get">
                 <!-- added <p></p> to surrond form content to validate [CRB] -->
                 <p>
-                    <!-- 2024-06: Ash changed this to a relative link. The index page for the Internal Preview 
-                      site is in the directory above this article's. -->
                     <a>
-                        <xsl:attribute name="href" select="'../index.html'"/>
+                        <xsl:attribute name="href">
+                            <xsl:value-of select="concat('/',$context,'/editorial/index.html')"/>
+                        </xsl:attribute>
                         <xsl:text>Editorial</xsl:text>
                     </a>
                     &#x00a0;|&#x00a0;
-                    <!-- 2024-06: The XML for this article is in this directory. -->
                     <a>
-                        <xsl:attribute name="href" select="concat($id,'.xml')"/>
+                        <xsl:attribute name="href">
+                            <xsl:value-of select="concat('/',$context,'/editorial/',$id,'/',$id,'.xml')"/>
+                        </xsl:attribute>
                         <xsl:text>XML</xsl:text>
                     </a>
                     |&#x00a0;

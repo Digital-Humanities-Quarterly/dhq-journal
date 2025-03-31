@@ -6,7 +6,6 @@
     xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
     xmlns:m="http://www.w3.org/1998/Math/MathML"
     exclude-result-prefixes="tei dhq xdoc" version="1.0">
-    
     <xsl:import href="comments.xsl"/>
     <xsl:import href="commentscount.xsl"/>
     <xsl:import href="sidenavigation.xsl"/>
@@ -14,64 +13,21 @@
     <xsl:import href="footer.xsl"/>
     <xsl:import href="head.xsl"/> 
     <xsl:import href="dhq2html.xsl"/>
-    
     <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
-    
     <xdoc:doc type="stylesheet">
         <xdoc:author>John A. Walsh</xdoc:author>
         <xdoc:copyright>Copyright 2006 John A. Walsh</xdoc:copyright>
         <xdoc:short>XSLT stylesheet to transform DHQauthor documents to XHTML.</xdoc:short>
     </xdoc:doc>
-    
     <xsl:param name="context"/>
-    <!-- $vol, $issue, and $id are parameters set in dhq2html.xsl . -->
-    <xsl:param name="fpath" select="concat('vol/',$vol,'/',$issue,'/',$id,'/',$id,'.html')"/>
+    <xsl:param name="fpath"/>
+    <xsl:param name="vol"/>
+    <xsl:param name="issue"/>
+    <xsl:param name="id"/>
     <xsl:param name="error"/>
-    <!-- When $doProofing is true(), no check is made to ensure that the article exists in the TOC. -->
-    <xsl:param name="doProofing" select="false()"/>
     <xsl:param name="staticPublishingPath">
         <xsl:value-of select="'../../articles/'"/>
     </xsl:param>
-    <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
-      slash. This value is used by head.xsl and other stylesheets to construct links relative, if not 
-      directly from the current page, then from the DHQ home directory.
-      Here, by default, an article appears four folders below the home directory, e.g. at
-          vol/1/1/000001/000001.html -->
-    <xsl:param name="path_to_home" select="'../../../..'"/>
-
-    <!-- Override the "customHead" template defined in head.xsl, 
-         thus inserting the following metadata for the Univerity of
-         Victoria Endings Project Static Search (UVEPSS) system into
-         the the <html:head> of our output.
-	 —Syd, 2024-12-20 per suggestion Ash. -->
-    <xsl:template name="customHead">
-      <xsl:variable name="srcHeader" select="/tei:TEI/tei:teiHeader"/>
-      <meta name="article type" class="staticSearch_desc" content="{$srcHeader//dhq:articleType}"/>
-      <meta name="date of publication" class="staticSearch_date" content="{$srcHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when}"/>
-      <meta name="volume" class="staticSearch_num" content="{$srcHeader//tei:idno[@type eq 'volume']}"/>
-      <meta name="issue"  class="staticSearch_num" content="{$srcHeader//tei:idno[@type eq 'issue']}"/>
-      <!--
-          As of the original writing of this code (2024-02-21) —
-          * There are no .xml files with 0 /*/teiHeader/fileDesc/titleStmt/title (of course not, that would be invalid)
-          * There are no .xml files with > 2 /*/teiHeader/fileDesc/titleStmt/title
-          * There are 49 .xml files that have 2 /*/teiHeader/fileDesc/titleStmt/title (the other 1,355 have 1)
-          * All 98 of those <title> elements (2 for each of the 49 files) have both @type and @xml:lang
-          * All 98 of those title/@type have value 'article'
-          * Of the 1,355 .xml files that have 1 <title>:
-          -  1105 type=article
-          -   245 [no @type]
-          -     4 type=issue
-          -     1 type=editorial
-          * So I think, in the absence of being given a preferential natural language,
-            the only way to get the title is to take the first <title>.
-      -->
-      <meta name="docTitle" class="staticSearch_docTitle"
-            content="{$srcHeader/tei:fileDesc/tei:titleStmt/tei:title[1]!normalize-space(.)}"/>
-      <!-- If we are generating a full searchable site, allow highlighting of search results -->
-      <xsl:if test="not( $doProofing )">
-	<script type="text/javascript" src="{$path_to_home}/vol/uvepss/ssHighlight.js"/>
-      </xsl:if>
-    </xsl:template>
     
     <xsl:template match="/">
         <!-- Check to see if article exists [CRB] -->
@@ -87,11 +43,7 @@
         </xsl:choose>
       </xsl:param>
         <xsl:choose>
-            <xsl:when test="$doProofing 
-              or document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes 
-                                                    and @issue=$issue 
-                                                    and descendant::item/attribute::id=$cleanId 
-                                                    and not(@editorial)]">
+            <xsl:when test="document('../../toc/toc.xml')//journal[@vol=$vol and @issue=$issue and descendant::item/attribute::id=$cleanId and not(@editorial)]">
                 <xsl:apply-templates select="tei:TEI"/>
             </xsl:when>
             <xsl:when test="$error">
@@ -135,12 +87,7 @@
                             <div id="mainContent">
                                 <xsl:call-template name="sitetitle"/>
                                 <h1>Resource not found.</h1>
-                                <p>The resource you requested<!-- 
-                                  2024-05-17: Ash commented out the instruction below, since the static 
-                                  site will not be able to construct a 404 response including the 
-                                  requested resource path.
-                                    (/<xsl:value-of select="concat($context,'/',$fpath)"/>)
-                                  --> does not exist.</p>
+                                <p>The resource you requested (/<xsl:value-of select="concat($context,'/',$fpath)"/>) does not exist.</p>
                                 <h2>Contact Information</h2>
                                 <h3>Email</h3>
                                 <p>General Information: <a href="mailto:dhqinfo@digitalhumanities.org">dhqinfo@digitalhumanities.org</a></p>
@@ -162,9 +109,9 @@
     
     <xsl:template match="tei:TEI">
         <html>
-            <!-- code to retrieve document title from the TEI file and pass it to the template -->
+            <!-- code to retrieve document title from the html file and pass it to the template -->
             <xsl:call-template name="head">
-                <xsl:with-param name="title" select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title[1]"/>
+                <xsl:with-param name="title" select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title"/>
             </xsl:call-template>
             <body>
                 <xsl:call-template name="topnavigation"/>
