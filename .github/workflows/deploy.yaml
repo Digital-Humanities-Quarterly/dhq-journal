@@ -1,0 +1,28 @@
+name: Deploy to dhq.digitalhumanities.org
+
+on:
+  push:
+    branches: [ "static_site_generation" ]
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛒 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐜 Install ant
+        run: sudo apt-get update && sudo apt-get install -y ant ant-contrib
+
+      - name: 🏗️ Build the site
+        run: ant -lib common/lib/saxon generateSearchable
+
+      - name: 🔐 Create Key File
+        run: install -m 600 -D /dev/null ~/.ssh/id_ed25519 && echo "${{ secrets.DHQ_DEPLOY_SSH_PRIVATEKEY }}" > ~/.ssh/id_ed25519
+
+      - name: 🗃️ Create Known Hosts File
+        run: install -m 600 -D /dev/null ~/.ssh/known_hosts && echo "${{ vars.ADHO_SERVER_IPV4 }} ${{ vars.ADHO_SERVER_HOST_KEY }}" > ~/.ssh/known_hosts
+
+      - name: 🚀 Upload
+        run: rsync --archive --delete --stats /home/runner/work/dhq-journal/dhq-static/dhq/ dhq-deploy@${{ vars.ADHO_SERVER_IPV4 }}:/

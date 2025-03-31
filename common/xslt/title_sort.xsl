@@ -5,6 +5,16 @@
     exclude-result-prefixes="xhtml" version="2.0">     
     <xsl:output method="xml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
     
+    <!--
+        THIS STYLESHEET IS NO LONGER USED.
+        
+        This stylesheet was originally intended to sort and compile the author data 
+        generated from title_index.xsl . Sorting and compilation is now done as 
+        part of the re-written title_index.xsl . 
+        
+        This stylesheet remains, in case it has use for historical purposes.
+      -->
+    
     <xsl:template match="@*|node()">
         <xsl:copy>
             <xsl:apply-templates select="@*|node()"/>

@@ -30,6 +30,7 @@
                     </div>
                     <div id="mainContent">
                         <xsl:call-template name="sitetitle"/>
+                        <!-- The "index_main_body" template is defined in bios.xsl -->
                         <xsl:call-template name="index_main_body">
                             <xsl:with-param name="vol" select="$vol"/>
                             <xsl:with-param name="issue" select="$issue"/>

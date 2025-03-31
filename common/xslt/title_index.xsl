@@ -1,19 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:map="http://www.w3.org/2005/xpath-functions/map"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:tei="http://www.tei-c.org/ns/1.0"
-    xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"  
-    exclude-result-prefixes="tei dhq" version="1.0">
+    xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+    xmlns:dhqf="https://dhq.digitalhumanities.org/ns/functions"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    exclude-result-prefixes="#all" 
+    version="3.0">
+    
+    <!--
+        This stylesheet generates a webpage containing a list of all (public) 
+        articles in DHQ, sorted alphabetically by title. The stylesheet should be 
+        run on the DHQ table of contents, toc.xml .
+        
+        The other index-generating stylesheet is author_index.xsl . Both stylesheets 
+        share a lot of similar code. If you make a change in one, you should check
+        if the change would be relevant in the other stylesheet.
+        
+        CHANGES:
+          2024-08, Ash: Updated to XSLT 3.0 from 1.0, and refactored the stylesheet 
+            for readability and maintainability. The navigation bar was changed from
+            a table to a list inside <nav>, with ARIA labels for accessibility. 
+            Article titles' languages are now marked with @xml:lang and @lang. 
+            Titles are now sorted with the Unicode Collation Algorithm at primary 
+            strength, which means that characters with diacritics will sort 
+            alongside characters that don't have diacritics (e.g. "o" = "ö" = "ŏ").
+            Also, stopwords for Spanish, Portuguese, French, and German are removed 
+            from each title's sort key (depending on the relevant @xml:lang). The 
+            work previously done in title_sort.xsl has been folded into this 
+            stylesheet.
+      -->
+    
+    
+    <xsl:output method="xhtml" omit-xml-declaration="yes" indent="yes" encoding="UTF-8"/>
+    
+    <!--  IMPORTED STYLESHEETS  -->
+    <xsl:import href="common-components.xsl"/>
     <xsl:import href="sidenavigation.xsl"/>
     <xsl:import href="topnavigation.xsl"/>
     <xsl:import href="footer.xsl"/>
     <xsl:import href="head.xsl"/>
+    
+    <!--  PARAMETERS  -->
     <xsl:param name="context"/>
     <xsl:param name="fpath"/>
-    <xsl:param name="staticPublishingPath">
-        <xsl:value-of select="'../../articles/'"/>
-    </xsl:param>
+    <xsl:param name="staticPublishingPath" select="'../../articles/'"/>
     
+    <!--  GLOBAL VARIABLES  -->
+    <!-- Lower-cased words which, for sorting purposes, should be removed from the beginning of titles. 
+      If the stopword is a full word, add a space after it. Articles like "l'" should have no space 
+      after. -->
+    <xsl:variable name="stopword-map" as="map(*)">
+      <xsl:variable name="apos" as="xs:string">'</xsl:variable>
+      <xsl:sequence select="map {
+                              'de': ( 'der ', 'die ', 'das ', 'ein ', 'eine ' ),
+                              'en': ( 'the ', 'an ', 'a ' ),
+                              'es': ( 'el ', 'la ', 'los ', 'las ', 
+                                      'un ', 'una ', 'unos ', 'unas ' ),
+                              'fr': ( 'le ', 'la ', 'l'||$apos, 'les ', 
+                                      'un ', 'une ', 'des ' ),
+                              'pt': ( 'o ', 'a ', 'os ', 'as ',
+                                      'um ', 'uma ', 'uns', 'umas ' )
+                            }"/>
+    </xsl:variable>
+    
+    
+    <!--
+      TEMPLATES, #default MODE
+      
+      Most of the stylesheet occurs in default mode. From the articles listed in the TOC, the articles' 
+      XML is used to generate a sequence of author entries. These entries are then made unique and 
+      comprehensive, and sorted to create the full XHTML index.
+      -->
+    
+    <!-- Suppressed elements. This stylesheet is mostly intentional in processing the specific elements 
+      desired, in the order we expect ("pull" processing). However, it is sometimes useful to process 
+      things in a "push" manner, where elements are processed in document order. When we switch to 
+      fall-through behavior, suppressing elements ensures we only get the content we really want. -->
+    <xsl:template match="journal//*" priority="-1"/>
+    <xsl:template match="dhq:authorInfo/dhq:address
+                        |dhq:authorInfo/tei:email
+                        |tei:teiHeader/tei:fileDesc/tei:publicationStmt"/>
+    
+    <!-- XHTML outer page structure -->
     <xsl:template match="/">
         <html>
             <!-- code to retrieve document title from the html file and pass it to the template -->
@@ -29,7 +100,7 @@
                     </div>
                     <div id="mainContent">
                         <xsl:call-template name="sitetitle"/>
-                        <!-- Rest of the document/article is coverd in this template - this is a call to dhq2html.xsl -->
+                        <!-- Rest of the document/article is covered in this template, defined in this stylesheet -->
                         <xsl:call-template name="index_main_body"/>
                         <!-- Use the URL generated to pass to the footer -->
                         <xsl:call-template name="footer">
@@ -41,149 +112,162 @@
         </html>
     </xsl:template>
     
+    <!-- Generate the title index page's contents. -->
     <xsl:template name="index_main_body">
-        <div id="titleIndex">
-            <div id="titles">
-                <xsl:apply-templates select="//list|//cluster"/>
-            </div>
-        </div>
-    </xsl:template>
-    
-    <xsl:template match="list|cluster">
-        <xsl:for-each select="item[not(ancestor::journal/attribute::editorial)]">
-            <xsl:apply-templates select="document(concat($staticPublishingPath,@id,'/',@id,'.xml'))//tei:TEI"/>
-            <xsl:message>
-                <xsl:value-of select="concat('file: ',$staticPublishingPath,@id,'/',@id,'.xml')"/>
-            </xsl:message>
-        </xsl:for-each>
-    </xsl:template>
-    
-    <xsl:template match="tei:TEI">
-        <xsl:param name="vol"><xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume'])"/></xsl:param>
-        <xsl:param name="vol_no_zeroes">
-            <xsl:variable name="use_vol">
-              <xsl:call-template name="get-vol">
-                  <xsl:with-param name="vol" select="$vol"/>
-              </xsl:call-template>
-            </xsl:variable>
-            <xsl:value-of select="normalize-space($use_vol)"/>
-        </xsl:param>
-        <xsl:param name="issue"><xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue'])"/></xsl:param>
-        <xsl:param name="id">
-            <xsl:value-of select="normalize-space(tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id'])"/>
-        </xsl:param>
-        <xsl:param name="issueTitle"><xsl:apply-templates select="document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes and @issue=$issue]/title"/></xsl:param>
-        
-        <xsl:for-each select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title">
-            <xsl:variable name="title">
-                <xsl:value-of select="normalize-space(.)"/>
-            </xsl:variable>
-            <!-- Stopwords filter from Jeni Tennison, http://www.stylusstudio.com/xsllist/200112/post10410.html -->
-            <xsl:variable name="lower">0123456789abcdefghijklmnopqrstuvwxyz</xsl:variable>
-            <xsl:variable name="upper">0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-            <xsl:variable name="punctuation">[/\].,+-=*~@#$%^(){}`"“”'!?&amp;&lt;&gt;</xsl:variable>
-            <xsl:variable name="stoplist" select="document('../../toc/stoplist.xml')/stoplist/ignore" />
-            <xsl:variable name="string"><xsl:value-of select="substring(translate($title, $punctuation, ''),
-                string-length(
-                $stoplist[starts-with(
-                translate($title,
-                concat($lower, $punctuation),
-                $upper),
-                translate(., $lower, $upper))]) + 1)"/></xsl:variable>
-            <xsl:variable name="apos">'</xsl:variable>
-            <p>
-                <xsl:attribute name="class">title</xsl:attribute>
-                <xsl:attribute name="id">
-                    <xsl:value-of select="translate($string,$upper,$lower)"/>
-                </xsl:attribute>
+      <!-- First, generate a <p> for each DHQ article's title(s). -->
+      <xsl:variable name="individualTitles" as="node()*">
+        <xsl:apply-templates select="//journal"/>
+      </xsl:variable>
+      <!-- Next, make sure that each title is only represented once, and sort them. -->
+      <xsl:variable name="uniqueTitles" as="node()*">
+        <xsl:for-each-group select="$individualTitles" group-by="@data-sort-key" 
+           collation="{$sort-collation}">
+          <!-- While we're here, do an initial sort of the titles by their keys. With the Unicode 
+            Collation Algorithm at primary strength, characters with diacritics will sort alongside 
+            their base characters. -->
+          <xsl:sort select="current-grouping-key()" collation="{$sort-collation}"/>
+          <xsl:sequence select="current-group()[1]"/>
+        </xsl:for-each-group>
+      </xsl:variable>
+      <!-- Start generating XHTML for the main page content. -->
+      <div id="titleIndex">
+        <h1>Title Index</h1>
+        <!-- Create a navigation bar to skip directly to authors whose names start with a given letter. -->
+        <nav id="a2zNavigation" class="index-navbar" role="navigation" aria-label="Titles Navigation">
+          <ul>
+            <!-- For each letter, make sure there are articles associated with that letter. If so, wrap 
+              the letter in an <a>; if not, output the letter as plaintext. -->
+            <xsl:for-each select="1 to 26">
+              <xsl:variable name="alphabet" select="'abcdefghijklmnopqrstuvwxyz'"/>
+              <xsl:variable name="letter" select="substring($alphabet, ., 1)"/>
+              <li>
                 <xsl:choose>
-                    <xsl:when test="@xml:lang='en' or string-length(@xml:lang)=0">
-                        
-                        <xsl:if test="//tei:title/@xml:lang != 'en'">
-                            <span class="monospace">[en]</span>
-                        </xsl:if>
-                        <!--
-                        <span class="monospace">[en]</span>
-                        -->
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <span class="monospace">[<xsl:value-of select="@xml:lang"/>]</span>
-                    </xsl:otherwise>
+                  <xsl:when test="exists($uniqueTitles[matches(@data-sort-key, '^'||$letter)])">
+                    <a id="{$letter}_nav" href="#{$letter}_titles" 
+                       aria-label="Titles starting with {$letter}">
+                      <xsl:value-of select="upper-case($letter)"/>
+                    </a>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="upper-case($letter)"/>
+                  </xsl:otherwise>
                 </xsl:choose>
-                
-                <xsl:element name="a">
-                    <xsl:choose>
-                      <!-- If the article has no volume or issue information, do not include @href. -->
-                      <xsl:when test="$vol_no_zeroes = '' or $issue = ''">
-                        <xsl:message terminate="no">
-                          <xsl:text>Article </xsl:text>
-                          <xsl:value-of select="$id"/>
-                          <xsl:text> has a volume of '</xsl:text>
-                          <xsl:value-of select="$vol"/>
-                          <xsl:text>' and an issue of '</xsl:text>
-                          <xsl:value-of select="$issue"/>
-                          <xsl:text>'</xsl:text>
-                        </xsl:message>
-                        <!-- The attributes below are an inelegant hack to make sure that this link 
-                          appears not to be actionable. A better solution would be to just display the 
-                          text of the title instead, sans <a>. However, XSLT 1 and the need to 
-                          accommodate different languages makes this difficult to do at this time.
-                          See https://css-tricks.com/how-to-disable-links/ for more on "disabling" links. -->
-                        <xsl:attribute name="aria-disabled">true</xsl:attribute>
-                        <xsl:attribute name="style">color:currentColor;text-decoration:none;</xsl:attribute>
-                      </xsl:when>
-                      <xsl:otherwise>
-                        <xsl:attribute name="href">
-                          <xsl:value-of select="concat('/',$context,'/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',$id,'.html')"/>
-                        </xsl:attribute>
-                      </xsl:otherwise>
-                    </xsl:choose>
-                    <xsl:if test="//tei:title/@xml:lang != 'en'">
-                        <xsl:attribute name="onclick">
-                            <xsl:value-of select="concat('localStorage.setItem(', $apos, 'pagelang', $apos, ', ', $apos, @xml:lang, $apos, ');')"/>
-                        </xsl:attribute>
-                    </xsl:if>
-                    <xsl:apply-templates select="."/>
-                </xsl:element>
-                <xsl:text>, </xsl:text><xsl:value-of select="$issueTitle"/><xsl:text>: v</xsl:text><xsl:value-of select="$vol_no_zeroes"/><xsl:text> n</xsl:text><xsl:value-of select="$issue"/>
-                <div class="authors">
-                    <xsl:for-each select="../dhq:authorInfo">
-                        <xsl:value-of select="normalize-space(dhq:author_name)"/>
-                        <xsl:if test="dhq:affiliation">
-                            <xsl:value-of select="', '"/>
-                        </xsl:if>
-                        <xsl:value-of select="normalize-space(dhq:affiliation)"/>
-                        <xsl:if test="not(position() = last())">
-                            <xsl:value-of select="'; '"/>
-                        </xsl:if>
-                    </xsl:for-each>
-                </div>
-            </p>
-            <xsl:if test="tei:text/tei:front/dhq:abstract/child::tei:p != ''">
-                <div class="viewAbstract">
-                    <div style="display:inline">
-                        <xsl:attribute name="id">
-                            <xsl:value-of select="concat('abstractExpanderabstract',$id)"/>
-                        </xsl:attribute>
-                        <a title="View Abstract" class="expandCollapse">
-                            <xsl:attribute name="href">
-                                <xsl:value-of
-                                    select="concat('javascript:expandAbstract(',$apos,'abstract',$id,$apos,')')"/>
-                            </xsl:attribute>
-                            <xsl:value-of select="'[+] '"/>
-                        </a>
-                        <xsl:text>View Abstract</xsl:text>
-                        
-                    </div>
-                    
-                </div>
-                <div style="display:none" class="abstract">
-                    <xsl:attribute name="id">
-                        <xsl:value-of select="concat('abstract',$id)"/>
-                    </xsl:attribute>
-                    <xsl:apply-templates select="tei:text/tei:front/dhq:abstract"/>
-                </div>
+              </li>
+            </xsl:for-each>
+          </ul>
+        </nav>
+        <div id="titles">
+          <!-- Now, group and sort the XHTML $individualTitles so the index can be navigated 
+            alphabetically by letter. -->
+          <xsl:for-each-group select="$uniqueTitles" group-by="substring(@data-sort-key, 1, 1)" 
+             collation="{$sort-collation}">
+            <!-- Make sure that articles starting with letters that aren't the Latin A to Z appear at 
+              the top, before any headings. -->
+            <xsl:sort select="matches(current-grouping-key(), '[a-z]')" collation="{$sort-collation}"/>
+            <xsl:variable name="letter" select="current-grouping-key()"/>
+            <!-- This group only gets a heading if $letter is a Latin letter corresponding to a link in 
+              the index navbar. -->
+            <xsl:if test="matches($letter, '[a-z]')">
+              <!-- The link needs an ARIA label because the letter alone isn't descriptive of where the 
+                link goes. However, the link's ARIA label will be used as the heading's label as well, 
+                so we have to provide that as well. 
+                There's probably a more accessible way of linking back to the top. Move the link before 
+                the <h2>, perhaps? -->
+              <h2 id="{$letter}_titles" class="index-group" aria-label="{upper-case($letter)}">
+                <a href="#{$letter}_nav" aria-label="Title navigation, letter {$letter}">
+                  <xsl:value-of select="upper-case($letter)"/>
+                </a>
+              </h2>
             </xsl:if>
+            <xsl:sequence select="current-group()"/>
+          </xsl:for-each-group>
+        </div>
+      </div>
+    </xsl:template>
+    
+    <!-- Apply templates on the contents of <journal>, but pass on a tunneled parameter with the title 
+      of the issue, if one exists. -->
+    <xsl:template match="journal">
+      <xsl:apply-templates>
+        <xsl:with-param name="issueTitle" select="title/normalize-space(.)" tunnel="yes"/>
+      </xsl:apply-templates>
+    </xsl:template>
+    
+    <!-- Skip any items in the Internal Preview area of the TOC. -->
+    <xsl:template match="journal[@editorial]" priority="5"/>
+    
+    <!-- Open a listed article's XML and use the metadata in its <teiHeader> to generate HTML. -->
+    <xsl:template match="item">
+      <xsl:variable name="articlePath" select="concat($staticPublishingPath,@id,'/',@id,'.xml')"/>
+      <xsl:choose>
+        <xsl:when test="doc-available($articlePath)">
+          <xsl:apply-templates select="doc($articlePath)/tei:TEI"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:message select="'Could not find article '||@id||' at '||$articlePath"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
+    
+    <!-- Continue to apply templates on the content of <list>s and <cluster>s. -->
+    <xsl:template match="list | cluster">
+      <xsl:apply-templates/>
+    </xsl:template>
+    
+    <!-- This template is run on a singular DHQ article. -->
+    <xsl:template match="tei:TEI">
+        <xsl:param name="issueTitle" as="xs:string?" tunnel="yes">
+          <!--<xsl:apply-templates select="document('../../toc/toc.xml')//journal[@vol=$vol_no_zeroes and @issue=$issue]/title"/>-->
+        </xsl:param>
+        <xsl:variable name="fileDesc" select="tei:teiHeader/tei:fileDesc"/>
+        <xsl:variable name="vol" 
+          select="normalize-space($fileDesc/tei:publicationStmt/tei:idno[@type='volume'])"/>
+        <xsl:variable name="issue"
+          select="normalize-space($fileDesc/tei:publicationStmt/tei:idno[@type='issue'])"/>
+        <xsl:variable name="articleId" 
+          select="normalize-space($fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id'])"/>
+        <xsl:variable name="vol_no_zeroes" 
+          select="dhqf:remove-leading-zeroes($vol) => normalize-space()"/>
+        <!-- Try to generate a URL to use for this article. -->
+        <xsl:variable name="linkUrl" as="xs:string?" 
+          select="dhqf:link-to-article($articleId, $vol, $issue)"/>
+        
+        <xsl:for-each select="$fileDesc/tei:titleStmt/tei:title">
+          <xsl:variable name="title" as="node()*">
+            <xsl:variable name="hasTitleNotInEnglish" as="xs:boolean" 
+              select="exists($fileDesc/tei:titleStmt/tei:title[@xml:lang ne 'en'])"/>
+            <xsl:call-template name="get-article-title">
+              <xsl:with-param name="link-url" select="$linkUrl"/>
+              <xsl:with-param name="article-has-non-english-title" select="$hasTitleNotInEnglish"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:variable name="sortTitle" 
+            select="dhqf:remove-leading-stopwords(., ancestor-or-self::*[@xml:lang][1]/@xml:lang/data(.))
+                    => dhqf:make-sortable-key()"/>
+          <xsl:variable name="apos">'</xsl:variable>
+          <div class="ptext" data-sort-key="{$sortTitle}">
+            <span>
+              <xsl:sequence select="$title"/>
+              <xsl:text>, </xsl:text>
+              <xsl:value-of select="$issueTitle"/>
+              <xsl:text>: v</xsl:text>
+              <xsl:value-of select="$vol_no_zeroes"/>
+              <xsl:text> n</xsl:text>
+              <xsl:value-of select="$issue"/>
+            </span>
+            <div class="authors">
+              <xsl:for-each select="../dhq:authorInfo">
+                <xsl:value-of select="normalize-space(dhq:author_name)"/>
+                <xsl:if test="dhq:affiliation">
+                  <xsl:value-of select="', '"/>
+                </xsl:if>
+                <xsl:value-of select="normalize-space(dhq:affiliation)"/>
+                <xsl:if test="not(position() = last())">
+                  <xsl:value-of select="'; '"/>
+                </xsl:if>
+              </xsl:for-each>
+            </div>
+          </div>
         </xsl:for-each>
     </xsl:template>
     
@@ -198,21 +282,44 @@
         <xsl:value-of select="normalize-space(.)"/>
     </xsl:template>
     
-    <xsl:template match="dhq:authorInfo/dhq:address|dhq:authorInfo/tei:email|tei:teiHeader/tei:fileDesc/tei:publicationStmt"/>
     
-    <xsl:template name="get-vol">
-        <xsl:param name="vol"/>
-        <xsl:choose>
-            <xsl:when test="substring($vol,1,1) = '0'">
-                <xsl:call-template name="get-vol">
-                    <xsl:with-param name="vol">
-                        <xsl:value-of select="substring($vol,2)"/>
-                    </xsl:with-param>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$vol"/>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
+  <!--
+      FUNCTIONS
+    -->
+    
+    <!-- Given an element and a language code, produce a version of the string suitable for sorting, by
+      lower-casing it, normalizing its whitespace, and finally, removing its leading stopwords. -->
+    <xsl:function name="dhqf:remove-leading-stopwords" as="xs:string">
+      <xsl:param name="element" as="node()"/>
+      <xsl:param name="language-code" as="xs:string?"/>
+      <!-- If $language-code isn't provided, fallback on any @xml:lang on $element, then on English. -->
+      <xsl:variable name="useLang" select="($language-code, $element/@xml:lang, 'en')[1]" as="xs:string"/>
+      <!-- If $element's first child with non-whitespace content is an element with @xml:lang on it, 
+        we'll need to run this function on that element instead. -->
+      <xsl:variable name="childWithLang" 
+        select="$element/node()[normalize-space(.) ne ''][1][self::*][@xml:lang]"/>
+      <xsl:variable name="string" select="xs:string($element)" as="xs:string"/>
+      <xsl:choose>
+        <!-- If $childWithLang exists, run this function on that element, and concatenate the result 
+          with the rest of $element. -->
+        <xsl:when test="exists($childWithLang)">
+          <xsl:sequence 
+              select="dhqf:remove-leading-stopwords($childWithLang, $childWithLang/@xml:lang/data(.))
+                      || string-join($childWithLang/following-sibling::node(), '')"/>
+        </xsl:when>
+        <!-- If the provided language code matches one of those in $stopword-map, we have stopwords that 
+          may be removed from the beginning of the input string. -->
+        <xsl:when test="$useLang = map:keys($stopword-map)">
+          <xsl:variable name="cleanerStr" select="lower-case(normalize-space($string))"/>
+          <xsl:variable name="langStopwordSeq" select="map:get($stopword-map, $useLang)"/>
+          <xsl:variable name="regex" select="'^('||string-join($langStopwordSeq, '|')||')'"/>
+          <xsl:sequence select="replace($cleanerStr, $regex, '')"/>
+        </xsl:when>
+        <!-- By default, simply return the input string as-is. -->
+        <xsl:otherwise>
+          <xsl:sequence select="$string"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:function>
+  
 </xsl:stylesheet>
