@@ -1,0 +1,497 @@
+<html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>Figure 11</title>
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+
+<link rel="STYLESHEET" type="text/css" href="data_css/style_interactive_map.css">
+<link href="https://fonts.googleapis.com/css?family=Oswald:200,300,400,500,600,700" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,200i,300,300i,400,400i,600,600i,700,700i,900,900i" rel="stylesheet">
+<link rel="shortcut icon" href="images/samosicon.ico">
+
+<script src="data_js/jquery-latest.js"></script>
+<script src="data_js/index.js"></script> 
+
+
+<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+
+<link rel="stylesheet" type="text/css" href="data_css/leaflet.css">
+
+<!--Estos son los js de la primera capa "The place" Fase1-->
+<script type="text/javascript" src="data_js/contour_lines_1.js"></script>
+<script type="text/javascript" src="data_js/river_lines_1.js"></script>
+<script type="text/javascript" src="data_js/river_polygons_1.js"></script>
+<script type="text/javascript" src="data_js/roads_1.js"></script>
+
+<!--Estos son los js de la segunda capa "Prerromanesque Monastic Site" Fase2-->
+<script type="text/javascript" src="data_js/chapel_2.js"></script>
+<script type="text/javascript" src="data_js/hospital_2.js"></script>
+<script type="text/javascript" src="data_js/contour_lines_2.js"></script>
+<script type="text/javascript" src="data_js/river_lines_2.js"></script>
+<script type="text/javascript" src="data_js/river_polygons_2.js"></script>
+<script type="text/javascript" src="data_js/roads_2.js"></script>
+<script type="text/javascript" src="data_js/hypothetical_monastic_area_2.js"></script>
+<script type="text/javascript" src="data_js/pilgrimage_way_2.js"></script>
+
+<!--Estos son los js de la tercera capa "Romanesque Monastic Site" Fase3-->
+<script type="text/javascript" src="data_js/contour_lines_3.js"></script>
+<script type="text/javascript" src="data_js/guest_quarters_3.js"></script>
+<script type="text/javascript" src="data_js/romanesque_church_3.js"></script>
+<script type="text/javascript" src="data_js/romanesque_cloister_3.js"></script>
+<script type="text/javascript" src="data_js/chapel_3.js"></script>
+<script type="text/javascript" src="data_js/hospital_3.js"></script>
+<script type="text/javascript" src="data_js/roads_3.js"></script>
+<script type="text/javascript" src="data_js/river_polygons_3.js"></script>
+<script type="text/javascript" src="data_js/river_lines_3.js"></script>
+
+
+</head>
+
+<body>
+
+<h1></h1>
+<h2></h2>
+
+	<!--Esto es el mapa de js en html-->
+	<div id = 'map'>
+	</div>
+	
+	<!--Esto son todas las propiedades del mapa de Leaflet-->
+	<script>
+	
+	/**Creando el mapa/recuadro base**/
+	var map = L.map('map', {
+    center: [42.732058, -7.326048],
+    zoom: 17,
+	zoomControl:true, /**Añade el control zoom +-**/
+	attributionControl: false, /**Elimina la pestañita de Leaflet de la parte inferior izquierda**/
+	});
+	
+	/**Añadiendo el mapa Google Satellite como mapa base**/
+	var BaseMapGoogleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+	minZoom: 17,
+	subdomains:['mt0','mt1','mt2','mt3']
+	})/**.addTo(map);      Esta no lleva addTo(map), porque no quiero que se muestre según entras, sólo si haces click en ella**/
+	
+	/**Añadiendo el mapa Google Streets como mapa base**/
+	var BaseMapGoogleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+    maxZoom: 20,
+	minZoom: 17,
+    subdomains:['mt0','mt1','mt2','mt3'],
+	});/**Esta no lleva addTo(map), porque no quiero que se muestre según entras, sólo si haces click en ella**/
+	
+	
+	/**Añadiendo una escala al mapa**/
+	L.control.scale({imperial: false, position: 'bottomright'}).addTo(map);
+	
+	
+	/**Función de Resaltar al pasar por encima general**/
+	function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#f38c7e',
+				weight: 4.0,
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#f38c7e',
+                fillOpacity: 0.7,
+				weight: 2,
+				/**color: white - ponerlo si quiero que resalte los bordes de la figura seleccionada en blanco**/
+              });
+            }
+        }
+	
+	/**Para el pop-up tipo 1 (solo nombre)**/	
+	function highlight_layers(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+			/**Función PopUp integrada dentro de la resaltar**/
+			if (feature.properties && feature.properties.Text) {
+            layer.bindPopup('<strong>'+feature.properties.Text+
+			'</strong><br><hr style="border-top: 1px dotted black"/>');
+			
+        }
+        }
+	
+	/**Para el pop-up tipo 2, con más info de los edificios monásticos y view more**/	
+	function highlight_layers_monastic_buildings(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+			/**Función PopUp integrada dentro de la resaltar**/
+			if (feature.properties && feature.properties.Name) {
+            layer.bindPopup('<strong>'+feature.properties.Name+ 
+			'</strong><br><hr style="border-top: 1px dotted black"/><strong>Period</strong><br>'+feature.properties.Period+
+			'<br><strong>Construction Date</strong><br>'+feature.properties.Construction+
+			'<br><strong>Extant</strong><br>'+feature.properties.Extant+
+			'<br><strong>Event</strong><br>'+feature.properties.Event);
+			
+        }
+        }
+		
+
+
+	/**Definiendo los estilos**/
+	var Style_roads = {opacity: 1,
+					color: 'rgba(35,35,35,0.0)',
+					dashArray: '',
+					lineCap: 'butt',
+					lineJoin: 'miter',
+					weight: 1.0, 
+					fill: true,
+					fillOpacity: 0.7,
+					fillColor: 'rgba(145,82,45,0.7)',
+	};
+	
+	var Style_contour_lines = {color: "#b0b0ae",
+							opacity: 1,
+							weight: 1.0,
+							fillOpacity: 0,
+							dashArray: '',
+							lineCap: 'square',
+							lineJoin: 'bevel',
+	};
+	
+	var Style_river_lines = {opacity: 1,
+							color: 'rgba(88,200,214,0.7)',
+							dashArray: '',
+							lineCap: 'square',
+							lineJoin: 'bevel',
+							weight: 2.0,
+							fillOpacity: 0.7,
+	};
+	
+	var Style_river_polygons = {opacity: 1,
+							color: 'rgba(35,35,35,0.0)',
+							dashArray: '',
+							lineCap: 'butt',
+							lineJoin: 'miter',
+							weight: 1.0, 
+							fill: true,
+							fillOpacity: 0.7,
+							fillColor: 'rgba(166,206,227,0.7)',
+	};
+	
+	var Style_buildings = {opacity: 1,
+							color: 'rgba(191,72,56,1.0)',    /**Este color, que es el del borde, es más oscuro que el de relleno, #BF4838**/
+							dashArray: '',
+							lineCap: 'butt',
+							lineJoin: 'miter',
+							weight: 2.0, 
+							fill: true,
+							fillOpacity: 0.7,
+							fillColor: "#EF5B47",
+	};
+	
+	var Style_village_houses = {opacity: 1,
+							color: 'rgba(191,72,56,1.0)',
+							dashArray: '',
+							lineCap: 'butt',
+							lineJoin: 'miter',
+							weight: 2.0, 
+							fill: true,
+							fillOpacity: 0.7,
+							fillColor: "#EF5B47",
+	};
+	
+	var Style_village_auxiliary = {opacity: 1,
+							color: "#bf8c38",
+							dashArray: '',
+							lineCap: 'butt',
+							lineJoin: 'miter',
+							weight: 2.0, 
+							fill: true,
+							fillOpacity: 0.7,
+							fillColor: 'rgba(239,175,71,0.7)',
+	};
+	
+	var Style_equipments = {opacity: 1,
+							color: "#772d23",
+							dashArray: '',
+							lineCap: 'butt',
+							lineJoin: 'miter',
+							weight: 2.0, 
+							fill: true,
+							fillOpacity: 0.7,
+							fillColor: "#772d23",
+	};
+	
+	
+
+	
+	/**Archivos de la Fase1 The Place. Todas las subcapas y la propia cada de esta primera fase llevan al final addTo(map) porque quiero que sea esta la capa que se muestra en el navegador cuando entra en primera lugar, las otras capas y subcapas no llevan addTo(map) al final porque no quiero que se muestren según entras, sólo cuando clicas en ellas**/
+	/**Llamada al geoson contour_lines_0 que tiene que estar añadido en el head del html OJO!!**/
+	var geojson_contour_lines_1 = L.geoJson(contour_lines_1, {
+							style: function(featureCollection){
+							return (Style_contour_lines);	/**Llamada al estilo correspondiente de los definidos arriba. Si quisiera que esta capa tubiera el estilo embebido aquí, sin hacer llamada a ningún sitio, donde pone (Style_contour_lines) tendría que poner {color: "#b0b0ae",
+							opacity: 1,
+							weight: 1.0,
+							fillOpacity: 0,
+							dashArray: '',
+							lineCap: 'square',
+							lineJoin: 'bevel'}**/	
+	  }
+	}).addTo(map);
+	
+	
+	/**Dentro del geoJson, la línea onEachFeature, hace la llamada a la función del PopUp**/
+	var geojson_river_lines_1 = L.geoJson(river_lines_1, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return (Style_river_lines);		
+	  }
+	}).addTo(map);
+	
+	
+	
+	var geojson_river_polygons_1 = L.geoJson(river_polygons_1, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return (Style_river_polygons);	
+	  }
+	}).addTo(map);
+	
+	
+	
+	var geojson_roads_1 = L.geoJson(roads_1, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return (Style_roads);	
+	  }
+	});   /**sin visualizar en el plano base, por eso saqué el .addTo(map);**/
+	
+	
+	
+	var marker_thePlace = L.marker([42.732123, -7.326089]); /**Le saqué el addTo(map) para sólo lo muestre cuando hago click en la capa**/
+	marker_thePlace.bindPopup('<strong>The Place</strong><br><hr style="border-top: 1px dotted black"/>');
+	
+	
+	/**Fase1 The Place**/
+	var thePlace = L.featureGroup([geojson_contour_lines_1, 
+	geojson_contour_lines_1, 
+	geojson_river_polygons_1, 
+	geojson_roads_1, 
+	marker_thePlace]);
+	
+	
+	/**Archivos de la Fase2 Prerromanesque Spaces**/
+	var geojson_chapel_2 = L.geoJson(chapel_2, {
+							onEachFeature: highlight_layers_monastic_buildings, /**Ojo para que lea del segundo tipo de pop-up**/
+							style: function(featureCollection){
+							return (Style_buildings);	
+		}							
+	});
+	
+	var geojson_hospital_2 = L.geoJson(hospital_2, {
+							onEachFeature: highlight_layers_monastic_buildings, 
+							style: function(featureCollection){
+							return (Style_buildings);	
+		}							
+	});
+	
+	var geojson_contour_lines_2 = L.geoJson(contour_lines_2, {
+							style: function(featureCollection){
+							return (Style_contour_lines);		
+	  }
+	});
+
+	
+	var geojson_river_lines_2 = L.geoJson(river_lines_2, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return (Style_river_lines);		
+	  }
+	});
+	
+	var geojson_river_polygons_2 = L.geoJson(river_polygons_2, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return (Style_river_polygons);	
+	  }
+	});
+	
+	var geojson_roads_2 = L.geoJson(roads_2, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return (Style_roads);	
+	  }
+	});
+	
+	var geojson_hypothetical_monastic_area_2 = L.geoJson(hypothetical_monastic_area_2, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return {opacity: 1,
+							color: 'rgba(191,72,56,1.0)',
+							dashArray: '5',
+							lineCap: 'butt',
+							lineJoin: 'miter',
+							weight: 4.0, 
+							fillOpacity: 0,};	
+	  }
+	});
+	
+	var geojson_pilgrimage_way_2 = L.geoJson(pilgrimage_way_2, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return {opacity: 1,
+							color: 'rgba(35,35,35,0.0)',
+							dashArray: '',
+							lineCap: 'butt',
+							lineJoin: 'miter',
+							weight: 1.0, 
+							fill: true,
+							fillOpacity: 1,
+							fillColor: 'rgba(240,236,96,0.7)'};
+		}
+	});
+	
+	
+	/**Fase2 Prerromanesque Monastic Site**/
+	var prerromanesqueSpaces = L.featureGroup([geojson_chapel_2, 
+	geojson_hospital_2,
+	geojson_contour_lines_2, 
+	geojson_river_lines_2, 
+	geojson_river_polygons_2, 
+	geojson_roads_2, 
+	geojson_hypothetical_monastic_area_2, 
+	geojson_pilgrimage_way_2]);
+	
+	
+	/**Archivos de la Fase3 Romanesque Spaces**/
+	var geojson_contour_lines_3 = L.geoJson(contour_lines_3, {
+							style: function(featureCollection){
+							return (Style_contour_lines);	
+		}							
+	});
+	
+	var geojson_guest_quarters_3 = L.geoJson(guest_quarters_3, {
+							onEachFeature: highlight_layers_monastic_buildings,
+							style: function(featureCollection){
+							return (Style_buildings);	
+		}							
+	});
+	
+	var geojson_romanesque_church_3 = L.geoJson(romanesque_church_3, {
+							onEachFeature: highlight_layers_monastic_buildings,
+							style: function(featureCollection){
+							return (Style_buildings);	
+		}							
+	});
+	
+	var geojson_romanesque_cloister_3 = L.geoJson(romanesque_cloister_3, {
+							onEachFeature: highlight_layers_monastic_buildings,
+							style: function(featureCollection){
+							return (Style_buildings);	
+		}							
+	});
+	
+	var geojson_chapel_3 = L.geoJson(chapel_3, {
+							onEachFeature: highlight_layers_monastic_buildings,
+							style: function(featureCollection){
+							return (Style_buildings);	
+		}							
+	});
+	
+	var geojson_hospital_3 = L.geoJson(hospital_3, {
+							onEachFeature: highlight_layers_monastic_buildings,
+							style: function(featureCollection){
+							return {opacity: 1,
+							color: 'rgba(191,72,56,1.0)',
+							dashArray: '',
+							lineCap: 'butt',
+							lineJoin: 'miter',
+							weight: 2.0, 
+							fillOpacity: 0,};	
+		}							
+	});
+	
+	var geojson_roads_3 = L.geoJson(roads_3, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return (Style_roads);	
+		}							
+	});
+	
+	var geojson_river_polygons_3 = L.geoJson(river_polygons_3, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return (Style_river_polygons);	
+		}							
+	});
+	
+	var geojson_river_lines_3 = L.geoJson(river_lines_3, {
+							onEachFeature: highlight_layers,
+							style: function(featureCollection){
+							return (Style_river_lines);	
+		}							
+	});
+	
+	/**Fase3 Romanesque Monastic Site**/
+	var romanesqueSpaces = L.featureGroup([geojson_contour_lines_3, 
+	geojson_guest_quarters_3, 
+	geojson_romanesque_church_3, 
+	geojson_romanesque_cloister_3,
+	geojson_chapel_3,
+	geojson_hospital_3,
+	geojson_roads_3,
+	geojson_river_polygons_3,
+	geojson_river_lines_3
+	]);
+	
+	
+	/**Creando la asociación de fases**/
+	var evolutionStages = {
+	"<strong>The Place</strong>": thePlace,
+	"<strong>Pre-12<sup>th</sup> century</strong>": prerromanesqueSpaces,
+	"<strong>From 12<sup>th</sup> to 15<sup>th</sup> century</strong>": romanesqueSpaces,
+	};
+	
+	
+	
+	/**Creando la asociación de capas base**/
+	var baseMaps = {
+	"Base Map Google Streets": BaseMapGoogleStreets,
+	"Base Map Google Satellite": BaseMapGoogleSatellite,	
+	};
+	
+
+	
+	/**Crea la leyenda de las capas, controlador**/
+	/**Si quiero que no esté expandido el controlador sólo tengo que borrar ",{collapsed:false}"**/
+	L.control.layers(evolutionStages, baseMaps,{collapsed:false,}).addTo(map);
+	
+	
+	
+	
+	
+	</script>
+	
+	
+
+	</div>
+
+
+<div id="footer"><strong>Figure 11.</strong> Manually coded interactive web-map showing the basics of Digital Samos spatial framework: visual, multilayered, multi-scalar, time-based and structurally open-ended. Web-map: the author. </div>
+</div>
+
+</body>
+
+</html>
