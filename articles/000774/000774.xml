@@ -330,16 +330,55 @@
                      </p>
                      
                      <p>We set up a pipeline that automatically enriches a given text by adding information associated with content words available from Ba- belNet. The pipeline is based on Apache UIMA <ptr target="#ferrucci_etal2009"/>, uses open source software components and comprises the following steps:
-                     <list>
-                         <item><hi rend="bold">Part-of-speech (POS) Tagging</hi>: In this step, POS-tags are assigned to all word forms using <title rend="italic">DKPro HunPosTagger</title> <ptr target="#halácsy_etal2007"/>.
+                     <list type="simple">
+                         <item><hi rend="bold">1. Part-of-speech (POS) Tagging</hi>: In this step, POS-tags are assigned to all word forms using <title rend="italic">DKPro HunPosTagger</title> <ptr target="#halácsy_etal2007"/>.
                          </item>
-                         <item><hi rend="bold">Lemmatisation</hi>: using DK Pro Language Tool Lemmatizer <ptr target="#dkpro"/>, we lemmatised the word forms. Further, stopwords, punctuation and duplicate words within paragraphs are removed.</item>
-                         <item >Word Sense Disambiguation (WSD): we employed DKPro WSD <ptr target="#dkpro"/> in combination with an extension that enables the use of BabelNet <ptr target="#codina2018"/> to resolve ambiguous lemmas to their most probable sense. A number of disambiguation methods have been tried, with varying results.</item> <!-- Lesk, Graph -->
-                         <item>Enrichment Generation: we used the following method to enrich the text:</item> <!-- glosses -->
+                         <item><hi rend="bold">2. Lemmatisation</hi>: using <title rend="italic">DK Pro Language Tool Lemmatizer</title> <ptr target="#dkpro"/>, we lemmatised the word forms. Further, stopwords, punctuation and duplicate words within paragraphs are removed.</item>
+                         <item ><hi rend="bold">3. Word Sense Disambiguation (WSD)</hi>: we employed <title rend="italic">DKPro WSD</title> <ptr target="#dkpro"/> in combination with an extension that enables the use of <title rend="italic">BabelNet</title> <ptr target="#codina2018"/> to resolve ambiguous lemmas to their most probable sense. A number of disambiguation methods have been tried, with varying results.</item>
                      </list>
+                         <list type="unordered">
+                             <item><hi rend="bold">Lesk algorithm</hi>: this method looks up <title rend="italic">BabelNet</title> glosses and decides upon textual overlap of those in order to disambiguate.</item>
+                             
+                             <item><hi rend="bold">Graph connectivity</hi>: this method creates a graph from <title rend="italic">BabelNet</title> neighbours; achieves poor results with all <title rend="italic">BabelNet</title>
+                                 sense types, and better results with only hyper/hypo/mero/holonyms as neighbours and only <title rend="italic">WordNet senses</title>.</item>
+                         </list>
+                         
+                         <list type="simple">
+                         <item><hi rend="bold">4. Enrichment Generation</hi>: we used the following method to enrich the text:</item>
+                         </list>
+                         
+                         <list type="unordered">
+                             <item><hi rend="bold">Glosses</hi>: by adding <title rend="italic">BabelNet</title> glosses (i.e. descriptions of concepts) to the original text. Addition of glosses is done in parentheses right after the content words triggering them.
+                             </item>
+                         </list>
+                     
                          Overall, we created a number of enrichment variations resulting from varying the following parameters:
-                         <!-- list breakdown -->
-                         The data resource for the “fake” glosses was the Wikipedia based ”rus_news_2020_1M” corpus (1M sentences) from the ”Wortschatz Leipzig” corpora collection.
+                         <list type="unordered">
+                             <item>BabelNet lexicon</item>
+                         </list>
+                         <list type="simple">
+                             <item>– ALL: all available lexicons</item>
+                             <item>– WNTR: only WordNet translations</item>
+                         </list>
+                         
+                         <list type="unordered">
+                             <item>WSD algorithm</item>
+                         </list>
+                         
+                         <list type="simple">
+                             <item>– LESK: overlap of glosses</item>
+                             <item>– GRAPH: graph connectivity</item>
+                         </list>
+                         
+                         <list type="unordered">
+                             <item>Enrichment type</item>
+                         </list>
+                         
+                         <list type="simple">
+                             <item>– GLOSSES: BabelNet glosses in parentheses after triggering lemma</item>
+                         </list>
+                         
+                         The data resource for the “fake” glosses was the Wikipedia based ”rus_news_2020_1M” corpus (1M sentences) from the "Wortschatz Leipzig" corpora collection.
                          
                          <note>Available at: <ref target="https://wortschatz.uni-leipzig.de/de">https://wortschatz.uni-leipzig.de/de</ref></note>
                      </p>
@@ -352,22 +391,28 @@
                  <div>
                      <head>5 Results</head>
                      
-                     <p>Firstly, we tested whether the different text variants differ measurably in their information density. To do this, we compared the meaningful values in the sets and used the non-parametric Mann-Whitney-test.
+                     <p>Firstly, we tested whether the different text variants differ measurably in their information density. 
                          
-                         <note>Non-parametric means that the test makes no or just minimal assumptions about the distribution within the data. An example may illustrate the question posed by statistical tests of mean-differences: the Dutch and the Danes are among the tallest populations in the world. On average, there is hardly any difference between them. Differences in height are therefore probably not characteristic to group, i.e., the group of the tallest populations. Rather, we could say that the differences are not important, they are due to chance. 
+                         <!-- table 1 -->
+                         
+                         To do this, we compared the meaningful values in the sets and used the non-parametric <title rend="italic">Mann-Whitney</title>-test.
+                         
+                         <note><emph>Non-parametric</emph> means that the test makes no or just minimal assumptions about the distribution within the data. An example may illustrate the question posed by statistical tests of mean-differences: the Dutch and the Danes are among the tallest populations in the world. On average, there is hardly any difference between them. Differences in height are therefore probably not characteristic to group, i.e., the group of the tallest populations. Rather, we could say that the differences are not important, they are due to chance. 
                              In terms of height, the Dutch and Danes belong to the same group, that is, the group of the tallest people. In Malta, for example, the average height of the population is much lower. The difference in average height between the Dutch and the Maltese is likely to be highly significant. This means that the Dutch and the Maltese do not belong to the same height group.</note>
                          
-                         The results of the Mann-Whitney-tests are given in Table 2. A significance level of p <!-- less than symbol --> .05 means that there are strong, non-random differences between the sets.
+                         The results of the <title rend="italic">Mann-Whitney</title>-tests are given in Table 2. A significance level of p <!-- less than symbol --> .05 means that there are strong, non-random differences between the sets.
                      </p>
                      
-                     <p>All mean differences of information density between the original text and the texts enriched with fake glossings are highly significant. In each case p ≈ 0. The hypothesis of equality of means has thus to be rejected. That is to say, the information density in the original texts differs strongly from the density in fake glossed texts. Statistically speaking, original texts and fake glossed texts are therefore different sets.</p>
+                     <p>All mean differences of information density between the original text and the texts enriched with fake glossings are highly significant. In each case <hi rend="italic">p ≈ 0</hi>. The hypothesis of equality of means has thus to be rejected. That is to say, the information density in the original texts differs strongly from the density in fake glossed texts. Statistically speaking, original texts and fake glossed texts are therefore different sets.</p>
                      
                      <p>Weaker pronounced is the difference between the information density of the original text and the meaningfully glossed text. Approximately half of the comparisons lack significance, and the comparison of the original text with meaningful glossing sourced from all lexicons and graph connectivity is highly insignificant, with a signifance
-                     <!-- Table 2 -->
-                         level even of p = .30.
+                     
+                         <!-- Table 2 -->
+                         
+                         level even of <hi rend="italic">p = .30</hi>.
                      </p> 
                      
-                     <p>The following figures compare the mean values of the UIDwordwise-values and their dispersion in original, meaningful and fake glossed texts. A mean tends towards 0 means that many of the sentences in a data set show little wordwise surprisal-changes which means that the information density is tendentialy uniform. Recall that UIDwordwise is negative by definition.
+                     <p>The following figures compare the mean values of the <hi rend="italic">UIDwordwise</hi>-values and their dispersion in original, meaningful and fake glossed texts. A mean tends towards 0 means that many of the sentences in a data set show little wordwise surprisal-changes which means that the information density is tendentialy uniform. Recall that <hi rend="italic">UIDwordwise</hi> is negative by definition.
                      </p>
                      
                      <p>Figure 5 displays that for the All-GRAPH-method employing word sense disambiguation (WSD) via graph connectivity, meaningful glossing make the density of surprisal more uniform compared to the original text, albeit only a little bit (5b). Conversely, in fake glosses (5b) information density in sentences is much less uniform. Meaningful glossing reduces the dispersion of UID-values compared to the origi- nal text (5a), whereas fake glossing results in a substantially stronger dispersion of the UID-values (5b).</p>
@@ -387,7 +432,7 @@
                          
                          <note>The area under the curves must be approximately 1 in each case.</note>
                          
-                         The x-axis gives the UIDwordwise values, the y-axis gives the probabilities.</p>
+                         The x-axis gives the <hi rend="italic">UIDwordwise</hi> values, the y-axis gives the probabilities.</p>
                      
                      <p>Firstly, all plots show very clearly that fake glossed texts have distributions of UID-values reminiscent of a flattened normal distribution halfway, so to speak, to a uniform distribution: we see flattened peaks, 
                          and the edges of the distributions run wide to the left and right meaning the probability of extreme values is high. The distribution of the fake glossed text exhibits low kurtosis, i.e., peakiness.
@@ -400,10 +445,10 @@
                          
                          <note>Available at: <ref target="https://en.wikipedia.org/wiki/Kurtosis">https://en.wikipedia.org/wiki/Kurtosis</ref></note>
                      </p>
-                     <p>Secondly, the plots in the Figures 7a and 8 visualise that meaningfully enriched texts exhibit higher kurtosis compared to the original text relative to fake enriched texts, that is to say, they have a higher, steeper peak. 
+                     <p>Secondly, the plots in the Figures 7a and 8 visualise that meaningfully enriched texts exhibit higher <emph>kurtosis</emph> compared to the original text relative to fake enriched texts, that is to say, they have a higher, steeper peak. 
                          However, this does not seem to hold when LESK algorithm is employed as becomes visible in Figure 7b: here, the density distribution in the original text seems to be more peaky than in the meaningful enriched text, 
-                         and the distribution in the latter runs out far to the left and right. Figure 7b seems to show that the gener- alisation about kurtosis, i.e., that a meaningful enriched texts has a more peaky density distribution than the original text, does not hold. 
-                         We aimed to confirm this suspicion and chose an alternative graphical representation of the density distribution in the LESK text with a Cullen and Frey-Graph in Figure 9.
+                         and the distribution in the latter runs out far to the left and right. Figure 7b seems to show that the generalisation about kurtosis, i.e., that a meaningful enriched texts has a more peaky density distribution than the original text, does not hold. 
+                         We aimed to confirm this suspicion and chose an alternative graphical representation of the density distribution in the LESK text with a <hi rend="italic">Cullen and Frey-Graph</hi> in Figure 9.
                      
                      <figure>
                          <head>Information density of meaningfully/fake enriched texts and original texts.</head>
@@ -411,7 +456,7 @@
                          <graphic url="resources/images/figure07.png"></graphic>
                      </figure>
                      
-                         It visualises the proximity and distance of LESK distributions with a set of theoretical distributions. The x-axis gives the degree of skewness of a distribution, and the y-axis gives the kurtosis. 
+                     It visualises the proximity and distance of LESK distributions with a set of theoretical distributions. The x-axis gives the degree of skewness of a distribution, and the y-axis gives the <emph>kurtosis</emph>. 
                          
                          <note>Available at: <ref target="https://en.wikipedia.org/wiki/Skewness">https://en.wikipedia.org/wiki/Skewness</ref></note>
                          
@@ -426,7 +471,7 @@
                          has higher kurtosis than the distribution in the original text, and the plot thus confirms the generalisation from above that the density distribution in meaningfully enriched texts is more peaky than the distribution in the original text. In addition, Figure 7b shows very clearly the proximity of the fake distribution to the uniform distribution that we observed already in the Figures 7a and 8. So, can we infer a subtext effect from these results? We will return to this research question posed above in the Section 6.
                      
                      <figure>
-                         <head></head>
+                         <head>Cullen and Frey graph for ALL LESK GLOSSES with fake and meaningful enrichment’s and original text.</head>
                          <figDesc></figDesc>
                          <graphic url="resources/images/figure09.png"></graphic>
                      </figure>
@@ -442,9 +487,9 @@
                          (the uniform distribution results from a maximally fake text in which every word is chosen arbitrarily, see Figure 10). When meaningfully related glosses of the same cardinality are added to the original text, by contrast, the resulting contour shows a higher peak compared to the one of the original text.</p>
                     
                      <p>The described finding comes out clearly in Figures 7a, 8a, and 8b. It is only with respect to enrichment type ALL LESK that the differ- ence cannot be read from the respective plot, see 7b. However, the alternative visual representation in Figure 9 shows that also in this case meaningful enrichments lead to a higher kurtosis value whereas fake enrichments lead to a lower kurtosis value compared to the kurtosis value of the original text. 
-                         This can be taken as a confirmation that the text features surprisal and information density, so to speak, measure semantic properties. We may confidently conclude that we attested a subtext effect.</p>
+                         This can be taken as a confirmation that the text features <emph>surprisal</emph> and <emph>information density</emph>, so to speak, measure semantic properties. We may confidently conclude that we attested a subtext effect.</p>
                      
-                     <p>Although we have shown that information theory may unravel the subtext in Chekhov, the observed subtext effects are subtle. This may be due to that the glosses that we used in the documented experiment are too primitive to reproduce any more clear subtext effect. 
+                     <p>Although we have shown that information theory may unravel the subtext in <name>Chekhov</name>, the observed subtext effects are subtle. This may be due to that the glosses that we used in the documented experiment are too primitive to reproduce any more clear subtext effect. 
                          Recall the basic idea underlying this study: if the subtext is an in- alienable part of the semantics of a meaningful text, measuring the surprisal values of original texts alone will produce values that re- flect the actual content of the text only incompletely. To measure the true surprisal of a text, one would have to enrich the original text by the perfect explication of the subtext.
                      
                      <figure>
@@ -457,7 +502,7 @@
                          Future research will therefore have to focus on the technique of enrichment. 
                      </p>
                      
-                     <p>While in this study, the generation of the subtexts was based in principle on the Fillmore model, future experiments will be carried out statistically based by employing neural networks. Doing so while keeping the features information density and kurtosis/skewness, we hope to achieve and observe a more significant subtext effect than in the current study.
+                     <p>While in this study, the generation of the subtexts was based in principle on the Fillmore model, future experiments will be carried out statistically based by employing neural networks. Doing so while keeping the features <emph>information density</emph> and <emph>kurtosis/skewness</emph>, we hope to achieve and observe a more significant subtext effect than in the current study.
                      
                      </p>
                  </div>
