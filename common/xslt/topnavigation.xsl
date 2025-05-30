@@ -47,7 +47,7 @@
           <a href="{$path_to_home}/contact/contact.html" class="topnav">contact</a>
         </span>
       </div>
-      <div id="search">
+      <div id="searchStuff">
 	<form id="searchForm" method="get" action="{$path_to_home}/vol/search.html"
 	      enctype="application/x-www-form-urlencoded" accept-charset="utf-8">
 	  <div id="search">
