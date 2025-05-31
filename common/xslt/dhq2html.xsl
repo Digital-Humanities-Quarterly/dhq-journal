@@ -12,13 +12,9 @@
     exclude-result-prefixes="#all" version="2.0">
 
     <xsl:import href="coins.xsl"/>
-    <!--
-        Stylesheet no longer needed? retained here for reference
-        <xsl:import href="../../biblio/DHQ-Biblio-v2/xslt/dhqBiblio-ChicagoLoose-html.xsl"/>
-    -->
+
     <!-- Overriding any strip-space in imported stylesheets -->
     <xsl:preserve-space elements="tei:* dhq:* dhqBiblio:title dhqBiblio:additionalTitle"/>
-    <!--<xsl:strip-space elements="dhqBiblio:*"/>-->
 
     <!-- <xsl:param name="aprilfool" select="'true'"/> -->
     <xsl:param name="static_server" select="'https://dhq-static.digitalhumanities.org/'"/>
@@ -26,12 +22,10 @@
     <xsl:param name="context"/>
     <xsl:param name="docurl"/>
     <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
-    <xsl:param name="vol" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='volume']!string()"/>
+    <xsl:param name="vol" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type eq 'volume']!normalize-space(.)"/>
     <xsl:param name="vol_no_zeroes" select="replace( $vol, '^0+', '')"/>
-    <xsl:param name="issue" 
-      select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='issue']/normalize-space(.)"/>
-    <xsl:param name="id" 
-      select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DHQarticle-id']/normalize-space(.)"/>
+    <xsl:param name="issue" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type eq 'issue']!normalize-space(.)"/>
+    <xsl:param name="id" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type eq 'DHQarticle-id']!normalize-space(.)"/>
     <xsl:param name="cssFile"/>
     <xsl:param name="biblioData" select="'../../data/biblio-full.xml'"/>
     <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
@@ -45,13 +39,7 @@
     <!-- +++++++ biblio: start                                +++++++ -->
 
     <!-- read in biblio file for generating citations from biblio data. -->
-    <xsl:variable name="biblio">
-      <xsl:sequence select="collection('../../biblio/DHQ-Biblio-v2/data/current?select=*.xml;recurse=yes;on-error=ignore')"/>
-    </xsl:variable>
-    <!--
-        <xsl:copy-of select="document($biblioData)//dhqBiblio:BiblioSet"/>
-        </xsl:variable>
-    -->
+    <xsl:variable name="biblio" select="collection('../../biblio/DHQ-Biblio-v2/data/current?select=*.xml;recurse=yes;on-error=ignore')"/>
     
     <!-- generate keys for citations -->
     <xsl:key name="biblioIdKey" match="dhqBiblio:BiblioSet/*" use="@ID"/>
@@ -101,8 +89,6 @@
 
     <!-- suppressed elements -->
     <xsl:template match="tei:titleStmt/tei:author"/>
-    <xsl:template match="dhq:authorInfo/tei:email"/>
-    <xsl:template match="dhq:translatorInfo/tei:email"/>
 
     <xsl:template match="tei:sourceDesc"/>
     <xsl:template match="tei:encodingDesc"/>
@@ -494,68 +480,47 @@
       </h1>
     </xsl:template>
 
+    <!-- Since <titleStmt> cannot currently appear anywhere other than
+         in <fileDesc>, the @match below could, and perhaps should, be
+         written as just "tei:titleStmt/dhq:authorInfo". —Syd,
+         2025-05-30 -->
     <xsl:template match="tei:teiHeader/tei:fileDesc/tei:titleStmt/dhq:authorInfo">
-        <!-- Using lower-case of author's last name + first initial to sort [CRB] -->
-        <xsl:variable name="bios">
-          <!-- <xsl:value-of select="translate(concat(translate(dhq:author_name/dhq:family,' ',''),'_',substring(normalize-space(dhq:author_name),1,1)),$upper,$lower)"/> -->
-          <!-- jawalsh: We had two authors with same first last name and same first initial, so bio didn't link correctly. Replaced commented line above, with code below. Now the full name (with spaces replaced by _ are used for ids). See also bios.xsl where a similar change was made. -->
-          <!-- <xsl:value-of select="translate(concat(translate(dhq:author_name/dhq:family,' ',''),'_',translate(normalize-space(dhq:author_name/text()),' ','_')),$upper,$lower)"/> -->
-            <xsl:value-of select="lower-case(
-                                    concat(
-                                      replace(dhq:author_name/dhq:family,'\s',''),
-                                      '_',
-                                      replace(normalize-space(string-join(dhq:author_name/text(),'')),'\s','_') ) )"/>
-        </xsl:variable>
+        <xsl:variable name="bios" select="dhq:personInfo2ID(.)"/>
         <div class="author">
           <a rel="external">
             <xsl:choose>
               <xsl:when test="$published">
-                <xsl:attribute name="href" select="concat($bioFile,'#',$bios)"/>
+                <xsl:attribute name="href" select="$bioFile||'#'||$bios"/>
               </xsl:when>
               <xsl:otherwise>
                 <!-- 2024-06, Ash: Made this a relative link. To get back to the 
                   preview file, we need to go through the volume and issue 
                   directories back to the base directory. -->
-                <xsl:attribute name="href" 
-                  select="concat('../../../../preview/',$bioFile,'#',$bios)"/>
+                <xsl:attribute name="href" select="concat('../../../../preview/',$bioFile,'#',$bios)"/>
               </xsl:otherwise>
             </xsl:choose>
             <xsl:apply-templates select="dhq:author_name"/>
           </a>
-          <xsl:if test="normalize-space(child::dhq:affiliation)">
-            <xsl:apply-templates select="tei:email" mode="author"/>
-            <xsl:text>,&#xA0;</xsl:text>
-          </xsl:if>
-          <xsl:apply-templates select="dhq:affiliation"/>
-          <xsl:if test="tei:idno[@type='ORCID']">
-            <xsl:call-template name="orcid">
-              <xsl:with-param name="orcid" select="normalize-space(tei:idno[@type eq 'ORCID'])"/>
-            </xsl:call-template>
-          </xsl:if>
+	  <xsl:apply-templates select="tei:email" mode="author"/>
+	  <xsl:apply-templates select="dhq:affiliation"/>
+	  <xsl:apply-templates select="tei:idno[@type='ORCID']"/>
         </div>
     </xsl:template>
-    
-    <xsl:template name="orcid">
-      <xsl:param name="orcid"/>
+
+    <xsl:template match="dhq:author_name | dhq:translator_name">
+      <xsl:sequence select="normalize-space(.)"/>
+    </xsl:template>
+
+    <xsl:template match="dhq:authorInfo/tei:idno[ @type eq 'ORCID']">
       <xsl:value-of select="'&#x20;'"/>
-      <a href="{$orcid}">
+      <a href="{normalize-space(.)}">
         <img alt="ORCID logo" src="https://info.orcid.org/wp-content/uploads/2019/11/orcid_16x16.png" width="16" height="16"/>
-        <xsl:value-of select="concat('&#x0A;',$orcid)"/>
+        <xsl:value-of select="concat('&#x0A;', normalize-space(.) )"/>
       </a>
     </xsl:template>
 
     <xsl:template match="tei:teiHeader/tei:fileDesc/tei:titleStmt/dhq:translatorInfo">
-        <!-- Using lower-case of author's last name + first initial to sort [CRB] -->
-        <xsl:variable name="bios">
-          <!-- <xsl:value-of select="translate(concat(translate(dhq:author_name/dhq:family,' ',''),'_',substring(normalize-space(dhq:author_name),1,1)),$upper,$lower)"/> -->
-          <!-- jawalsh: We had two authors with same first last name and same first initial, so bio didn't link correctly. Replaced commented line above, with code below. Now the full name (with spaces replaced by _ are used for ids). See also bios.xsl where a similar change was made. -->
-          <!-- <xsl:value-of select="translate(concat(translate(dhq:author_name/dhq:family,' ',''),'_',translate(normalize-space(dhq:author_name/text()),' ','_')),$upper,$lower)"/> -->
-          <xsl:value-of select="lower-case(
-                                  concat(
-                                    replace(dhq:translator_name/dhq:family,'\s',''),
-                                    '_',
-                                    replace(normalize-space(string-join(dhq:translator_name/text(),'')),'\s','_') ) )"/>
-        </xsl:variable>
+        <xsl:variable name="bios" select="dhq:personInfo2ID(.)"/>
         <div class="author">
           <span style="font-style:italic;">Translation: </span>
           <a rel="external">
@@ -572,24 +537,24 @@
             </xsl:choose>
             <xsl:apply-templates select="dhq:translator_name"/>
           </a>
-          <xsl:if test="normalize-space(child::dhq:affiliation)">
-            <xsl:apply-templates select="tei:email" mode="author"/>
-            <xsl:text>,&#xA0;</xsl:text>
-          </xsl:if>
-          <xsl:apply-templates select="dhq:affiliation"/>
+	  <xsl:apply-templates select="tei:email" mode="author"/>
+	  <xsl:apply-templates select="dhq:affiliation"/>
         </div>
     </xsl:template>
 
     <xsl:template match="dhq:authorInfo/tei:email|dhq:translatorInfo/tei:email" mode="author">
-      <xsl:param name="first" select="replace(., '@', '_at_')"/>
-      <xsl:param name="safer-email" select="replace($first, '\.', '_dot_')"/>
+      <xsl:variable name="first" select="replace( normalize-space(.), '@', '_at_')"/>
+      <xsl:variable name="safer-email" select="replace( $first, '\.', '_dot_')"/>
       <xsl:text>&#xA0;&lt;</xsl:text>
       <a href="mailto:{$safer-email}"
-        onclick="javascript:window.location.href='mailto:'+deobfuscate('{$safer-email}'); return false;"
-        onkeypress="javascript:window.location.href='mailto:'+deobfuscate('{$safer-email}'); return false;">
+         onclick="javascript:window.location.href='mailto:'+deobfuscate('{$safer-email}'); return false;"
+         onkeypress="javascript:window.location.href='mailto:'+deobfuscate('{$safer-email}'); return false;">
         <xsl:value-of select="$safer-email"/>
       </a>
       <xsl:text>&gt;</xsl:text>
+      <xsl:if test="../dhq:affiliation | ../tei:idno[ @type eq 'ORCID']">
+        <xsl:text>,&#xA0;</xsl:text>
+      </xsl:if>	
     </xsl:template>
 
     <!-- Make sure the blank abstracts do not appear -->
@@ -1906,6 +1871,22 @@
         <xsl:sequence select="$quote-marks[2]"/>
       </span>
     </xsl:template>
+    
+    <!-- Given a <dhq:authorInfo> or a <dhq:translatorInfo> as an
+	 argument, return a string suitable for use as an ID. -->
+    <xsl:function name="dhq:personInfo2ID" as="xs:string">
+      <xsl:param name="info"/> 	<!-- a <dhq:authorInfo> or <dhq:translator -->
+      <!-- The following works because we will never have both an
+           <author_name> and a <translator_name>.  -->
+      <xsl:variable name="family" select="normalize-space( $info/dhq:author_name/dhq:family | $info/dhq:translator_name/dhq:family )"/>
+      <xsl:variable name="rest_of_name" select="string-join( $info/dhq:author_name/text() | $info/dhq:translator_name/text(), '')
+						=>
+						normalize-space()
+						=>
+						replace('\s', '_')"/>
+      <xsl:sequence select="lower-case( $family||'_'||$rest_of_name )"/>
+    </xsl:function>
+    
     
     <!-- 'scrubbing' mode removes whitespace-only text nodes
          appearing first and last in their parent, to be used
