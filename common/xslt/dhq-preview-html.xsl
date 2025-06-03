@@ -78,28 +78,11 @@
   </xsl:template>
 
   <xsl:template match="tei:teiHeader/tei:fileDesc/tei:titleStmt/dhq:authorInfo">
-    <!-- Using lower-case of author's last name + first initial to sort [CRB] -->
-    <xsl:variable name="lower">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    <xsl:variable name="upper">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-    <xsl:variable name="bios">
-    <xsl:value-of
-      select="lower-case(concat(
-        replace(dhq:author_name/dhq:family,'\s',''),
-        '_',
-        replace(normalize-space(string-join(dhq:author_name/text(),'')),'\s','_') ) )"/>
-        <!--
-      <xsl:value-of
-        select="translate(concat(translate(dhq:author_name/dhq:family,' ',''),'_',substring(normalize-space(dhq:author_name),1,1)),$upper,$lower)"
-      />-->
-    </xsl:variable>
     <div class="author">
       <span style="color: grey">
         <xsl:apply-templates select="dhq:author_name"/>
       </span>
-      <xsl:if test="normalize-space(child::dhq:affiliation)">
-        <xsl:apply-templates select="tei:email" mode="author"/>
-        <xsl:text>,&#160;</xsl:text>
-      </xsl:if>
+      <xsl:apply-templates select="tei:email" mode="author"/>
       <xsl:apply-templates select="dhq:affiliation"/>
     </div>
   </xsl:template>
