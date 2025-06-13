@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:teix="http://www.tei-c.org/ns/Examples" xmlns:xlink="http://www.w3.org/1999/xlink" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" ns="http://www.tei-c.org/ns/1.0">
   <!--
-Schema generated from ODD source 2024-06-06T23:16:59Z. . 
-TEI Edition: Version 4.4.0. Last updated on 19th April 2022, revision ff9cc28b0 
-TEI Edition Location: https://www.tei-c.org/Vault/P5/4.4.0/ 
+Schema generated from ODD source 2025-06-11T23:05:14Z. . 
+TEI Edition: P5 Version 4.9.0. Last updated on 24th January 2025, revision f73186978 
+TEI Edition Location: https://www.tei-c.org/Vault/P5/4.9.0/ 
  This schema supports basic journal features. 
 -->
   <!---->
@@ -4100,15 +4100,20 @@ TEI Edition Location: https://www.tei-c.org/Vault/P5/4.4.0/
       <ref name="m_math.deprecatedattributes"/>
     </define>
   </div>
+  <define name="dhq_macro.abContent">
+    <zeroOrMore>
+      <choice>
+        <text/>
+        <ref name="dhq_model.paraPart"/>
+        <ref name="dhq_ab"/>
+      </choice>
+    </zeroOrMore>
+  </define>
   <define name="dhq_macro.paraContent">
     <zeroOrMore>
       <choice>
         <text/>
-        <ref name="dhq_model.phrase"/>
-        <ref name="dhq_model.inter"/>
-        <ref name="dhq_model.global"/>
-        <ref name="dhq_lg"/>
-        <ref name="dhq_model.lLike"/>
+        <ref name="dhq_model.paraPart"/>
       </choice>
     </zeroOrMore>
   </define>
@@ -4241,21 +4246,16 @@ TEI Edition Location: https://www.tei-c.org/Vault/P5/4.4.0/
       </attribute>
     </optional>
   </define>
-  <define name="dhq_att.ascribed.directed.attributes">
-    <ref name="dhq_att.ascribed.attributes"/>
-    <ref name="dhq_att.ascribed.directed.attribute.toWhom"/>
+  <define name="dhq_att.breaking.attributes">
+    <ref name="dhq_att.breaking.attribute.break"/>
   </define>
-  <define name="dhq_att.ascribed.directed.attribute.toWhom">
+  <define name="dhq_att.breaking.attribute.break">
     <optional>
-      <attribute name="toWhom">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates the person, or group of people, to whom a speech act or action is directed.</a:documentation>
-        <list>
-          <oneOrMore>
-            <data type="anyURI">
-              <param name="pattern">\S+</param>
-            </data>
-          </oneOrMore>
-        </list>
+      <attribute name="break">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates whether or not the element bearing this attribute should be considered to mark the end of an orthographic token in the same way as whitespace.</a:documentation>
+        <data type="token">
+          <param name="pattern">[^\p{C}\p{Z}]+</param>
+        </data>
       </attribute>
     </optional>
   </define>
@@ -4275,225 +4275,6 @@ TEI Edition Location: https://www.tei-c.org/Vault/P5/4.4.0/
     <optional>
       <attribute name="ref">
         <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(reference) provides an explicit means of locating a full definition or identity for the entity being named by means of one or more URIs.</a:documentation>
-        <list>
-          <oneOrMore>
-            <data type="anyURI">
-              <param name="pattern">\S+</param>
-            </data>
-          </oneOrMore>
-        </list>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.written.attributes">
-    <ref name="dhq_att.written.attribute.hand"/>
-  </define>
-  <define name="dhq_att.written.attribute.hand">
-    <optional>
-      <attribute name="hand">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">points to a <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;handNote&gt;</code> element describing the hand considered responsible for the content of the element concerned.</a:documentation>
-        <data type="anyURI">
-          <param name="pattern">\S+</param>
-        </data>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.breaking.attributes">
-    <ref name="dhq_att.breaking.attribute.break"/>
-  </define>
-  <define name="dhq_att.breaking.attribute.break">
-    <optional>
-      <attribute name="break">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates whether or not the element bearing this attribute should be considered to mark the end of an orthographic token in the same way as whitespace.</a:documentation>
-        <data type="token">
-          <param name="pattern">[^\p{C}\p{Z}]+</param>
-        </data>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.fragmentable.attributes">
-    <ref name="dhq_att.fragmentable.attribute.part"/>
-  </define>
-  <define name="dhq_att.fragmentable.attribute.part">
-    <optional>
-      <attribute xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" name="part" a:defaultValue="N">
-        <a:documentation>specifies whether or not its parent element is fragmented in some way, typically by some other overlapping structure: for example a speech which is divided between two or more verse stanzas, a paragraph which is split across a page division, a verse line which is divided between two speakers.</a:documentation>
-        <choice>
-          <value>Y</value>
-          <a:documentation>(yes) the element is fragmented in some (unspecified) respect</a:documentation>
-          <value>N</value>
-          <a:documentation>(no) the element is not fragmented, or no claim is made as to its completeness</a:documentation>
-          <value>I</value>
-          <a:documentation>(initial) this is the initial part of a fragmented element</a:documentation>
-          <value>M</value>
-          <a:documentation>(medial) this is a medial part of a fragmented element</a:documentation>
-          <value>F</value>
-          <a:documentation>(final) this is the final part of a fragmented element</a:documentation>
-        </choice>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.docStatus.attributes">
-    <ref name="dhq_att.docStatus.attribute.status"/>
-  </define>
-  <define name="dhq_att.docStatus.attribute.status">
-    <optional>
-      <attribute xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" name="status" a:defaultValue="draft">
-        <a:documentation>describes the status of a document either currently or, when associated with a dated element, at the time indicated.
-Sample values include: 1] approved; 2] candidate; 3] cleared; 4] deprecated; 5] draft; 6] embargoed; 7] expired; 8] frozen; 9] galley; 10] proposed; 11] published; 12] recommendation; 13] submitted; 14] unfinished; 15] withdrawn</a:documentation>
-        <data type="token">
-          <param name="pattern">[^\p{C}\p{Z}]+</param>
-        </data>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.global.rendition.attributes">
-    <ref name="dhq_att.global.rendition.attribute.style"/>
-  </define>
-  <define name="dhq_att.global.rendition.attribute.style">
-    <optional>
-      <attribute name="style">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">contains an expression in some formal style definition language which defines the rendering or presentation used for this element in the source text</a:documentation>
-        <data type="string"/>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.global.source.attributes">
-    <ref name="dhq_att.global.source.attribute.source"/>
-  </define>
-  <define name="dhq_att.global.source.attribute.source">
-    <optional>
-      <attribute name="source">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">specifies the source from which some aspect of this element is drawn.</a:documentation>
-        <list>
-          <oneOrMore>
-            <data type="anyURI">
-              <param name="pattern">\S+</param>
-            </data>
-          </oneOrMore>
-        </list>
-      </attribute>
-    </optional>
-  </define>
-  <pattern xmlns="http://purl.oclc.org/dsdl/schematron" id="dhq-att.global.source-source-only_1_ODD_source-constraint-rule-1">
-    <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:*/@source">
-      <sch:let name="srcs" value="tokenize( normalize-space(.),' ')"/>
-      <sch:report test="( parent::tei:classRef                               | parent::tei:dataRef                               | parent::tei:elementRef                               | parent::tei:macroRef                               | parent::tei:moduleRef                               | parent::tei:schemaSpec )                               and                               $srcs[2]">
-              When used on a schema description element (like
-              <sch:value-of select="name(..)"/>), the @source attribute
-              should have only 1 value. (This one has <sch:value-of select="count($srcs)"/>.)
-            </sch:report>
-    </sch:rule>
-  </pattern>
-  <define name="dhq_att.global.attributes">
-    <ref name="dhq_att.global.rendition.attributes"/>
-    <ref name="dhq_att.global.source.attributes"/>
-    <ref name="dhq_att.global.attribute.xmllang"/>
-  </define>
-  <define name="dhq_att.global.attribute.xmllang">
-    <optional>
-      <attribute name="xml:lang">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(language) indicates the language of the element content using a tag generated according to <a xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0" href="http://www.rfc-editor.org/rfc/bcp/bcp47.txt">BCP 47</a>.</a:documentation>
-        <choice>
-          <data type="language"/>
-          <choice>
-            <value/>
-            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"/>
-          </choice>
-        </choice>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.internetMedia.attributes">
-    <ref name="dhq_att.internetMedia.attribute.mimeType"/>
-  </define>
-  <define name="dhq_att.internetMedia.attribute.mimeType">
-    <optional>
-      <attribute name="mimeType">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(MIME media type) specifies the applicable multimedia internet mail extension (MIME) media type</a:documentation>
-        <list>
-          <oneOrMore>
-            <data type="token">
-              <param name="pattern">[^\p{C}\p{Z}]+</param>
-            </data>
-          </oneOrMore>
-        </list>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.media.attribute.scale">
-    <optional>
-      <attribute name="scale">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Where the media are displayed, indicates a scale factor to be applied when generating the desired display size</a:documentation>
-        <choice>
-          <data type="double"/>
-          <data type="token">
-            <param name="pattern">(\-?[\d]+/\-?[\d]+)</param>
-          </data>
-          <data type="decimal"/>
-        </choice>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.resourced.attributes">
-    <ref name="dhq_att.resourced.attribute.url"/>
-  </define>
-  <define name="dhq_att.resourced.attribute.url">
-    <attribute name="url">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(uniform resource locator) specifies the URL from which the media concerned may be obtained.</a:documentation>
-      <data type="anyURI">
-        <param name="pattern">\S+</param>
-      </data>
-    </attribute>
-  </define>
-  <define name="dhq_att.notated.attributes">
-    <ref name="dhq_att.notated.attribute.notation"/>
-  </define>
-  <define name="dhq_att.notated.attribute.notation">
-    <optional>
-      <attribute name="notation">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">names the notation used for the content of the element.</a:documentation>
-        <data type="token">
-          <param name="pattern">[^\p{C}\p{Z}]+</param>
-        </data>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.sortable.attributes">
-    <ref name="dhq_att.sortable.attribute.sortKey"/>
-  </define>
-  <define name="dhq_att.sortable.attribute.sortKey">
-    <optional>
-      <attribute name="sortKey">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">supplies the sort key for this element in an index, list or group which contains it.</a:documentation>
-        <data type="token">
-          <param name="pattern">[^\p{C}\p{Z}]+</param>
-        </data>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.edition.attributes">
-    <ref name="dhq_att.edition.attribute.ed"/>
-    <ref name="dhq_att.edition.attribute.edRef"/>
-  </define>
-  <define name="dhq_att.edition.attribute.ed">
-    <optional>
-      <attribute name="ed">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(edition) supplies a sigil or other arbitrary identifier for the source edition in which the associated feature (for example, a page, column, or line break) occurs at this point in the text.</a:documentation>
-        <list>
-          <oneOrMore>
-            <data type="token">
-              <param name="pattern">[^\p{C}\p{Z}]+</param>
-            </data>
-          </oneOrMore>
-        </list>
-      </attribute>
-    </optional>
-  </define>
-  <define name="dhq_att.edition.attribute.edRef">
-    <optional>
-      <attribute name="edRef">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(edition reference) provides a pointer to the source edition in which the associated feature (for example, a page, column, or line break) occurs at this point in the text.</a:documentation>
         <list>
           <oneOrMore>
             <data type="anyURI">
@@ -4558,6 +4339,330 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       </attribute>
     </optional>
   </define>
+  <define name="dhq_att.cmc.attributes">
+    <ref name="dhq_att.cmc.attribute.generatedBy"/>
+  </define>
+  <define name="dhq_att.cmc.attribute.generatedBy">
+    <optional>
+      <attribute name="generatedBy">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(generated by) categorizes how the content of an element was generated in a CMC environment.
+Suggested values include: 1] human; 2] template; 3] system; 4] bot; 5] unspecified</a:documentation>
+        <choice>
+          <value>human</value>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">the content was naturally typed or spoken by a human user</a:documentation>
+          <value>template</value>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">the content was generated after a human user activated a template for its insertion</a:documentation>
+          <value>system</value>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">the content was generated by the system, i.e. the CMC environment</a:documentation>
+          <value>bot</value>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">the content was generated by a bot, i.e. a non-human agent, typically one that is not part of the CMC environment itself</a:documentation>
+          <value>unspecified</value>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">the content was generated by an unknown or unspecified process</a:documentation>
+          <data type="token">
+            <param name="pattern">[^\p{C}\p{Z}]+</param>
+          </data>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <pattern xmlns="http://purl.oclc.org/dsdl/schematron" id="dhq-att.cmc-generatedBy-CMC_generatedBy_within_post-constraint-rule-1">
+    <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:*[@generatedBy]">
+      <sch:assert test="ancestor-or-self::tei:post">The @generatedBy attribute is for use within a &lt;post&gt; element.</sch:assert>
+    </sch:rule>
+  </pattern>
+  <define name="dhq_att.datcat.attributes">
+    <ref name="dhq_att.datcat.attribute.datcat"/>
+    <ref name="dhq_att.datcat.attribute.valueDatcat"/>
+    <ref name="dhq_att.datcat.attribute.targetDatcat"/>
+  </define>
+  <define name="dhq_att.datcat.attribute.datcat">
+    <optional>
+      <attribute name="datcat">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">provides a pointer to a definition of, and/or general information about, (a) an information container (element or attribute) or (b) a value of an information container (element content or attribute value), by referencing an external taxonomy or ontology. If <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@valueDatcat</code> is present in the immediate context, this attribute takes on role (a), while <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@valueDatcat</code> performs role (b).</a:documentation>
+        <list>
+          <oneOrMore>
+            <data type="anyURI">
+              <param name="pattern">\S+</param>
+            </data>
+          </oneOrMore>
+        </list>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.datcat.attribute.valueDatcat">
+    <optional>
+      <attribute name="valueDatcat">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">provides a definition of, and/or general information about a value of an information container (element content or attribute value), by reference to an external taxonomy or ontology. Used especially where a contrast with <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@datcat</code> is needed.</a:documentation>
+        <list>
+          <oneOrMore>
+            <data type="anyURI">
+              <param name="pattern">\S+</param>
+            </data>
+          </oneOrMore>
+        </list>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.datcat.attribute.targetDatcat">
+    <optional>
+      <attribute name="targetDatcat">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">provides a definition of, and/or general information about, information structure of an object referenced or modeled by the containing element, by reference to an external taxonomy or ontology. This attribute has the characteristics of the <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@datcat</code> attribute, except that it addresses not its containing element, but an object that is being referenced or modeled by its containing element.</a:documentation>
+        <list>
+          <oneOrMore>
+            <data type="anyURI">
+              <param name="pattern">\S+</param>
+            </data>
+          </oneOrMore>
+        </list>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.docStatus.attributes">
+    <ref name="dhq_att.docStatus.attribute.status"/>
+  </define>
+  <define name="dhq_att.docStatus.attribute.status">
+    <optional>
+      <attribute xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" name="status" a:defaultValue="draft">
+        <a:documentation>describes the status of a document either currently or, when associated with a dated element, at the time indicated.
+Sample values include: 1] approved; 2] candidate; 3] cleared; 4] deprecated; 5] draft; 6] embargoed; 7] expired; 8] frozen; 9] galley; 10] proposed; 11] published; 12] recommendation; 13] submitted; 14] unfinished; 15] withdrawn</a:documentation>
+        <data type="token">
+          <param name="pattern">[^\p{C}\p{Z}]+</param>
+        </data>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.edition.attributes">
+    <ref name="dhq_att.edition.attribute.ed"/>
+    <ref name="dhq_att.edition.attribute.edRef"/>
+  </define>
+  <define name="dhq_att.edition.attribute.ed">
+    <optional>
+      <attribute name="ed">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(edition) supplies a sigil or other arbitrary identifier for the source edition in which the associated feature (for example, a page, column, or line beginning) occurs at this point in the text.</a:documentation>
+        <list>
+          <oneOrMore>
+            <data type="token">
+              <param name="pattern">[^\p{C}\p{Z}]+</param>
+            </data>
+          </oneOrMore>
+        </list>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.edition.attribute.edRef">
+    <optional>
+      <attribute name="edRef">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(edition reference) provides a pointer to the source edition in which the associated feature (for example, a page, column, or line beginning) occurs at this point in the text.</a:documentation>
+        <list>
+          <oneOrMore>
+            <data type="anyURI">
+              <param name="pattern">\S+</param>
+            </data>
+          </oneOrMore>
+        </list>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.fragmentable.attributes">
+    <ref name="dhq_att.fragmentable.attribute.part"/>
+  </define>
+  <define name="dhq_att.fragmentable.attribute.part">
+    <optional>
+      <attribute xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" name="part" a:defaultValue="N">
+        <a:documentation>specifies whether or not its parent element is fragmented in some way, typically by some other overlapping structure: for example a speech which is divided between two or more verse stanzas, a paragraph which is split across a page division, a verse line which is divided between two speakers.</a:documentation>
+        <choice>
+          <value>Y</value>
+          <a:documentation>(yes) the element is fragmented in some (unspecified) respect</a:documentation>
+          <value>N</value>
+          <a:documentation>(no) the element is not fragmented, or no claim is made as to its completeness</a:documentation>
+          <value>I</value>
+          <a:documentation>(initial) this is the initial part of a fragmented element</a:documentation>
+          <value>M</value>
+          <a:documentation>(medial) this is a medial part of a fragmented element</a:documentation>
+          <value>F</value>
+          <a:documentation>(final) this is the final part of a fragmented element</a:documentation>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.global.rendition.attributes">
+    <ref name="dhq_att.global.rendition.attribute.style"/>
+  </define>
+  <define name="dhq_att.global.rendition.attribute.style">
+    <optional>
+      <attribute name="style">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">contains an expression in some formal style definition language which defines the rendering or presentation used for this element in the source text.</a:documentation>
+        <data type="string"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.global.source.attributes">
+    <ref name="dhq_att.global.source.attribute.source"/>
+  </define>
+  <define name="dhq_att.global.source.attribute.source">
+    <optional>
+      <attribute name="source">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">specifies the source from which some aspect of this element is drawn.</a:documentation>
+        <list>
+          <oneOrMore>
+            <data type="anyURI">
+              <param name="pattern">\S+</param>
+            </data>
+          </oneOrMore>
+        </list>
+      </attribute>
+    </optional>
+  </define>
+  <pattern xmlns="http://purl.oclc.org/dsdl/schematron" id="dhq-att.global.source-source-only_1_ODD_source-constraint-rule-2">
+    <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:*[@source]">
+      <sch:let name="srcs" value="tokenize( normalize-space(@source),' ')"/>
+      <sch:report test="(   self::tei:classRef                                 | self::tei:dataRef                                 | self::tei:elementRef                                 | self::tei:macroRef                                 | self::tei:moduleRef                                 | self::tei:schemaSpec )                                   and                                   $srcs[2]">
+              When used on a schema description element (like
+              <sch:value-of select="name(.)"/>), the @source attribute
+              should have only 1 value. (This one has <sch:value-of select="count($srcs)"/>.)
+            </sch:report>
+    </sch:rule>
+  </pattern>
+  <define name="dhq_att.internetMedia.attributes">
+    <ref name="dhq_att.internetMedia.attribute.mimeType"/>
+  </define>
+  <define name="dhq_att.internetMedia.attribute.mimeType">
+    <optional>
+      <attribute name="mimeType">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(MIME media type) specifies the applicable multimedia internet mail extension (MIME) media type.</a:documentation>
+        <list>
+          <oneOrMore>
+            <data type="token">
+              <param name="pattern">[^\p{C}\p{Z}]+</param>
+            </data>
+          </oneOrMore>
+        </list>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.notated.attributes">
+    <ref name="dhq_att.notated.attribute.notation"/>
+  </define>
+  <define name="dhq_att.notated.attribute.notation">
+    <optional>
+      <attribute name="notation">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">names the notation used for the content of the element.</a:documentation>
+        <data type="token">
+          <param name="pattern">[^\p{C}\p{Z}]+</param>
+        </data>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.resourced.attributes">
+    <ref name="dhq_att.resourced.attribute.url"/>
+  </define>
+  <define name="dhq_att.resourced.attribute.url">
+    <attribute name="url">
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(uniform resource locator) specifies the URL from which the media concerned may be obtained.</a:documentation>
+      <data type="anyURI">
+        <param name="pattern">\S+</param>
+      </data>
+    </attribute>
+  </define>
+  <define name="dhq_att.scope.attributes">
+    <ref name="dhq_att.scope.attribute.scope"/>
+  </define>
+  <define name="dhq_att.scope.attribute.scope">
+    <optional>
+      <attribute name="scope">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates the scope of application of the element
+Suggested values include: 1] sole; 2] major; 3] minor</a:documentation>
+        <choice>
+          <value>sole</value>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">only this particular feature is used throughout the document</a:documentation>
+          <value>major</value>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">this feature is used through most of the document</a:documentation>
+          <value>minor</value>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">this feature is used occasionally through the document</a:documentation>
+          <data type="token">
+            <param name="pattern">[^\p{C}\p{Z}]+</param>
+          </data>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.sortable.attributes">
+    <ref name="dhq_att.sortable.attribute.sortKey"/>
+  </define>
+  <define name="dhq_att.sortable.attribute.sortKey">
+    <optional>
+      <attribute name="sortKey">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">supplies the sort key for this element in an index, list or group which contains it.</a:documentation>
+        <data type="token">
+          <param name="pattern">[^\p{C}\p{Z}]+</param>
+        </data>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.written.attributes">
+    <ref name="dhq_att.written.attribute.hand"/>
+  </define>
+  <define name="dhq_att.written.attribute.hand">
+    <optional>
+      <attribute name="hand">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">points to a <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;handNote&gt;</code> element describing the hand considered responsible for the content of the element concerned.</a:documentation>
+        <data type="anyURI">
+          <param name="pattern">\S+</param>
+        </data>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.ascribed.directed.attributes">
+    <ref name="dhq_att.ascribed.attributes"/>
+    <ref name="dhq_att.ascribed.directed.attribute.toWhom"/>
+  </define>
+  <define name="dhq_att.ascribed.directed.attribute.toWhom">
+    <optional>
+      <attribute name="toWhom">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates the person, or group of people, to whom a speech act or action is directed.</a:documentation>
+        <list>
+          <oneOrMore>
+            <data type="anyURI">
+              <param name="pattern">\S+</param>
+            </data>
+          </oneOrMore>
+        </list>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.global.attributes">
+    <ref name="dhq_att.global.rendition.attributes"/>
+    <ref name="dhq_att.global.source.attributes"/>
+    <ref name="dhq_att.global.attribute.xmllang"/>
+  </define>
+  <define name="dhq_att.global.attribute.xmllang">
+    <optional>
+      <attribute name="xml:lang">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(language) indicates the language of the element content using a tag generated according to <a xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0" href="http://www.rfc-editor.org/rfc/bcp/bcp47.txt">BCP 47</a>.</a:documentation>
+        <choice>
+          <data type="language"/>
+          <choice>
+            <value/>
+            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"/>
+          </choice>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="dhq_att.media.attribute.scale">
+    <optional>
+      <attribute name="scale">
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Where the media are displayed, indicates a scale factor to be applied when generating the desired display size.</a:documentation>
+        <choice>
+          <data type="double"/>
+          <data type="token">
+            <param name="pattern">(\-?[\d]+/\-?[\d]+)</param>
+          </data>
+          <data type="decimal"/>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
   <define name="dhq_model.nameLike.agent">
     <choice>
       <ref name="dhq_name"/>
@@ -4590,6 +4695,29 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
     <choice>
       <ref name="dhq_seg"/>
     </choice>
+  </define>
+  <define name="dhq_model.segLike_alternation">
+    <choice>
+      <ref name="dhq_seg"/>
+    </choice>
+  </define>
+  <define name="dhq_model.segLike_sequence">
+    <ref name="dhq_seg"/>
+  </define>
+  <define name="dhq_model.segLike_sequenceOptional">
+    <optional>
+      <ref name="dhq_seg"/>
+    </optional>
+  </define>
+  <define name="dhq_model.segLike_sequenceOptionalRepeatable">
+    <zeroOrMore>
+      <ref name="dhq_seg"/>
+    </zeroOrMore>
+  </define>
+  <define name="dhq_model.segLike_sequenceRepeatable">
+    <oneOrMore>
+      <ref name="dhq_seg"/>
+    </oneOrMore>
   </define>
   <define name="dhq_model.hiLike">
     <choice>
@@ -4737,6 +4865,40 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_model.emphLike"/>
     </choice>
   </define>
+  <define name="dhq_model.highlighted_alternation">
+    <choice>
+      <ref name="dhq_model.hiLike_alternation"/>
+      <ref name="dhq_model.emphLike_alternation"/>
+    </choice>
+  </define>
+  <define name="dhq_model.highlighted_sequence">
+    <ref name="dhq_model.hiLike_sequence"/>
+    <ref name="dhq_model.emphLike_sequence"/>
+  </define>
+  <define name="dhq_model.highlighted_sequenceOptional">
+    <optional>
+      <ref name="dhq_model.hiLike_sequenceOptional"/>
+    </optional>
+    <optional>
+      <ref name="dhq_model.emphLike_sequenceOptional"/>
+    </optional>
+  </define>
+  <define name="dhq_model.highlighted_sequenceOptionalRepeatable">
+    <zeroOrMore>
+      <ref name="dhq_model.hiLike_sequenceOptionalRepeatable"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_model.emphLike_sequenceOptionalRepeatable"/>
+    </zeroOrMore>
+  </define>
+  <define name="dhq_model.highlighted_sequenceRepeatable">
+    <oneOrMore>
+      <ref name="dhq_model.hiLike_sequenceRepeatable"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_model.emphLike_sequenceRepeatable"/>
+    </oneOrMore>
+  </define>
   <define name="dhq_model.dateLike">
     <choice>
       <ref name="dhq_date"/>
@@ -4829,6 +4991,62 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_passThroughCode"/>
     </choice>
   </define>
+  <define name="dhq_model.graphicLike_alternation">
+    <choice>
+      <ref name="dhq_media"/>
+      <ref name="dhq_graphic"/>
+      <ref name="dhq_formula"/>
+      <ref name="dhq_passThroughCode"/>
+    </choice>
+  </define>
+  <define name="dhq_model.graphicLike_sequence">
+    <ref name="dhq_media"/>
+    <ref name="dhq_graphic"/>
+    <ref name="dhq_formula"/>
+    <ref name="dhq_passThroughCode"/>
+  </define>
+  <define name="dhq_model.graphicLike_sequenceOptional">
+    <optional>
+      <ref name="dhq_media"/>
+    </optional>
+    <optional>
+      <ref name="dhq_graphic"/>
+    </optional>
+    <optional>
+      <ref name="dhq_formula"/>
+    </optional>
+    <optional>
+      <ref name="dhq_passThroughCode"/>
+    </optional>
+  </define>
+  <define name="dhq_model.graphicLike_sequenceOptionalRepeatable">
+    <zeroOrMore>
+      <ref name="dhq_media"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_graphic"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_formula"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_passThroughCode"/>
+    </zeroOrMore>
+  </define>
+  <define name="dhq_model.graphicLike_sequenceRepeatable">
+    <oneOrMore>
+      <ref name="dhq_media"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_graphic"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_formula"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_passThroughCode"/>
+    </oneOrMore>
+  </define>
   <define name="dhq_model.offsetLike">
     <notAllowed/>
   </define>
@@ -4850,7 +5068,25 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
   <define name="dhq_model.pPart.msdesc">
     <notAllowed/>
   </define>
+  <define name="dhq_model.pPart.msdesc_alternation">
+    <notAllowed/>
+  </define>
+  <define name="dhq_model.pPart.msdesc_sequence">
+    <empty/>
+  </define>
+  <define name="dhq_model.pPart.msdesc_sequenceOptional">
+    <empty/>
+  </define>
+  <define name="dhq_model.pPart.msdesc_sequenceOptionalRepeatable">
+    <empty/>
+  </define>
+  <define name="dhq_model.pPart.msdesc_sequenceRepeatable">
+    <notAllowed/>
+  </define>
   <define name="dhq_model.pPart.editorial">
+    <notAllowed/>
+  </define>
+  <define name="dhq_model.pPart.transcriptional">
     <notAllowed/>
   </define>
   <define name="dhq_model.ptrLike">
@@ -4859,10 +5095,74 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_ref"/>
     </choice>
   </define>
+  <define name="dhq_model.ptrLike_alternation">
+    <choice>
+      <ref name="dhq_ptr"/>
+      <ref name="dhq_ref"/>
+    </choice>
+  </define>
+  <define name="dhq_model.ptrLike_sequence">
+    <ref name="dhq_ptr"/>
+    <ref name="dhq_ref"/>
+  </define>
+  <define name="dhq_model.ptrLike_sequenceOptional">
+    <optional>
+      <ref name="dhq_ptr"/>
+    </optional>
+    <optional>
+      <ref name="dhq_ref"/>
+    </optional>
+  </define>
+  <define name="dhq_model.ptrLike_sequenceOptionalRepeatable">
+    <zeroOrMore>
+      <ref name="dhq_ptr"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_ref"/>
+    </zeroOrMore>
+  </define>
+  <define name="dhq_model.ptrLike_sequenceRepeatable">
+    <oneOrMore>
+      <ref name="dhq_ptr"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_ref"/>
+    </oneOrMore>
+  </define>
   <define name="dhq_model.lPart">
     <notAllowed/>
   </define>
+  <define name="dhq_model.lPart_alternation">
+    <notAllowed/>
+  </define>
+  <define name="dhq_model.lPart_sequence">
+    <empty/>
+  </define>
+  <define name="dhq_model.lPart_sequenceOptional">
+    <empty/>
+  </define>
+  <define name="dhq_model.lPart_sequenceOptionalRepeatable">
+    <empty/>
+  </define>
+  <define name="dhq_model.lPart_sequenceRepeatable">
+    <notAllowed/>
+  </define>
   <define name="dhq_model.global.meta">
+    <notAllowed/>
+  </define>
+  <define name="dhq_model.global.meta_alternation">
+    <notAllowed/>
+  </define>
+  <define name="dhq_model.global.meta_sequence">
+    <empty/>
+  </define>
+  <define name="dhq_model.global.meta_sequenceOptional">
+    <empty/>
+  </define>
+  <define name="dhq_model.global.meta_sequenceOptionalRepeatable">
+    <empty/>
+  </define>
+  <define name="dhq_model.global.meta_sequenceRepeatable">
     <notAllowed/>
   </define>
   <define name="dhq_model.milestoneLike">
@@ -4871,6 +5171,51 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_lb"/>
       <ref name="dhq_anchor"/>
     </choice>
+  </define>
+  <define name="dhq_model.milestoneLike_alternation">
+    <choice>
+      <ref name="dhq_gb"/>
+      <ref name="dhq_lb"/>
+      <ref name="dhq_anchor"/>
+    </choice>
+  </define>
+  <define name="dhq_model.milestoneLike_sequence">
+    <ref name="dhq_gb"/>
+    <ref name="dhq_lb"/>
+    <ref name="dhq_anchor"/>
+  </define>
+  <define name="dhq_model.milestoneLike_sequenceOptional">
+    <optional>
+      <ref name="dhq_gb"/>
+    </optional>
+    <optional>
+      <ref name="dhq_lb"/>
+    </optional>
+    <optional>
+      <ref name="dhq_anchor"/>
+    </optional>
+  </define>
+  <define name="dhq_model.milestoneLike_sequenceOptionalRepeatable">
+    <zeroOrMore>
+      <ref name="dhq_gb"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_lb"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_anchor"/>
+    </zeroOrMore>
+  </define>
+  <define name="dhq_model.milestoneLike_sequenceRepeatable">
+    <oneOrMore>
+      <ref name="dhq_gb"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_lb"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_anchor"/>
+    </oneOrMore>
   </define>
   <define name="dhq_model.oddDecl">
     <notAllowed/>
@@ -4897,7 +5242,67 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_val"/>
     </choice>
   </define>
+  <define name="dhq_model.phrase.xml_alternation">
+    <choice>
+      <ref name="dhq_att"/>
+      <ref name="dhq_gi"/>
+      <ref name="dhq_val"/>
+    </choice>
+  </define>
+  <define name="dhq_model.phrase.xml_sequence">
+    <ref name="dhq_att"/>
+    <ref name="dhq_gi"/>
+    <ref name="dhq_val"/>
+  </define>
+  <define name="dhq_model.phrase.xml_sequenceOptional">
+    <optional>
+      <ref name="dhq_att"/>
+    </optional>
+    <optional>
+      <ref name="dhq_gi"/>
+    </optional>
+    <optional>
+      <ref name="dhq_val"/>
+    </optional>
+  </define>
+  <define name="dhq_model.phrase.xml_sequenceOptionalRepeatable">
+    <zeroOrMore>
+      <ref name="dhq_att"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_gi"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_val"/>
+    </zeroOrMore>
+  </define>
+  <define name="dhq_model.phrase.xml_sequenceRepeatable">
+    <oneOrMore>
+      <ref name="dhq_att"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_gi"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_val"/>
+    </oneOrMore>
+  </define>
   <define name="dhq_model.specDescLike">
+    <notAllowed/>
+  </define>
+  <define name="dhq_model.specDescLike_alternation">
+    <notAllowed/>
+  </define>
+  <define name="dhq_model.specDescLike_sequence">
+    <empty/>
+  </define>
+  <define name="dhq_model.specDescLike_sequenceOptional">
+    <empty/>
+  </define>
+  <define name="dhq_model.specDescLike_sequenceOptionalRepeatable">
+    <empty/>
+  </define>
+  <define name="dhq_model.specDescLike_sequenceRepeatable">
     <notAllowed/>
   </define>
   <define name="dhq_model.biblLike">
@@ -4974,6 +5379,40 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_label"/>
     </choice>
   </define>
+  <define name="dhq_model.labelLike_alternation">
+    <choice>
+      <ref name="dhq_desc"/>
+      <ref name="dhq_label"/>
+    </choice>
+  </define>
+  <define name="dhq_model.labelLike_sequence">
+    <ref name="dhq_desc"/>
+    <ref name="dhq_label"/>
+  </define>
+  <define name="dhq_model.labelLike_sequenceOptional">
+    <optional>
+      <ref name="dhq_desc"/>
+    </optional>
+    <optional>
+      <ref name="dhq_label"/>
+    </optional>
+  </define>
+  <define name="dhq_model.labelLike_sequenceOptionalRepeatable">
+    <zeroOrMore>
+      <ref name="dhq_desc"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_label"/>
+    </zeroOrMore>
+  </define>
+  <define name="dhq_model.labelLike_sequenceRepeatable">
+    <oneOrMore>
+      <ref name="dhq_desc"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_label"/>
+    </oneOrMore>
+  </define>
   <define name="dhq_model.listLike">
     <choice>
       <ref name="dhq_list"/>
@@ -5020,6 +5459,51 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_noteGrp"/>
       <ref name="dhq_caption"/>
     </choice>
+  </define>
+  <define name="dhq_model.noteLike_alternation">
+    <choice>
+      <ref name="dhq_note"/>
+      <ref name="dhq_noteGrp"/>
+      <ref name="dhq_caption"/>
+    </choice>
+  </define>
+  <define name="dhq_model.noteLike_sequence">
+    <ref name="dhq_note"/>
+    <ref name="dhq_noteGrp"/>
+    <ref name="dhq_caption"/>
+  </define>
+  <define name="dhq_model.noteLike_sequenceOptional">
+    <optional>
+      <ref name="dhq_note"/>
+    </optional>
+    <optional>
+      <ref name="dhq_noteGrp"/>
+    </optional>
+    <optional>
+      <ref name="dhq_caption"/>
+    </optional>
+  </define>
+  <define name="dhq_model.noteLike_sequenceOptionalRepeatable">
+    <zeroOrMore>
+      <ref name="dhq_note"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_noteGrp"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_caption"/>
+    </zeroOrMore>
+  </define>
+  <define name="dhq_model.noteLike_sequenceRepeatable">
+    <oneOrMore>
+      <ref name="dhq_note"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_noteGrp"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_caption"/>
+    </oneOrMore>
   </define>
   <define name="dhq_model.lLike">
     <choice>
@@ -5121,6 +5605,29 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
     <choice>
       <ref name="dhq_ellipsis"/>
     </choice>
+  </define>
+  <define name="dhq_model.global.edit_alternation">
+    <choice>
+      <ref name="dhq_ellipsis"/>
+    </choice>
+  </define>
+  <define name="dhq_model.global.edit_sequence">
+    <ref name="dhq_ellipsis"/>
+  </define>
+  <define name="dhq_model.global.edit_sequenceOptional">
+    <optional>
+      <ref name="dhq_ellipsis"/>
+    </optional>
+  </define>
+  <define name="dhq_model.global.edit_sequenceOptionalRepeatable">
+    <zeroOrMore>
+      <ref name="dhq_ellipsis"/>
+    </zeroOrMore>
+  </define>
+  <define name="dhq_model.global.edit_sequenceRepeatable">
+    <oneOrMore>
+      <ref name="dhq_ellipsis"/>
+    </oneOrMore>
   </define>
   <define name="dhq_model.divPart">
     <choice>
@@ -5367,6 +5874,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
     <choice>
       <ref name="dhq_model.respLike"/>
       <ref name="dhq_model.imprintPart"/>
+      <ref name="dhq_quote"/>
       <ref name="dhq_series"/>
       <ref name="dhq_citedRange"/>
       <ref name="dhq_bibl"/>
@@ -5386,6 +5894,51 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_model.nameLike"/>
     </choice>
   </define>
+  <define name="dhq_model.pPart.data_alternation">
+    <choice>
+      <ref name="dhq_model.dateLike_alternation"/>
+      <ref name="dhq_model.measureLike_alternation"/>
+      <ref name="dhq_model.nameLike_alternation"/>
+    </choice>
+  </define>
+  <define name="dhq_model.pPart.data_sequence">
+    <ref name="dhq_model.dateLike_sequence"/>
+    <ref name="dhq_model.measureLike_sequence"/>
+    <ref name="dhq_model.nameLike_sequence"/>
+  </define>
+  <define name="dhq_model.pPart.data_sequenceOptional">
+    <optional>
+      <ref name="dhq_model.dateLike_sequenceOptional"/>
+    </optional>
+    <optional>
+      <ref name="dhq_model.measureLike_sequenceOptional"/>
+    </optional>
+    <optional>
+      <ref name="dhq_model.nameLike_sequenceOptional"/>
+    </optional>
+  </define>
+  <define name="dhq_model.pPart.data_sequenceOptionalRepeatable">
+    <zeroOrMore>
+      <ref name="dhq_model.dateLike_sequenceOptionalRepeatable"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_model.measureLike_sequenceOptionalRepeatable"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="dhq_model.nameLike_sequenceOptionalRepeatable"/>
+    </zeroOrMore>
+  </define>
+  <define name="dhq_model.pPart.data_sequenceRepeatable">
+    <oneOrMore>
+      <ref name="dhq_model.dateLike_sequenceRepeatable"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_model.measureLike_sequenceRepeatable"/>
+    </oneOrMore>
+    <oneOrMore>
+      <ref name="dhq_model.nameLike_sequenceRepeatable"/>
+    </oneOrMore>
+  </define>
   <define name="dhq_model.inter">
     <choice>
       <ref name="dhq_model.egLike"/>
@@ -5398,10 +5951,14 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_example"/>
     </choice>
   </define>
+  <define name="dhq_model.cmc">
+    <notAllowed/>
+  </define>
   <define name="dhq_model.common">
     <choice>
       <ref name="dhq_model.divPart"/>
       <ref name="dhq_model.inter"/>
+      <ref name="dhq_model.cmc"/>
       <ref name="dhq_q"/>
       <ref name="dhq_note"/>
     </choice>
@@ -5422,6 +5979,15 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_model.pPart.data"/>
       <ref name="dhq_q"/>
       <ref name="dhq_ruby"/>
+    </choice>
+  </define>
+  <define name="dhq_model.paraPart">
+    <choice>
+      <ref name="dhq_model.lLike"/>
+      <ref name="dhq_model.global"/>
+      <ref name="dhq_model.inter"/>
+      <ref name="dhq_model.phrase"/>
+      <ref name="dhq_lg"/>
     </choice>
   </define>
   <define name="dhq_model.limitedPhrase">
@@ -5485,6 +6051,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_model.biblLike"/>
       <ref name="dhq_model.listLike"/>
       <ref name="dhq_model.annotationLike"/>
+      <ref name="dhq_xenoData"/>
       <ref name="dhq_listChange"/>
       <ref name="dhq_seg"/>
       <ref name="dhq_listAnnotation"/>
@@ -5549,25 +6116,33 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_standOff"/>
     </choice>
   </define>
+  <pattern xmlns="http://purl.oclc.org/dsdl/schematron" id="dhq-att.calendarSystem-calendar-calendar_attr_on_empty_element-constraint-rule-3">
+    <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:*[@calendar]">
+      <sch:assert test="string-length( normalize-space(.) ) gt 0"> @calendar indicates one or more
+              systems or calendars to which the date represented by the content of this element belongs,
+              but this <sch:name/> element has no textual content.</sch:assert>
+    </sch:rule>
+  </pattern>
   <define name="dhq_p">
     <element name="p">
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(paragraph) marks paragraphs in prose. [3.1. Paragraphs 7.2.5. Speech Contents]</a:documentation>
       <ref name="dhq_macro.paraContent"/>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-p-abstractModel-structure-p-in-ab-or-p-constraint-report-2">
-        <rule context="tei:p">
-          <sch:report xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" test="    (ancestor::tei:ab or ancestor::tei:p)                          and not( ancestor::tei:floatingText                                 |parent::tei:exemplum                                 |parent::tei:item                                 |parent::tei:note                                 |parent::tei:q                                 |parent::tei:quote                                 |parent::tei:remarks                                 |parent::tei:said                                 |parent::tei:sp                                 |parent::tei:stage                                 |parent::tei:cell                                 |parent::tei:figure                                )">
-        Abstract model violation: Paragraphs may not occur inside other paragraphs or ab elements.
-      </sch:report>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-p-abstractModel-structure-p-in-ab-or-p-constraint-rule-4">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:p">
+          <sch:report test="(ancestor::tei:ab or ancestor::tei:p) and                        not( ancestor::tei:floatingText                           | parent::tei:exemplum                           | parent::tei:item                           | parent::tei:note                           | parent::tei:q                           | parent::tei:quote                           | parent::tei:remarks                           | parent::tei:said                           | parent::tei:sp                           | parent::tei:stage                           | parent::tei:cell                           | parent::tei:figure )">
+          Abstract model violation: Paragraphs may not occur inside other paragraphs or ab elements.
+        </sch:report>
+        </sch:rule>
       </pattern>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-p-abstractModel-structure-p-in-l-or-lg-constraint-report-3">
-        <rule context="tei:p">
-          <sch:report xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" test="    (ancestor::tei:l or ancestor::tei:lg)                          and not( ancestor::tei:floatingText                                 |parent::tei:figure                                 |parent::tei:note                                )">
-        Abstract model violation: Lines may not contain higher-level structural elements such as div, p, or ab, unless p is a child of figure or note, or is a descendant of floatingText.
-      </sch:report>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-p-abstractModel-structure-p-in-l-constraint-rule-5">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:l//tei:p">
+          <sch:assert test="ancestor::tei:floatingText | parent::tei:figure | parent::tei:note">
+          Abstract model violation: Metrical lines may not contain higher-level structural elements such as div, p, or ab, unless p is a child of figure or note, or is a descendant of floatingText.
+        </sch:assert>
+        </sch:rule>
       </pattern>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.fragmentable.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <empty/>
@@ -5578,6 +6153,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(foreign) identifies a word or phrase as belonging to some language other than that of the surrounding text. [3.3.2.1. Foreign Words or Expressions]</a:documentation>
       <ref name="dhq_macro.phraseSeq"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -5586,6 +6162,8 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(emphasized) marks words or phrases which are stressed or emphasized for linguistic or rhetorical effect. [3.3.2.2. Emphatic Words and Phrases 3.3.2. Emphasis, Foreign Words, and Unusual Language]</a:documentation>
       <ref name="dhq_macro.paraContent"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
+      <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
   </define>
@@ -5594,6 +6172,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(highlighted) marks a word or phrase as graphically distinct from the surrounding text, for reasons concerning which no claim is made. [3.3.2.2. Emphatic Words and Phrases 3.3.2. Emphasis, Foreign Words, and Unusual Language]</a:documentation>
       <ref name="dhq_macro.paraContent"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <optional>
         <attribute name="rend">
@@ -5629,6 +6208,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_macro.specialPara"/>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.ascribed.directed.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -5637,6 +6217,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(quotation) contains a phrase or passage attributed by the narrator or author to some agency external to the text. [3.3.3. Quotation 4.3.1. Grouped Texts]</a:documentation>
       <ref name="dhq_macro.specialPara"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.notated.attributes"/>
       <attribute name="rend">
         <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Describes the presentation of the quoted material, whether inline or set as a block.</a:documentation>
@@ -5656,12 +6237,13 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_macro.specialPara"/>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.ascribed.directed.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
   <define name="dhq_cit">
     <element name="cit">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(cited quotation) contains a quotation from some other document, together with a bibliographic reference to its source. In a dictionary it may contain an example text with at least one occurrence of the word form, used in the sense being described, or a translation of the headword, or an example. [3.3.3. Quotation 4.3.1. Grouped Texts 9.3.5.1. Examples]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(cited quotation) contains a quotation from some other document, together with a bibliographic reference to its source. In a dictionary it may contain an example text with at least one occurrence of the word form, used in the sense being described, or a translation of the headword, or an example. [3.3.3. Quotation 4.3.1. Grouped Texts 10.3.5.1. Examples]</a:documentation>
       <group>
         <ref name="dhq_quote"/>
         <choice>
@@ -5677,6 +6259,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
         </choice>
       </group>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -5685,6 +6268,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">an italicized word or phrase that the author is discussing or referencing (but not quoting from an external source) [3.3.3. Quotation]</a:documentation>
       <ref name="dhq_macro.phraseSeq"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -5693,14 +6277,15 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(so called) contains a word or phrase for which the author or narrator indicates a disclaiming of responsibility, for example by the use of scare quotes or italics. [3.3.3. Quotation]</a:documentation>
       <ref name="dhq_macro.phraseSeq"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
   <define name="dhq_desc">
     <element name="desc">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(description) contains a short description of the purpose, function, or use of its parent element, or when the parent is a documentation element, describes or defines the object being documented.  [22.4.1. Description of Components]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(description) contains a short description of the purpose, function, or use of its parent element, or when the parent is a documentation element, describes or defines the object being documented.  [23.4.1. Description of Components]</a:documentation>
       <ref name="dhq_macro.limitedContent"/>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-desc-deprecationInfo-only-in-deprecated-constraint-rule-2">
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-desc-deprecationInfo-only-in-deprecated-constraint-rule-6">
         <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:desc[ @type eq 'deprecationInfo']">
           <sch:assert test="../@validUntil">Information about a
         deprecation should only be present in a specification element
@@ -5710,6 +6295,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
         </sch:rule>
       </pattern>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -5719,6 +6305,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <ref name="dhq_macro.phraseSeq"/>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.canonical.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <optional>
         <attribute name="corresp">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"/>
@@ -5915,6 +6502,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
         </oneOrMore>
       </group>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -5939,11 +6527,10 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
           </data>
         </attribute>
       </optional>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-rt-target-rt-target-not-span-constraint-report-4">
-        <rule context="tei:rt/@target">
-          <sch:report xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" test="../@from | ../@to">When target= is
-            present, neither from= nor to= should be.</sch:report>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-rt-target-rt-target-not-span-constraint-rule-7">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:rt/@target">
+          <sch:report test="../@from | ../@to">When target= is present, neither from= nor to= should be.</sch:report>
+        </sch:rule>
       </pattern>
       <optional>
         <attribute name="from">
@@ -5953,11 +6540,10 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
           </data>
         </attribute>
       </optional>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-rt-from-rt-from-constraint-assert-2">
-        <rule context="tei:rt/@from">
-          <sch:assert xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" test="../@to">When from= is present, the to=
-            attribute of <sch:name/> is required.</sch:assert>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-rt-from-rt-from-constraint-rule-8">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:rt/@from">
+          <sch:assert test="../@to">When from= is present, the to= attribute of <sch:name/> is required.</sch:assert>
+        </sch:rule>
       </pattern>
       <optional>
         <attribute name="to">
@@ -5967,11 +6553,10 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
           </data>
         </attribute>
       </optional>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-rt-to-rt-to-constraint-assert-3">
-        <rule context="tei:rt/@to">
-          <sch:assert xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" test="../@from">When to= is present, the from=
-            attribute of <sch:name/> is required.</sch:assert>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-rt-to-rt-to-constraint-rule-9">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:rt/@to">
+          <sch:assert test="../@from">When to= is present, the from= attribute of <sch:name/> is required.</sch:assert>
+        </sch:rule>
       </pattern>
       <empty/>
     </element>
@@ -5993,6 +6578,7 @@ Suggested values include: 1] volume (volume); 2] issue; 3] page (page); 4] line;
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(name, proper noun) contains a proper noun or noun phrase. [3.6.1. Referring Strings]</a:documentation>
       <ref name="dhq_macro.phraseSeq"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <optional>
         <attribute name="role">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Specifies the role of the person named in relation to the bibliographic object.
@@ -6022,6 +6608,7 @@ Suggested values include: 1] translator; 2] editor; 3] illustrator; 4] annotator
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(electronic mail address) contains an email address identifying a location to which email messages can be delivered. [3.6.2. Addresses]</a:documentation>
       <ref name="dhq_macro.phraseSeq"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -6040,6 +6627,7 @@ Suggested values include: 1] translator; 2] editor; 3] illustrator; 4] annotator
         </oneOrMore>
       </group>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -6049,12 +6637,13 @@ Suggested values include: 1] translator; 2] editor; 3] illustrator; 4] annotator
 Measures]</a:documentation>
       <ref name="dhq_macro.phraseSeq"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
   <define name="dhq_date">
     <element name="date">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(date) contains a date in any format. [3.6.4. Dates and Times 2.2.4. Publication, Distribution, Licensing, etc. 2.6. The Revision Description 3.12.2.4. Imprint, Size of a Document, and Reprint Information 15.2.3. The Setting Description 13.4. Dates]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(date) contains a date in any format. [3.6.4. Dates and Times 2.2.4. Publication, Distribution, Licensing, etc. 2.6. The Revision Description 3.12.2.4. Imprint, Size of a Document, and Reprint Information 16.2.3. The Setting Description 14.4. Dates]</a:documentation>
       <zeroOrMore>
         <choice>
           <text/>
@@ -6064,6 +6653,7 @@ Measures]</a:documentation>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.canonical.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <optional>
         <attribute name="when">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Provides a date in regularized format.</a:documentation>
@@ -6084,15 +6674,15 @@ Measures]</a:documentation>
   </define>
   <define name="dhq_ptr">
     <element name="ptr">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(pointer) defines a pointer to another location. [3.7. Simple Links and Cross-References 16.1. Links]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(pointer) defines a pointer to another location. [3.7. Simple Links and Cross-References 17.1. Links]</a:documentation>
       <empty/>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-ptr-ptrAtts-constraint-report-5">
-        <rule context="tei:ptr">
-          <report xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" test="@target and @cRef">Only one of the
-attributes @target and @cRef may be supplied on <name/>.</report>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-ptr-ptrAtts-constraint-rule-10">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:ptr">
+          <sch:report test="@target and @cRef">Only one of the attributes @target and @cRef may be supplied on <sch:name/>.</sch:report>
+        </sch:rule>
       </pattern>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.internetMedia.attributes"/>
       <optional>
         <attribute name="target">
@@ -6124,16 +6714,15 @@ attributes @target and @cRef may be supplied on <name/>.</report>
   </define>
   <define name="dhq_ref">
     <element name="ref">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(reference) defines a reference to another location, possibly modified by additional text or comment. [3.7. Simple Links and Cross-References 16.1. Links]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(reference) defines a reference to another location, possibly modified by additional text or comment. [3.7. Simple Links and Cross-References 17.1. Links]</a:documentation>
       <ref name="dhq_macro.paraContent"/>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-ref-refAtts-constraint-report-6">
-        <rule context="tei:ref">
-          <report xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" test="@target and @cRef">Only one of the
-	attributes @target' and @cRef' may be supplied on <name/>
-               </report>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-ref-refAtts-constraint-rule-11">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:ref">
+          <sch:report test="@target and @cRef">Only one of the attributes @target and @cRef may be supplied on <sch:name/>.</sch:report>
+        </sch:rule>
       </pattern>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.internetMedia.attributes"/>
       <optional>
         <attribute name="target">
@@ -6174,12 +6763,13 @@ attributes @target and @cRef may be supplied on <name/>.</report>
           <ref name="dhq_item"/>
         </oneOrMore>
       </group>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-list-gloss-list-must-have-labels-constraint-rule-3">
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-list-gloss-list-must-have-labels-constraint-rule-12">
         <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:list[@type='gloss']">
           <sch:assert test="tei:label">The content of a "gloss" list should include a sequence of one or more pairs of a label element followed by an item element</sch:assert>
         </sch:rule>
       </pattern>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.sortable.attributes"/>
       <optional>
         <attribute name="type">
@@ -6227,6 +6817,7 @@ attributes @target and @cRef may be supplied on <name/>.</report>
         </choice>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
@@ -6251,15 +6842,17 @@ attributes @target and @cRef may be supplied on <name/>.</report>
         </choice>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
   </define>
   <define name="dhq_note">
     <element name="note">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(note) contains a note or annotation. [3.9.1. Notes and Simple Annotation 2.2.6. The Notes Statement 3.12.2.8. Notes and Statement of Language 9.3.5.4. Notes within Entries]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(note) contains a note or annotation. [3.9.1. Notes and Simple Annotation 2.2.6. The Notes Statement 3.12.2.8. Notes and Statement of Language 10.3.5.4. Notes within Entries]</a:documentation>
       <ref name="dhq_macro.specialPara"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <optional>
         <attribute name="xml:id">
@@ -6272,7 +6865,7 @@ attributes @target and @cRef may be supplied on <name/>.</report>
   </define>
   <define name="dhq_noteGrp">
     <element name="noteGrp">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">contains a group of notes [3.9.1.1. Encoding Grouped Notes]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(note group) contains a group of notes. [3.9.1.1. Encoding Grouped Notes]</a:documentation>
       <group>
         <zeroOrMore>
           <ref name="dhq_desc"/>
@@ -6285,8 +6878,9 @@ attributes @target and @cRef may be supplied on <name/>.</report>
         </oneOrMore>
       </group>
       <ref name="dhq_att.global.attributes"/>
-      <ref name="dhq_att.written.attributes"/>
       <ref name="dhq_att.anchoring.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
+      <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
   </define>
@@ -6297,6 +6891,7 @@ attributes @target and @cRef may be supplied on <name/>.</report>
         <ref name="dhq_model.descLike"/>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.media.attribute.scale"/>
       <ref name="dhq_att.resourced.attributes"/>
       <optional>
@@ -6343,11 +6938,12 @@ attributes @target and @cRef may be supplied on <name/>.</report>
   </define>
   <define name="dhq_graphic">
     <element name="graphic">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(graphic) indicates the location of a graphic or illustration, either forming part of a text, or providing an image of it. [3.10. Graphics and Other Non-textual Components 11.1. Digital Facsimiles]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(graphic) indicates the location of a graphic or illustration, either forming part of a text, or providing an image of it. [3.10. Graphics and Other Non-textual Components 12.1. Digital Facsimiles]</a:documentation>
       <zeroOrMore>
         <ref name="dhq_model.descLike"/>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.internetMedia.attribute.mimeType"/>
       <ref name="dhq_att.resourced.attributes"/>
       <optional>
@@ -6369,18 +6965,20 @@ Elements]</a:documentation>
       <empty/>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.breaking.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.edition.attributes"/>
       <empty/>
     </element>
   </define>
   <define name="dhq_lb">
     <element name="lb">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(line beginning) marks the beginning of a new (typographic) line in some edition or version of a text. [3.11.3. Milestone
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(line beginning) marks the beginning of a topographic line in some edition or version of a text. [3.11.3. Milestone
 Elements 7.2.5. Speech Contents]</a:documentation>
       <empty/>
       <ref name="dhq_att.global.attributes"/>
-      <ref name="dhq_att.edition.attribute.edRef"/>
       <ref name="dhq_att.breaking.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
+      <ref name="dhq_att.edition.attribute.edRef"/>
       <empty/>
     </element>
   </define>
@@ -6426,6 +7024,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
       <ref name="dhq_macro.paraContent"/>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.canonical.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <optional>
         <attribute name="type">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">The <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@type</code> attribute is to be used in the header to designate and distinguish the article and issue titles.</a:documentation>
@@ -6459,6 +7058,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
       <ref name="dhq_macro.limitedContent"/>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.canonical.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -6482,7 +7082,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
   </define>
   <define name="dhq_citedRange">
     <element name="citedRange">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(cited range) defines the range of cited content, often represented by pages or other units [3.12.2.5. Scopes and Ranges in Bibliographic Citations]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(cited range) defines the range of cited content, often represented by pages or other units. [3.12.2.5. Scopes and Ranges in Bibliographic Citations]</a:documentation>
       <ref name="dhq_macro.phraseSeq"/>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.citing.attributes"/>
@@ -6499,7 +7099,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
   </define>
   <define name="dhq_bibl">
     <element name="bibl">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(bibliographic citation) contains a loosely-structured bibliographic citation of which the sub-components may or may not be explicitly tagged. [3.12.1. Methods of Encoding Bibliographic References and Lists of References 2.2.7. The Source Description 15.3.2. Declarable Elements]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(bibliographic citation) contains a loosely-structured bibliographic citation of which the sub-components may or may not be explicitly tagged. [3.12.1. Methods of Encoding Bibliographic References and Lists of References 2.2.7. The Source Description 16.3.2. Declarable Elements]</a:documentation>
       <zeroOrMore>
         <choice>
           <text/>
@@ -6513,8 +7113,9 @@ Elements 7.2.5. Speech Contents]</a:documentation>
       </zeroOrMore>
       <ref name="dhq_att.canonical.attributes"/>
       <ref name="dhq_att.global.attributes"/>
-      <ref name="dhq_att.sortable.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.docStatus.attributes"/>
+      <ref name="dhq_att.sortable.attributes"/>
       <optional>
         <attribute name="biblioID">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">provides a reference to a centralized bibliography</a:documentation>
@@ -6538,7 +7139,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
   </define>
   <define name="dhq_listBibl">
     <element name="listBibl">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(citation list) contains a list of bibliographic citations of any kind. [3.12.1. Methods of Encoding Bibliographic References and Lists of References 2.2.7. The Source Description 15.3.2. Declarable Elements]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(citation list) contains a list of bibliographic citations of any kind. [3.12.1. Methods of Encoding Bibliographic References and Lists of References 2.2.7. The Source Description 16.3.2. Declarable Elements]</a:documentation>
       <group>
         <zeroOrMore>
           <ref name="dhq_model.headLike"/>
@@ -6563,6 +7164,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
         </oneOrMore>
       </group>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.sortable.attributes"/>
       <empty/>
     </element>
@@ -6578,14 +7180,13 @@ Elements 7.2.5. Speech Contents]</a:documentation>
           <ref name="dhq_model.global"/>
         </choice>
       </zeroOrMore>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-l-abstractModel-structure-l-in-l-constraint-report-7">
-        <rule context="tei:l">
-          <sch:report xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" test="ancestor::tei:l[not(.//tei:note//tei:l[. = current()])]">
-        Abstract model violation: Lines may not contain lines or lg elements.
-      </sch:report>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-l-abstractModel-structure-l-in-l-constraint-rule-13">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:l">
+          <sch:report test="ancestor::tei:l[not(.//tei:note//tei:l[. = current()])]">Abstract model violation: Lines may not contain lines or lg elements.</sch:report>
+        </sch:rule>
       </pattern>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <optional>
         <attribute name="rend">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"/>
@@ -6622,6 +7223,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
           <ref name="dhq_model.lLike"/>
           <ref name="dhq_model.stageLike"/>
           <ref name="dhq_model.labelLike"/>
+          <ref name="dhq_model.pPart.transcriptional"/>
           <ref name="dhq_lg"/>
         </choice>
         <zeroOrMore>
@@ -6629,6 +7231,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
             <ref name="dhq_model.lLike"/>
             <ref name="dhq_model.stageLike"/>
             <ref name="dhq_model.labelLike"/>
+            <ref name="dhq_model.pPart.transcriptional"/>
             <ref name="dhq_model.global"/>
             <ref name="dhq_lg"/>
           </choice>
@@ -6640,20 +7243,18 @@ Elements 7.2.5. Speech Contents]</a:documentation>
           </zeroOrMore>
         </zeroOrMore>
       </group>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-lg-atleast1oflggapl-constraint-assert-5">
-        <rule context="tei:lg">
-          <sch:assert xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" test="count(descendant::tei:lg|descendant::tei:l|descendant::tei:gap) &gt; 0">An lg element
-        must contain at least one child l, lg, or gap element.</sch:assert>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-lg-atleast1oflggapl-constraint-rule-14">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:lg">
+          <sch:assert test="count(descendant::tei:lg|descendant::tei:l|descendant::tei:gap) &gt; 0">An lg element must contain at least one child l, lg, or gap element.</sch:assert>
+        </sch:rule>
       </pattern>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-lg-abstractModel-structure-lg-in-l-constraint-report-8">
-        <rule context="tei:lg">
-          <sch:report xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" test="ancestor::tei:l[not(.//tei:note//tei:lg[. = current()])]">
-        Abstract model violation: Lines may not contain line groups.
-      </sch:report>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-lg-abstractModel-structure-lg-in-l-constraint-rule-15">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:lg">
+          <sch:report test="ancestor::tei:l[not(.//tei:note//tei:lg[. = current()])]">Abstract model violation: Lines may not contain line groups.</sch:report>
+        </sch:rule>
       </pattern>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -6691,6 +7292,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
       </group>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.ascribed.directed.attributes"/>
+      <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
   </define>
@@ -6699,6 +7301,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">contains a specialized form of heading or label, giving the name of one or more speakers in a dramatic text or fragment. [3.13.2. Core Tags for Drama]</a:documentation>
       <ref name="dhq_macro.phraseSeq"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
   </define>
@@ -6706,16 +7309,17 @@ Elements 7.2.5. Speech Contents]</a:documentation>
     <element name="stage">
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(stage direction) contains any kind of stage direction within a dramatic text or fragment. [3.13.2. Core Tags for Drama 3.13. Passages of Verse or Drama 7.2.4. Stage Directions]</a:documentation>
       <ref name="dhq_macro.specialPara"/>
-      <ref name="dhq_att.ascribed.directed.attributes"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.ascribed.directed.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
   </define>
   <define name="dhq_textLang">
     <element name="textLang">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(text language) describes the languages and writing systems identified within the bibliographic work being described, rather than its description. [3.12.2.4. Imprint, Size of a Document, and Reprint Information 10.6.6. Languages and Writing Systems]</a:documentation>
-      <ref name="dhq_macro.phraseSeq"/>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(text language) describes the languages and writing systems identified within the bibliographic work being described, rather than its description. [3.12.2.4. Imprint, Size of a Document, and Reprint Information 11.6.6. Languages and Writing Systems]</a:documentation>
+      <ref name="dhq_macro.specialPara"/>
       <ref name="dhq_att.global.attributes"/>
       <optional>
         <attribute name="mainLang">
@@ -6775,7 +7379,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
   </define>
   <define name="dhq_teiHeader">
     <element name="teiHeader">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(TEI header) supplies descriptive and declarative metadata associated with a digital resource or set of resources. [2.1.1. The TEI Header and Its Components 15.1. Varieties of Composite Text]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(TEI header) supplies descriptive and declarative metadata associated with a digital resource or set of resources. [2.1.1. The TEI Header and Its Components 16.1. Varieties of Composite Text]</a:documentation>
       <group>
         <ref name="dhq_fileDesc"/>
         <zeroOrMore>
@@ -6849,7 +7453,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
   </define>
   <define name="dhq_idno">
     <element name="idno">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(identifier) supplies any form of identifier used to identify some object, such as a bibliographic item, a person, a title, an organization, etc. in a standardized way. [13.3.1. Basic Principles 2.2.4. Publication, Distribution, Licensing, etc. 2.2.5. The Series Statement 3.12.2.4. Imprint, Size of a Document, and Reprint Information]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(identifier) supplies any form of identifier used to identify some object, such as a bibliographic item, a person, a title, an organization, etc. in a standardized way. [14.3.1. Basic Principles 2.2.4. Publication, Distribution, Licensing, etc. 2.2.5. The Series Statement 3.12.2.4. Imprint, Size of a Document, and Reprint Information]</a:documentation>
       <zeroOrMore>
         <choice>
           <text/>
@@ -6857,6 +7461,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
         </choice>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.sortable.attributes"/>
       <optional>
         <attribute name="type">
@@ -6907,7 +7512,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
   </define>
   <define name="dhq_sourceDesc">
     <element name="sourceDesc">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(source description) describes the source(s) from which an electronic text was derived or generated, typically a bibliographic description in the case of a digitized text, or a phrase such as "born digital" for a text which has no previous existence. [2.2.7. The Source Description]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(source description) describes the source(s) from which an electronic text was derived or generated, typically a bibliographic description in the case of a digitized text, or a phrase such as born digital for a text which has no previous existence. [2.2.7. The Source Description]</a:documentation>
       <choice>
         <oneOrMore>
           <ref name="dhq_model.pLike"/>
@@ -6938,7 +7543,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
   </define>
   <define name="dhq_schemaRef">
     <element name="schemaRef">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(schema reference) describes or points to a related customization or schema file [2.3.10. The Schema Specification]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(schema reference) describes or points to a related customization or schema file. [2.3.10. The Schema Specification]</a:documentation>
       <optional>
         <ref name="dhq_model.descLike"/>
       </optional>
@@ -6946,7 +7551,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
       <ref name="dhq_att.resourced.attributes"/>
       <optional>
         <attribute name="key">
-          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">the identifier used for the customization or schema</a:documentation>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">the identifier used for the customization or schema.</a:documentation>
           <data type="NCName"/>
         </attribute>
       </optional>
@@ -6955,7 +7560,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
   </define>
   <define name="dhq_citeStructure">
     <element name="citeStructure">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(citation structure) declares a structure and method for citing the current document. [3.11.4. Declaring Reference Systems 16.2.5.4. Citation Structures]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(citation structure) declares a structure and method for citing the current document. [3.11.4. Declaring Reference Systems 17.2.5.4. Citation Structures]</a:documentation>
       <group>
         <zeroOrMore>
           <ref name="dhq_citeData"/>
@@ -6977,24 +7582,19 @@ Elements 7.2.5. Speech Contents]</a:documentation>
           </data>
         </attribute>
       </optional>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-citeStructure-delim-citestructure-inner-delim-constraint-rule-4">
-        <rule xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:citeStructure[parent::tei:citeStructure]">
-          <assert test="@delim">A <name/> with a parent <name/> must have a @delim attribute.</assert>
-        </rule>
-      </pattern>
       <attribute name="match">
         <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(match) supplies an XPath selection pattern using the syntax defined in  which identifies a set of nodes which are citable structural components. The expression may be absolute (beginning with `/`) or relative. <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@match</code> on a <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;citeStructure&gt;</code> without a <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;citeStructure&gt;</code> parent must be an absolute XPath. If it is relative, its context is set by the <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@match</code> of the parent <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;citeStructure&gt;</code>.</a:documentation>
         <text/>
       </attribute>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-citeStructure-match-citestructure-outer-match-constraint-rule-5">
-        <rule xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:citeStructure[not(parent::tei:citeStructure)]">
-          <assert test="starts-with(@match,'/')">An XPath in @match on the outer <name/> must start with '/'.</assert>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-citeStructure-match-citestructure-outer-match-constraint-rule-16">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:citeStructure[not(parent::tei:citeStructure)]">
+          <sch:assert test="starts-with(@match,'/')">An XPath in @match on the outer <sch:name/> must start with '/'.</sch:assert>
+        </sch:rule>
       </pattern>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-citeStructure-match-citestructure-inner-match-constraint-rule-6">
-        <rule xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:citeStructure[parent::tei:citeStructure]">
-          <assert test="not(starts-with(@match,'/'))">An XPath in @match must not start with '/' except on the outer <name/>.</assert>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-citeStructure-match-citestructure-inner-match-constraint-rule-17">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:citeStructure[parent::tei:citeStructure]">
+          <sch:assert test="not(starts-with(@match,'/'))">An XPath in @match must not start with '/' except on the outer <sch:name/>.</sch:assert>
+        </sch:rule>
       </pattern>
       <optional>
         <attribute name="unit">
@@ -7010,7 +7610,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_citeData">
     <element name="citeData">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(citation data) specifies how information may be extracted from citation structures. [3.11.4. Declaring Reference Systems 16.2.5.4. Citation Structures]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(citation data) specifies how information may be extracted from citation structures. [3.11.4. Declaring Reference Systems 17.2.5.4. Citation Structures]</a:documentation>
       <empty/>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.citeStructurePart.attributes"/>
@@ -7025,7 +7625,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_prefixDef">
     <element name="prefixDef">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(prefix definition) defines a prefixing scheme used in teidata.pointer values, showing how abbreviated URIs using the scheme may be expanded into full URIs. [16.2.3. Using Abbreviated Pointers]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(prefix definition) defines a prefixing scheme used in teidata.pointer values, showing how abbreviated URIs using the scheme may be expanded into full URIs. [17.2.3. Using Abbreviated Pointers]</a:documentation>
       <zeroOrMore>
         <ref name="dhq_model.pLike"/>
       </zeroOrMore>
@@ -7042,7 +7642,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_listPrefixDef">
     <element name="listPrefixDef">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(list of prefix definitions) contains a list of definitions of prefixing schemes used in teidata.pointer values, showing how abbreviated URIs using each scheme may be expanded into full URIs. [16.2.3. Using Abbreviated Pointers]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(list of prefix definitions) contains a list of definitions of prefixing schemes used in teidata.pointer values, showing how abbreviated URIs using each scheme may be expanded into full URIs. [17.2.3. Using Abbreviated Pointers]</a:documentation>
       <group>
         <zeroOrMore>
           <ref name="dhq_desc"/>
@@ -7101,6 +7701,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
         </group>
       </choice>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.datcat.attributes"/>
       <optional>
         <attribute name="xml:id">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Provides a unique identifier for the taxonomy</a:documentation>
@@ -7116,8 +7717,8 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
       <oneOrMore>
         <ref name="dhq_unitDef"/>
       </oneOrMore>
-      <ref name="dhq_att.canonical.attributes"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.canonical.attributes"/>
       <empty/>
     </element>
   </define>
@@ -7191,7 +7792,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_langUsage">
     <element name="langUsage">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(language usage) describes the languages, sublanguages, registers, dialects, etc. represented within a text. [2.4.2. Language Usage 2.4. The Profile Description 15.3.2. Declarable Elements]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(language usage) describes the languages, sublanguages, registers, dialects, etc. represented within a text. [2.4.2. Language Usage 2.4. The Profile Description 16.3.2. Declarable Elements]</a:documentation>
       <choice>
         <oneOrMore>
           <ref name="dhq_model.pLike"/>
@@ -7209,6 +7810,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(language) characterizes a single language or sublanguage used within a text. [2.4.2. Language Usage]</a:documentation>
       <ref name="dhq_macro.phraseSeq.limited"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.scope.attributes"/>
       <optional>
         <attribute name="extent">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">The <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@extent</code> attribute is used on <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;language&gt;</code> to indicate the nature of the usage of the language in question: whether it is used for the original article, for a translation stub, or for a full translation.</a:documentation>
@@ -7223,7 +7825,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
         </attribute>
       </optional>
       <attribute name="ident">
-        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(identifier) Supplies a language code constructed as defined in <a xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0" href="https://tools.ietf.org/html/bcp47">BCP 47</a> which is used to identify the language documented by this element, and which is referenced by the global <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@xml:lang</code> attribute.</a:documentation>
+        <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(identifier) Supplies a language code constructed as defined in <a xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0" href="https://tools.ietf.org/html/bcp47">BCP 47</a> which is used to identify the language documented by this element, and which may be referenced by the global <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@xml:lang</code> attribute.</a:documentation>
         <choice>
           <data type="language"/>
           <choice>
@@ -7234,7 +7836,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
       </attribute>
       <optional>
         <attribute name="usage">
-          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">specifies the approximate percentage (by volume) of the text which uses this language.</a:documentation>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">specifies the approximate percentage of the text which uses this language.</a:documentation>
           <data type="nonNegativeInteger"/>
         </attribute>
       </optional>
@@ -7296,8 +7898,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_correspDesc">
     <element name="correspDesc">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(correspondence
-    description) contains a description of the actions related to one act of correspondence. [2.4.6. Correspondence Description]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(correspondence description) contains a description of the actions related to one act of correspondence. [2.4.6. Correspondence Description]</a:documentation>
       <choice>
         <oneOrMore>
           <ref name="dhq_model.correspDescPart"/>
@@ -7306,8 +7907,8 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
           <ref name="dhq_model.pLike"/>
         </oneOrMore>
       </choice>
-      <ref name="dhq_att.canonical.attributes"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.canonical.attributes"/>
       <empty/>
     </element>
   </define>
@@ -7342,7 +7943,9 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(non-TEI metadata) provides a container element into which metadata in non-TEI formats may be placed. [2.5. Non-TEI Metadata]</a:documentation>
       <choice>
         <text/>
-        <ref name="anyElement_xenoData_1"/>
+        <oneOrMore>
+          <ref name="anyElement_xenoData_1"/>
+        </oneOrMore>
       </choice>
       <ref name="dhq_att.global.attributes"/>
       <optional>
@@ -7378,8 +7981,12 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
     <element name="revisionDesc">
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(revision description) summarizes the revision history for a file. [2.6. The Revision Description 2.1.1. The TEI Header and Its Components]</a:documentation>
       <choice>
-        <ref name="dhq_list"/>
-        <ref name="dhq_listChange"/>
+        <oneOrMore>
+          <ref name="dhq_list"/>
+        </oneOrMore>
+        <oneOrMore>
+          <ref name="dhq_listChange"/>
+        </oneOrMore>
         <oneOrMore>
           <ref name="dhq_change"/>
         </oneOrMore>
@@ -7391,11 +7998,11 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_change">
     <element name="change">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(change) documents a change or set of changes made during the production of a source document, or during the revision of an electronic file. [2.6. The Revision Description 2.4.1. Creation 11.7. Identifying Changes and Revisions]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(change) documents a change or set of changes made during the production of a source document, or during the revision of an electronic file. [2.6. The Revision Description 2.4.1. Creation 12.7. Identifying Changes and Revisions]</a:documentation>
       <ref name="dhq_macro.specialPara"/>
+      <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.ascribed.attributes"/>
       <ref name="dhq_att.docStatus.attributes"/>
-      <ref name="dhq_att.global.attributes"/>
       <optional>
         <attribute name="when">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Provides a date in regularized format.</a:documentation>
@@ -7428,7 +8035,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_listChange">
     <element name="listChange">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">groups a number of change descriptions associated with either the creation of a source text or the revision of an encoded text. [2.6. The Revision Description 11.7. Identifying Changes and Revisions]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">groups a number of change descriptions associated with either the creation of a source text or the revision of an encoded text. [2.6. The Revision Description 12.7. Identifying Changes and Revisions]</a:documentation>
       <group>
         <zeroOrMore>
           <ref name="dhq_desc"/>
@@ -7444,7 +8051,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
       <ref name="dhq_att.sortable.attributes"/>
       <optional>
         <attribute xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" name="ordered" a:defaultValue="true">
-          <a:documentation>indicates whether the ordering of its child <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;change&gt;</code> elements is to be considered significant or not</a:documentation>
+          <a:documentation>indicates whether the ordering of its child <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;change&gt;</code> elements is to be considered significant or not.</a:documentation>
           <data type="boolean"/>
         </attribute>
       </optional>
@@ -7453,7 +8060,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_TEI">
     <element name="TEI">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(TEI document) contains a single TEI-conformant document, combining a single TEI header with one or more members of the model.resource class. Multiple <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;TEI&gt;</code> elements may be combined within a <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;TEI&gt;</code> (or <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;teiCorpus&gt;</code>) element. [4. Default Text Structure 15.1. Varieties of Composite Text]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(TEI document) contains a single TEI-conformant document, combining a single TEI header with one or more members of the model.resource class. Multiple <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;TEI&gt;</code> elements may be combined within a <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;TEI&gt;</code> (or <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;teiCorpus&gt;</code>) element. [4. Default Text Structure 16.1. Varieties of Composite Text]</a:documentation>
       <group>
         <ref name="dhq_teiHeader"/>
         <choice>
@@ -7470,16 +8077,13 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
           </oneOrMore>
         </choice>
       </group>
-      <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
-      <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="xs" uri="http://www.w3.org/2001/XMLSchema"/>
-      <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="rng" uri="http://relaxng.org/ns/structure/1.0"/>
       <ref name="dhq_att.global.attributes"/>
       <empty/>
     </element>
   </define>
   <define name="dhq_text">
     <element name="text">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(text) contains a single text of any kind, whether unitary or composite, for example a poem or drama, a collection of essays, a novel, a dictionary, or a corpus sample. [4. Default Text Structure 15.1. Varieties of Composite Text]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(text) contains a single text of any kind, whether unitary or composite, for example a poem or drama, a collection of essays, a novel, a dictionary, or a corpus sample. [4. Default Text Structure 16.1. Varieties of Composite Text]</a:documentation>
       <group>
         <zeroOrMore>
           <ref name="dhq_model.global"/>
@@ -7614,7 +8218,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_group">
     <element name="group">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(group) contains the body of a composite text, grouping together a sequence of distinct texts (or groups of such texts) which are regarded as a unit for some purpose, for example the collected works of an author, a sequence of prose essays, etc. [4. Default Text Structure 4.3.1. Grouped Texts 15.1. Varieties of Composite Text]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(group) contains the body of a composite text, grouping together a sequence of distinct texts (or groups of such texts) which are regarded as a unit for some purpose, for example the collected works of an author, a sequence of prose essays, etc. [4. Default Text Structure 4.3.1. Grouped Texts 16.1. Varieties of Composite Text]</a:documentation>
       <group>
         <zeroOrMore>
           <choice>
@@ -7675,6 +8279,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
         </rng:optional>
       </group>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
@@ -7721,19 +8326,19 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
           </rng:group>
         </rng:optional>
       </group>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-div-abstractModel-structure-div-in-l-or-lg-constraint-report-9">
-        <rule context="tei:div">
-          <sch:report xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" test="(ancestor::tei:l or ancestor::tei:lg) and not(ancestor::tei:floatingText)">
-        Abstract model violation: Lines may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.
-      </sch:report>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-div-abstractModel-structure-div-in-l-constraint-rule-18">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:l//tei:div">
+          <sch:assert test="ancestor::tei:floatingText">
+          Abstract model violation: Metrical lines may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.
+        </sch:assert>
+        </sch:rule>
       </pattern>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-div-abstractModel-structure-div-in-ab-or-p-constraint-report-10">
-        <rule context="tei:div">
-          <sch:report xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" test="(ancestor::tei:p or ancestor::tei:ab) and not(ancestor::tei:floatingText)">
-        Abstract model violation: p and ab may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.
-      </sch:report>
-        </rule>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-div-abstractModel-structure-div-in-ab-or-p-constraint-rule-19">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:div">
+          <sch:report test="(ancestor::tei:p or ancestor::tei:ab) and not(ancestor::tei:floatingText)">
+          Abstract model violation: p and ab may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.
+        </sch:report>
+        </sch:rule>
       </pattern>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.written.attributes"/>
@@ -7769,6 +8374,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
         </choice>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
@@ -7784,6 +8390,8 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
         </choice>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
+      <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
   </define>
@@ -7797,6 +8405,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
         </choice>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <optional>
         <attribute name="rend">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Describes the presentation of the quoted material, whether inline or set as a block.</a:documentation>
@@ -7814,6 +8423,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(salutation) contains a salutation or greeting prefixed to a foreword, dedicatory epistle, or other division of a text, or the salutation in the closing of a letter, preface, etc. [4.2.2. Openers and Closers]</a:documentation>
       <ref name="dhq_macro.paraContent"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
@@ -7823,6 +8433,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(signature) contains the closing salutation, etc., appended to a foreword, dedicatory epistle, or other division of a text. [4.2.2. Openers and Closers]</a:documentation>
       <ref name="dhq_macro.paraContent"/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
@@ -7852,6 +8463,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
         </zeroOrMore>
       </group>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <empty/>
     </element>
@@ -7895,7 +8507,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_table">
     <element name="table">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(table) contains text displayed in tabular form, in rows and columns. [14.1.1. TEI Tables]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(table) contains text displayed in tabular form, in rows and columns. [15.1.1. TEI Tables]</a:documentation>
       <group>
         <optional>
           <ref name="dhq_head"/>
@@ -7908,6 +8520,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
         </optional>
       </group>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <optional>
         <attribute name="xml:id">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Provides a unique identifier for the table</a:documentation>
@@ -7940,7 +8553,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_row">
     <element name="row">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(row) contains one row of a table. [14.1.1. TEI Tables]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(row) contains one row of a table. [15.1.1. TEI Tables]</a:documentation>
       <oneOrMore>
         <ref name="dhq_cell"/>
       </oneOrMore>
@@ -7963,7 +8576,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_cell">
     <element name="cell">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(cell) contains one cell of a table. [14.1.1. TEI Tables]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(cell) contains one cell of a table. [15.1.1. TEI Tables]</a:documentation>
       <ref name="dhq_macro.specialPara"/>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.tableDecoration.attribute.rows"/>
@@ -7984,7 +8597,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_formula">
     <element name="formula">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(formula) contains a mathematical or other formula. [14.2. Formulæ and Mathematical Expressions]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(formula) contains a mathematical or other formula. [15.2. Formulæ and Mathematical Expressions]</a:documentation>
       <zeroOrMore>
         <choice>
           <text/>
@@ -7994,6 +8607,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
         </choice>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <optional>
         <attribute name="notation">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">names the notation used for the content of the element.</a:documentation>
@@ -8029,7 +8643,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_notatedMusic">
     <element name="notatedMusic">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">encodes the presence of music notation in a text [14.3. Notated Music in Written Text]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">encodes the presence of music notation in a text. [15.3. Notated Music in Written Text]</a:documentation>
       <zeroOrMore>
         <choice>
           <ref name="dhq_model.labelLike"/>
@@ -8039,12 +8653,13 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
         </choice>
       </zeroOrMore>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <empty/>
     </element>
   </define>
   <define name="dhq_figure">
     <element name="figure">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(figure) groups elements representing or containing graphic information such as an illustration, formula, or figure. [14.4. Specific Elements for Graphic Images]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(figure) groups elements representing or containing graphic information such as an illustration, formula, or figure. [15.4. Specific Elements for Graphic Images]</a:documentation>
       <choice>
         <group>
           <ref name="dhq_ptr"/>
@@ -8064,8 +8679,12 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
             </choice>
           </zeroOrMore>
         </group>
+        <optional>
+          <ref name="dhq_caption"/>
+        </optional>
       </choice>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <optional>
         <attribute name="xml:id">
@@ -8078,7 +8697,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_figDesc">
     <element name="figDesc">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(description of figure) contains a brief prose description of the appearance or content of a graphic figure, for use when documenting an image without displaying it. [14.4. Specific Elements for Graphic Images]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(description of figure) contains a brief prose description of the appearance or content of a graphic figure, for use when documenting an image without displaying it. [15.4. Specific Elements for Graphic Images]</a:documentation>
       <ref name="dhq_macro.limitedContent"/>
       <ref name="dhq_att.global.attributes"/>
       <empty/>
@@ -8086,7 +8705,7 @@ Sample values include: 1] book; 2] chapter; 3] entry; 4] poem; 5] letter; 6] lin
   </define>
   <define name="dhq_att">
     <element name="att">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(attribute) contains the name of an attribute appearing within running text. [22. Documentation Elements]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(attribute) contains the name of an attribute appearing within running text. [23. Documentation Elements]</a:documentation>
       <data type="Name"/>
       <ref name="dhq_att.global.attributes"/>
       <optional>
@@ -8103,7 +8722,7 @@ Sample values include: 1] TEI (Text Encoding Initiative); 2] DBK (Docbook); 3] X
   </define>
   <define name="dhq_code">
     <element name="code">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">contains literal code from some formal language such as a programming language. [22.1.1. Phrase Level Terms]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">contains literal code from some formal language such as a programming language. [23.1.1. Phrase Level Terms]</a:documentation>
       <text/>
       <ref name="dhq_att.global.attributes"/>
       <optional>
@@ -8144,7 +8763,7 @@ Sample values include: 1] TEI (Text Encoding Initiative); 2] DBK (Docbook); 3] X
   </define>
   <define name="dhq_eg">
     <element name="eg">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(example) contains any kind of illustrative example. [22.5. Element Specifications 22.5.3. Attribute List Specification]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(example) contains any kind of illustrative example. [23.5. Element Specifications 23.5.3. Attribute List Specification]</a:documentation>
       <zeroOrMore>
         <choice>
           <ref name="dhq_hi"/>
@@ -8199,7 +8818,7 @@ Sample values include: 1] TEI (Text Encoding Initiative); 2] DBK (Docbook); 3] X
   </define>
   <define name="dhq_gi">
     <element name="gi">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(element name) contains the name (generic identifier) of an element. [22. Documentation Elements 22.5. Element Specifications]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(element name) contains the name (generic identifier) of an element. [23. Documentation Elements 23.5. Element Specifications]</a:documentation>
       <data type="Name"/>
       <ref name="dhq_att.global.attributes"/>
       <optional>
@@ -8216,7 +8835,7 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
   </define>
   <define name="dhq_val">
     <element name="val">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(value) contains a single attribute value. [22. Documentation Elements 22.5.3. Attribute List Specification]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(value) contains a single attribute value. [23. Documentation Elements 23.5.3. Attribute List Specification]</a:documentation>
       <text/>
       <ref name="dhq_att.global.attributes"/>
       <empty/>
@@ -8224,23 +8843,17 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
   </define>
   <define name="dhq_ab">
     <element name="ab">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(anonymous block) contains any arbitrary component-level unit of text, acting as an anonymous container for phrase or inter level elements analogous to, but without the semantic baggage of, a paragraph. [16.3. Blocks, Segments, and Anchors]</a:documentation>
-      <ref name="dhq_macro.paraContent"/>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-ab-abstractModel-structure-ab-in-ab-or-p-constraint-report-11">
-        <rule context="tei:ab">
-          <sch:report xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" test="    (ancestor::tei:p or ancestor::tei:ab)                          and not( ancestor::tei:floatingText                                  |parent::tei:exemplum                                 |parent::tei:item                                 |parent::tei:note                                 |parent::tei:q                                 |parent::tei:quote                                 |parent::tei:remarks                                 |parent::tei:said                                 |parent::tei:sp                                 |parent::tei:stage                                 |parent::tei:cell                                 |parent::tei:figure                                )">
-        Abstract model violation: ab may not occur inside paragraphs or other ab elements.
-      </sch:report>
-        </rule>
-      </pattern>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-ab-abstractModel-structure-ab-in-l-or-lg-constraint-report-12">
-        <rule context="tei:ab">
-          <sch:report xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" test="    (ancestor::tei:l or ancestor::tei:lg)                         and not( ancestor::tei:floatingText                                 |parent::tei:figure                                 |parent::tei:note                                )">
-        Abstract model violation: Lines may not contain higher-level divisions such as p or ab, unless ab is a child of figure or note, or is a descendant of floatingText.
-      </sch:report>
-        </rule>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(anonymous block) contains any component-level unit of text, acting as a container for phrase or inter level elements analogous to, but without the same constraints as, a paragraph. [17.3. Blocks, Segments, and Anchors]</a:documentation>
+      <ref name="dhq_macro.abContent"/>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-ab-abstractModel-structure-ab-in-l-constraint-rule-20">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:l//tei:ab">
+          <sch:assert test="ancestor::tei:floatingText | parent::tei:figure | parent::tei:note">
+          Abstract model violation: Metrical lines may not contain higher-level divisions such as p or ab, unless ab is a child of figure or note, or is a descendant of floatingText.
+        </sch:assert>
+        </sch:rule>
       </pattern>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.written.attributes"/>
       <optional>
         <attribute name="type">
@@ -8253,9 +8866,10 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
   </define>
   <define name="dhq_anchor">
     <element name="anchor">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(anchor point) attaches an identifier to a point within a text, whether or not it corresponds with a textual element. [8.4.2. Synchronization and Overlap 16.5. Correspondence and Alignment]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(anchor point) attaches an identifier to a point within a text, whether or not it corresponds with a textual element. [8.4.2. Synchronization and Overlap 17.5. Correspondence and Alignment]</a:documentation>
       <empty/>
       <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <optional>
         <attribute name="xml:id">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"/>
@@ -8276,11 +8890,12 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
   </define>
   <define name="dhq_seg">
     <element name="seg">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(arbitrary segment) represents any segmentation of text below the chunk level. [16.3. Blocks, Segments, and Anchors 6.2. Components of the Verse Line 7.2.5. Speech Contents]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(arbitrary segment) represents any segmentation of text below the chunk level. [17.3. Blocks, Segments, and Anchors 6.2. Components of the Verse Line 7.2.5. Speech Contents]</a:documentation>
       <ref name="dhq_macro.paraContent"/>
       <ref name="dhq_att.global.attributes"/>
-      <ref name="dhq_att.written.attributes"/>
+      <ref name="dhq_att.cmc.attributes"/>
       <ref name="dhq_att.notated.attributes"/>
+      <ref name="dhq_att.written.attributes"/>
       <optional>
         <attribute name="type">
           <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"/>
@@ -8292,17 +8907,17 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
   </define>
   <define name="dhq_standOff">
     <element name="standOff">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Functions as a container element for linked data, contextual information, and stand-off annotations embedded in a TEI document. [16.10. The standOff Container]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Functions as a container element for linked data, contextual information, and stand-off annotations embedded in a TEI document. [17.10. The standOff Container]</a:documentation>
       <oneOrMore>
         <ref name="dhq_model.standOffPart"/>
       </oneOrMore>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-standOff-nested_standOff_should_be_typed-constraint-assert-9">
-        <rule context="tei:standOff">
-          <sch:assert xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" test="@type or not(ancestor::tei:standOff)">This
-      <sch:name/> element must have a @type attribute, since it is
-      nested inside a <sch:name/>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-standOff-nested_standOff_should_be_typed-constraint-rule-21">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:standOff">
+          <sch:assert test="@type or not(ancestor::tei:standOff)">This
+        <sch:name/> element must have a @type attribute, since it is
+        nested inside a <sch:name/>
                </sch:assert>
-        </rule>
+        </sch:rule>
       </pattern>
       <ref name="dhq_att.global.attributes"/>
       <empty/>
@@ -8310,7 +8925,7 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
   </define>
   <define name="dhq_listAnnotation">
     <element name="listAnnotation">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">contains a list of annotations, typically encoded as <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;annotation&gt;</code>, <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;annotationBlock&gt;</code>, or <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;note&gt;</code>, possibly organized with nested <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;listAnnotation&gt;</code> elements. [16.10. The standOff Container]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">contains a list of annotations, typically encoded as <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;annotation&gt;</code>, <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;annotationBlock&gt;</code>, or <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;note&gt;</code>, possibly organized with nested <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;listAnnotation&gt;</code> elements. [17.10. The standOff Container]</a:documentation>
       <group>
         <zeroOrMore>
           <ref name="dhq_model.headLike"/>
@@ -8332,8 +8947,7 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
   </define>
   <define name="dhq_annotation">
     <element name="annotation">
-      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">represents an annotation following the <a xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0" href="#WADM">Web
-      Annotation Data Model</a>. [16.10. The standOff Container]</a:documentation>
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">represents an annotation following the <a xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0" href="#WADM">Web Annotation Data Model</a>. [17.10. The standOff Container]</a:documentation>
       <group>
         <zeroOrMore>
           <ref name="dhq_revisionDesc"/>
@@ -8860,4 +9474,10 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
       <ref name="dhq_TEI"/>
     </choice>
   </start>
+  <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
+  <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="xs" uri="http://www.w3.org/2001/XMLSchema"/>
+  <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="rng" uri="http://relaxng.org/ns/structure/1.0"/>
+  <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="rna" uri="http://relaxng.org/ns/compatibility/annotations/1.0"/>
+  <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="sch" uri="http://purl.oclc.org/dsdl/schematron"/>
+  <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="sch1x" uri="http://www.ascc.net/xml/schematron"/>
 </grammar>
