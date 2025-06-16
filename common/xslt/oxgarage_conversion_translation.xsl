@@ -62,9 +62,11 @@
                 <publicationStmt>
                     <publisher>Alliance of Digital Humanities Organizations</publisher>
                     <publisher>Association for Computers and the Humanities</publisher>
-                    <xsl:comment>This information will be completed at publication</xsl:comment>
+                    <xsl:comment>This information should be added when the file is created</xsl:comment>                	
                     <idno type="DHQarticle-id"><xsl:comment>including leading zeroes: e.g. 000110</xsl:comment></idno>
-                    <idno type="volume"><xsl:comment>volume number, with leading zeroes as needed to make 3 digits: e.g. 006</xsl:comment></idno>
+
+                    <xsl:comment>This information will be completed at publication</xsl:comment>                	
+                	<idno type="volume"><xsl:comment>volume number, with leading zeroes as needed to make 3 digits: e.g. 006</xsl:comment></idno>
                     <idno type="issue"><xsl:comment>issue number, without leading zeroes: e.g. 2</xsl:comment></idno>
                     <date></date>
                     <dhq:articleType>article</dhq:articleType>

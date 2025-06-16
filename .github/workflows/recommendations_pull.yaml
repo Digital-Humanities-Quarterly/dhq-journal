@@ -1,0 +1,27 @@
+name: Pull recommendations from DHQ-similar-papers
+
+on: workflow_dispatch
+
+jobs:
+  pull-repo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout DHQ-Journal
+        uses: actions/checkout@v4
+
+      - name: Clone DHQ-similar-papers
+        run: |
+          git clone https://github.com/Digital-Humanities-Quarterly/DHQ-similar-papers recs_repo
+
+      - name: Copy recommendation tsvs into DHQ-journal
+        run: |
+          cp recs_repo/{dhq-recs-zfill-bm25.tsv, dhq-recs-zfill-kwd.tsv, dhq-recs-zfill-spctr.tsv} data/dhq-recs/
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/dhq-recs/
+          git commit -m "Update with refreshed recommendation TSV files"
+          git push
