@@ -20,7 +20,6 @@
   
   <xsl:param name="staticPublishingPathPrefix" select="'../../toc/'" as="xs:string"/>
   <xsl:variable name="tocFile" select="$staticPublishingPathPrefix||'toc.xml'" as="xs:string"/>
-  <xsl:param name="context"/>
   <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
        slash. This value is used by this and other stylesheets to construct links relative, if not 
        directly from the current page, then from the DHQ home directory. Because this stylesheet is used for 

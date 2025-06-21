@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
-		xmlns:xs="http://www.w3.org/2001/XMLSchema"
-		xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-		exclude-result-prefixes="#all"
-		version="3.0">
-  <xsl:param name="context"/>
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+                exclude-result-prefixes="#all"
+                version="3.0">
+
   <xsl:param name="doProofing" select="false()" as="xs:boolean"/>
   <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
        slash. This value is used by this and other stylesheets to construct links relative, if not 
@@ -48,24 +48,25 @@
         </span>
       </div>
       <div id="searchStuff">
-	<form id="searchForm" method="get" action="{$path_to_home}/vol/search.html"
-	      enctype="application/x-www-form-urlencoded" accept-charset="utf-8">
-	  <div id="search">
-	    <label for="q">Search</label>
-	    <input id="q" type="text" name="q" value="" placeholder="keyword"/>
-	    <input id="searchSubmit" type="submit" value="go!"/>
-	  </div>
-	</form>
+        <form id="searchForm" method="get" action="{$path_to_home}/vol/search.html"
+              enctype="application/x-www-form-urlencoded" accept-charset="UTF-8">
+          <div id="search">
+            <label for="q">Search</label>
+            <input id="q" type="text" name="q" value="" placeholder="keyword"/>
+            <input id="searchSubmit" type="submit" value="go!"/>
+          </div>
+        </form>
       </div>
     </div>
   </xsl:template>
+
   <xsl:template name="topbanner">
     <!-- Added for rotating banner image -->
     <div id="backgroundpic">
       <xsl:variable name="imgFile">
         <xsl:sequence select="unparsed-text('../images/bannerimg/banner29.jpg.base64')"/>
       </xsl:variable>   
-      <img alt="" width="100%" height="62px" src="{concat('data:image/jpeg;base64,',$imgFile)}"/>​
+      <img alt="" width="100%" height="62px" src="data:image/jpeg;base64,{$imgFile}"/>​
     </div>    
     <div id="banner">
       <!-- If we're generating a proofing copy, add a textual notice of that here. -->
@@ -78,14 +79,15 @@
         <xsl:variable name="imgFile">
           <xsl:sequence select="unparsed-text('../images/dhqlogo.png.base64')"/>
         </xsl:variable>        
-        <img alt="DHQ" src="{concat('data:image/png;base64,',$imgFile)}" />
+        <img alt="DHQ" src="data:image/png;base64,{$imgFile}"/>
       </div>
       <div id="longdhqlogo">
         <xsl:variable name="imgFile">
           <xsl:sequence select="unparsed-text('../images/dhqlogolonger.png.base64')"/>
         </xsl:variable>        
-        <img alt="Digital Humanities Quarterly" src="{concat('data:image/png;base64,',$imgFile)}" />
+        <img alt="Digital Humanities Quarterly" src="data:image/png;base64,{$imgFile}"/>
       </div>
     </div>
   </xsl:template>
+
 </xsl:stylesheet>
