@@ -6,7 +6,7 @@
         <fileDesc>
             <titleStmt>
                 <!-- Author should supply the title and personal information-->
-                <title type="article" xml:lang="en">"I was painted by..." A Case Study on the Use of CNNs for Image Classification in the Humanities </title>
+                <title type="article" xml:lang="en">"I was painted by...": A Case Study on the Use of CNNs for Image Classification in the Humanities </title>
                 <!-- Add a <title> with appropriate @xml:lang for articles in languages other than English -->
                 <dhq:authorInfo>
                     <!-- Include a separate <dhq:authorInfo> element for each author -->
@@ -287,8 +287,150 @@
                          or Vincent van Gogh and his distinct brushstroke patterns (J. Li et al. 2011; Folego, Gomes, and Rocha 2016).
                      </p>
                      
+                     <p>Despite varying degrees of success and methodological discussion, these approaches show that painter attribution translates especially well into supervised machine learning (SML) algorithms. It is a classification problem and SML algorithms treat given problems as a classification task. SML includes many methods, from statistical approaches to deep learning (El Mrabet et al. 2021). 
+                         For the purpose of image pattern recognition, deep convolutional neural networks (CNN) prove to be the most successful approach.
+                     </p>
+                     
+                     <p>In SML, a model is trained on a set of labelled data to recognize patterns and make predictions on new, unseen data. In our case, the labelled data would be a set of images of ancient vases with known painter attribution, and the model would be trained to recognize the stylistic characteristics that distinguish each painter's work. Once the model is trained, it can be used to analyse new images of 
+                         vases and predict the most likely painter based on the similarities with the previously labelled data. In order to ensure that the neural network is accurately identifying the work of individual painters and not just picking up on general trends, it is important to test the model's ability to generalize. This can be done by withholding a portion of the images from the training set and using them to test 
+                         the model's ability to correctly identify the painter. If the model is able to accurately identify the painters based on images it has not seen before, it suggests that the distinct classes are representative of stylistic similarities. The first key challenge stemming from this, is the model’s frame of reference. Everything it learns is framed through the class selection and has the be interpreted in relation to that. 
+                         Therefore, selection of classes plays a major role in our approach, as elaborated in section 3.
+                     </p>
+                     
+                     <p>Once verified through a model performance, the next step is to understand how the model is making its decisions. This process is often interpretative, as it involves inferring the decision-making processes from the classifications. However, there are also methods that provide insight into the model itself, for example with the use of heat maps (Selvaraju et al. 2017; Seifert et al. 2017). 
+                     </p>
+                     
+                     <p>Our focus lies not in explaining the decisions behind our model in detail, but the implications they have for our own analysis. For this purpose, the experiments have to be as transparent as possible from the beginning. We can achieve this by controlling our dataset and the receptive field of the classification task. Limiting and controlling the input, for example by omitting or including specific details, 
+                         controls the model’s decision-making from the beginning, rather than explaining it after training and validation. Since the painter attribution proves to be focused on the details of the paintings, laying a strong focus on them in the training process is not only preferable, but necessary.             
+                     </p>
+                     
+                     <p>This has been a key challenge for other projects as well. Some solutions include an automatic segmentation into tiles, as performed by Frank and Frank (Frank and Frank 2020). They use the segments with the highest amount of information for their training. Another approach includes brushstroke-segmentation, which works particularly well for painters like van Gogh, who has a very distinct brushstroke-pattern (J. Li et al. 2011). 
+                         Both these approaches are not suitable for our goal of painter attribution. The lines of vase paintings do not contain repetitive patterns such as van Gogh. Additionally, we are looking for more complex combinations of brushstrokes which constitute the motifs: Comparing hands to hands, eyes to eyes. Other scholars, such as Bell and Offert (Bell and Offert 2021) and Langmead et al (Langmead et al. 2021) acknowledge this as well. 
+                         This is why they use pre-existing models such as keypoint RCNN or the Google API for a semantic segmentation via object detection and face recognition. These pre-trained models are trained on real-world data however and do not work well with vase paintings. So instead of these approaches, we choose to annotate the images manually. Our annotation strategy is presented in section 4. 
+                     </p>
+                     
                  </div> <!-- div 2.2 -->
+                 
+                 <div>
+                     <head>2.3 Functionality of Convolutional Neural Networks (CNNs)</head>
+                     <p>Lastly, we want to give some technical background on the functionality of CNNs, because they also present us with certain specifics to consider in our data compilation. CNNs have become the standard for image classification tasks in the recent years, with various models and model architectures being proposed (introductory works see O’Shea and Nash 2015; Venkatesan and Li 2017; 
+                         Khan et al. 2018; Z. Li et al. 2021). The success of AlexNet (Krizhevsky et al. 2012) and the introduction of ImageNet (Deng et al. 2009), the first large-scale annotated image dataset, have played a significant role in promoting the use of CNNs for image classification. 
+                     </p>
+                     
+                     <p>Since then, various extensions have been proposed to enhance the representational power of convolutional architectures. At its core, a neural network is a complex mathematical model compromised of multiple layers. Each layer is a parameterized mathematical function. In the case of CNNs, the defining layer is the convolutional layer, where the mathematical operation of the same name is used. 
+                         In this operation the input image is combined with a set of filters, resulting in feature maps. From a human point of view these feature maps look like a filtered image, with specific characteristics emphasized. By using different filters, the neural network can recognize patterns and determine them as features for the specific class. This is the same concept used in Gaussian blurring and edge detection. 
+                         Using a blurring filter the CNN would recognize features regarding the overall shapes, while an edge detecting filter would emphasize the lines. By stacking multiple convolutional layers, the network can learn representations of increasing complexity. Convolutional layers are usually coupled with a pooling layer to condense the features in the feature maps, 
+                         and an activation function to introduce non-linearity to the model.  
+                     </p>
+                     
+                     <p>When we train a neural network, our goal is to find the best parameters for the functions in the layers by making them fit our training data as closely as possible. We have a multitude of parameters across the layers, making it impossible to compute an exact solution. This is where
+                         backpropagation comes into play. These iterative technique helps us fine-tune the network's parameters, by gradually reducing prediction errors.  During training, the neural network learns and optimizes the parameters, such as weights and biases, that can then be applied to new, unseen data. 
+                         To put it simply, it basically involves backtracking through the model and optimizing the parameters to reduce errors in the classification.
+                     </p>
+                     
+                 </div><!-- 2.3 -->
              </div> <!-- div 2 -->
+             
+             <div>
+                 <head>3. Painter Selection and Biases</head>
+                
+                <div>
+                    <head>3.1 Biases in the Image Selection</head>
+                    <p>As the first step of our data compilation strategy, we want to address the class selection. Selecting the classes for our use case means choosing which painters we want to use as examples in our study. 
+                        Furthermore, it also involves the question which paintings to choose and which painter attributions by which scholars to consider when assigning a specific painting to a class. 
+                        Overall, our painter selection is influenced by both humanities and machine learning factors, with archaeological interests being the leading force. 
+                        For the algorithms to work, some statistical requirements have to be considered as well: 
+                    </p>
+                    
+                    <p>First, the algorithms call for a sufficient number of samples per painter, which should also be in a similar range for all painters to avoid a skewed distribution. Second, we have to keep our dataset diverse enough in every aspect that may possibly be relevant, otherwise the model will not be able to generalize to unseen images. 
+                        This means that we have to choose paintings representative for the variety within a class. Creating such a dataset is not a problem for most machine learning applications as long as they work with real-world data. It is always easy to produce more data to balance or enlarge the dataset. With vase paintings however, 
+                        we ‘only’ have the preserved images and simply cannot create more. Projects in the Digital Humanities often deal with the bottleneck of too few or too diverse data. In other projects on vase paintings there have been attempts to enhance the datasets artificially, for example by transferring the style of vase paintings 
+                        onto real-world images and therefore creating more images in the same style (Madhu et al. 2022). Adrian Ryan even drew new paintings by his own hand (Ryan 2009). However, we have refrained from artificially enhancing our dataset, because it usually introduces new diversity into the data which might create another bias. 
+                        Also, our research question is focused on individual renderings, which cannot be re-created faithfully. So at least for the initial set-up, we had to focus on painters with a naturally large body of work. 
+                    </p>
+                    
+                    <p>However, this requirement raises another important question: By which criteria does a painting belong to a class? As discussed above, painter attribution on Attic vases is often done ambiguously and intuitively, making it difficult to objectify the attributions and put them into distinct classes. 
+                        Beazley’s attributions are so vast in number that they offer a solid basis for machine learning algorithms. Nonetheless, not all of his attributions are undisputed.  The only factual evidence nobody can dispute are signatures. 
+                        They are the real ground truth, even if we add the attributions of scholars who have a life-time of visual experience. Also, we do not want to limit ourselves to merely replicating Beazleys approach. We wanted to study connoisseurship and vase paintings in general. 
+                        So, we also had to consider the number of signatures and potential controversies in regarding the painter’s bodies of works to avoid too much disagreement within the classes. Nevertheless, we did include some controversial paintings in the dataset, because we wanted to study how they would perform. 
+                        They could give us an insight into which features might make it hard for human scholars to agree on an attribution and therefore add to our understanding of the method.
+                    </p>
+                    
+                    <p>Adding to these criteria, Attic vase paintings also confronts us with inherent biases. They are a complex medium with dense information, pertaining to both formal characteristics and content. We are mostly interested in the  formal characteristics, as interpretative information is not relevant for painter attribution. 
+                        The categories can correlate however. To identify biases in this labyrinth of features, we defined different levels of formal characteristics, going from general and external to specific and deep. General characteristics are, for example, the composition of a painting, or its motif. 
+                        These are dominant characteristics that take up a lot of literal space in the painting. A deep characteristic, for example, is the personal style, which is found within the details in specific areas of the painting. Such details might be overshadowed by more general characteristics and potentially be “buried” underneath them.
+                    </p>
+                    
+                    <p>Above these levels of image-inherent characteristics, there is an even more general level. It concerns external criteria, such as the image properties and image quality: If the model is expected to perform on images with different angles, lighting conditions and other variations, then these factors need to be accounted for in the training data as well. 
+                        So, the images we chose had to be diverse in this respect as well, which is further limited by the natural occurrence of vase painting publications, meaning printed books and online databases. We included scanned and de-rasterized photographs from printed publications, photographs on Wikimedia commons (https://commons.wikimedia.org) 
+                        and photographs from major museum databases online, especially the British Museum in London (https://www.britishmuseum.org/collection), the Metropolitan Museum in New York (https://www.metmuseum.org/art/the-collection), the J. Paul Getty Museum in  Los Angeles  (https://www.getty.edu/art/collection/). While keeping the dataset diverse, 
+                        it is also important not to oversample images with certain characteristics for a specific painter, as they contain easy-to-learn textural qualities. If we chose only medium quality scans of book publications for one painter and high-resolution camera pictures from Wikimedia for another, the model would generalize unwanted features. 
+                        Thus, it is important to consider the overall quality within the classes carefully to ensure that it is representative of the dataset and free from external biases. 
+                    </p>
+                    
+                    <p>Going deeper into the levels of image information we can proceed from the more general to the more detailed levels. For a human it is easier to look for specific details, because we can control our visual attention. A neural network on the other hand, might get stuck on the more general shapes if they are generalizable, due to the nature of convolution. 
+                        This makes it even more urgent that we carefully consider these levels and their connections between each other. Sometimes, they are hard to separate, with the following characteristics being worth exploring further:
+                        
+                        <list type="unordered">
+                            <item>The first characteristic concerns the context of the painting, meaning its placement and size. Vases offer many differently shaped surfaces for painting, which can affect the basic structure of the picture. Again, as with handwriting, the linework might vary depending on the available space and on the vessel’s curvature. 
+                                If a painter preferred certain shapes, this might lead to an unwanted bias.</item>
+                            <item>The next characteristics include motivic features, for example composition,  scene, motif or the topic depicted. Those characteristics are often the first thing we notice in a picture, even if we reduce the depiction significantly. 
+                                A neural network might learn those features before it learns anything else. If a painter always prefers certain motifs, the neural 
+                                network might generalize this characteristic over the personal style, due to the space they take up in a painting.</item>
+                            <item>The final characteristic is found at the same “depth” as personal style: The Zeitstil (period or temporal style). As in all time periods, certain visual features are typical – "in fashion" – for their time. A good example of this is the clothing and the way the folds are painted. They are very distinctive in different time periods (Langlotz 1920). 
+                                Both of these stylistic features are contained in the same details, which makes it hard to separate them.</item>
+                        </list>
+                    </p>
+                    
+                    <p>Temporal style and personal style get confused sometimes and a study including different time periods might lead to a classification based on art periods or technical differences, rather than personal styles. The model might perform its task correctly at first glance, but the features it learns are not the ones intendent. 
+                        Still, the temporal bias is the easiest to resolve, at least in our initial set-up: By focusing on only one art period with its immediate predecessors and successors we can eradicate a potential temporal bias and teach the neural network to recognize subtle differences between personal styles instead. 
+                        This approach was also considered in some of the projects mentioned above (Frank and Frank 2022, 840; Bell and Offert 2021). 
+                    </p>
+                    
+                    <p>The time frame we choose is the early 5th century BC, the late Archaic / early Classical times. 
+                        The production of vase paintings in Athens spans over several centuries, with many stylistic and technical developments. Our chosen time frame takes place after the transition from black-figure to red-figure technique. 
+                        In black-figure technique the figures were applied in a translucent slip onto the terracotta surface, which became black after firing the vessel. The details were then etched on with a sharp tool. 
+                        Red-figure vases are the opposite: The vase was covered in black slip and the figures are blank areas that appear in the red colour of the terracotta. The contours and details are painted with a brush before firing the vase 
+                        (Noble 1988, 99-117). In our chosen time-period, the red-figure style had just become firmly established, while the generation before that is considered more experimental (Boardman 1975, 89-91). 
+                        It is also a time frame where it was common to sign the vases, which offers a good foundation for our dataset as well (Bolmarcich and Muskett 2017; Sapirstein 2013).
+                    </p>
+                    
+                    <p>The vase size and shape, as well as the depicted motif, pose a challenge that cannot be solved this easily, because they may differ from painter to painter, even within a certain period. Between these two, size and shape are easier to control: 
+                        They represent parameters that depend on the kind of vase onto which the image was painted on. According to Beazley, vase painters of that period can be roughly divided into cup painters and pot painters (Beazley 1961). Cups in this terminology means smaller vessels 
+                        from which one can drink, for example kylikes (Figure 3). They have a round, shallow body and are decorated on the curved outside as well as the plane inside. Meaning there are two kinds surfaces with different curvatures. But there are also other vases, such as skyphoi, 
+                        that are closer in shape to the kind of cups we use today. Pots include large vessels, often with a large body, a small foot, and a shoulder connecting to the neck of the vessel. At the top they are either curved inwards, or curved outwards. 
+                        The body is usually broad, offering a slightly curved surface for the paintings. However, the curvature at the top of the painting, and the size of the vessels differ greatly from pot-shape to pot-shape, as seen in the examples in Figure 4. 
+                        There are also many exceptions, for example lekythoi, which have a narrow and high body, or decorative zones featuring smaller figures on the necks of larger vessels. Moreover, this distinction between cup and pot painters does not mean that 
+                        they only painted these specific vessels. There are exceptions to the case, which adds to the variety within the classes. The cup painter Douris, for example, also painted a larger vessel, a psykter, as indicated by his signature (BAPD 205309, London, British Museum E768). 
+                        Other pots can also be attributed to his body of work on a stylistic basis, such as an amphora in St. Petersburg (BAPD 205310, State Hermitage Museum B5576.) and another one in Paris (BAPD 205311, Louvre S3853).
+                    </p>
+                    
+                    <p>Possible solutions against this bias would include focusing only on pot (or cup) painters or creating sub-classes per painter. Only focusing on one kind of painter would take too much complexity from the task, however, and due to the high variety and the uneven distribution of shapes, 
+                        creating subclasses is impossible. This diversity of vase shapes causes a bias with unpredictable extent. Therefore, contrary to our approach with the temporal bias, we decided to include both pot and cup painters. 
+                        We specifically included vessels representing exceptions to their usual preference of vase shapes, to emphasize the variation of linework in our dataset.</p>
+                
+                    <!-- figure 3 -->
+                    <figure>
+                        <head>: Cups by Makron. 
+                            Top: BAPD 204734, New York Metropolitan Museum (MET) 06.1152; Bottom: BAPD 6917, MET 1979.11.9
+                        </head>
+                        <figDesc></figDesc>
+                        <graphic url=""></graphic>
+                    </figure>
+                
+                    <p>A similar reasoning was used on the variety of the motifs. The depictions range from mythological fight scenes, to athletes doing sports, to women in their chamber. There is great variety in the topics depicted, but certain types of scenes or figures, such as mantle figures (Franceschini 2018), are often reused. 
+                        As with the vase shapes, it seems that certain painters preferred certain motifs. The Berlin Painter for example frequently depicted musicians with stringed instruments (Padgett 2017 Nr. 4, 13, 15-16, 18-20, 28, 33, 39, 55). This observation can lead to circular reasoning, with attributions being based on the motifs. 
+                        Since the dataset is limited, we cannot simply avoid having too many examples of a painter's favourite motifs. We can only ensure as much diversity as possible per class. Another strategy against this bias consists of stripping the details from their compositional and motivic context by segmentation, as explained in Section 4.
+                </p>
+      
+                </div><!-- 3.1 -->
+                 
+                 <div>
+                     <head>3.2 Selection of Painters and their Circles</head>
+                     <p></p>
+                 
+                 </div><!-- 3.2 -->
+             </div><!-- 3 -->
         </body>
         <back>
             <listBibl>
