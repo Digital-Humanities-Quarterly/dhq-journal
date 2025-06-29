@@ -7,9 +7,19 @@
   <xsl:template name="footer">
     <xsl:param name="docurl"/>
     <xsl:param name="baseurl" select="'http://www.digitalhumanities.org/'||$context||'/'"/>
+    <xsl:variable name="latterurl">
+      <xsl:choose>
+	<xsl:when test="matches( $docurl, '/[0-9]{6}\.html$')">
+	  <xsl:sequence select="replace( $docurl, '((/[0-9]{6})\.html)$', '$2$1')"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:sequence select="$docurl"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <div id="footer"> 
       <div style="float:left; max-width:70%;" xsl:expand-text="yes">
-        URL: {$baseurl}{$docurl}
+        URL: {$baseurl}{$latterurl}
         <br/>
         Comments:&#x20;
         <a href="mailto:dhqinfo@digitalhumanities.org" class="footer">dhqinfo@digitalhumanities.org</a>
