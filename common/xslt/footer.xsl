@@ -7,14 +7,22 @@
   <xsl:template name="footer">
     <xsl:param name="docurl"/>
     <xsl:param name="baseurl" select="'http://www.digitalhumanities.org/'||$context||'/'"/>
+    <!--
+        For the 2nd part of the URL, examine $docurl — If it ends with
+        6_digits-dot-h-t-m-l it is an article, and should have an
+        article level directory specified.
+    -->
     <xsl:variable name="latterurl">
       <xsl:choose>
-	<xsl:when test="matches( $docurl, '/[0-9]{6}\.html$')">
-	  <xsl:sequence select="replace( $docurl, '((/[0-9]{6})\.html)$', '$2$1')"/>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:sequence select="$docurl"/>
-	</xsl:otherwise>
+        <xsl:when test="matches( $docurl, '/[0-9]{6}\.html$')">
+          <!-- Since the article level directory has the same name as
+               the 6-digits portion of the article filename, just
+               parse it off and duplicate it. -->
+          <xsl:sequence select="replace( $docurl, '((/[0-9]{6})\.html)$', '$2$1')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="$docurl"/>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <div id="footer"> 
