@@ -798,9 +798,268 @@
                          theorem as discussed by Zaheer et al. (2017). This theorem asserts that any multivariate continuous function ϕ can be expressed as a finite composition of continuous functions of a single variable and the binary operation of addition.  This means specifically, that our network consists of two components. The first component functions as an inner function f. After aggregating the images through summation, 
                          a second model g consisting of four dense layers is employed to compute the painter prediction for the entire set. Thus, the networks f and g are trained on the precomputed embeddings of our paintings to classify the actual painter. In this study, we have chosen to utilize a deep sets architecture due to its inherent simplicity, which makes it suitable for addressing problems characterized by limited available data.  
                      </p>
-                
+                     
+                     <!-- figure 8 -->
+                     <figure>
+                         <head>: Example of the three different scenarios for processing the full painting, a single figure, and the set of annotations. Vase depicted: BAPD 201960, MET 1988.40</head>
+                         <figDesc></figDesc>
+                        <graphic url=""></graphic>
+                     </figure>
+                     
+                     <p>It is also important to note that the experiments involving the full figure and the figure set employed the same split of figures, while the full image scenario involved a different random split across all paintings. Additionally, we ensured that figures or paintings from the same vase were not present in both the training and test sets simultaneously. 
+                         Apart from these distinctions, the general experimental set-up and pre-processing across these three variants remained consistent.                    
+                </p>
                  </div><!-- 6.2 -->
+                 
+                 
+            <div>
+                <head>6.3 Pre-Processing and Image Distortion</head>
+                <p>Another point to address is the input distortion. Not only are the images scaled down for training, they have to be normalized to a fixed aspect ratio as well. Since we relied on a pre-trained deep feature extractor, the size of the input image is already predetermined to be 224 x 224 px by the pretraining dataset, even if we annotated high resolution images. 
+                    Operating on full high-resolution images, which can be up to 4000 x 4000 px, would limit the number of images we can process simultaneously, potentially slowing or even impairing the training process.</p>
+                    
+                <!-- figure 9 -->
+                <figure>
+                    <head><hi rend="italic">The arm and hem folds scaled (left) and padded (right). With scaling the linework gets distorted significantly, especially for narrow and long labels. Left: BAPD 200751, MET 09.221.47; Right: BAPD 201811, MET 56.171.38</hi></head>
+                    <figDesc></figDesc>
+                    <graphic url=""></graphic>
+                </figure>
+            
+                <p>Although these methods are advantageous due to their simplicity and low computational cost, they have the drawback that they distort the image significantly. Every segment is scaled without respect to their ratio, making small details larger and vertically compressing labels such as the arms or hem folds (Figure 8). While this distortion is considered negligible for standard computer vision tasks (Hashemi 2019), it was crucial to investigate this factor in our research, since the specific linework observed is assumed to have a significant impact on painter attribution. 
+                    Does the contortion pose a disadvantage for the task or is the model able to compensate for it?
+            </p>
+                
+                <table>
+                    <head>Comparison of the performance between padded images and scaled images. 
+                        Results are given as accuracy aggregated across the 10-fold cross-validation</head>                    
+                    <row role="label">
+                        <cell>Accuracy with standard deviation training with….</cell>
+                    </row>
+                    
+                    <row role="label">
+                        <cell></cell>
+                        <cell>...paded images</cell>
+                        <cell>...scaled images</cell>  
+                    </row>
+                    
+                    <row role="data">
+                        <cell>Berlin P.</cell>
+                        <cell>61.7 ± 5.1</cell>
+                        <cell>71.3 ± 4.2</cell>
+                    </row>
+                    
+                    <row role="data">
+                        <cell>Brygos P.</cell>
+                        <cell>54.3 ± 5.9</cell>
+                        <cell>53.3 ± 5.6</cell>
+                    </row>
+                    
+                    <row role="data">
+                        <cell>Douris</cell>
+                        <cell>50.8 ± 8.7</cell>
+                        <cell>62.1 ± 7.5</cell>
+                    </row>
+                    
+                    <row role="data">
+                        <cell>Makron</cell>
+                        <cell>66.5 ± 8.9</cell>
+                        <cell>78.9 ± 5.2</cell>
+                    </row>
+                    
+                    <row role="data">
+                        <cell>Oltos</cell>
+                        <cell>56.1 ± 2.8</cell>
+                        <cell>54.7 ± 9.1</cell>
+                    </row>
+                                        
+                    <row role="data">
+                        <cell>Average</cell>
+                        <cell>58.9 ± 2.9</cell>
+                        <cell>66.3 ± 3.4</cell>
+                    </row>          
+                </table>
+                
+                <p>We tested this by training three models on different pre-processing scenarios. In the first variation we kept the distorting normalisation, in the second scenario we scaled the image to their longest side and added black padding to the empty space around it (Figure 8). In the third variation we refrained from up-scaling smaller segments, as this results in different line thicknesses for different labels depending on their size. As expected, however, the third scenario did not 
+                    create satisfactory results due to the small size. The comparison between the first two other scenarios can be found in Table 2. 
+                    Contrary to our concerns, the distorted images do in fact offered better results. This may be because scaling the images maximizes the input 
+                    information, while padding the images adds large areas of black background, which results in unused space. 
+                    In the case of the hem-folds and the arm the distortion might even be helpful. For the hem-folds it emphasizes the linework and rhythm of the folds and for the arms the focus 
+                    lies on the direction changes of the lines rather than their length.
+                </p>
+
+                <p>Additionally to the input-distortion, the images are often naturally distorted due to their curvature. Especially the hydria in Figure 4 shows clearly, how some paintings are difficult to photograph. 
+                    This difficulty is specific to certain vase shapes and brings us back to the problem of a potential vessel shape bias.
+            </p>
+                
+                <p>The problem of vase painting photography has been addressed on other occasions and with un-warping-algorithms (f. e. Felicisimo et al. 2019). However, they add another level of distortion in the pre-processing level, skewing the dataset even further. Due to the heterogeneity of our 
+                    image selection concerning vase shapes and the focus on details rather than the whole vase, it would be impossible to create a workflow that addressed all of them. The findings of the padding vs. scaling experiment support our decision, as distortion 
+                    in itself does not seem to affect the outcome of the experiment negatively, except for a potential shape bias. However, this should of course continue to be tested in further research and the methods should be adjusted if necessary.</p>
+            </div>  <!-- div 6.3 --> 
+                 
+                 <div>
+                     <head>6.4	Robustness</head>
+                     <p>Finally, we also want to address about model robustness. “Robustness”, in this context, refers to the stability and consistency of a model's predictions when trained multiple times. Neural networks exhibit both determinism and non-determinism in their behaviour. 
+                         When fully trained, (non-bayesian) neural networks operate deterministically, consistently producing the same outputs for a given input, ensuring their reliability. However, since the parameters of a neural network are typically initialized randomly before training, 
+                         model performance might vary across multiple training runs, even with the same architecture and data. It is important to quantify this variation to ensure that the results hold ground, not only regarding the robustness of classes, but also the single instances.</p>
+                 
+                 <table>
+                     <head><hi rend="italic">Standard deviation over the test-training folds and over then re-trainings with the same set-up</hi></head>
+                     <row role="label">
+                         <cell></cell>
+                         <cell></cell>
+                         <cell>Standard deviation over…</cell>
+                     </row>
+                     
+                     <row role="label">
+                         <cell></cell>
+                         <cell>Accuracy</cell>
+                         <cell>...folds</cell>
+                         <cell>...runs</cell>
+                     </row>
+                     
+                     <row role="data">
+                         <cell>Berlin P.</cell>
+                         <cell>73.9</cell>
+                         <cell>± 4.2</cell>
+                         <cell>± 1.5</cell>
+                     </row>
+                     
+                     <row role="data">
+                         <cell>Brygos P.</cell>
+                         <cell>61.5</cell>
+                         <cell>± 5.6</cell>
+                         <cell>± 3.0</cell>
+                     </row>
+                     
+                     <row role="data">
+                         <cell>Douris</cell>
+                         <cell>58.6</cell>
+                         <cell>± 7.5</cell>
+                         <cell>± 3.2</cell>
+                     </row>
+                     
+                     <row role="data">
+                         <cell>Makron</cell>
+                         <cell>79.3</cell>
+                         <cell>± 5.2</cell>
+                         <cell>± 1.9</cell>
+                     </row>
+                     
+                     <row role="data">
+                         <cell>Oltos</cell>
+                         <cell>65.3</cell>
+                         <cell>± 9.1</cell>
+                         <cell>± 2.5</cell>
+                     </row>
+                     
+                     <row role="data">
+                         <cell>Average</cell>
+                         <cell>67.7</cell>
+                         <cell>± 6.32</cell>
+                         <cell>± 2.42</cell>
+                     </row>
+                 </table>
+                     
+                     <table>
+                         <head><hi rend="italic">Classification accuracy of each painter along with the 2nd and 3rd most frequently assigned classes</hi></head>
+                         <row role="label">
+                             <cell></cell>
+                             <cell>Most frequent class</cell>
+                             <cell>Second frequent class</cell>
+                             <cell>Third frequent class</cell>
+                         </row>
+
+                    <row role="data">
+                        <cell>Berlin P.</cell>
+                        <cell>Berlin P. (73.9%)</cell>
+                        <cell>Brygos P. (11.4%)</cell>
+                        <cell>Makron (8.1%)</cell>
+                            </row>   
+                         
+                         <row role="data">
+                             <cell>Brygos P.</cell>
+                             <cell>Brygos P. (61.5%)</cell>
+                             <cell>Makron (9.9%)</cell>
+                             <cell>Douris	 (8.7%)</cell>
+                         </row>
+                         
+                         <row role="data">
+                             <cell>Douris</cell>
+                             <cell>Douris (58.6%)</cell>
+                             <cell>Makron (13.8)</cell>
+                             <cell>Brygos	(11.3%)</cell>
+                         </row>
+                         
+                         
+                         <row role="data">
+                             <cell>Makron</cell>
+                             <cell>Makron (79.3%)</cell>
+                             <cell>Brygos P. (14.7%)</cell>
+                             <cell>Berlin	 (7.1%)</cell>
+                         </row>
+                         
+                         <row role="data">
+                             <cell>Oltos</cell>
+                             <cell>Oltos 	(65.3%)</cell>
+                             <cell>Berlin (7.8%)</cell>
+                             <cell>Brygos	 (7.0%)</cell>
+                         </row>
+                     </table>
+                     
+                     <p>This investigation primarily focused on two key dimensions: First, the ability of the model's predictions to withstand repeated executions on identical but permuted inputs; and second, the possible alignment of a high confidence level in the model's class scores with the robustness of its predictions. 
+                         For this purpose, we repeated our main experiment with the same 10-fold cross-validation image sets 10 times. We then analysed the specific class assignments across these 10 runs. 
+                         As shown in Table 4, the accuracy over runs varies only up to ± 2.42%, meaning our best model achieves an overall accuracy of 70.12% ± standard deviation.</p>
+                 
+                 <!-- figure 10 -->
+                     <figure>
+                         <head><hi rend="italic">Class distribution over 10 repeated training runs with random weight initialization. The scatter plots show the relation between mean assigned class probability for the correct class of an instance and its standard deviation</hi></head>
+                         <figDesc></figDesc>
+                         <graphic url=""></graphic>
+                 </figure>
+                 
+                     <p>Two more experiments give us a better insight into the different aspects of the robustness. First, we examined the instances for each painter and analysed the correlation of the standard deviation and prediction value. The prediction value is the raw model output and represents the level of certainty for the attribution of an instance. 
+                         The scatter plot in Figure 10 shows the mean of the assigned class probability over the 10 repeated runs for each figure, plotted against the standard deviation over these runs. It shows a curve, in which a high mean probability corresponds with a low standard deviation. Similarly, a low score also corresponds with a low standard deviation, 
+                         meaning strong predictions come with a high confidence and predictions in the middle field tend to vary over the runs. This suggests that the predictions with a very high, but also with very low prediction values are especially stable, meaning that they might provide good case studies for studying painter attribution.
+                 </p>
+                     
+                     <p>This became even more apparent looking at each assigned class ordered by its frequency. For this, we analysed the class prediction with the highest probability and evaluated the frequencies over assigned class: Did the model assigned the same class 10 out of 10 times, or did the final prediction change frequently? The boxplot in Figure 11 shows these frequencies. 
+                         The mean/centre of each boxplot corresponds to the relative frequency over predicted classes. Over 10 runs, the model would assign the most frequent class for an instance 70% of the time; conversely, the second most frequent class was assigned at a rate of only 20%.                      </p>
+                 
+                 <!-- figure 11 -->
+                     <figure>
+                         <head><hi rend="italic">Class distribution over 10 repeated training runs with random weight initialization. Left to right shows the boxplot over the relative frequency of the class assigned the most, then second most, etc., up the class least likely to be assigned.</hi></head>
+                         <figDesc></figDesc>
+                         <graphic url=""></graphic>
+                     </figure>
+                 
+                     <p>This means that the model is fairly sure about the overall classification, even when it misclassifies an instance and, in that regard, it is stable when making attributions, even if they are wrong. In further analysis, the second highest class might still be relevant, as it attests which painters get confused more easily than others. 
+                         The second and third frequent classes can be found in Table 5. Overall, these experiments add an important perspective for the analysis of peculiar attributions, especially if they are confidently wrong. </p>
+                 
+                 </div><!-- 6.4 -->
              </div><!-- div 6 -->
+             
+             <div>
+                 <head>7. A First Look at the Results</head>            
+                 
+                 <div>
+                     <head>7.1	Image and Image-Set Classification in Comparison</head>
+                     <p>Finally, we turn to the results of our experiments, starting with the comparison of training scenarios regarding the input images (table 3). The difference in accuracy between full vase paintings segment sets is surprisingly close. 
+                         Considering the fact that the data is highly complex and that the task requires deep and specific knowledge (in human experts as well) the numbers up to 70% accuracy with 5 classes is within expected parameters. 
+                         The full figures have an accuracy about 17% lower than the other scenario.                     
+                 </p>
+                     
+                     
+                           <table>
+                               <row role="label">
+                                   <cell></cell>
+                                   <cell></cell>
+                                   <cell></cell>
+                                   <cell></cell>
+                               </row>
+                           </table>                     
+             
+                 </div> <!-- 7.1 -->
+             </div><!-- 7 -->
+             
         </body>
         <back>
             <listBibl>
