@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:tei="http://www.tei-c.org/ns/1.0"
-		xmlns:xs="http://www.w3.org/2001/XMLSchema"
-		xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+                xmlns:tei="http://www.tei-c.org/ns/1.0"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
                 xmlns="http://www.w3.org/1999/xhtml" version="3.0" >
   
   <xsl:param name="context"/>
@@ -10,43 +10,48 @@
   <xsl:template name="footer">
     <xsl:param name="docurl"/>
     <xsl:param name="baseurl" select="'http://www.digitalhumanities.org/'||$context||'/'"/>
-    <!-- The number of authors from an article file; will be 0 for
-	 most anything else, most importantly the toc.xml file. -->
-    <xsl:variable name="numAuthors" select="count( /*/tei:teiHeader/tei:fileDesc/tei:titleStmt/dhq:authorInfo )"/>
+    <xsl:variable name="isTEI" select="exists( /child::tei:* )" as="xs:boolean"/>
     <xsl:variable name="yearPublished" as="xs:string">
       <xsl:choose>
-	<!-- All articles have the publication date as <date when="">
-	     in the header. -->
-	<xsl:when test="/*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when">
-	  <xsl:sequence select="year-from-date( /*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when )!string()"/>
-	</xsl:when>
-	<!-- For the TOC, take the latest year that *something* was published. -->
-	<xsl:when test="/toc/journal">
-	  <xsl:sequence select="//journal/title!normalize-space()[matches(.,'^[0-9]{4}$')] => max()"/>
-	</xsl:when>
-	<!-- Fallback: use the year that we generated the HTML page. -->
-	<xsl:otherwise>
-	  <xsl:sequence select="year-from-date( current-date() )!string()"/>
-	</xsl:otherwise>
+        <!-- All articles have the publication date as <date when=""> in the header. -->
+        <xsl:when test="/*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when">
+          <xsl:sequence select="year-from-date( /*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when )!string()"/>
+        </xsl:when>
+        <!-- For the TOC, take the latest year that *something* was published. -->
+        <xsl:when test="/toc/journal">
+          <xsl:sequence select="//journal/title!normalize-space()[matches(.,'^[0-9]{4}$')] => max()"/>
+        </xsl:when>
+        <!-- Fallback: use the year that we generated the HTML page. -->
+        <xsl:otherwise>
+          <xsl:sequence select="year-from-date( current-date() )!string()"/>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <!-- The year for the copyright notice is either the year the
-	 single article was originally published, or for generated
-	 pages (like author bios or the about page) a range from
-	 our first year of publication to the latest year that
-	 *something* was published. -->
+         single article was originally published, or for generated
+         pages (like author bios or the about page) a range from
+         our first year of publication to the latest year that
+         *something* was published. -->
     <xsl:variable name="copyYear" as="xs:string">
       <xsl:choose>
-	<xsl:when test="$numAuthors gt 0"><xsl:sequence select="$yearPublished"/></xsl:when>
-	<xsl:when test="$numAuthors eq 0"><xsl:sequence select="'2005–'||$yearPublished"/></xsl:when>
+        <xsl:when test="$isTEI">
+          <!-- This is a TEI file, so use its year of publication -->
+          <xsl:sequence select="$yearPublished"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <!-- This is NOT a TEI file, so use range from 2005 to last published thingy -->
+          <xsl:sequence select="'2005–'||$yearPublished"/>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <!-- The copyright holder for the copyright notice. -->
     <xsl:variable name="copyHolder">
       <xsl:choose>
-	<xsl:when test="$numAuthors eq 1">the author</xsl:when>
-	<xsl:when test="$numAuthors ge 2">the authors</xsl:when>
-	<xsl:when test="$numAuthors eq 0">DHQ</xsl:when>
+        <xsl:when test="$isTEI">
+          <xsl:variable name="plural" select="if ( /*/tei:teiHeader/tei:fileDesc/tei:titleStmt/dhq:authorInfo[2] ) then 's' else ''"/>
+          <xsl:sequence select="'the author'||$plural"/>
+        </xsl:when>
+        <xsl:otherwise><xsl:sequence select="'DHQ'"/></xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <div id="footer"> 
