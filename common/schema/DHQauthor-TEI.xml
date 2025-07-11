@@ -4,6 +4,7 @@
 <TEI xmlns="http://www.tei-c.org/ns/1.0"
   xmlns:rng="http://relaxng.org/ns/structure/1.0"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:sch="http://purl.oclc.org/dsdl/schematron"
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
   xml:lang="en">
   <teiHeader>
@@ -25,6 +26,17 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2025-07-11" who="#sdb">
+	Ensure any given <gi>dhq:author_name</gi> or
+	<gi>dhq:translator_name</gi> has at most one
+	<gi>dhq:family</gi>, which itself must have some content
+	(other than whitespace). Add a <att>type</att> (with a
+	possible value of <val>organization</val>) to
+	<gi>dhq:author_name</gi>. These changes are part of addressing
+	<ref
+	target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/120">GitHub
+	issue #120</ref>.	
+      </change>
       <change when="2025-06-12" who="#sdb">
 	BUG FIX: added <gi>caption</gi> to wrong spot of content model yesterday
       </change>
@@ -670,10 +682,12 @@ email (should only have an email address)
         <elementSpec ident="author_name" module="dhq" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
           <desc>Contains the name of an author of the article.</desc>
           <content>
-            <alternate minOccurs="1" maxOccurs="unbounded">
+	    <!-- Note: this content model cannot be converted to a DTD -->
+            <sequence minOccurs="1" maxOccurs="1">
               <textNode/>
-              <elementRef key="family"/>
-            </alternate>
+              <elementRef key="family" minOccurs="1" maxOccurs="1"/>
+              <textNode/>
+            </sequence>
           </content>
           <attList>
             <attDef ident="xml:id" mode="add">
@@ -693,10 +707,11 @@ email (should only have an email address)
         <elementSpec ident="translator_name" module="dhq" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
           <desc>Contains the name of a translator of the article.</desc>
           <content>
-            <alternate minOccurs="1" maxOccurs="unbounded">
+            <sequence minOccurs="1" maxOccurs="1">
               <textNode/>
-              <elementRef key="family"/>
-            </alternate>
+              <elementRef key="family" minOccurs="1" maxOccurs="1"/>
+              <textNode/>
+            </sequence>
           </content>
           <attList>
             <attDef ident="xml:lang">
@@ -713,6 +728,17 @@ email (should only have an email address)
           <content>
             <textNode/>
           </content>
+	  <constraintSpec scheme="schematron" ident="family_must_have_content">
+	    <constraint>
+	      <sch:rule context="dhq:family">
+		<sch:report test="normalize-space(.) eq ''">A family
+		name must be supplied inside &lt;dhq:family>; if this
+		&lt;<sch:value-of select="name(..)"/>> does not need a
+		family name, delete the entire &lt;dhq:family>
+		element.</sch:report>
+	      </sch:rule>
+	    </constraint>
+	  </constraintSpec>
           <attList>
             <attDef ident="xml:lang">
               <datatype>
