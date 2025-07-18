@@ -18,29 +18,31 @@
   <xsl:param name="doProofing" select="false()" as="xs:boolean"/>
   
   <xsl:template name="head">
+    <!-- Articles can have more than one <title> in <titleStmt> if more 
+         than one language is represented. This template requires one
+	 and only one string be passed to it as the title, though. So
+	 the calling program is responsible for selecting the correct
+	 title and sending it along. -->
     <xsl:param name="title" as="xs:string"/>
     <head>
       <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
       <title>
-        <!-- Articles can have more than one <title> in <titleStmt> if more 
-             than one language is represented. By default, this stylesheet will 
-             take the first one offered. To ensure that the expected title is 
-             used, check for multiple <title>s and choose one before calling 
-             the "head" template. -->
-        <xsl:value-of select="concat('DHQ: Digital Humanities Quarterly: ',$title[1])"/>
+        <xsl:sequence select="'DHQ: Digital Humanities Quarterly:&#x20;'||$title"/>
       </title>
-      <!-- old asset link, before embedding. -->
-      <!--link rel="stylesheet" type="text/css" href="{$assets-path}common/css/dhq.css"/-->
+      <!--
+	  The following three <style> elements pull in our assets,
+	  i.e. what would be
+	  <link rel="stylesheet" type="text/css" href="{$assets-path}common/css/dhq.css"/>
+	  <link rel="stylesheet" type="text/css" media="screen"  href="{$assets-path}common{$dir-separator}css{$dir-separator}dhq_screen.css"/>
+	  <link rel="stylesheet" type="text/css" media="print" href="{$assets-path}common/css/dhq_print.css"/>
+	  if we were not embedding them.
+      -->
       <style type="text/css">
         <xsl:sequence select="unparsed-text('../css/dhq.css')"/>
       </style>
-      <!-- old asset link, before embedding. -->
-      <!--link rel="stylesheet" type="text/css" media="screen"  href="{$assets-path}common{$dir-separator}css{$dir-separator}dhq_screen.css"/-->
       <style type="text/css" media="screen">
         <xsl:sequence select="unparsed-text('../css/dhq_screen.css')"/>
       </style>
-      <!-- old asset link, before embedding. -->
-      <!--link rel="stylesheet" type="text/css" media="print" href="{$assets-path}common/css/dhq_print.css"/-->
       <style type="text/css" media="print">
         <xsl:sequence select="unparsed-text('../css/dhq_print.css')"/>
       </style>
@@ -55,17 +57,21 @@
       <!-- what do do about rss? -->
       <link rel="alternate" type="application/atom+xml" href="{$assets-path}/feed/news.xml"/><!-- maybe should be path_to_home? -->
 
-      <!-- old asset link, before embedding. -->
-      <!--link rel="shortcut icon" href="{$assets-path}common/images/favicon.ico"/-->
+      <!--
+	  The following <style> element pulls in an asset,
+	  i.e. what would be
+	  <link rel="shortcut icon" href="{$assets-path}common/images/favicon.ico"/>
+	  if we were not embedding it.
+      -->
       <xsl:variable name="favicon" as="xs:string">
         <xsl:sequence select="unparsed-text('../images/favicon.ico.base64')"/>
       </xsl:variable>        
       <link href="{concat('data:image/x-icon;base64,',$favicon)}" rel="icon" type="image/x-icon" />
       
-      <!-- old asset link, before embedding. -->
       <script defer="defer" type="text/javascript" src="{$assets-path}js/javascriptLibrary.js">
         <xsl:comment> serialize </xsl:comment>
       </script>
+
       <!-- 2024-07: Embedding the Javascript below into XHTML caused the JS to be serialized so
            browsers couldn't execute it (less-than symbols could not be parsed). -->
       <!--<script defer="defer" type="text/javascript">
@@ -97,7 +103,6 @@ s.parentNode.insertBefore(ga, s);
   gtag('config', 'G-F59WMFKXLW');
       </script>
       
-      <xsl:comment>WTF?</xsl:comment>
       <!-- 2024-06-27: Ash removed Polyfill.io CDN as it has been injecting malware. We were 
            using it to provide ECMAScript 6 (ES6) features to older browsers. -->
       
