@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://purl.oclc.org/dsdl/schematron"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  queryBinding="xslt2">
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	queryBinding="xslt2">
 
   <ns prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
   <ns prefix="dhq" uri="http://www.digitalhumanities.org/ns/dhq"/>
@@ -21,28 +21,44 @@
   <!-- Also check DHQ-TEI-diagnostic.sch for rules that should be
        in here -->
 
+  <!--
+      ABSTRACT RULE PROBLEM
+      We want to use extensions of the abstract rule "target-uri-
+      constraints" from two different patterns. Some older processors
+      (e.g., skeleton) would allow the abstract rule to be in one
+      pattern, and extended by rules in a different pattern. Modern
+      processors (e.g., SchXslt2) do not allow this, since the
+      standard does not allow it. In modern Schematron the right way
+      to do this is to put the abstract rule in an <sch:rules> element
+      here as a child of <sch:schema>. We are *not* doing that right
+      now, because oXygen does not yet know about the <rules> element
+      and complains. Thus when oXygen gets updated so that it knows
+      about the new <rules> element, we should move the "target-uri-
+      constraints" rule from the “constraints on ptr and ref” pattern
+      to a new <rules> element here, and simultaneously replace the
+      duplicated assertions in the rule for "tei:change/ tei:ref in
+      the "soft-modeling" pattern with an <sch:extends rule=
+      "target-uri-constraints"/>.   — Syd, 2025-08-01
+  -->
+
+
   <pattern id="top-level">
-<!-- Cannot put up with hrefs to http: in
-      <?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
-      <?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>
-      <?xml-model href="../../toc/toc-xml.sch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
-    
-    -->
-    <!--<?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
-    <?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>-->
+    <!-- Pointing to a schema on the internet means the file would not
+         be portable. Thus check that the references to schemas in the
+         <?oxygen?> or <?xml-model?> processing instructions (on their
+         RNGschema=, SCHschema, or href= pseudo attributes) do not
+         start with "http". -->
     <rule context="/processing-instruction()">
-      <report test="matches(.,'(RNGSchema|SCHSchema|href)=&quot;http')" role="warning">
+      <report test="matches(.,'(RNGSchema|SCHSchema|href)=\s*.http')" role="warning">
         Processing instruction points to the Internet - this file will not be portable.
-      </report>
-      
+      </report>      
     </rule>
   </pattern>
 
   <pattern id="id-check">
     <p>Element IDs must be unique</p>
-    <rule context="*[exists(@xml:id)]">
-      <assert test="empty(//*[@xml:id eq current()/@xml:id]
-        except .)">Element appears with a duplicate @xml:id</assert>
+    <rule context="*[ @xml:id ]">
+      <report test="//*[ @xml:id eq current()/@xml:id ] except .">Element appears with a duplicate @xml:id</report>
     </rule>
   </pattern>
   
@@ -140,15 +156,33 @@
       <report test="empty(tei:head)">A div has no head.</report>
     </rule>
         
-        <!-- Checks new  <change> template (implemented 2022-08)
-                to verify the article number was replaced in the gitHub url -->
-        <rule role="error" context="tei:change/tei:ref">
-                <extends rule="target-uri-constraints"/>
-                <report role="error" test="matches(@target,'NNNNNN')">
-                        Revision description appears suspect: does not contain proper article id.
-                </report>
-        </rule>
-        
+    <!-- Checks new  <change> template (implemented 2022-08)
+         to verify the article number was replaced in the gitHub url -->
+    <rule role="error" context="tei:change/tei:ref">
+      <!--
+	  ABSTRACT RULE PROBLEM
+	  The following set of <assert>ions are duplicated here becase
+	  we canot currently put them in an
+	  sch:schema/sch:rules/sch:rule[@abstract eq 'true'].
+	  As soon as oXygen knows how to handles a <rules> element, we
+	  can move the abstract rule and delete the following block.
+	  — Syd, 2025-08-01
+      -->
+      <!-- BEGIN set of <assert>ions that should be extension of "target-uri-constraints" -->
+      <assert test="normalize-space(@target)"><name/>/@target is empty</assert>
+      <assert test="@target castable as xs:anyURI"><name/>/@target is not a URI</assert>
+      <assert role="warning" test="matches(@target,'#|/')"><name/>/@target appears suspect: it has neither '#' nor '/'</assert>
+      <!-- END set of <assert>ions that should be extension of "target-uri-constraints" -->
+      <!--
+	  Above block should eventually read:
+	  <extends rule="target-uri-constraints"/>
+	  — Syd, 2025-08-01
+      -->
+      <report role="error" test="matches(@target,'NNNNNN')">
+        Revision description appears suspect: does not contain proper article id.
+      </report>
+    </rule>
+    
     <rule role="warning" context="tei:head">
       <assert test="empty(preceding-sibling::tei:head)">This is not the first head in this element; please check (is this a new div or caption)?</assert>
     </rule>
@@ -169,12 +203,19 @@
   <pattern>
     <title>constraints on ptr and ref</title>
 
+    <!--
+	ABSTRACT RULE PROBLEM
+	The following rule should be moved into a new <sch:rules> element
+	that is itself a child of <sch:schema> after oXygen learns to
+	treat that as a valid setup.
+	— Syd, 2025-08-01
+    -->
     <rule abstract="true" id="target-uri-constraints">
       <assert test="normalize-space(@target)"><name/>/@target is empty</assert>
       <assert test="@target castable as xs:anyURI"><name/>/@target is not a URI</assert>
       <assert role="warning" test="matches(@target,'#|/')"><name/>/@target appears suspect: it has neither '#' nor '/'</assert>
     </rule>
-        
+
     <!--checks to see when @target begins with a '#' AND does not point to an @xml:id-->
     <rule context="tei:ref[starts-with(normalize-space(@target),'#')]">
       <assert role="warning" test="substring(normalize-space(@target), 2) = //@xml:id">
