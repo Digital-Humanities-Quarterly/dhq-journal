@@ -1,23 +1,9 @@
 name: Deploy proofing site to dhq-proofing.digitalhumanities.org
 
 on:
-  # push:
-  #   branches: [ "main" ]
+  push:
+    branches: ["main"]
   workflow_dispatch:
-    inputs:
-      source_branch:
-        description: "Select the branch to deploy from"
-        required: true
-        default: "encoding_workflow"
-        type: choice
-        options:
-          - main
-          - encoding_workflow
-      full_site:
-        description: "Proof the full DHQ site?"
-        required: true
-        default: true
-        type: boolean
 
 jobs:
   deploy:
@@ -27,13 +13,13 @@ jobs:
       - name: 🛒 Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.source_branch }}
+          ref: encoding_workflow
 
       - name: 🐜 Install ant
         run: sudo apt-get update && sudo apt-get install -y ant ant-contrib
 
       - name: 🏗️ Build the site
-        run: ant -lib common/lib/saxon -Ddo.proofing.full=${{ inputs.full_site }} makeInternalPreview
+        run: ant -lib common/lib/saxon -Ddo.proofing.full=false makeInternalPreview
 
       - name: 🔐 Create Key File
         run: install -m 600 -D /dev/null ~/.ssh/id_ed25519 && echo "${{ secrets.DHQ_PROOFING_SSH_PRIVATEKEY }}" > ~/.ssh/id_ed25519
