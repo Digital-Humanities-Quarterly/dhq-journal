@@ -3,6 +3,7 @@
 <?xml-model href="https://www.tei-c.org/Vault/P5/4.4.0/xml/tei/custom/schema/relaxng/tei_customization.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0"
   xmlns:rng="http://relaxng.org/ns/structure/1.0"
+  xmlns:sch="http://purl.oclc.org/dsdl/schematron"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
   xml:lang="en">
@@ -25,15 +26,20 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2025-08-19" who="#sdb">
+        Per idea of <persName>Ash Clark</persName>’s, test that value
+        of <tag>idno type="DHQarticle-id"</tag> matches the filename
+        (without the ".xml" bit).
+      </change>
       <change when="2025-06-12" who="#sdb">
-	BUG FIX: added <gi>caption</gi> to wrong spot of content model yesterday
+        BUG FIX: added <gi>caption</gi> to wrong spot of content model yesterday
       </change>
       <change when="2025-06-11" who="#sdb">
         Per discussion with <persName ref="#jhf"/>, <persName>Ash
         Clark</persName>, and <persName>Isha Banerjee</persName>
         earlier today, restore optional <gi>dhq:caption</gi> as the
         last child of <gi>figure</gi>. Also update base schema from
-	TEI version 4.4.0 to the current 4.9.0.
+        TEI version 4.4.0 to the current 4.9.0.
       </change>
       <change when="2024-06-07" who="#sdb">
         Per new discussion on <ref
@@ -1160,6 +1166,16 @@ email (should only have an email address)
 
       <!-- add @type to <idno> -->
       <elementSpec ident="idno" mode="change" module="header">
+        <constraintSpec ident="article-id_matches_fn">
+          <constraint>
+            <sch:rule context="tei:idno[ @type eq 'DHQarticle-id']">
+              <sch:let name="basename" value="replace( base-uri(.), '^.*/([^/.]+)\.xml$','$1')"/>
+              <sch:assert test="$basename eq normalize-space(.)">
+                The content of the &lt;idno type="DHQarticle-id"> should be the same as the filename without the ".xml"; i.e. both should be the article number
+              </sch:assert>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
         <attList>
           <attDef ident="type" mode="add">
             <valList type="closed">
