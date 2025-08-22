@@ -12,7 +12,7 @@ namespace teix = "http://www.tei-c.org/ns/Examples"
 namespace xi = "http://www.w3.org/2001/XInclude"
 namespace xlink = "http://www.w3.org/1999/xlink"
 
-# Schema generated from ODD source 2025-08-22T16:10:49Z. . 
+# Schema generated from ODD source 2025-08-22T17:25:17Z. . 
 # TEI Edition: P5 Version 4.9.0. Last updated on 24th January 2025, revision f73186978 
 # TEI Edition Location: https://www.tei-c.org/Vault/P5/4.9.0/ 
 #  This schema supports basic journal features. 
@@ -2760,7 +2760,33 @@ dhq_publicationStmt =
 dhq_idno =
   ## (identifier) supplies any form of identifier used to identify some object, such as a bibliographic item, a person, a title, an organization, etc. in a standardized way. [14.3.1. Basic Principles 2.2.4. Publication, Distribution, Licensing, etc. 2.2.5. The Series Statement 3.12.2.4. Imprint, Size of a Document, and Reprint Information]
   element tei:idno {
-    (text | dhq_idno)*,
+    ((text | dhq_idno)*)
+    >> sch:pattern [
+         id = "dhq-idno-article-id_matches_fn-constraint-rule-14"
+         "\x{a}" ~
+         "            "
+         sch:rule [
+           context = "tei:idno[ @type eq 'DHQarticle-id']"
+           "\x{a}" ~
+           "               "
+           sch:let [
+             name = "basename"
+             value = "replace( base-uri(.), '^.*/([^/.]+)\.xml$','$1')"
+           ]
+           "\x{a}" ~
+           "               "
+           sch:report [
+             test = "$basename ne normalize-space(.)"
+             "\x{a}" ~
+             '                The <idno type="DHQarticle-id"> should match the filename (without ".xml"); i.e. both should be the article number\x{a}' ~
+             "              "
+           ]
+           "\x{a}" ~
+           "            "
+         ]
+         "\x{a}" ~
+         "         "
+       ],
     dhq_att.global.attributes,
     dhq_att.cmc.attributes,
     dhq_att.sortable.attributes,
@@ -3096,7 +3122,7 @@ dhq_div =
       (dhq_model.divBottom, dhq_model.global*)*)?)
     >> sch:pattern [
          id =
-           "dhq-div-abstractModel-structure-div-in-l-constraint-rule-14"
+           "dhq-div-abstractModel-structure-div-in-l-constraint-rule-15"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3117,7 +3143,7 @@ dhq_div =
        ]
     >> sch:pattern [
          id =
-           "dhq-div-abstractModel-structure-div-in-ab-or-p-constraint-rule-15"
+           "dhq-div-abstractModel-structure-div-in-ab-or-p-constraint-rule-16"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3357,7 +3383,7 @@ dhq_ab =
     dhq_macro.abContent
     >> sch:pattern [
          id =
-           "dhq-ab-abstractModel-structure-ab-in-l-constraint-rule-16"
+           "dhq-ab-abstractModel-structure-ab-in-l-constraint-rule-17"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3532,7 +3558,7 @@ dhq_family =
   element family {
     text
     >> sch:pattern [
-         id = "dhq-family-family_must_have_content-constraint-rule-17"
+         id = "dhq-family-family_must_have_content-constraint-rule-18"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3542,12 +3568,12 @@ dhq_family =
            sch:report [
              test = "normalize-space(.) eq ''"
              "A family\x{a}" ~
-             "		name must be supplied inside <dhq:family>; if this\x{a}" ~
-             "		<"
+             "                name must be supplied inside <dhq:family>; if this\x{a}" ~
+             "                <"
              sch:value-of [ select = "name(..)" ]
              "> does not need a\x{a}" ~
-             "		family name, delete the entire <dhq:family>\x{a}" ~
-             "		element."
+             "                family name, delete the entire <dhq:family>\x{a}" ~
+             "                element."
            ]
            "\x{a}" ~
            "            "
