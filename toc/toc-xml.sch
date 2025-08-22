@@ -34,7 +34,7 @@
         accurate URL for the article. -->
       <sch:report test="doc-available($expected-filepath) 
                     and not( doc($expected-filepath)//tei:idno[@type eq 'DHQarticle-id'][normalize-space(.) = $itemId] )"
-        >File at <sch:value-of select="$human-readable-filepath"/> doesn't know its own article ID</sch:report>
+        >The internal ID stored in file <sch:value-of select="$human-readable-filepath"/> does not match its filename</sch:report>
     </sch:rule>
     
   </sch:pattern>

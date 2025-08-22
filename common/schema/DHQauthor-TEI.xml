@@ -31,6 +31,30 @@
         of <tag>idno type="DHQarticle-id"</tag> matches the filename
         (without the ".xml" bit).
       </change>
+      <change when="2025-07-19" who="#sdb">
+        Remove a bunch of extraneous elements.
+      </change>
+      <change when="2025-07-18" who="#sdb">
+        <list>
+          <item>Remove extraneous <att>type</att> attributes I inadvertently added 2025-07-11.</item>
+          <item>Change previous <gi>change</gi> to a <gi>list</gi>.</item>
+        </list>
+      </change>
+      <change when="2025-07-11" who="#sdb">
+        These changes are part of addressing
+        <ref
+        target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/120">GitHub
+        issue #120</ref>:
+        <list>
+          <item>Ensure any given <gi>dhq:author_name</gi> or
+          <gi>dhq:translator_name</gi> has at most one
+          <gi>dhq:family</gi>, which itself must have some content
+          (other than whitespace).</item>
+          <item>Add a <att>type</att> (with a
+          possible value of <val>organization</val>) to
+          <gi>dhq:author_name</gi>.</item>
+        </list>
+      </change>
       <change when="2025-06-12" who="#sdb">
         BUG FIX: added <gi>caption</gi> to wrong spot of content model yesterday
       </change>
@@ -306,20 +330,27 @@ email (should only have an email address)
                   start="TEI" source="tei:4.9.0">
         <desc>This schema supports basic journal features.</desc>
 
+        <constraintDecl scheme="schematron">
+          <desc>Any declarations (like namespace declarations,
+          creation of XSL keys, global variable definitions) for our
+          ODD-generated Schematron should go here.</desc>
+          <sch:ns prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
+          <sch:ns prefix="dhq" uri="http://www.digitalhumanities.org/ns/dhq"/>
+        </constraintDecl>
 
         <!-- ======================================================================== -->
         <!-- Modules for DHQ: TEI modules, the DHQ module, and MathML (in that order) -->
 
         <moduleRef key="core"
-          except="abbr add addrLine analytic biblStruct binaryObject cb choice corr del distinct divGen expan gap gloss headItem headLabel imprint index measure measureGrp milestone monogr num orig pb postBox postCode reg relatedItem resp respStmt rs sic street teiCorpus time unclear"/>
+                   except="abbr add addrLine address analytic biblStruct binaryObject cb choice corr del distinct divGen ellipsis expan gap gb gloss headItem headLabel imprint index measure measureGrp meeting milestone monogr noteGrp num orig pb postBox postCode rb reg relatedItem resp respStmt rs rt ruby sic street teiCorpus textLang time unclear unit"/>
         <moduleRef key="tei"/>
         <moduleRef key="header"
-          except="abstract appInfo application authority biblFull catDesc catRef category classCode correction distributor edition editionStmt editorialDecl extent funder geoDecl handNote hyphenation interpretation namespace normalization notesStmt principal projectDesc quotation refState refsDecl rendition samplingDecl segmentation seriesStmt stdVals styleDefDecl tagUsage tagsDecl"/>
+                   except="abstract appInfo application authority biblFull calendar calendarDesc catDesc catRef category citeData citeStructure classCode conversion correction correspAction correspContext correspDesc creation distributor edition editionStmt editorialDecl extent funder geoDecl handNote hyphenation interpretation licence listPrefixDef namespace normalization notesStmt prefixDef principal projectDesc quotation refState refsDecl rendition samplingDecl schemaRef segmentation seriesStmt stdVals styleDefDecl tagUsage tagsDecl unitDecl unitDef"/>
         <moduleRef key="textstructure"
-          except="argument byline closer div1 div2 div3 div4 div5 div6 div7 docAuthor docDate docEdition docImprint docTitle imprimatur opener titlePage titlePart"/>
-        <moduleRef key="figures"/>
+                   except="argument byline closer dateline div1 div2 div3 div4 div5 div6 div7 docAuthor docDate docEdition docImprint docTitle imprimatur opener postscript salute signed titlePage titlePart trailer"/>
+        <moduleRef key="figures" except="notatedMusic"/>
         <moduleRef key="tagdocs" include="gi att val code eg"/>
-        <moduleRef key="linking" except="alt altGrp join joinGrp link linkGrp timeline when"/>
+        <moduleRef key="linking" except="alt altGrp annotation join joinGrp link linkGrp listAnnotation standOff timeline when"/>
         <moduleSpec mode="add" ident="dhq">
           <gloss>Digital Humanities Quarterly</gloss>
           <desc>Additional module for elements and other constructs
@@ -417,7 +448,6 @@ email (should only have an email address)
         <classSpec type="model" mode="delete" ident="model.sourceDescPart"/>
         <classSpec type="model" mode="delete" ident="model.editorialDeclPart"/>
 
-
         <!-- Remove attributes by removing them from classes to which
              they are assigned, or (in most cases) by removing the
              entire attribute class. Some of these may be restored by
@@ -469,7 +499,6 @@ email (should only have an email address)
         <classSpec type="atts" ident="att.placement" mode="delete"/>
         <classSpec type="atts" ident="att.pointing.group" mode="delete"/>
         <classSpec type="atts" ident="att.pointing" mode="delete"/>
-        <classSpec type="atts" ident="att.ptrLike.form" mode="delete"/>
         <classSpec type="atts" ident="att.rdgPart" mode="delete"/>
         <classSpec type="atts" ident="att.segLike" mode="delete"/>
         <classSpec type="atts" ident="att.spanning" mode="delete"/>
@@ -477,7 +506,11 @@ email (should only have an email address)
         <classSpec type="atts" ident="att.timed" mode="delete"/>
         <classSpec type="atts" ident="att.transcriptional" mode="delete"/>
         <classSpec type="atts" ident="att.translatable" mode="delete"/>
-        <classSpec type="atts" ident="att.typed" mode="delete"/>
+        <classSpec type="atts" ident="att.typed" mode="change">
+          <attList>
+            <attDef ident="subtype" mode="delete"></attDef>
+          </attList>
+        </classSpec>
         <classSpec type="atts" ident="att.xmlspace" mode="delete"/>
         <classSpec type="atts" ident="att.responsibility" mode="change">
           <attList>
@@ -485,6 +518,14 @@ email (should only have an email address)
           </attList>
         </classSpec>
 
+        <!-- Remove attributes by removing them from the elements to
+             which they belong. -->
+        <elementSpec ident="desc" module="core" mode="change">
+          <attList>
+            <attDef ident="type" mode="delete"/>
+          </attList>
+        </elementSpec>
+ 
 
         <!-- ================================================================================== -->
         <!-- Added elements for DHQ -->
@@ -633,9 +674,9 @@ email (should only have an email address)
             </valList>
           </content>
           <remarks>
-	    <p>This element does not have <att>xml:lang</att>
+            <p>This element does not have <att>xml:lang</att>
             because its contents are not in a natural language.</p>
-	  </remarks>
+          </remarks>
         </elementSpec>
 
         <!-- add dhq:abstract -->
@@ -677,13 +718,19 @@ email (should only have an email address)
         <!-- add dhq:author_name -->
         <elementSpec ident="author_name" module="dhq" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
           <desc>Contains the name of an author of the article.</desc>
+          <classes mode="replace">
+            <memberOf key="att.typed"/>
+          </classes>
           <content>
-            <alternate minOccurs="1" maxOccurs="unbounded">
+            <!-- Note: this content model cannot be converted to a DTD -->
+            <sequence minOccurs="1" maxOccurs="1">
               <textNode/>
-              <elementRef key="family"/>
-            </alternate>
+              <elementRef key="family" minOccurs="0" maxOccurs="1"/>
+              <textNode/>
+            </sequence>
           </content>
           <attList>
+            <attDef ident="type" mode="delete"/>
             <attDef ident="xml:id" mode="add">
               <datatype>
                 <dataRef name="ID"/>
@@ -694,6 +741,16 @@ email (should only have an email address)
                 <dataRef key="teidata.language"/>
               </datatype>
             </attDef>
+            <attDef ident="type" mode="change">
+              <valList type="closed">
+                <valItem ident="organization">
+                  <desc>An organziation (e.g., “The Alliance of
+                  Digital Humanities Organizations”, “Implementing New
+                  Knowledge Environment (INKE)”, “ETCL Research
+                  Group”, or “DHQ editorial team”).</desc>
+                </valItem>
+              </valList>
+            </attDef>
           </attList>
         </elementSpec>
 
@@ -701,10 +758,12 @@ email (should only have an email address)
         <elementSpec ident="translator_name" module="dhq" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
           <desc>Contains the name of a translator of the article.</desc>
           <content>
-            <alternate minOccurs="1" maxOccurs="unbounded">
+            <!-- Note: this content model cannot be converted to a DTD -->
+            <sequence minOccurs="1" maxOccurs="1">
               <textNode/>
-              <elementRef key="family"/>
-            </alternate>
+              <elementRef key="family" minOccurs="1" maxOccurs="1"/>
+              <textNode/>
+            </sequence>
           </content>
           <attList>
             <attDef ident="xml:lang">
@@ -721,6 +780,23 @@ email (should only have an email address)
           <content>
             <textNode/>
           </content>
+          <constraintSpec scheme="schematron" ident="family_must_have_content">
+            <!-- This constraint is redundant. The dhqTEI-ready.sch
+                 schema already has a rule that requires that each and
+                 every tei:teiHeader//* have content. But its message
+                 is pretty generic (“<value-of select=
+                 "name(..)"/>/<name/> has no text content”).
+                 —Syd, 2025-07-14 -->
+            <constraint>
+              <sch:rule context="dhq:family">
+                <sch:report test="normalize-space(.) eq ''">A family
+                name must be supplied inside &lt;dhq:family>; if this
+                &lt;<sch:value-of select="name(..)"/>> does not need a
+                family name, delete the entire &lt;dhq:family>
+                element.</sch:report>
+              </sch:rule>
+            </constraint>
+          </constraintSpec>
           <attList>
             <attDef ident="xml:lang">
               <datatype>
@@ -1086,7 +1162,7 @@ email (should only have an email address)
               <dataRef name="ID"/>
             </datatype>
           </attDef>
-          <attDef ident="type" mode="add">
+          <attDef ident="type" mode="change">
             <valList type="closed">
               <valItem ident="revisionLoc">
                 <desc>identifies a revision location in a revised article</desc>
@@ -1132,7 +1208,7 @@ email (should only have an email address)
       <!-- Add @type to <title> to distinguish between article and issue titles -->
       <elementSpec ident="title" mode="change" module="core">
         <attList>
-          <attDef ident="type" mode="add">
+          <attDef ident="type" mode="change">
             <desc>The <att>type</att> attribute is to be used in the header to designate and
             distinguish the article and issue titles.</desc>
             <datatype>
@@ -1179,7 +1255,7 @@ email (should only have an email address)
           </constraint>
         </constraintSpec>
         <attList>
-          <attDef ident="type" mode="add">
+          <attDef ident="type" mode="change">
             <valList type="closed">
               <valItem ident="DHQarticle-id"><desc>used for the DHQ article ID</desc></valItem>
               <valItem ident="volume"><desc>used for the volume number</desc></valItem>
@@ -1206,7 +1282,7 @@ email (should only have an email address)
         </attList>
       </elementSpec>
       
-      <!-- add dhq:License -->
+      <!-- add cc:License -->
       <elementSpec ident="License" module="dhq" mode="add" ns="http://web.resource.org/cc/">
         <content><empty/></content>
         <attList>
@@ -1433,7 +1509,7 @@ email (should only have an email address)
           <attDef ident="width" mode="delete"/>
           <attDef ident="height" mode="delete"/>
           <attDef ident="scale" mode="delete"/>
-          <attDef ident="type">
+          <attDef ident="type" mode="change">
             <desc>Classifies the type of graphic object.</desc>
             <datatype>
               <dataRef key="teidata.enumerated"/>
@@ -1531,10 +1607,7 @@ email (should only have an email address)
           <memberOf key="model.qLike" mode="add"/>
         </classes>
         <attList>
-          <attDef ident="type">
-            <datatype>
-              <dataRef key="teidata.enumerated"/>
-            </datatype>
+          <attDef ident="type" mode="change">
             <valList type="closed">
               <valItem ident="embed_map"/>
               <valItem ident="embed_audio"/>
@@ -1542,7 +1615,7 @@ email (should only have an email address)
               <valItem ident="embed_3d"/>
             </valList>
           </attDef>
-          <attDef ident="subtype">
+          <attDef ident="subtype" mode="replace">
             <datatype>
               <dataRef key="teidata.enumerated"/>
             </datatype>
@@ -1667,7 +1740,7 @@ email (should only have an email address)
               <dataRef key="teidata.pointer"/>
             </datatype>
           </attDef>
-          <attDef ident="type" mode="add">
+          <attDef ident="type" mode="change">
             <desc>Identifies whether the text is in the language of its original authorship, or is a full translation, or is a stub translation (i.e. abstract only)</desc>
             <datatype>
               <dataRef key="teidata.enumerated"/>
@@ -1692,7 +1765,7 @@ email (should only have an email address)
       <elementSpec ident="ab" module="linking" mode="change">
         <attList>
           <attDef ident="part" mode="delete"/>
-          <attDef ident="type" mode="add">
+          <attDef ident="type" mode="change">
             <datatype>
               <dataRef key="teidata.name"/>
             </datatype>
@@ -1702,7 +1775,7 @@ email (should only have an email address)
 
       <elementSpec ident="seg" module="linking" mode="change">
         <attList>
-          <attDef ident="type" mode="add">
+          <attDef ident="type" mode="change">
             <datatype>
               <dataRef key="teidata.name"/>
             </datatype>
@@ -1787,8 +1860,7 @@ email (should only have an email address)
               <dataRef name="ID"/>
             </datatype>
           </attDef>
-          <attDef ident="type">
-            <datatype><dataRef key="teidata.enumerated"></dataRef></datatype>
+          <attDef ident="type" mode="change">
             <valList type="closed">
               <valItem ident="appendix"/>
             </valList>
@@ -1922,11 +1994,8 @@ email (should only have an email address)
               <dataRef name="string" restriction=".*\S+.*"/>
             </datatype>
           </attDef>
-          <attDef ident="type" mode="add" usage="rec">
+          <attDef ident="type" mode="change" usage="rec">
             <desc>Provides a classification of the reference</desc>
-            <datatype>
-              <dataRef key="teidata.enumerated"/>
-            </datatype>
             <valList type="closed">
               <valItem ident="offline">
                 <desc>Indicates that the reference in question does not have a linked
@@ -1956,7 +2025,7 @@ email (should only have an email address)
               <dataRef name="string" restriction=".*\S+.*"/>
             </datatype>
           </attDef>
-          <attDef ident="type">
+          <attDef ident="type" mode="change">
             <desc>Permits specialized types of pointers to be identified (e.g. those pointing to
             video or audio files).</desc>
             <datatype>
