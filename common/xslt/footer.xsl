@@ -10,6 +10,27 @@
   <xsl:template name="footer">
     <xsl:param name="docurl"/>
     <xsl:param name="baseurl" select="'http://www.digitalhumanities.org/'||$context||'/'"/>
+    <!--
+        For the 2nd part of the URL, examine $docurl — If it ends with
+        6_digits-dot-h-t-m-l it is an article, and should have an
+        article level directory specified.
+    -->
+    <xsl:variable name="latterurl">
+      <xsl:choose>
+        <xsl:when test="matches( $docurl, '/[0-9]{6}\.html$')">
+          <!-- Since the article level directory has the same name as
+               the 6-digits portion of the article filename, just
+               parse it off and duplicate it. -->
+          <xsl:sequence select="replace( $docurl, '((/[0-9]{6})\.html)$', '$2$1')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="$docurl"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <!--
+	Generate copyright notice string
+    -->
     <xsl:variable name="isTEI" select="exists( /child::tei:* )" as="xs:boolean"/>
     <xsl:variable name="yearPublished" as="xs:string">
       <xsl:choose>
@@ -56,8 +77,9 @@
     </xsl:variable>
     <div id="footer"> 
       <div style="float:left; max-width:70%;" xsl:expand-text="yes">
-        URL: {$baseurl}{$docurl}
-        <br/>Comments:&#x20;
+        URL: {$baseurl}{$latterurl}
+        <br/>
+        Comments:&#x20;
         <a href="mailto:dhqinfo@digitalhumanities.org" class="footer">dhqinfo@digitalhumanities.org</a>
         <br/>Published by:&#x20;
         <a href="http://www.digitalhumanities.org" class="footer">The Alliance of Digital Humanities Organizations</a>
