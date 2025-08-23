@@ -1,7 +1,7 @@
 # dhq-journal 
 Digital Humanities Quarterly is an international, open-access, peer-reviewed journal of digital humanities. More information about the journal and its submission and publication policies can be found at the [DHQ website](http://www.digitalhumanities.org/dhq/about/about.html). 
 
-DHQ articles are encoded using a customization of the [TEI Guidelines](https://tei-c.org). We are always grateful to authors who encode their own articles. You can find a [schema](https://github.com/Digital-Humanities-Quarterly/dhq-journal/blob/master/common/schema/DHQauthor-TEI.rng) and [encoding templates](https://github.com/Digital-Humanities-Quarterly/dhq-journal/tree/master/articles/templates) in this repository.
+DHQ articles are encoded using a customization of the [TEI Guidelines](https://tei-c.org). We are always grateful to authors who encode their own articles. You can find a [schema](https://github.com/Digital-Humanities-Quarterly/dhq-journal/blob/master/common/schema/DHQauthor-TEI.rng) and [encoding templates](https://github.com/Digital-Humanities-Quarterly/dhq-journal/tree/main/articles/templates) in this repository.
 
 [Our wiki](https://github.com/Digital-Humanities-Quarterly/dhq-journal/wiki) is home to a variety of helpful resources for authors and editors looking to endocde article files. [Consult the wiki](https://github.com/Digital-Humanities-Quarterly/dhq-journal/wiki) for encoding resources, topic area keyword descriptions, and development or data management notes.
 
