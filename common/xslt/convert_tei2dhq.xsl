@@ -71,12 +71,13 @@
             <xsl:variable name="artId" as="xs:string">
               <xsl:variable name="proposedId" select="$zoteroIdToArticleId?($zoteroId)"/>
               <xsl:choose>
+                <!-- If there's proposed ID is represented more than once in the Zotero-to-DHQ mapping, 
+                  add a postfix with the index of this key in the $zoteroKeys sequence. -->
                 <xsl:when test="count($zoteroIdToArticleId?*[. eq $proposedId]) gt 1">
-                  <xsl:message select="$proposedId||' is a duplicate ID!'"/>
                   <xsl:sequence select="$proposedId||'-'||index-of($zoteroKeys, $zoteroId)"/>
                 </xsl:when>
+                <!-- Otherwise, it's already unique. Use the proposed ID as-is. -->
                 <xsl:otherwise>
-                  <xsl:message select="$proposedId||' is unique!'"/>
                   <xsl:sequence select="$proposedId"/>
                 </xsl:otherwise>
               </xsl:choose>
@@ -110,10 +111,11 @@
           <!-- Prepare DHQ-style citations. -->
           <xsl:variable name="zoteroCitationPtrs" as="map(*)">
             <xsl:map>
+              <!-- For each citation PI, create <ptr>s to each of the referenced bibliography entries. -->
               <xsl:for-each select="$zotero-citation-processing-instructions">
                 <xsl:map-entry key="?citationID">
                   <xsl:for-each select="?citationItems?*">
-                    <xsl:variable name="idref" select="dhq:get-bibliography-entry-id(?itemData)"/>
+                    <xsl:variable name="idref" select="dhq:get-bibliography-entry-id(?itemData?id cast as xs:string)"/>
                     <ptr target="#{$idref}">
                       <xsl:if test="map:contains(., 'locator')">
                         <xsl:attribute name="loc" select="?locator"/>
@@ -714,7 +716,8 @@
   <xsl:template name="make-biblStruct-from-zotero-data">
     <xsl:param name="zotero-item-map" as="map(*)"/>
     <xsl:param name="zotero-item-uri" as="xs:string"/>
-    <xsl:param name="citation-key" as="xs:string" select="dhq:get-bibliography-entry-id($zotero-item-map)"/>
+    <xsl:param name="citation-key" as="xs:string" 
+      select="dhq:get-bibliography-entry-id($zotero-item-map?id cast as xs:string)"/>
     <!-- Get this entry's Zotero item type (Zotero's label for what the work is, e.g. "Conference Paper"
       or "Book"). https://www.zotero.org/support/kb/item_types_and_fields -->
     <xsl:variable name="bibType" as="xs:string?">
@@ -1041,10 +1044,15 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:function name="dhq:get-bibliography-entry-id" as="xs:string">
-    <xsl:param name="zotero-item-map" as="map(*)"/>
-    <xsl:variable name="zoteroId" select="$zotero-item-map?id"/>
-    <xsl:sequence select="$bibliography-entries-from-citation-PIs?($zoteroId)?citationKey"/>
+  <!--
+      Given a bibliography entry's Zotero ID (a number cast as a string), get the unique ID that should 
+      be used in the DHQ article.
+    -->
+  <xsl:function name="dhq:get-bibliography-entry-id" as="xs:string?">
+    <xsl:param name="zotero-id" as="xs:string"/>
+    <xsl:if test="map:contains($bibliography-entries-from-citation-PIs, $zotero-id)">
+      <xsl:sequence select="$bibliography-entries-from-citation-PIs?($zotero-id)?citationKey"/>
+    </xsl:if>
   </xsl:function>
     
 </xsl:stylesheet>
