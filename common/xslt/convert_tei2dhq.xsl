@@ -29,61 +29,109 @@
     <!-- Whether to put the Zotero JSON bibliography entries in the article's <xenoData>. -->
     <xsl:param name="show-zotero-json" select="false()" as="xs:boolean"/>
     
+    <!-- Try to generate maps from the JSON contents of Zotero "CSL citation" processing instructions. -->
+    <xsl:variable name="zotero-citation-processing-instructions" as="item()*">
+      <xsl:for-each select="//processing-instruction('biblio')[contains(., 'ZOTERO_ITEM CSL_CITATION')]">
+        <xsl:sequence select="parse-json(substring-after(., 'CSL_CITATION'))"/>
+      </xsl:for-each>
+    </xsl:variable>
+    
+    <!-- Process data from the Zotero citation PIs in order to get one map per unique bibliography entry. -->
+    <xsl:variable name="bibliography-entries-from-citation-PIs" as="map(*)?">
+      <xsl:if test="exists($zotero-citation-processing-instructions)">
+        <!-- Group all citationItems by their Zotero ID, which allows us to get only one map per ID. -->
+        <xsl:variable name="uniqueCitedEntries" as="map(*)">
+          <xsl:map>
+            <xsl:for-each-group select="$zotero-citation-processing-instructions?citationItems?*" group-by="?id">
+              <xsl:variable name="entryMap" select="current-group()[1]"/>
+              <xsl:map-entry key="current-grouping-key()" select="$entryMap"/>
+            </xsl:for-each-group>
+          </xsl:map>
+        </xsl:variable>
+        <!-- Generate a mapping of the Zotero ID to a proposed, generated bibliography ID. At this point, 
+          the generated ID is not guaranteed to be unique — if the same author published two articles in 
+          one year, for instance, the generated ID would probably be the same. -->
+        <xsl:variable name="zoteroIdToArticleId" as="map(*)">
+          <xsl:map>
+            <xsl:for-each select="$uniqueCitedEntries?*">
+              <xsl:variable name="entryMap" select="."/>
+              <xsl:variable name="proposedArticleId" 
+                select="dhq:propose-bibliography-entry-id($entryMap?itemData)"/>
+              <xsl:map-entry key="$entryMap?id" select="$proposedArticleId"/>
+            </xsl:for-each>
+          </xsl:map>
+        </xsl:variable>
+        <!-- Compose a map with all unique Zotero bibliography entry maps, as well as newly generated 
+          data such as their unique generated IDs. -->
+        <xsl:map>
+          <xsl:variable name="zoteroKeys" select="map:keys($zoteroIdToArticleId)"/>
+          <xsl:for-each select="$zoteroKeys">
+            <xsl:variable name="zoteroId" select="."/>
+            <xsl:variable name="thisEntry" select="$uniqueCitedEntries?($zoteroId)"/>
+            <xsl:variable name="artId" as="xs:string">
+              <xsl:variable name="proposedId" select="$zoteroIdToArticleId?($zoteroId)"/>
+              <xsl:choose>
+                <xsl:when test="count($zoteroIdToArticleId?*[. eq $proposedId]) gt 1">
+                  <xsl:message select="$proposedId||' is a duplicate ID!'"/>
+                  <xsl:sequence select="$proposedId||'-'||index-of($zoteroKeys, $zoteroId)"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:message select="$proposedId||' is unique!'"/>
+                  <xsl:sequence select="$proposedId"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:variable>
+            <!-- We use the Zotero ID as the key, because it is guaranteed to be unique and individual 
+              citations can reference it to get at the unique generated ID. -->
+            <xsl:map-entry key="$zoteroId">
+              <!-- Compile data for the bibliography entry. -->
+              <xsl:call-template name="parse-bibliographic-json">
+                <xsl:with-param name="citation-map" select="$thisEntry"/>
+                <xsl:with-param name="unique-entry-id" select="$artId"/>
+              </xsl:call-template>
+            </xsl:map-entry>
+          </xsl:for-each>
+        </xsl:map>
+      </xsl:if>
+    </xsl:variable>
+    
     
     <!-- Before doing anything else, check for Zotero inline citations (processing instructions which contain 
       JSON). The bibliographic data is compiled here so that it can be used elsewhere in the document. -->
     <xsl:template match="/">
-      <xsl:variable name="zoteroCitationPIs" as="item()*">
-        <!-- Try to generate maps from the JSON contents of Zotero "CSL citation" processing instructions. -->
-        <xsl:for-each select="//processing-instruction('biblio')[contains(., 'ZOTERO_ITEM CSL_CITATION')]">
-          <xsl:sequence select="parse-json(substring-after(., 'CSL_CITATION'))"/>
-        </xsl:for-each>
-      </xsl:variable>
-      <!-- Prepare DHQ-style citations. -->
-      <xsl:variable name="zoteroCitationPtrs" as="map(*)?">
-        <xsl:if test="exists($zoteroCitationPIs)">
-          <xsl:map>
-            <xsl:for-each select="$zoteroCitationPIs">
-              <xsl:map-entry key="?citationID">
-                <xsl:for-each select="?citationItems?*">
-                  <xsl:variable name="idref" select="dhq:set-bibliography-entry-id(?itemData)"/>
-                  <ptr target="#{$idref}">
-                    <xsl:if test="map:contains(., 'locator')">
-                      <xsl:attribute name="loc" select="?locator"/>
-                    </xsl:if>
-                  </ptr>
-                </xsl:for-each>
-              </xsl:map-entry>
-            </xsl:for-each>
-          </xsl:map>
-        </xsl:if>
-      </xsl:variable>
-      <!-- Generate a series of map entries corresponding to each unique Zotero item (bibliography entry). -->
-      <xsl:variable name="zoteroBibEntries" as="map(*)?">
-        <xsl:if test="exists($zoteroCitationPIs)">
-          <xsl:map>
-            <!-- Each map corresponds to an inline citation (marking a reference in the article proper). The map does, 
-              however, fully replicate each referenced Zotero item. In order to process each unique item only once, we 
-              group the Zotero items by their ID. -->
-            <xsl:for-each-group select="$zoteroCitationPIs?citationItems?*" group-by="?id">
-              <xsl:variable name="entryId" select="dhq:set-bibliography-entry-id(?itemData)"/>
-              <xsl:map-entry key="$entryId">
-                <!-- Compile data for the bibliography entry. -->
-                <xsl:call-template name="parse-bibliographic-json">
-                  <!-- Process only the first Zotero item matching this ID. -->
-                  <xsl:with-param name="citation-map" select="head(current-group())"/>
-                </xsl:call-template>
-              </xsl:map-entry>
-            </xsl:for-each-group>
-          </xsl:map>
-        </xsl:if>
-      </xsl:variable>
-      <!-- Proceed to transform the DHQ article as expected, but tunnel the compiled Zotero data to the templates 
-        that need them. -->
-      <xsl:apply-templates>
-        <xsl:with-param name="inline-citations" select="$zoteroCitationPtrs" tunnel="yes"/>
-        <xsl:with-param name="compiled-bibliography" select="$zoteroBibEntries" tunnel="yes"/>
-      </xsl:apply-templates>
+      <xsl:choose>
+        <!-- If there are no Zotero processing instructions, apply templates to the DHQ article as usual. -->
+        <xsl:when test="empty($zotero-citation-processing-instructions)">
+          <xsl:apply-templates/>
+        </xsl:when>
+        <!-- If there are citation PIs, compile the JSON data they contain, then tunnel the maps to the 
+          templates that can make use of that data. -->
+        <xsl:otherwise>
+          <!-- Prepare DHQ-style citations. -->
+          <xsl:variable name="zoteroCitationPtrs" as="map(*)">
+            <xsl:map>
+              <xsl:for-each select="$zotero-citation-processing-instructions">
+                <xsl:map-entry key="?citationID">
+                  <xsl:for-each select="?citationItems?*">
+                    <xsl:variable name="idref" select="dhq:get-bibliography-entry-id(?itemData)"/>
+                    <ptr target="#{$idref}">
+                      <xsl:if test="map:contains(., 'locator')">
+                        <xsl:attribute name="loc" select="?locator"/>
+                      </xsl:if>
+                    </ptr>
+                  </xsl:for-each>
+                </xsl:map-entry>
+              </xsl:for-each>
+            </xsl:map>
+          </xsl:variable>
+          <!-- Proceed to transform the DHQ article as expected, but tunnel the compiled Zotero citation 
+            data to the templates that need them. The bibliography maps are stored in the global 
+            variable $bibliography-entries-from-citation-PIs. -->
+          <xsl:apply-templates>
+            <xsl:with-param name="inline-citations" select="$zoteroCitationPtrs" tunnel="yes"/>
+          </xsl:apply-templates>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:template>
     
     <!-- DHQ Template Setup -->
@@ -105,7 +153,6 @@
     </xsl:template>
     
     <xsl:template match="teiHeader">
-        <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
         <teiHeader>
             <fileDesc>
                 <titleStmt>
@@ -183,10 +230,10 @@
                 </textClass>
             </profileDesc>
            <!-- Create a copy of the Zotero bibliographic data in <xenoData>. (Useful for debugging.) -->
-           <xsl:if test="$show-zotero-json and exists($compiled-bibliography)">
+           <xsl:if test="$show-zotero-json and exists($bibliography-entries-from-citation-PIs)">
               <xenoData>
                 <xsl:text>[ </xsl:text>
-                <xsl:sequence select="string-join($compiled-bibliography?*?jsonStr, ',  
+                <xsl:sequence select="string-join($bibliography-entries-from-citation-PIs?*?jsonStr, ',  
 ')"/>
                 <xsl:text> ]</xsl:text>
               </xenoData>
@@ -201,7 +248,6 @@
     </xsl:template>
     
     <xsl:template match="text">
-        <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
         <xsl:copy>
             <xsl:attribute name="xml:lang">en</xsl:attribute>
             <xsl:attribute name="type">original</xsl:attribute>
@@ -222,7 +268,7 @@
                       <!-- If $save-zotero-biblStructs-elsewhere is toggled on, and there's a Zotero bibliography, 
                         process <p>-citations as <bibl>s and save the Zotero-derived <biblStruct>s to a separate 
                         document. -->
-                      <xsl:when test="$save-zotero-biblStructs-elsewhere and exists($compiled-bibliography)">
+                      <xsl:when test="$save-zotero-biblStructs-elsewhere and exists($bibliography-entries-from-citation-PIs)">
                         <xsl:apply-templates select="descendant::p[dhq:has-zotero-bibliography-pi(.)]" 
                           mode="biblio"/>
                         <xsl:if test="exists($save-zotero-biblStructs-to) and 
@@ -230,7 +276,7 @@
                           <xsl:result-document href="{$save-zotero-biblStructs-to}">
                             <xsl:document>
                               <listBibl>
-                                <xsl:sequence select="$compiled-bibliography?*?teiBibEntry"/>
+                                <xsl:sequence select="$bibliography-entries-from-citation-PIs?*?teiBibEntry"/>
                               </listBibl>
                             </xsl:document>
                           </xsl:result-document>
@@ -238,14 +284,14 @@
                       </xsl:when>
                       <!-- If the document contains Zotero citations, populate the DHQ bibliography with those 
                         entries. -->
-                      <xsl:when test="exists($compiled-bibliography)">
+                      <xsl:when test="exists($bibliography-entries-from-citation-PIs)">
                         <xsl:variable name="biblStructSeq" as="node()*">
                           <xsl:apply-templates select="descendant::p[dhq:has-zotero-bibliography-pi(.)]" 
                             mode="biblio"/>
                         </xsl:variable>
                         <xsl:variable name="unmatchedEntries" as="node()*" 
-                          select="$compiled-bibliography?*[not(?citationKey = $biblStructSeq/@xml:id/data(.))]
-                                                          ?teiBibEntry"/>
+                          select="$bibliography-entries-from-citation-PIs?*[not(?citationKey = $biblStructSeq/@xml:id/data(.))]
+                                                                         ?teiBibEntry"/>
                         <xsl:sequence select="$biblStructSeq"/>
                         <xsl:if test="exists($unmatchedEntries)">
                           <xsl:message>Unmatched bibliography entries</xsl:message>
@@ -475,10 +521,9 @@
       that this and all following <p>s are generated by Zotero. In order to process each <p> in order, 
       this template also processes the triggering <p>'s siblings. -->
     <xsl:template match="p[dhq:has-zotero-bibliography-pi(.)]" mode="biblio" priority="2">
-      <xsl:param name="compiled-bibliography" as="map(*)?" tunnel="yes"/>
       <!-- Iterate over this and all following paragraphs, treating them as bibliographic citations. -->
       <xsl:iterate select="(., following-sibling::p)">
-        <xsl:param name="try-entries" select="$compiled-bibliography" as="map(*)?"/>
+        <xsl:param name="try-entries" select="$bibliography-entries-from-citation-PIs" as="map(*)?"/>
         <!-- Turn this <p> into a <bibl>, which will give us a better foundation for finding matches. -->
         <xsl:variable name="thisBibl" as="node()">
           <bibl>
@@ -645,13 +690,11 @@
     -->
   <xsl:template name="parse-bibliographic-json" as="map(*)">
     <xsl:param name="citation-map" as="map(*)"/>
+    <xsl:param name="unique-entry-id" as="xs:string?"/>
     <xsl:variable name="bibData" select="$citation-map?itemData"/>
-    <!-- If the Zotero data includes a "citation key", use that as an identifier. Otherwise, fall back 
-      on Zotero's ID, which at least will be unique and consistent across appearances. -->
-    <xsl:variable name="citeKey" select="dhq:set-bibliography-entry-id($bibData)"/>
     <xsl:map>
       <xsl:map-entry key="'itemId'" select="$bibData?id"/>
-      <xsl:map-entry key="'citationKey'" select="$citeKey"/>
+      <xsl:map-entry key="'citationKey'" select="$unique-entry-id"/>
       <xsl:map-entry key="'jsonMap'" select="$bibData"/>
       <xsl:map-entry key="'jsonStr'" select="serialize($citation-map, map { 'method': 'json', 'indent': true() })"/>
       <!-- Generate a <biblStruct> that can be used in the bibliography instead of a <p> or plain <bibl>. -->
@@ -659,6 +702,7 @@
         <xsl:call-template name="make-biblStruct-from-zotero-data">
           <xsl:with-param name="zotero-item-map" select="$bibData"/>
           <xsl:with-param name="zotero-item-uri" select="$citation-map?uris?1"/>
+          <xsl:with-param name="citation-key" select="$unique-entry-id"/>
         </xsl:call-template>
       </xsl:map-entry>
     </xsl:map>
@@ -670,9 +714,7 @@
   <xsl:template name="make-biblStruct-from-zotero-data">
     <xsl:param name="zotero-item-map" as="map(*)"/>
     <xsl:param name="zotero-item-uri" as="xs:string"/>
-    <!-- If the Zotero data includes a "citation key", use that as an identifier. Otherwise, fall back 
-      on Zotero's ID, which at least will be unique and consistent across appearances. -->
-    <xsl:variable name="citeKey" select="dhq:set-bibliography-entry-id($zotero-item-map)"/>
+    <xsl:param name="citation-key" as="xs:string" select="dhq:get-bibliography-entry-id($zotero-item-map)"/>
     <!-- Get this entry's Zotero item type (Zotero's label for what the work is, e.g. "Conference Paper"
       or "Book"). https://www.zotero.org/support/kb/item_types_and_fields -->
     <xsl:variable name="bibType" as="xs:string?">
@@ -713,7 +755,7 @@
       </xsl:for-each>
     </xsl:variable>
     <!-- Set up the <biblStruct>. -->
-    <biblStruct xml:id="{$citeKey}" type="{$bibType}" corresp="{$zotero-item-uri}">
+    <biblStruct xml:id="{$citation-key}" type="{$bibType}" corresp="{$zotero-item-uri}">
       <!-- If this entry is part of a larger work, it is represented as an <analytic>. -->
       <xsl:if test="$hasContainer">
         <analytic>
@@ -971,7 +1013,7 @@
   <!--
       Given a map of bibliographic data, find or create an identifier for this entry.
     -->
-  <xsl:function name="dhq:set-bibliography-entry-id">
+  <xsl:function name="dhq:propose-bibliography-entry-id">
     <xsl:param name="zotero-item-map" as="map(*)"/>
     <xsl:choose>
       <!-- The standard DHQ bibliography entry ID is the first-listed author's surname, followed by the 
@@ -997,6 +1039,12 @@
         <xsl:value-of select="concat('zotero',$zotero-item-map?id)"/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:function>
+  
+  <xsl:function name="dhq:get-bibliography-entry-id" as="xs:string">
+    <xsl:param name="zotero-item-map" as="map(*)"/>
+    <xsl:variable name="zoteroId" select="$zotero-item-map?id"/>
+    <xsl:sequence select="$bibliography-entries-from-citation-PIs?($zoteroId)?citationKey"/>
   </xsl:function>
     
 </xsl:stylesheet>
