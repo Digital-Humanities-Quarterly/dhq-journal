@@ -84,7 +84,7 @@
             </xsl:variable>
             <!-- We use the Zotero ID as the key, because it is guaranteed to be unique and individual 
               citations can reference it to get at the unique generated ID. -->
-            <xsl:map-entry key="$zoteroId">
+            <xsl:map-entry key="xs:string($zoteroId)">
               <!-- Compile data for the bibliography entry. -->
               <xsl:call-template name="parse-bibliographic-json">
                 <xsl:with-param name="citation-map" select="$thisEntry"/>
@@ -115,7 +115,8 @@
               <xsl:for-each select="$zotero-citation-processing-instructions">
                 <xsl:map-entry key="?citationID">
                   <xsl:for-each select="?citationItems?*">
-                    <xsl:variable name="idref" select="dhq:get-bibliography-entry-id(?itemData?id cast as xs:string)"/>
+                    <xsl:variable name="zoteroID" select="?itemData?id cast as xs:string" as="xs:string"/>
+                    <xsl:variable name="idref" select="dhq:get-bibliography-entry-id($zoteroID)"/>
                     <ptr target="#{$idref}">
                       <xsl:if test="map:contains(., 'locator')">
                         <xsl:attribute name="loc" select="?locator"/>
