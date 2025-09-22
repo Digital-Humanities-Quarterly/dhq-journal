@@ -7,8 +7,6 @@
     xmlns:m="http://www.w3.org/1998/Math/MathML"
     exclude-result-prefixes="tei dhq xdoc" version="1.0">
     
-    <xsl:import href="comments.xsl"/>
-    <xsl:import href="commentscount.xsl"/>
     <xsl:import href="sidenavigation.xsl"/>
     <xsl:import href="topnavigation.xsl"/>
     <xsl:import href="footer.xsl"/>
