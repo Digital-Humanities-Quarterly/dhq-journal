@@ -301,12 +301,8 @@
   </xsl:template>
 
   <xsl:template match="@url">
-    <!-- Strip off whatever path component(s) the user supplied and
-         change it to what DHQ uses: “resources/images/”. Note that
-         this is done in a fast-and-lousy way, so the scheme, if any,
-         is also stripped off. (We don’t seem to ever have any with
-         schemes on the input, and never use one on output, so this
-         is probably not a problem.) -->
+    <!-- TEIGarage puts images in a './media/' directory, but we want
+         to use a './resources/images/' directory. -->
     <xsl:attribute name="url" select="replace( normalize-space(.), '^.*/', 'resources/images/')"/>
   </xsl:template>
   
