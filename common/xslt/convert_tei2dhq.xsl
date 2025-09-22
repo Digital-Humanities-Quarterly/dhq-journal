@@ -150,10 +150,10 @@
             xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
             xmlns:dhq="http://www.digitalhumanities.org/ns/dhq">
             
-            <xsl:apply-templates/>
-            
-        </TEI>
-    </xsl:template>
+      <xsl:apply-templates/>
+      
+    </TEI>
+  </xsl:template>
     
     <xsl:template match="teiHeader">
         <teiHeader>
@@ -339,72 +339,78 @@
      </figure>
    </xsl:template>
 
-   <xsl:template match="figure">
-     <xsl:copy>
-       <xsl:apply-templates select="head"/>
-       <!-- We always want a <head>, even if empty (in which case line
-            above did nothing)-->
-       <xsl:if test="not(head)"><head/></xsl:if>
-       <xsl:apply-templates select="graphic|table"/>
-     </xsl:copy>
-   </xsl:template>
+  <xsl:template match="figure">
+    <xsl:copy>
+      <xsl:apply-templates select="head"/>
+      <!-- We always want a <head>, even if empty (in which case line
+           above did nothing)-->
+      <xsl:if test="not(head)"><head/></xsl:if>
+      <xsl:apply-templates select="graphic|table"/>
+    </xsl:copy>
+  </xsl:template>
 
-        <xsl:template match="p[@rend eq 'dhq_figdesc']">
-                <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
-                <figDesc><xsl:comment>If this figDesc is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/><xsl:apply-templates/></figDesc>
-        </xsl:template>
+  <xsl:template match="@url">
+    <!-- TEIGarage puts images in a './media/' directory, but we want
+         to use a './resources/images/' directory. -->
+    <xsl:attribute name="url" select="replace( normalize-space(.), '^.*/', 'resources/images/')"/>
+  </xsl:template>
+  
+  <xsl:template match="p[@rend eq 'dhq_figdesc']">
+    <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+    <figDesc><xsl:comment>If this figDesc is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/><xsl:apply-templates/></figDesc>
+  </xsl:template>
+  
+  <xsl:template match="p[@rend eq 'dhq_caption']">
+    <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
+    <head><xsl:comment>If this head is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/></head>  
+  </xsl:template>
 
-        <xsl:template match="p[@rend eq 'dhq_caption']">
-                <!-- TTD: it would be ideal if we could move the head to be the first child of <figure> -->
-                <head><xsl:comment>If this head is invalid, move it into the nearest figure element</xsl:comment><xsl:apply-templates/></head>  
-        </xsl:template>
 
+  <xsl:template match="p[@rend eq 'dhq_table_label']">
+    <!-- TTD: it would be ideal if we could move the head to be the first child of <table> -->
+    <head><xsl:comment>If this head is invalid, move it into the nearest table element</xsl:comment><xsl:apply-templates/></head>   
+  </xsl:template>
 
-        <xsl:template match="p[@rend eq 'dhq_table_label']">
-        <!-- TTD: it would be ideal if we could move the head to be the first child of <table> -->
-                <head><xsl:comment>If this head is invalid, move it into the nearest table element</xsl:comment><xsl:apply-templates/></head>   
-        </xsl:template>
+  
+  <xsl:template match="note/p">
+    <xsl:apply-templates select="child::node()"/>
+  </xsl:template>
+  
+  <!-- may need to uncomment following template for files initially converted from .rtf -->
+  <!-- <xsl:template match="ref">
+       <xsl:apply-templates select="child::node()"/>
+       </xsl:template> -->
+  
+  <xsl:template match="ptr">
+    <xsl:element name="ref">
+      <xsl:apply-templates select="attribute::target | child::node()"/>
+    </xsl:element>
+  </xsl:template>
 
-    
-    <xsl:template match="note/p">
-            <xsl:apply-templates select="child::node()"/>
-    </xsl:template>
-    
-    <!-- may need to uncomment following template for files initially converted from .rtf -->
-    <!-- <xsl:template match="ref">
-            <xsl:apply-templates select="child::node()"/>
-    </xsl:template> -->
-    
-    <xsl:template match="ptr">
-        <xsl:element name="ref">
-            <xsl:apply-templates select="attribute::target | child::node()"/>
-        </xsl:element>
-    </xsl:template>
+  <!-- handling of phrase-level elements that are marked with DHQ Word styles -->
+  <xsl:template match="hi[@rend eq 'dhq_term']">
+    <term>
+      <xsl:apply-templates/>
+    </term>
+  </xsl:template>
+  
+  <xsl:template match="hi[@rend eq 'dhq_emphasis']">
+    <emph>
+      <xsl:apply-templates/>
+    </emph>
+  </xsl:template>
+  
+  <xsl:template match="hi[@rend eq 'dhq_italic_title']">
+    <title rend="italic">
+      <xsl:apply-templates/>
+    </title>
+  </xsl:template>
 
-    <!-- handling of phrase-level elements that are marked with DHQ Word styles -->
-    <xsl:template match="hi[@rend eq 'dhq_term']">
-        <term>
-                <xsl:apply-templates/>
-        </term>
-    </xsl:template>
-        
-    <xsl:template match="hi[@rend eq 'dhq_emphasis']">
-        <emph>
-                <xsl:apply-templates/>
-        </emph>
-    </xsl:template>
-        
-    <xsl:template match="hi[@rend eq 'dhq_italic_title']">
-        <title rend="italic">
-                <xsl:apply-templates/>
-        </title>
-    </xsl:template>
-
-    <xsl:template match="hi[@rend eq 'dhq_quote']">
-        <quote rend="inline">
-                <xsl:apply-templates/>
-        </quote>
-    </xsl:template>
+  <xsl:template match="hi[@rend eq 'dhq_quote']">
+    <quote rend="inline">
+      <xsl:apply-templates/>
+    </quote>
+  </xsl:template>
 
    <!-- <xsl:template match="hi[@rend eq 'dhq_citation']">
         <ptr>
