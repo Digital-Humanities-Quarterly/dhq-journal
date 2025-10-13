@@ -250,7 +250,7 @@
     <xsl:choose>
       <!-- If this is the current issue, run the transformation again for the DHQ home 
         page. The result will be identical to the issue index, but the URL at the 
-        bottom will be http://www.digitalhumanities.org/dhq/index.html -->
+        bottom will be https://dhq.digitalhumanities.org/index.html -->
       <xsl:when test="@current eq 'true'">
         <xsl:variable name="new-param-map" as="map(*)">
           <xsl:variable name="revisedParams" select="map {

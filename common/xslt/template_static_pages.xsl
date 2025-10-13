@@ -34,7 +34,7 @@
     <xsl:param name="path_to_home" select="'..'"/>
     
     <xsl:template match="/">
-        <xsl:param name="basicurl" select="'http://www.digitalhumanities.org/dhq/'"/>
+        <xsl:param name="basicurl" select="'https://dhq.digitalhumanities.org/'"/>
         <html>
             <xsl:call-template name="head">
                 <xsl:with-param name="title" select="xhtml:html/xhtml:head/xhtml:title"/>

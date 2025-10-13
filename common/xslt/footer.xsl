@@ -9,7 +9,21 @@
 
   <xsl:template name="footer">
     <xsl:param name="docurl"/>
-    <xsl:param name="baseurl" select="'http://www.digitalhumanities.org/'||$context||'/'"/>
+    <!--
+	For creating the base URL we want (per Simon Wiles’ comment of
+	2025-08-22 on GitHub issue discussing these URLs[1]) just
+	"https://dhq.digitalhumanities.org/". I have to admit that at
+	the moment I do not understand what $context is supposed to be
+	or how it gets to this template. But I have tested, and every
+	single time this routine is called when running `ant
+	generateSite` it is called with $context set to "dhq". Thus I
+	am setting the base URL without reference to this
+	parameter. If I understood what was going on better I might at
+	least remove the code that sends an unused parameter in, or
+	perhaps do something more intelligent with it. —Syd, 2025-10-12
+	[1] https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/118#issuecomment-3214973810
+    -->
+    <xsl:param name="baseurl" select="'https://dhq.digitalhumanities.org/'"/>
     <!--
         For the 2nd part of the URL, examine $docurl — If it ends with
         6_digits-dot-h-t-m-l it is an article, and should have an
@@ -82,7 +96,8 @@
         Comments:&#x20;
         <a href="mailto:dhqinfo@digitalhumanities.org" class="footer">dhqinfo@digitalhumanities.org</a>
         <br/>Published by:&#x20;
-        <a href="http://www.digitalhumanities.org" class="footer">The Alliance of Digital Humanities Organizations</a>
+	<!-- Why not just use https://adho.org/, which is where the following URL forwards, anyway? —Syd, 2025-10-12 -->
+        <a href="https://www.digitalhumanities.org" class="footer">The Alliance of Digital Humanities Organizations</a>
         &#x20;and&#x20;
         <a href="http://www.ach.org" class="footer">The Association for Computers and the Humanities</a>
         <br/>Affiliated with:&#x20;

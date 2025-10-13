@@ -21,7 +21,21 @@
     <xsl:param name="static_pdf_directory" select="'pdf'"/>
     <xsl:param name="context"/>
     <xsl:param name="docurl"/>
-    <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
+    <!--
+	For creating the base URL we want (per Simon Wiles’ comment of
+	2025-08-22 on GitHub issue discussing these URLs[1]) just
+	"https://dhq.digitalhumanities.org/". I have to admit that at
+	the moment I do not understand what $context is supposed to be
+	or how it gets to this routine. But I have tested, and every
+	single time this routine is called when running `ant
+	generateSite` it is called with $context set to "dhq". Thus I
+	am setting the base URL without reference to this
+	parameter. If I understood what was going on better I might at
+	least remove the code that sends an unused parameter in, or
+	perhaps do something more intelligent with it. —Syd, 2025-10-12
+	[1] https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/118#issuecomment-3214973810
+    -->
+    <xsl:param name="baseurl" select="'https://dhq.digitalhumanities.org/'"/>
     <xsl:param name="vol" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type eq 'volume']!normalize-space(.)"/>
     <xsl:param name="vol_no_zeroes" select="replace( $vol, '^0+', '')"/>
     <xsl:param name="issue" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type eq 'issue']!normalize-space(.)"/>
