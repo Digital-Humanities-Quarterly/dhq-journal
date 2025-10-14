@@ -130,7 +130,7 @@
           </p>
           <iframe style="margin-bottom:2em; width:100%;height:400px">
             <xsl:attribute name="src">
-              <xsl:value-of select="concat('http://voyant-tools.org/tool/Cirrus/?corpus=dhq.',$vol_no_zeroes,'.',$issue,'.',$id,'&amp;archive=http://www.digitalhumanities.org/dhq/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',$id,'.xml&amp;inputFormat=TEI&amp;stopList=stop.en.taporware.txt')"/>
+              <xsl:value-of select="concat('http://voyant-tools.org/tool/Cirrus/?corpus=dhq.',$vol_no_zeroes,'.',$issue,'.',$id,'&amp;archive=https://dhq.digitalhumanities.org/vol/',$vol_no_zeroes,'/',$issue,'/',$id,'/',$id,'.xml&amp;inputFormat=TEI&amp;stopList=stop.en.taporware.txt')"/>
             </xsl:attribute>
           </iframe>
          </xsl:when>
