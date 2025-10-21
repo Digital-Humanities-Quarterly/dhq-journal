@@ -4,7 +4,7 @@
     xmlns:tei="http://www.tei-c.org/ns/1.0"
     xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"  
     exclude-result-prefixes="tei dhq" version="1.0">
-    <xsl:output method="xml"/>
+    <xsl:output method="xml" indent="yes"/>
     <xsl:param name="staticPublishingPathPrefix">
         <xsl:value-of select="'../articles/'"/>
     </xsl:param>
@@ -23,7 +23,7 @@
 
     <!-- Parameters to store actual weblink of the atom feed -->
     <xsl:param name="pathfull">
-        <xsl:value-of select="'http://www.digitalhumanities.org/dhq/vol/'"/>
+        <xsl:value-of select="'https://dhq.digitalhumanities.org/vol/'"/>
     </xsl:param>
     <xsl:param name="pathfulllink">
         <xsl:value-of select="concat($pathfull,$vol,'/',$issue,'/')"/>
@@ -65,7 +65,7 @@
 
 
             <!-- add the actual link of this feed here -->
-            <link rel="self" href="http://www.digitalhumanities.org/dhq/feed/news.xml" type="application/atom+xml"/>
+            <link rel="self" href="https://dhq.digitalhumanities.org/feed/news.xml" type="application/atom+xml"/>
             <!-- added for small logo of rss appear in the browser link -->
             <!--<link rel="SHORTCUT icon" href="rss.ico"/>-->
 
@@ -92,7 +92,7 @@
                         Preview
                     </title>
                     <id>
-                        <xsl:value-of select="'http://www.digitalhumanities.org/dhq/preview/index.html'"/>
+                        <xsl:value-of select="'https://dhq.digitalhumanities.org/preview/index.html'"/>
                     </id>
                     <updated>
                         <!-- Use the timestamp created from table of contents-->
@@ -101,7 +101,7 @@
                     <summary>Digital Humanities Quarterly - Preview</summary>
                     <link rel="alternate">
                         <xsl:attribute name="href">
-                            <xsl:value-of select="'http://www.digitalhumanities.org/dhq/preview/index.html'"/>
+                            <xsl:value-of select="'https://dhq.digitalhumanities.org/preview/index.html'"/>
                         </xsl:attribute>
                     </link>
                 </entry>
@@ -123,11 +123,11 @@
                 <!--    author biography items -->
                 <entry>
                     <id>
-                        <xsl:value-of select="'http://www.digitalhumanities.org/dhq/preview/bios.html'"/>
+                        <xsl:value-of select="'https://dhq.digitalhumanities.org/preview/bios.html'"/>
                     </id>
                     <link rel="alternate">
                         <xsl:attribute name="href">
-                            <xsl:value-of select="'http://www.digitalhumanities.org/dhq/preview/bios.html'"/>
+                          <xsl:value-of select="'https://dhq.digitalhumanities.org/preview/bios.html'"/>
                         </xsl:attribute>
                     </link>
                     <title>
@@ -207,11 +207,11 @@
         </xsl:param>
         <xsl:variable name="apos">'</xsl:variable>
         <id>
-            <xsl:value-of select="concat($pathfulllink,$id,'.html')"/>
+            <xsl:value-of select="concat($pathfulllink,$id,'/',$id,'.html')"/>
         </id>
         <link rel="alternate">
             <xsl:attribute name="href">
-                <xsl:value-of select="concat($pathfulllink,$id,'.html')"/>
+                <xsl:value-of select="concat($pathfulllink,$id,'/',$id,'.html')"/>
             </xsl:attribute>
         </link>
 
@@ -256,11 +256,11 @@
         </xsl:param>
         <xsl:variable name="apos">'</xsl:variable>
         <id>
-            <xsl:value-of select="concat($pathfulllink_preview,$id,'.html')"/>
+            <xsl:value-of select="concat($pathfulllink_preview,$id,'/',$id,'.html')"/>
         </id>
         <link rel="alternate">
             <xsl:attribute name="href">
-                <xsl:value-of select="concat($pathfulllink_preview,$id,'.html')"/>
+                <xsl:value-of select="concat($pathfulllink_preview,$id,'/',$id,'.html')"/>
             </xsl:attribute>
         </link>
         

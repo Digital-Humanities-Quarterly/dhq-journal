@@ -26,6 +26,11 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2025-10-12" who="#sdb">
+	Per
+	https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/11,
+	add <gi>dhq:authorNote</gi>.
+      </change>
       <change when="2025-08-19" who="#sdb">
         Per idea of <persName>Ash Clark</persName>’s, test that value
         of <tag>idno type="DHQarticle-id"</tag> matches the filename
@@ -656,6 +661,32 @@ email (should only have an email address)
 
         <!-- metadata elements distinctive to DHQ header -->
 
+	<!-- add dhq:authorNote -->
+        <elementSpec ident="authorNote" module="dhq" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+	  <desc>Contains an annotation (typically requested by the
+	  author(s)) to further explain authorship, e.g. “Both authors
+	  contributed equally to this article”.</desc>
+	  <!-- So much for <said who="p:CMSMcQ">Who wrote <title>Yesterday</title>?</said> -->
+	  <classes>
+            <memberOf key="att.global"/>
+            <memberOf key="att.anchoring"/>
+            <memberOf key="att.cmc"/>
+            <memberOf key="att.typed"/>
+            <memberOf key="att.written"/>
+          </classes>
+          <content>
+            <macroRef key="macro.specialPara"/>
+          </content>
+          <attList>
+            <attDef ident="xml:id" mode="delete"/>
+            <attDef ident="type" mode="delete"/>
+            <attDef ident="resp" mode="delete"/>
+            <attDef ident="anchored" mode="delete"/>
+            <attDef ident="target" mode="delete"/>
+            <attDef ident="targetEnd" mode="delete"/>
+          </attList>
+	</elementSpec>
+	
         <!-- add dhq:articleType -->
         <elementSpec ident="articleType" module="dhq" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
           <desc>Designates the type of article</desc>
@@ -850,6 +881,7 @@ email (should only have an email address)
               <elementRef key="affiliation" minOccurs="0"/>
               <elementRef key="email" minOccurs="0"/>
               <elementRef key="bio" minOccurs="0"/>
+	      <elementRef key="authorInfo" minOccurs="0"/>
             </sequence>
           </content>
           <attList>
@@ -974,10 +1006,21 @@ email (should only have an email address)
         </elementSpec>
 
 
-
         <!-- ==================================== -->
         <!-- elements with changed content models -->
 
+	<!-- Modify <titleStmt> to allow <dhq:authorNote> as possible
+	     last child -->
+        <elementSpec module="header" ident="titleStmt" mode="change">
+          <content>
+            <sequence>
+              <elementRef key="title" minOccurs="1" maxOccurs="unbounded"/>
+              <classRef key="model.respLike" minOccurs="0" maxOccurs="unbounded"/>
+	      <elementRef key="authorNote" minOccurs="0"/>
+            </sequence>
+          </content>
+	</elementSpec>
+	
         <!-- modify <media> to include @poster and to use closed list
              for @type; modify @height and @width to eliminate
              specification of units. DHQ will always use pixels -->
