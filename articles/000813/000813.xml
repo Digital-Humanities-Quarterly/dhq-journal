@@ -8,18 +8,17 @@
         <fileDesc>
             <titleStmt>
                 <!-- Author should supply the title and personal information-->
-                <title type="article" xml:lang="en"><!-- article title in English --></title>
+                <title type="article" xml:lang="en">Assemblies of Points: Strategies to
+                    Art-historical Human Pose Estimation and Retrieval</title>
                 <!-- Add a <title> with appropriate @xml:lang for articles in languages other than English -->
                 <dhq:authorInfo>
                     <!-- Include a separate <dhq:authorInfo> element for each author -->
-                    <dhq:author_name>first name(s) <dhq:family>family
-                        name</dhq:family></dhq:author_name>
-                    <idno type="ORCID"
-                        ><!-- if the author has an ORCID ID, include the full URI, e.g. https://orcid.org/0000-0000-0000-0000 --></idno>
-                    <dhq:affiliation/>
-                    <email/>
+                    <dhq:author_name>Stefanie <dhq:family>Schneider</dhq:family></dhq:author_name>
+
+                    <dhq:affiliation>PLACEHOLDER</dhq:affiliation>
+                    <email>stefanie.schneider@itg.uni-muenchen.de</email>
                     <dhq:bio>
-                        <p/>
+                        <p>PLACEHOLDER</p>
                     </dhq:bio>
                 </dhq:authorInfo>
             </titleStmt>
@@ -32,10 +31,9 @@
 
 
                 <!-- This information will be completed at publication -->
-                <idno type="volume"
-                    ><!-- volume number, with leading zeroes as needed to make 3 digits: e.g. 006 --></idno>
-                <idno type="issue"><!-- issue number, without leading zeroes: e.g. 2 --></idno>
-                <date><!-- include @when with ISO date and also content in the form 23 February 2024 --></date>
+                <idno type="volume">019</idno>
+                <idno type="issue">4</idno>
+                <date when="2025-12-01">1 December 2025</date>
                 <dhq:articleType>article</dhq:articleType>
                 <availability status="CC-BY-ND">
                     <!-- If using a different license from the default, choose one of the following:
@@ -78,12 +76,16 @@
                     <!-- Authors may suggest one or more keywords from the DHQ keyword list, visible at https://github.com/Digital-Humanities-Quarterly/dhq-journal/wiki/DHQ-Topic-Keywords; these may be supplemented or modified by DHQ editors -->
 
                     <!-- Enter keywords below preceeded by a "#". Create a new <term> element for each -->
-                    <term corresp=""/>
+                    <term corresp="#visual_art"/>
+                    <term corresp="#data_visualization"/>
+                    <term corresp="#corpora"/>
                 </keywords>
                 <keywords scheme="#authorial_keywords">
                     <!-- Authors may include one or more keywords of their choice -->
                     <list type="simple">
-                        <item/>
+                        <item>digital art history</item>
+                        <item>object retrieval</item>
+                        <item>recommendation systems</item>
                     </list>
                 </keywords>
                 <keywords scheme="#project_keywords">
@@ -105,120 +107,132 @@
         <front>
             <dhq:abstract>
                 <!-- Include a brief abstract of the article -->
-                <p/>
+                <p>This paper attempts to construct a virtual space of possibilities for the
+                    historical embedding of the human figure, and its posture, in the visual arts by
+                    proposing a view-invariant approach to Human Pose Retrieval (HPR) that resolves
+                    the ambiguity of projecting three-dimensional postures onto their
+                    two-dimensional counterparts. In addition, we present a refined approach for
+                    classifying human postures using a support set of 110 art-historical reference
+                    postures. The method’s effectiveness on art-historical images was validated
+                    through a two-stage approach of broad-scale filtering preceded by a detailed
+                    examination of individual postures: an aggregate-level analysis of
+                    metadata-induced hotspots, and an individual-level analysis of topic-centered
+                    query postures. As a case study, we examined depictions of the crucified, which
+                    often adhere to a canonical form with little variation over time — making it an
+                    ideal subject for testing the validity of Deep Learning (DL)-based methods.</p>
             </dhq:abstract>
             <dhq:teaser>
                 <!-- Include a brief teaser, no more than a phrase or a single sentence -->
-                <p/>
+                <p>PLACEHOLDER</p>
             </dhq:teaser>
         </front>
         <body>
             <div>
                 <head> Introduction</head>
                 <p>As early as 1884, the French physiologist Étienne-Jules Marey (1830–1904)
-                    invented <hi rend="italic">chronophotography</hi> to derive human motion only
-                    from points and lines. He dressed his subjects in dark suits, with metal buttons
-                    at the joints connected by metal stripes and photographed them with a camera
-                    that captured multiple exposures on a single, immobile plate. In so doing, he
+                    invented <term>chronophotography</term> to derive human motion only from points
+                    and lines. He dressed his subjects in dark suits, with metal buttons at the
+                    joints connected by metal stripes and photographed them with a camera that
+                    captured multiple exposures on a single, immobile plate. In so doing, he
                     introduced the human skeleton as an objectified distillation of “pure movement”
-                    (McCarren, 2003, p. 29), emphasizing only trajectory snapshots of points and
+                    <ptr target="#mccarren_2003" loc="p.29"/>, emphasizing only trajectory snapshots of points and
                     lines, eliminating inherently human features, such as skin and muscle; it is
-                    “visually unmoored from bodies and space,” as Noam M. Elcott (Elcott, 2016, p.
-                    24) put it. By abstracting the human form, as Marey demonstrated, we are
+                    “visually unmoored from bodies and space,” as Noam M. Elcott <ptr target="#elcott_2016" loc="p. 24"/> put it. By abstracting the human form, as Marey demonstrated, we are
                     prompted to inquire about the intrinsic qualities that remain when the body is
                     stripped of its psychological and most physical identifiers. This theme of
                     abstraction has been a recurring element in art history, a discipline inherently
                     linked to the visual, where the human form not only is a subject of
-                    representation but a <emph>carrier of meaning </emph>— along with the body
-                    movements and postures that emanate from it (Egidi et al., 2000). However, art
-                    history has emphasized gesture, which pertains to localized movements of body
-                    parts — especially the head and hands — rather than posture, which, as in
-                    Marey’s chronophotography, describes the entire body’s stance, extending beyond
-                    the upper extremities to also include the lower body (see e.g., (Gombrich, 1966)
-                    (Baxandall, 1972)). Acknowledging this historical perspective on abstraction
-                    informs our methodology in this paper, which employs state-of-the-art <hi
-                        rend="italic">Human Pose Estimation</hi> (HPE) and <hi rend="italic">Human
-                        Pose Retrieval</hi> (HPR) techniques to capture — and analyze — posture in
-                    its full complexity.<note> The attempt to forge a unified terminology for
+                    representation but a <term>carrier of meaning </term>— along with the body
+                    movements and postures that emanate from it <ptr target="#egidi_2000"/>.
+                    However, art history has emphasized gesture, which pertains to localized
+                    movements of body parts — especially the head and hands — rather than posture,
+                    which, as in Marey’s chronophotography, describes the entire body’s stance,
+                    extending beyond the upper extremities to also include the lower body (see e.g.,
+                        <ptr target="#gombrich_1966"/>
+                    <ptr target="#baxandall_1972"/>). Acknowledging this historical perspective on
+                    abstraction informs our methodology in this paper, which employs
+                    state-of-the-art <term>Human Pose Estimation</term> (HPE) and <term>Human Pose
+                        Retrieval</term> (HPR) techniques to capture — and analyze — posture in its
+                    full complexity.<note> The attempt to forge a unified terminology for
                         body-related behavior has, at least in the visual arts, only been partially
-                        realized. In this paper, we primarily employ the term <hi rend="italic"
-                            >posture</hi>. The term <hi rend="italic">pose</hi> is only employed
-                        when a semantic figure is discernible, or in conjunction with the
-                        application of computational methods in HPE and HPR, where the term is
-                        essential for the terminology of the method.</note> By leveraging
-                    computational methods that echo Marey’s trajectory snapshots, we intend to
-                    better understand both the universal and culturally specific aspects of the
-                    human form.</p>
+                        realized. In this paper, we primarily employ the term <term>posture</term>.
+                        The term <term>pose</term> is only employed when a semantic figure is
+                        discernible, or in conjunction with the application of computational methods
+                        in HPE and HPR, where the term is essential for the terminology of the
+                        method.</note> By leveraging computational methods that echo Marey’s
+                    trajectory snapshots, we intend to better understand both the universal and
+                    culturally specific aspects of the human form.</p>
                 <p>Specifically, this paper harnesses the ‘artificial eye’ of computational
-                    methodologies to construct a <emph>virtual space of possibilities </emph>— of
+                    methodologies to construct a <term>virtual space of possibilities </term>— of
                     associations, references, and similarities — for the historical embedding of the
                     human figure, and its posture, in the visual arts. By explicitly applying
                     state-of-the-art HPE and HPR methods, we bridge the gap between traditional
                     historical analysis and modern computational approaches. In this context, we
-                    argue for the integration of both <emph>close</emph> and <emph>distant
-                        viewing</emph>, where the global analysis of <emph>distant viewing</emph>
-                    logically precedes and enhances the localized, detailed analysis of <emph>close
-                        viewing </emph>— i.e., the qualitative analysis of individual artworks
-                    within their spatio-temporal contexts.<note> See (Arnold and Tilton, 2019) for a
-                        discussion on the tension between <emph>close</emph> and <emph>distant
-                            viewing</emph>.</note> From a computational point of view, the approach
-                    first <emph>estimates</emph> joint positions of human figures,
-                        <emph>keypoints</emph> (Figure 1), that resemble Marey’s metal buttons, to
-                    create a vector representation, <hi rend="italic">embedding</hi>, of the human
-                    skeleton, which is then utilized to <emph>retrieve</emph> figures of potential
-                    relevance — with two postures considered similar if they represent variations of
-                    the same action or movement. To this end, we utilize a view-invariant embedding,
+                    argue for the integration of both <term>close</term> and <term>distant
+                        viewing</term>, where the global analysis of <term>distant viewing</term>
+                    logically precedes and enhances the localized, detailed analysis of <term>close
+                        viewing</term> — i.e., the qualitative analysis of individual artworks
+                    within their spatio-temporal contexts.<note> See <ptr target="#arnold_2019"/>
+                        for a discussion on the tension between <term>close</term> and <term>distant
+                            viewing</term>.</note> From a computational point of view, the approach
+                    first <term>estimates</term> joint positions of human figures,
+                        <term>keypoints</term> (Figure 1), that resemble Marey’s metal buttons, to
+                    create a vector representation, <term>embedding</term>, of the human skeleton,
+                    which is then utilized to <term>retrieve</term> figures of potential relevance —
+                    with two postures considered similar if they represent variations of the same
+                    action or movement. To this end, we utilize a view-invariant embedding,
                     following the methodology proposed by T. Liu et al. (2022), that projects
                     three-dimensional postures onto their two-dimensional counterparts, recognizing
                     that postures can be visually identical but mathematically distinct, depending
-                    on the observer’s perspective (Liu et al., 2022).</p>
+                    on the observer’s perspective <ptr target="#liu_2022"/>.</p>
                 <figure>
-                    <head/>
-                    <graphic url="resources/images/image1.png"/>
+                    <head>In Andrea del Sarto’s Pietà with Saints (1523–1524), the joints of human
+                        figures are indicated by green keypoints in the detail view.</head>
+                    <graphic url="resources/images/figure01.png"/>
                 </figure>
-                <p>Figure 1: In Andrea del Sarto’s Pietà with Saints (1523–1524), the joints of
-                    human figures are indicated by green keypoints in the detail view.</p>
-                <p>Although embeddings derived from neural networks — or more generally: <hi
-                        rend="italic">Deep Learning</hi> (DL) methods — have proven beneficial for
-                    various art-historical retrieval tasks (e.g., (Ufer et al., 2021) (Karjus et
-                    al., 2023) (Offert and Bell, 2023)) by capturing semantically pertinent
-                    information within dense vector spaces, their practical inspection remains
-                    underexplored in scholarly discourse. While previous research has provided the
-                    groundwork for DL-based retrieval, our study narrows the focus by specifically
-                    investigating HPR applications. This leads us to our main research question:</p>
+
+                <p>Although embeddings derived from neural networks — or more generally: <term>Deep
+                        Learning</term> (DL) methods — have proven beneficial for various
+                    art-historical retrieval tasks (e.g., <ptr target="#ufer_2021"/>
+                    <ptr target="#karjus_2023"/>
+                    <ptr target="#offert_2023"/>) by capturing semantically pertinent information
+                    within dense vector spaces, their practical inspection remains underexplored in
+                    scholarly discourse. While previous research has provided the groundwork for
+                    DL-based retrieval, our study narrows the focus by specifically investigating
+                    HPR applications. This leads us to our main research question:</p>
                 <p>“How can the perceptual space of embeddings, obtained by DL models, be explored
                     and interpreted? What spatial patterns emerge within these spaces, and to what
                     extent can they encode posture?”</p>
                 <p>Put simply, we determine how DL techniques can be leveraged to systematically
                     explore the representation of posture. We outline that, in their current state,
-                    such methods can serve as <hi rend="italic">recommender systems</hi> in
-                    art-historical posture analysis, but also in related fields — such as theatre
-                    and dance studies — that critically examine human posture and movement. To this
-                    end, we introduce a two-stage approach of broad-scale filtering preceded by a
-                    detailed examination of individual postures: an aggregate-level analysis of
-                    metadata-induced hotspots, and an individual-level analysis of topic-centered
-                    query postures. Both pipelines are intended, at least in this paper, to reaffirm
-                    the embedding space’s usefulness in art-historical research, rather than to
-                    discover novel art-historical knowledge. Our study, therefore, is designed to
-                    synthesize DL methods into a unified workflow, easily adaptable to other
-                    disciplines, enabling scholars to potentially trace the evolution of posture in
-                    art-historical objects, allowing a thorough exploration of their “underlying
-                    psychic structures” (Butterfield-Rosen, 2021, p. 21). As a concrete example, our
-                    case study focuses on depictions of the crucified. These depictions, while
-                    globally diverse, often adhere to a <hi rend="italic">canonical</hi> form that
-                    exhibits little variation over time — characterized by specific positions of
-                    Christ’s head and the arch of his torso — making them an ideal subject for
-                    testing the validity and transferability of DL-based posture analysis that is
-                    accessible even to non-experts in the field.</p>
-                <p>Methodologically, the paper thus contributes to the field of <emph>Digital Art
-                        History</emph> (DAH), which has grown considerably since Johanna Drucker in
+                    such methods can serve as <term>recommender systems</term> in art-historical
+                    posture analysis, but also in related fields — such as theatre and dance studies
+                    — that critically examine human posture and movement. To this end, we introduce
+                    a two-stage approach of broad-scale filtering preceded by a detailed examination
+                    of individual postures: an aggregate-level analysis of metadata-induced
+                    hotspots, and an individual-level analysis of topic-centered query postures.
+                    Both pipelines are intended, at least in this paper, to reaffirm the embedding
+                    space’s usefulness in art-historical research, rather than to discover novel
+                    art-historical knowledge. Our study, therefore, is designed to synthesize DL
+                    methods into a unified workflow, easily adaptable to other disciplines, enabling
+                    scholars to potentially trace the evolution of posture in art-historical
+                    objects, allowing a thorough exploration of their “underlying psychic
+                    structures” <ptr target="#butterfield-rosen_2021" loc="p. 21"/> (Butterfield-Rosen, 2021, p. 21). As a concrete example, our case
+                    study focuses on depictions of the crucified. These depictions, while globally
+                    diverse, often adhere to a <q>canonical</q> form that exhibits little variation
+                    over time — characterized by specific positions of Christ’s head and the arch of
+                    his torso — making them an ideal subject for testing the validity and
+                    transferability of DL-based posture analysis that is accessible even to
+                    non-experts in the field.</p>
+                <p>Methodologically, the paper thus contributes to the field of <term>Digital Art
+                        History</term> (DAH), which has grown considerably since Johanna Drucker in
                     2013 criticized the delayed advent of computational methods for art-historical
                     inquiry, despite the increasing availability of suitable data in online
-                    repositories (Drucker, 2013). Section 2 first discusses related work. In
-                    Section 3, we introduce our proposed methodology that processes images of human
-                    figures into a machine-readable format. This involves first abstracting the
-                    figures’ postures into skeletal representations and then converting these into
-                    robust, view-invariant posture embeddings suitable for retrieval and
+                    repositories <ptr target="#drucker_2013"/>. Section 2 first discusses related
+                    work. In Section 3, we introduce our proposed methodology that processes images
+                    of human figures into a machine-readable format. This involves first abstracting
+                    the figures’ postures into skeletal representations and then converting these
+                    into robust, view-invariant posture embeddings suitable for retrieval and
                     classification tasks. Section 4 elaborates on the data set used for interaction
                     with and exploration of the embedding space during the case study’s inference
                     phase. The case study itself is detailed in Section 5 and extensively discussed
@@ -229,53 +243,49 @@
                 <head>Related Work</head>
                 <p>Art-historical research has emphasized the analysis of gesture, a semantically
                     charged sub-category of bodily movement, over posture — influenced by the
-                    Renaissance’s re-invigoration of scholarly rhetoric (Zimmermann, 2011, p. 179).
+                    Renaissance’s re-invigoration of scholarly rhetoric <ptr target="#zimmermann_2011" loc="p. 179"/>.
                     For instance, Ernst Gombrich in 1966 suggested that gestures in the visual arts
                     originate from natural human expressions that have been ritualized, thus
-                    acquiring unique forms and meanings (Gombrich, 1966). In particular, Warburg’s
-                    concept of <hi rend="italic">Pathosformeln</hi> contributed significantly to the
-                    discourse: by identifying formally stable gestures from antiquity that were in
-                    the Renaissance repeatedly employed to express primal emotions (Warburg, 1998).
-                    Nevertheless, Emmelyn Butterfield-Rosen advocates for posture as a “more useful
-                    category” for exploring “permanent, underlying psychic structures”
-                    (Butterfield-Rosen, 2021, p. 21). Already in the early 20th century, the Finnish
-                    art historian Johan Jakob Tikkanen proposed a typology of leg postures as
-                    “cultural motifs” in the visual arts (Tikkanen, 1912); these motifs, according
-                    to Tikkanen, have evolving functions that may be traced through European art
-                    from antiquity to modernity. Despite, or perhaps because of, Tikkanen’s own
-                    admission of the typology’s limitations and his insistence on a
-                    multidisciplinary approach to better understand the evolution of motifs, his
-                    work has remained largely unrecognized in academic discourse, often relegated to
-                    the footnotes (see, e.g., (Steinberg, 2018, p. 200) (Butterfield-Rosen, 2021, p.
-                    279)).</p>
+                    acquiring unique forms and meanings <ptr target="#gombrich_1966"/>. In
+                    particular, Warburg’s concept of <foreign xml:lang="de">Pathosformeln</foreign>
+                    contributed significantly to the discourse: by identifying formally stable
+                    gestures from antiquity that were in the Renaissance repeatedly employed to
+                    express primal emotions <ptr target="#warburg_1998"/>. Nevertheless, Emmelyn
+                    Butterfield-Rosen advocates for posture as a “more useful category” for
+                    exploring “permanent, underlying psychic structures” <ptr target="#butterfield-rosen_2021" loc="p. 21"/>. Already in the early 20th century, the Finnish art historian Johan Jakob
+                    Tikkanen proposed a typology of leg postures as “cultural motifs” in the visual
+                    arts <ptr target="#tikkanen_1912"/>; these motifs, according to Tikkanen, have
+                    evolving functions that may be traced through European art from antiquity to
+                    modernity. Despite, or perhaps because of, Tikkanen’s own admission of the
+                    typology’s limitations and his insistence on a multidisciplinary approach to
+                    better understand the evolution of motifs, his work has remained largely
+                    unrecognized in academic discourse, often relegated to the footnotes (see, e.g.,
+                    <ptr target="#steinberg_2018" loc="p. 200"/> <ptr target="#butterfield-rosen_2021" loc="p. 279"/>).</p>
                 <p>In response, recent efforts have employed digital methods to the large-scale
                     investigation of art-historical posture. Yet, the adoption of HPE methods
                     remains limited: on the one hand, due to significant variations in human
                     morphology between artistic depictions and real-world photography, and, on the
                     other hand, due to the absence of domain-specific, annotated data required to
-                    train neural networks. Predominantly, existing approaches (Impett and Süsstrunk,
-                    2016) (Jenícek and Chum, 2019) (Madhu et al. 2020) (Zhao, Salah, and Salah,
-                    2022) therefore utilize models trained on real-world photographs without
-                    integrating art-historical material. Only recently, (Springstein et al. 2022)
-                    and (Madhu et al. 2023) have begun to refine model accuracy by fine-tuning with
+                    train neural networks. Predominantly, existing approaches <ptr target="#impett_2016"/> <ptr target="#jenicek_2019"/> <ptr target="#madhu_2020"/> <ptr target="#zhao_2022"/> therefore utilize models trained on real-world photographs without
+                    integrating art-historical material. Only recently, <ptr target="#springstein_2022"/>
+                    and <ptr target="#madhu_2023"/> have begun to refine model accuracy by fine-tuning with
                     domain-specific images — an approach we also leverage in this paper. To then
                     assess how similar these machine-abstracted postures are to every other posture
-                    in a data set, <emph>low-level approaches</emph> obtain scores directly from
-                    keypoint positions (or angles) using numerical similarity metrics (Kovar,
-                    Gleicher, and Pighin, 2002) (Pehlivan and Duygulu, 2011). However, as
-                    morphological or perceptual features cause variations in keypoint positions
-                    (Harada et al. 2004) (So and Baciu, 2005), which may affect the reliability of
-                    similarity metrics even between identical postures, <hi rend="italic">h</hi>
-                    <emph>igh-level approaches</emph> have begun to exploit the latent layers of
-                    neural networks (Rhodin, Salzmann and Fua, 2018) (Ren et al., 2020). Given the
-                    task-specific nature of these latent representations, (Liu et al. 2021) suggest
-                    normalized posture features that are invariant to morphological structure and
-                    viewpoint; however, the method relies on fully estimated postures without
-                    missing keypoints. Following the strategy of (Liu et al. 2022), called
-                        <emph>Probabilistic View-invariant Pose Embedding</emph> (Pr-VIPE), we
-                    instead propose a solution that is not only robust to occlusion,<note> See T.
-                        Liu et al. (2022) for additional information.</note> but also easily
-                    adaptable to various domains.</p>
+                    in a data set, <term>low-level approaches</term> obtain scores directly from
+                    keypoint positions (or angles) using numerical similarity metrics <ptr target="#kovar_2002"/> <ptr target="#pehlivan_2011"/>. However, as
+                    morphological or perceptual features cause variations in keypoint positions <ptr
+                        target="#harada_2004"/>
+                    <ptr target="#so_2005"/>, which may affect the reliability of similarity metrics
+                    even between identical postures, <term>high-level approaches</term> have begun
+                    to exploit the latent layers of neural networks <ptr target="#rhodin_2018"/>
+                    <ptr target="#ren_2020"/>. Given the task-specific nature of these latent
+                    representations, <ptr target="#liu_2021"/> suggest normalized posture features
+                    that are invariant to morphological structure and viewpoint; however, the method
+                    relies on fully estimated postures without missing keypoints. Following the
+                    strategy of <ptr target="#liu_2022"/>, called <term>Probabilistic View-invariant
+                        Pose Embedding</term> (Pr-VIPE), we instead propose a solution that is not
+                    only robust to occlusion,<note> See <ptr target="#liu_2022"/> for additional
+                        information.</note> but also easily adaptable to various domains.</p>
             </div>
             <div>
                 <head>Methodology</head>
@@ -284,68 +294,69 @@
                     representations. These skeletal models eliminate non-essential visual
                     information — such as background scenery and clothing — so that only the body’s
                     posture is retained. Each posture is then numerically encoded as an array of
-                    real numbers, referred to as an <hi rend="italic">embedding</hi>, which
-                    compresses postural specifics and enables similar postures to be retrieved
-                    across a large collection of artworks. Consequently, the embedding represents a
-                    distilled version of the original figure, while the embedding space constitutes
-                    a <emph>virtual space of possibilities</emph>, i.e., of all conceivable
+                    real numbers, referred to as an <term>embedding</term>, which compresses
+                    postural specifics and enables similar postures to be retrieved across a large
+                    collection of artworks. Consequently, the embedding represents a distilled
+                    version of the original figure, while the embedding space constitutes a
+                        <term>virtual space of possibilities</term>, i.e., of all conceivable
                     postures. The overall architecture of this pipeline is shown in Figure 2.</p>
                 <figure>
-                    <head/>
-                    <graphic url="resources/images/image2.png"/>
+                    <head>Our methodology first localizes human figures within an image by bounding
+                        boxes, which are then examined to identify keypoints. Based on the human
+                        figure’s estimated keypoints, we construct three posture configurations,
+                        compress them into posture embeddings, and then classify each
+                        configuration.</head>
+                    <graphic url="resources/images/figure02.png"/>
                 </figure>
-                <p>Figure 2: Our methodology first localizes human figures within an image by
-                    bounding boxes, which are then examined to identify keypoints. Based on the
-                    human figure’s estimated keypoints, we construct three posture configurations,
-                    compress them into posture embeddings, and then classify each configuration.</p>
                 <div>
                     <head>View-invariant Human Posture Embedding</head>
                     <p>To make posture recognition more accurate, we follow an approach inspired by
-                        (Springstein et al. 2022) that integrates Semi-supervised Learning (SSL).
-                        This means that our system learns from both labeled and unlabeled images,
-                        allowing it to improve over time by generating its own training data. We
-                        implement the regression-based <emph>Pose Recognition Transformer</emph>
-                        (PRTR), as outlined by (Li et al. 2021), which employs a cascaded
-                        Transformer architecture with separate components for bounding box and
-                        keypoint detection (Vaswani et al., 2017; Carion et al., 2020).<note> For
-                            further discussion and insights into the methodology, we refer to
-                            Springstein et al. (2022).</note> The proposed methodology for HPE thus
-                        leverages a <hi rend="italic">top-down strategy</hi>: In the first stage,
-                        human figures are localized within an image by rectangular bounding boxes,
-                        which are then examined in the second stage to identify keypoints, i.e.,
-                        points relevant to the abstraction of the figures’ posture.</p>
+                            <ptr target="#springstein_2022"/> that integrates <term>Semi-supervised
+                            Learning</term> (SSL). This means that our system learns from both
+                        labeled and unlabeled images, allowing it to improve over time by generating
+                        its own training data. We implement the regression-based <term>Pose
+                            Recognition Transformer</term> (PRTR), as outlined by <ptr
+                            target="#li_2021"/>, which employs a cascaded Transformer architecture
+                        with separate components for bounding box and keypoint detection <ptr
+                            target="#vaswani_2017"/>
+                        <ptr target="#carion_2020"/>.<note> For further discussion and insights into
+                            the methodology, we refer to <ptr target="#springstein_2022"/>.</note> The
+                        proposed methodology for HPE thus leverages a <term>top-down
+                        strategy</term>: In the first stage, human figures are localized within an
+                        image by rectangular bounding boxes, which are then examined in the second
+                        stage to identify keypoints, i.e., points relevant to the abstraction of the
+                        figures’ posture.</p>
                     <p>The estimated whole-body posture is segregated into the upper and lower body,
                         shown in green and red, respectively, in Figure 3; these components, along
                         with the whole body, then comprise the search query employed for retrieval
-                        purposes. The lower body is composed of six keypoints (<emph>ankles, knees,
-                            hip</emph>) and the upper body of eight keypoints (<emph>hip, wrists,
-                            elbows, shoulders</emph>). This division increases the reliability of
-                        the system: Even if the whole-body posture cannot be detected (e.g., due to
-                        missing or obscured joints), the upper and lower body may still provide
-                        enough information to accurately classify the figure. In the next step,
-                        configurations exceeding 50% of the maximum possible keypoints are filtered
-                        to eliminate configurations with high uncertainty. Valid configurations are
-                        then projected into 320-dimensional embeddings using the<emph
-                        > </emph>Pr-VIPE proposed by (Liu et al. 2022).<note> This implies that only
-                            keypoints associated with the respective configuration are utilized to
-                            create the embedding.</note> Unlike methods that depend solely on
-                        keypoint positions, Pr-VIPE encodes the appearance of a posture — as
-                        perceived by humans — so that it remains robust to changes in perspective,
-                        allowing similar postures to be compared across different viewpoints. It
-                        does so by mapping each two-dimensional posture into a probabilistic
-                        embedding space where the representation is not a fixed point, but a
-                        probability distribution. During training, the system is exposed to pairs of
-                        two-dimensional postures obtained from different camera views, often
-                        augmented by synthesizing multi-view projections from three-dimensional
-                        keypoints. The learning objective encourages the embeddings of postures that
-                        are visually similar (i.e., represent the same underlying three-dimensional
-                        posture) to be close to each other in the probabilistic space — even if
-                        there are perspective-induced variations in the two-dimensional keypoint
-                            positions.<note> Already (Ullman 1979, p. 6), with reference to
-                            (Eriksson 1973), stated that “there is no unique structure and motion
-                            consistent with a given two-dimensional (2-D) transformation [...],” but
-                            an “infinite number of motions of the elements that will produce the
-                            same 2-D projection.”</note>
+                        purposes. The lower body is composed of six keypoints (ankles, knees, hip)
+                        and the upper body of eight keypoints (hip, wrists, elbows, shoulders). This
+                        division increases the reliability of the system: Even if the whole-body
+                        posture cannot be detected (e.g., due to missing or obscured joints), the
+                        upper and lower body may still provide enough information to accurately
+                        classify the figure. In the next step, configurations exceeding 50% of the
+                        maximum possible keypoints are filtered to eliminate configurations with
+                        high uncertainty. Valid configurations are then projected into
+                        320-dimensional embeddings using the Pr-VIPE proposed by <ptr target="#liu_2022"/>.<note> This implies that only keypoints associated with the
+                            respective configuration are utilized to create the embedding.</note>
+                        Unlike methods that depend solely on keypoint positions, Pr-VIPE encodes the
+                        appearance of a posture — as perceived by humans — so that it remains robust
+                        to changes in perspective, allowing similar postures to be compared across
+                        different viewpoints. It does so by mapping each two-dimensional posture
+                        into a probabilistic embedding space where the representation is not a fixed
+                        point, but a probability distribution. During training, the system is
+                        exposed to pairs of two-dimensional postures obtained from different camera
+                        views, often augmented by synthesizing multi-view projections from
+                        three-dimensional keypoints. The learning objective encourages the
+                        embeddings of postures that are visually similar (i.e., represent the same
+                        underlying three-dimensional posture) to be close to each other in the
+                        probabilistic space — even if there are perspective-induced variations in
+                        the two-dimensional keypoint positions.<note> Already <ptr
+                                target="#ullman_1979" loc="p. 6"/>, with reference to <ptr
+                                target="#eriksson_1973"/>, stated that “there is no unique structure
+                            and motion consistent with a given two-dimensional (2-D) transformation
+                            [...],” but an “infinite number of motions of the elements that will
+                            produce the same 2-D projection.”</note>
                     </p>
                 </div>
                 <div>
@@ -358,18 +369,16 @@
                         postures, even when the body parts of each configuration could not be
                         adequately estimated. At the same time, there is no fixed, semantically
                         dubious categorization into groups, as is the case with agglomerative
-                        clustering methods (Impett and Süsstrunk, 2016). However, as shown in
+                        clustering methods <ptr target="#impett_2016"/>. However, as shown in
                         Figure 3, where example images of the reference postures are shown, a single
                         human figure can only model a fraction of the high postural variability
                         within the subnotations.</p>
                     <figure>
-                        <head/>
-                        <graphic url="resources/images/image3.jpeg"/>
+                        <head>Close-ups of sample images for each direct subnotation of the relevant
+                            Iconclass notations.</head>
+                        <graphic url="resources/images/figure03.jpeg"/>
                     </figure>
-                    <p>Figure 3: Close-ups of sample images for each direct subnotation of the
-                        relevant Iconclass notations.</p>
-                    <p>The selected postures, derived from the Iconclass taxonomy (van de Waal,
-                        1973), range from elementary configurations, such as “arm raised upward,” to
+                    <p>The selected postures, derived from the Iconclass taxonomy <ptr target="#van-de-waal_1973"/>, range from elementary configurations, such as “arm raised upward,” to
                         complex full-body arrangements, such as “lying on one side, stretched out,”
                         reducing the limitations of culturally or temporally dependent labels.
                         Iconclass, while explicitly designed for the iconography of Western fine
@@ -384,14 +393,14 @@
                         hierarchy, ‘division.’ This may be followed by another digit at the
                         secondary level, and one or two (identical) capital letters at the tertiary
                         level. The structure, referred to as the ‘basic notation,’ can be further
-                        supplemented with auxiliary components (van Straten, 1994). We consider four
-                        groups of Iconclass notations: notation 31A23 (textual correlate “postures
-                        of the human figure”), 31A25 (“postures and gestures of the arms and
-                        hands”), 31A26 (“postures of the legs”), and 31A27 (“movements of the human
-                        body”). Notations 31A23 and 31A27 represent the whole body, 31A25 the upper
-                        body, and 31A26 the lower body. Each group is almost equally represented:
-                        upper-body notations with 31 instances, lower-body notations with 25, and
-                        whole-body notations with 27 each.</p>
+                        supplemented with auxiliary components <ptr target="#van-straten_1994"/>. We
+                        consider four groups of Iconclass notations: notation 31A23 (textual
+                        correlate “postures of the human figure”), 31A25 (“postures and gestures of
+                        the arms and hands”), 31A26 (“postures of the legs”), and 31A27 (“movements
+                        of the human body”). Notations 31A23 and 31A27 represent the whole body,
+                        31A25 the upper body, and 31A26 the lower body. Each group is almost equally
+                        represented: upper-body notations with 31 instances, lower-body notations
+                        with 25, and whole-body notations with 27 each.</p>
                 </div>
             </div>
             <div>
@@ -404,26 +413,25 @@
                         section, we focus solely on the data set used for practical interaction with
                         and exploration of the constructed embedding space during the inference
                         phase of the case study. For information on the data sets used to train the
-                        SSL model, we again refer to (Springstein et al. 2022).</note> For these
-                    objects, our model identifies 9,694,248 human figures, which are — after the
-                    filtering stage — reduced to 2,355,592 figures.<note> The filtering stage aimed
-                        to increase the accuracy of human figure identification by emphasizing
-                        scale-specific variations through a binary <emph>eXtreme Gradient
-                            Boosting</emph> (XGBoost) decision tree (Chen and Guestrin,
-                        2016).</note> Wikidata was chosen primarily for practical reasons: It
-                    surpasses other art-related databases that are limited by institutional and
-                    regional focus, like that of the Metropolitan Museum of Art. Moreover, unlike
-                    distributed image archives such as Europeana,<note>
+                        SSL model, we again refer to <ptr target="#springstein_2022"/>.</note> For
+                    these objects, our model identifies 9,694,248 human figures, which are — after
+                    the filtering stage — reduced to 2,355,592 figures.<note> The filtering stage
+                        aimed to increase the accuracy of human figure identification by emphasizing
+                        scale-specific variations through a binary <term>eXtreme Gradient
+                            Boosting</term> (XGBoost) decision tree <ptr target="#chen_2016"
+                        />.</note> Wikidata was chosen primarily for practical reasons: It surpasses
+                    other art-related databases that are limited by institutional and regional
+                    focus, like that of the Metropolitan Museum of Art. Moreover, unlike distributed
+                    image archives such as Europeana,<note>
                         <ref target="https://www.europeana.eu/">https://www.europeana.eu/</ref>,
                         last accessed on August 24, 2024.</note> where considerable effort is
                     required to filter out reproductions of the same original, Wikidata is
                     continuously updated, reducing the number of near-duplicates and thus increasing
                     the reliability of the data.</p>
                 <figure>
-                    <head/>
-                    <graphic url="resources/images/image4.png"/>
+                    <head>Distribution of creation dates in art-historical Wikidata objects.</head>
+                    <graphic url="resources/images/figure04.png"/>
                 </figure>
-                <p>Figure 4: Distribution of creation dates in art-historical Wikidata objects.</p>
                 <p>We determine the objects’ creation dates based on the earliest probable date and
                     ending with the latest. As shown in Figure 4a, using only the starting point of
                     the interval causes many data points to converge around the turn of the
@@ -433,7 +441,7 @@
                     50 iterations and calculate the average number of objects per time point. This
                     method is valuable for all types of objects that are dated by time intervals, as
                     is common in historical research. In addition, it enables the creation of
-                    so-called <hi rend="italic">confidence intervals</hi>, which reflect the natural
+                    so-called <term>confidence intervals</term>, which reflect the natural
                     uncertainty in the dating of historical objects. The result, as shown in
                     Figure 4b, provides a better understanding of the potential density of objects
                     in different time periods: There is a continuous increase in the number of
@@ -455,9 +463,9 @@
             <div>
                 <head>Case Study</head>
                 <p>In the following, we outline two analytical pipelines for exploring the
-                    constructed embedding space as a <emph>virtual space of possibilities</emph>: a
-                        <emph>distant viewing</emph> focused on an aggregate-level analysis of
-                    metadata-induced hotspots, and a <emph>close viewing</emph> focused on an
+                    constructed embedding space as a <term>virtual space of possibilities</term>: a
+                        <term>distant viewing</term> focused on an aggregate-level analysis of
+                    metadata-induced hotspots, and a <term>close viewing</term> focused on an
                     individual-level analysis of topic-centered query postures.</p>
                 <div>
                     <head>Analytical Process</head>
@@ -466,15 +474,15 @@
                         French, and German. Objects containing any of the query terms are selected
                         and then analyzed for their spatial position within the embedding space to
                         identify density structures — the metadata-induced density peaks are thus
-                        utilized for the <emph>distant viewing</emph> of objects whose postures
+                        utilized for the <term>distant viewing</term> of objects whose postures
                         closely resemble those pre-selected by the metadata. Each point in the
                         embedding space denotes a unique posture, with density referring to how
                         these points are grouped — either clustering in high-density areas or
                         scattering in low-density regions. The second pipeline is predicated on the
                         density peaks identified at the aggregate level; it focuses on the
                         recognition and exploitation of individual postures associated with specific
-                        iconographies, thus enabling a <emph>posture-to-posture</emph> search. This
-                        involves a <emph>close viewing</emph> of objects that are visually related
+                        iconographies, thus enabling a <term>posture-to-posture</term> search. This
+                        involves a <term>close viewing</term> of objects that are visually related
                         to the identified query postures; it also explores the developmental
                         trajectories of different postures within the embedding space to trace the
                         ‘evolution’ of iconographic elements.</p>
@@ -484,50 +492,51 @@
                         such as Mary and Christ’s disciples — especially the apostle John. Although
                         depictions of the crucified Christ vary widely throughout the world,
                         influenced by local and ethnic traditions, they are generally unified by a
-                            <emph>canonical</emph> form: “dead upon the Cross, Jesus’s head is slung
-                        to one side, typically our left; his torso is naked and upright, sometimes
-                        slightly arched” (Merback, 2001, p. 69).</p>
+                            <q>canonical</q> form: “dead upon the Cross, Jesus’s head is slung to
+                        one side, typically our left; his torso is naked and upright, sometimes
+                        slightly arched” <ptr target="#merback_2001" loc="p. 69"/>.</p>
                     <p>Variations in the positioning of Christ’s limbs are subtly evident in
                         different artistic traditions: Gothic crucifixes, for instance, show Christ
-                        in a dynamic, bent position, with legs thrust forward and knees spread
-                        (Brandmair, 2015, p. 100), while in Italian iconography, Christ is often
-                        depicted with upward-angled arms, his head slumped on his chest, with
-                        varying leg positions to represent the deceased body’s movement (Haussherr,
-                        1971, p. 50).</p>
+                        in a dynamic, bent position, with legs thrust forward and knees spread <ptr
+                            target="#brandmair_2015" loc="p. 100"/>, while in Italian iconography,
+                        Christ is often depicted with upward-angled arms, his head slumped on his
+                        chest, with varying leg positions to represent the deceased body’s movement
+                            <ptr target="#haussherr_1971" loc="p. 50"/>.</p>
                     <p>To conduct a qualitative analysis, the embedding spaces of the embeddings are
                         reduced from 320 to two dimensions. Traditional dimension reduction
-                        techniques such as <emph>t-distributed Stochastic Neighbor Embedding</emph>
-                        (t-SNE) (Maaten and Hinton, 2008), <emph>Uniform Manifold Approximation and
-                            Projection</emph> (UMAP) (McInnes et al., 2018), and their variants
-                        (e.g., (Im, Verma and Branson, 2018) (Linderman et al., 2019) are known to
-                        preserve either local or global spatial relationships, which can result in
-                        the formation of artificial clusters that are not present in the original
-                            data.<note> See Wang et al. (2021) for an empirical comparison of the
-                            algorithms and their weaknesses.</note> To overcome this limitation, we
-                        employ <emph>Pairwise Controlled Manifold Approximation</emph> (PaCMAP),
-                        which first identifies global structures and then refines them locally (Wang
-                        et al., 2021). We re-use the Pr-VIPE model checkpoints from (Liu et al. 2022).<note>
+                        techniques such as <term>t-distributed Stochastic Neighbor Embedding</term>
+                        (t-SNE) <ptr target="#van-der-maaten_2008"/>, <term>Uniform Manifold
+                            Approximation and Projection</term> (UMAP) <ptr
+                            target="#mcinnes_2018"/>, and their variants (e.g., <ptr
+                            target="#im_2018"/>
+                        <ptr target="#linderman_2019"/> are known to preserve either local or
+                        global spatial relationships, which can result in the formation of
+                        artificial clusters that are not present in the original data.<note> See
+                            <ptr target="#wang_2021"/> for an empirical comparison of the algorithms and
+                            their weaknesses.</note> To overcome this limitation, we employ
+                            <term>Pairwise Controlled Manifold Approximation</term> (PaCMAP), which
+                        first identifies global structures and then refines them locally <ptr target="#wang_2021"/>. We re-use the Pr-VIPE model checkpoints from <ptr target="#liu_2022"/>.<note>
                             <ref target="https://sites.google.com/view/pr-vipe/model-checkpoints"
                                 >https://sites.google.com/view/pr-vipe/model-checkpoints</ref>, last
                             accessed on August 24, 2024.</note> To analyze the density structure of
-                        the embedding spaces, and thus the <emph>virtual space of
-                            possibilities</emph>, we employ three visualization techniques: scatter
+                        the embedding spaces, and thus the <term>virtual space of
+                            possibilities</term>, we employ three visualization techniques: scatter
                         plots, two-dimensional histograms, and contour plots (Figure 5). Both
-                        histograms and contour plots employ a color gradient ranging from
-                            <emph>blue</emph> (denoting lower concentrations) to <emph>red</emph>
-                        (denoting higher concentrations), with <emph>white</emph> signifying the
-                        midpoint. Contour plots are often favorable because of their superior
-                        ability to discern isolated high-density areas clearly; however, smaller,
-                        less dense regions are more reliably identified in two-dimensional
-                        histograms. Further details of the techniques are given in Appendix B.</p>
+                        histograms and contour plots employ a color gradient ranging from blue
+                        (denoting lower concentrations) to red (denoting higher concentrations),
+                        with white signifying the midpoint. Contour plots are often favorable
+                        because of their superior ability to discern isolated high-density areas
+                        clearly; however, smaller, less dense regions are more reliably identified
+                        in two-dimensional histograms. Further details of the techniques are given
+                        in Appendix B.</p>
                     <figure>
-                        <head/>
-                        <graphic url="resources/images/image5.png"/>
+                        <head>Scatter plots, two-dimensional histograms, and contour plots of the
+                            two-dimensional whole-body, upper-body, and lower-body posture embedding
+                            spaces of all images, left, and of images labeled “crucifix,” right,
+                            respectively. In each case, the same PaCMAP projection is
+                            employed.</head>
+                        <graphic url="resources/images/figure05.png"/>
                     </figure>
-                    <p>Figure 5: Scatter plots, two-dimensional histograms, and contour plots of the
-                        two-dimensional whole-body, upper-body, and lower-body posture embedding
-                        spaces of all images, left, and of images labeled “crucifix,” right,
-                        respectively. In each case, the same PaCMAP projection is employed.</p>
                 </div>
                 <div>
                     <head>Aggregate Level</head>
@@ -561,20 +570,21 @@
                             that we are not focusing here on the upper-body and lower-body
                             embeddings. In the lower segment, we identify figures classified with
                             subnotations under 31AA2511 (“Arm raised upward – AA – both arms or
-                            hands”), including <emph>T</emph>- or <emph>Y</emph>-shaped crucified
-                            ones in the lower-central area (31A237, “Hanging figure”). Those
-                            stretching sideways or backwards are centered with a downward tilt,
-                            mapped to the subnotations 31A2513 (“Arm stretched sidewards”) and
-                            31A2514 (“Arm held backwards”). The upper-left segment is dominated by
-                            configurations of the lower body. For instance, the standing figure with
-                            straight legs is prominent in the upper left, identified as 31A26111
-                            (“Standing or leaning with both legs straight, side by side, feet flat
-                            on the ground”); she is usually depicted with her arms held down. A
-                            third segment in the upper-right quadrant features postures with bent
-                            limbs that is particularly difficult to capture semantically; it
-                            includes the subnotations 31A234 (“Squatting, crouching figure”) and
-                            31A235 (“Sitting figure”). The center’s less dense regions frequently
-                            show errors in HPE that cannot be meaningfully classified.</p>
+                            hands”), including <hi rend="italic">T</hi>- or <hi rend="italic"
+                            >Y</hi>-shaped crucified ones in the lower-central area (31A237,
+                            “Hanging figure”). Those stretching sideways or backwards are centered
+                            with a downward tilt, mapped to the subnotations 31A2513 (“Arm stretched
+                            sidewards”) and 31A2514 (“Arm held backwards”). The upper-left segment
+                            is dominated by configurations of the lower body. For instance, the
+                            standing figure with straight legs is prominent in the upper left,
+                            identified as 31A26111 (“Standing or leaning with both legs straight,
+                            side by side, feet flat on the ground”); she is usually depicted with
+                            her arms held down. A third segment in the upper-right quadrant features
+                            postures with bent limbs that is particularly difficult to capture
+                            semantically; it includes the subnotations 31A234 (“Squatting, crouching
+                            figure”) and 31A235 (“Sitting figure”). The center’s less dense regions
+                            frequently show errors in HPE that cannot be meaningfully
+                            classified.</p>
                         <p>In the crucifixion’s embeddings, a compact hotspot is centrally situated
                             at the bottom, indicating specific posture configurations that differ
                             substantially from other configurations in the data set, with lesser
@@ -649,12 +659,11 @@
                             the Iconclass notations, like those of the upper-body similarity
                             distributions.</p>
                         <figure>
-                            <head/>
-                            <graphic url="resources/images/image6.jpeg"/>
+                            <head>Whole-body HPR results for the thief to Christ’s right in James
+                                Tissot’s <title rend="italic">The Strike of the Lance</title>
+                                (1886–1894; a) with the estimated keypoints in green.</head>
+                            <graphic url="resources/images/figure06.jpeg"/>
                         </figure>
-                        <p>Figure 6: Whole-body HPR results for the thief to Christ’s right in James
-                            Tissot’s <hi rend="italic">The Strike of the Lance</hi> (1886–1894; a)
-                            with the estimated keypoints in green.</p>
                     </div>
                 </div>
                 <div>
@@ -662,34 +671,35 @@
                     <p>In the second pipeline, our approach departs from the broad analysis of
                         metadata-induced hotspots and instead focuses on the in-depth study of
                         individual artworks and their comparative analysis based on the generated
-                        embeddings. To this end, we implement an approximate <emph>k</emph>-nearest
-                        neighbor graph, <emph>Hierarchical Navigable Small World</emph> (HNSW)
-                        (Malkov and Yashunin, 2020), which contains the 320-dimensional embeddings
-                        of the whole body, upper body, and lower body. To illustrate its practical
-                        application, we examine James Tissot’s <emph>The Strike of the Lance</emph>
-                        (1886–1894) and more specifically, the thief crucified to Christ’s right
-                        (Figure 6a). As shown in Figure 6, the thief’s bent arm is echoed in the
-                        Pietà, for instance in a rendition after Marcello Venusti (c. 1515–1579;
-                        Figure 6g), where Mary is portrayed mourning her son. Interestingly, the
-                        horse’s upright stance in Jacques Louis David’s <emph>Napoleon on the Great
-                            St Bernard</emph> (1801; Figure 6p) is mistakenly recognized as a human
+                        embeddings. To this end, we implement an approximate <hi rend="italic"
+                            >k</hi>-nearest neighbor graph, <term>Hierarchical Navigable Small
+                            World</term> (HNSW) <ptr target="#malkov_2020"/>, which
+                        contains the 320-dimensional embeddings of the whole body, upper body, and
+                        lower body. To illustrate its practical application, we examine James
+                        Tissot’s <title rend="italic">The Strike of the Lance</title> (1886–1894)
+                        and more specifically, the thief crucified to Christ’s right (Figure 6a). As
+                        shown in Figure 6, the thief’s bent arm is echoed in the Pietà, for instance
+                        in a rendition after Marcello Venusti (c. 1515–1579; Figure 6g), where Mary
+                        is portrayed mourning her son. Interestingly, the horse’s upright stance in
+                        Jacques Louis David’s <hi rend="italic">Napoleon on the Great St
+                            Bernard</hi> (1801; Figure 6p) is mistakenly recognized as a human
                         figure — with outstretched arms and bent legs — echoing the thief’s posture;
                         this error results from imprecise bounding box detection, which frequently
                         misclassifies animals with human-like physiognomies as human figures.
                         Misalignments of the lower body are evident also in works such as Perino del
-                        Vaga’s <emph>A Fragment: The Good Thief (Saint Dismas)</emph> (c. 1520–1525;
-                        Figure 6h), Hendrick ter Brugghen’s <emph>The Crucifixion with the Virgin
-                            and St John</emph> (1625; Figure 6k), and Jan de Hoey’s <emph>Ignatius
-                            of Loyola</emph> (c. 1601–1700; Figure 6r), primarily with inaccurately
-                        shortened ankles, which also trace back to limitations in bounding box
-                        detection. Despite these issues, minor inaccuracies, such as the
-                        misestimation of the left wrist in Figure 6l, seem to not affect the
-                        retrieval performance. The degree of keypoint misestimation is proportional
-                        to its effect on the generated feature vector, which is essential for
-                        accurate retrieval. Even when keypoints are grossly misestimated, as shown
-                        in Figure 6l, the model only marginally penalizes these errors in the
-                        resulting embedding, provided that the majority of keypoints are estimated
-                        with sufficient accuracy.</p>
+                        Vaga’s <hi rend="italic">A Fragment: The Good Thief (Saint Dismas)</hi>
+                        (c. 1520–1525; Figure 6h), Hendrick ter Brugghen’s <hi rend="italic">The
+                            Crucifixion with the Virgin and St John</hi> (1625; Figure 6k), and Jan
+                        de Hoey’s <hi rend="italic">Ignatius of Loyola</hi> (c. 1601–1700;
+                        Figure 6r), primarily with inaccurately shortened ankles, which also trace
+                        back to limitations in bounding box detection. Despite these issues, minor
+                        inaccuracies, such as the misestimation of the left wrist in Figure 6l, seem
+                        to not affect the retrieval performance. The degree of keypoint
+                        misestimation is proportional to its effect on the generated feature vector,
+                        which is essential for accurate retrieval. Even when keypoints are grossly
+                        misestimated, as shown in Figure 6l, the model only marginally penalizes
+                        these errors in the resulting embedding, provided that the majority of
+                        keypoints are estimated with sufficient accuracy.</p>
                     <p>To understand the evolution of iconographies in art history — here: the
                         postural configurations in crucifixion scenes — I t is essential to analyze
                         both the posture and its temporal distribution. This involves, in
@@ -697,40 +707,43 @@
                             rend="italic">Y</hi>-shaped upper-body postures that depend on the arms’
                         position on the cross. To assess the Pr-VIPE’s ability to differentiate
                         between such configurations, we first select three crucifixion depictions
-                        from Wikidata: Marcello Venusti’s <emph>Christ on the Cross</emph>
-                        (1500–1625), in <emph>T</emph>-shape, with arms outstretched horizontally;<note>
+                        from Wikidata: Marcello Venusti’s <title rend="italic">Christ on the
+                            Cross</title> (1500–1625), in <hi rend="italic">T</hi>-shape, with arms
+                        outstretched horizontally;<note>
                             <ref target="https://www.wikidata.org/wiki/Q29650159"
                                 >https://www.wikidata.org/wiki/Q29650159</ref>, last accessed on
-                            August 24, 2024.</note> Diego Velazquez’s <emph>Christ Crucified</emph>
-                        (1632), in weak <emph>Y</emph>-shape, with arms slightly upraised;<note>
+                            August 24, 2024.</note> Diego Velazquez’s <title rend="italic">Christ
+                            Crucified</title> (1632), in weak <hi rend="italic">Y</hi>-shape, with
+                        arms slightly upraised;<note>
                             <ref target="https://www.wikidata.org/wiki/Q2528741"
                                 >https://www.wikidata.org/wiki/Q2528741</ref>, last accessed on
-                            August 24, 2024.</note> and Peter Paul Rubens’ <emph>Christ Expiring on
-                            the Cross</emph> (1619), in strong <emph>Y</emph>-shape, with arms
-                        strongly raised.<note>
+                            August 24, 2024.</note> and Peter Paul Rubens’ <title rend="italic"
+                            >Christ Expiring on the Cross</title> (1619), in strong <hi
+                            rend="italic">Y</hi>-shape, with arms strongly raised.<note>
                             <ref target="https://www.wikidata.org/wiki/Q47413264"
                                 >https://www.wikidata.org/wiki/Q47413264</ref>, last accessed on
                             August 24, 2024.</note> That is, each image served as a query to
                         identify the top 100 similar Wikidata object entities based on their
                         upper-body similarity. Analysis of the bootstrapped distribution of creation
-                        dates then shows that <emph>T</emph>-shapes start increasing around 1200,
-                        peak sharply around 1400, and then gradually decrease, with another smaller
-                        peak around 1800, while <emph>Y</emph>-shaped figures have a more
-                        widespread, uniform distribution between 1400 and 1900 — in case of weak <hi
-                            rend="italic">Y</hi>-shapes, without notable peaks (Figure 8 in
-                        Appendix A). The evolution of the shapes can be also observed clearly in the
-                        contour plot of the two-dimensional upper-body posture embedding. Naturally,
-                            <emph>T</emph>- or slightly <emph>Y</emph>-shaped figures, with their
-                        symmetrically outstretched arms, are most often associated with
-                        crucifixions, whereas the upward curvature of stronger <emph>Y</emph>-shapes
-                        appears in a wider range of contexts, including depictions of ascension and
-                        resurrection that imply spiritual elevation, such as the putti in
-                        Rembrandt’s <hi rend="italic">The Ascension</hi> (1636). This variation in
-                        upper-body posture is also reflected in the artworks’ temporal distribution:
-                        Strong <hi rend="italic">Y</hi>-shapes occur mostly around 1600, with
-                        another notable peak around 1900, and are rarely found before 1400. The
-                        Pr-VIPE’s ability to distinguish these postures suggests its effectiveness
-                        in identifying both the physical configurations and, on closer historical
+                        dates then shows that <hi rend="italic">T</hi>-shapes start increasing
+                        around 1200, peak sharply around 1400, and then gradually decrease, with
+                        another smaller peak around 1800, while <hi rend="italic">Y</hi>-shaped
+                        figures have a more widespread, uniform distribution between 1400 and 1900 —
+                        in case of weak <hi rend="italic">Y</hi>-shapes, without notable peaks
+                        (Figure 8 in Appendix A). The evolution of the shapes can be also observed
+                        clearly in the contour plot of the two-dimensional upper-body posture
+                        embedding. Naturally, <hi rend="italic">T</hi>- or slightly <hi
+                            rend="italic">Y</hi>-shaped figures, with their symmetrically
+                        outstretched arms, are most often associated with crucifixions, whereas the
+                        upward curvature of stronger <hi rend="italic">Y</hi>-shapes appears in a
+                        wider range of contexts, including depictions of ascension and resurrection
+                        that imply spiritual elevation, such as the putti in Rembrandt’s <title
+                            rend="italic">The Ascension</title> (1636). This variation in upper-body
+                        posture is also reflected in the artworks’ temporal distribution: Strong <hi
+                            rend="italic">Y</hi>-shapes occur mostly around 1600, with another
+                        notable peak around 1900, and are rarely found before 1400. The Pr-VIPE’s
+                        ability to distinguish these postures suggests its effectiveness in
+                        identifying both the physical configurations and, on closer historical
                         inspection, the underlying symbolic meanings. This evidence suggests
                         potential verifiable patterns in the representation of different upper-body
                         forms across historical periods, although conclusive historical evidence
@@ -740,8 +753,7 @@
             <div>
                 <head>Discussions</head>
                 <p>In contrast to previous approaches that compute how similar two postures are
-                    based solely on the positions or angles of two-dimensional keypoints (Kovar,
-                    Gleicher, and Pighin 2002) (Pehlivan and Duygulu 2011), our three-step HPR
+                    based solely on the positions or angles of two-dimensional keypoints <ptr target="kovar_2002"/> <ptr target="#pehlivan_2011"/>, our three-step HPR
                     pipeline integrates the relational context between joint positions by encoding
                     them in 320-dimensional view-invariant embeddings. Qualitative experiments on a
                     data set of 644,155 Wikidata object entities confirm the method’s validity: They
@@ -768,13 +780,13 @@
                     without integrated close viewing, computational analysis cannot be taken as
                     conclusive evidence or knowledge unless DL models independently provide a
                     historically plausible interpretation of their results — a capability yet to be
-                    achieved. They, at least currently, can serve only as <emph>recommender
-                        systems</emph>, provided they achieve high accuracy, as our research has
+                    achieved. They, at least currently, can serve only as <term>recommender
+                        systems</term>, provided they achieve high accuracy, as our research has
                     shown. Still, the utility of computational methods in humanities research should
                     not be underestimated: They allow researchers to quickly navigate and reduce
                     large data sets to tractable sizes, making possible studies that would otherwise
                     be logistically unfeasible due to the sheer volume of the data involved.<note>
-                        For a similar discussion, see also (Offert and Impett 2022).</note> To fully
+                        For a similar discussion, see also <ptr target="#offert_2022"/>.</note> To fully
                     realize the potential of these methods, we consider a hybrid approach that
                     combines traditional scholarly expertise with computational techniques to be
                     essential. Such integration could enrich the interpretive possibilities of
@@ -812,21 +824,21 @@
                     estimated — or even missing — keypoints, which in turn will affect, to a lesser
                     extent, the embeddings generated from these keypoints. Improving the accuracy of
                     bounding box detection could mitigate cascading errors in the pipeline, thereby
-                    increasing the reliability of the entire process. As shown by (Springstein et
-                    al. 2022), the solution may not lie in the adoption of progressively newer
+                    increasing the reliability of the entire process. As shown by <ptr target="#springstein_2022"/>, the solution may not lie in the adoption of progressively newer
                     models that yield little practical benefit. Instead, optimizing the training
                     data used to create these models might prove more effective — for instance, by
-                    merging data sets like PoPArt (Schneider and Vollmer, 2023) and SniffyArt
-                    (Zinnen et al., 2023) to provide a broader range of posture scenarios and thus
-                    enrich the model’s learning environment. However, increasing model performance
-                    depends more on the quality of the data rather than just its quantity. Investing
-                    in well-curated training data sets that feature a diverse array of human
-                    figures, especially those previously underrepresented, could significantly boost
-                    model training (cf., (Zhao et al., 2024). (Springstein et al. 2022) confirm that
-                    data sets with thorough, high-quality domain coverage outperform larger but less
-                    diverse alternatives. Consequently, for studies requiring high visual
-                    specificity not represented in available data sets, a small, manually annotated
-                    training data set is still imperative for achieving high model performance.</p>
+                    merging data sets like PoPArt <ptr target="#schneider_2023"/> and
+                    SniffyArt <ptr target="#zinnen_2023"/> to provide a broader range of
+                    posture scenarios and thus enrich the model’s learning environment. However,
+                    increasing model performance depends more on the quality of the data rather than
+                    just its quantity. Investing in well-curated training data sets that feature a
+                    diverse array of human figures, especially those previously underrepresented,
+                    could significantly boost model training (cf., <ptr target="#zhao_2024"
+                    />). <ptr target="#springstein_2022"/> confirm that data sets with thorough,
+                    high-quality domain coverage outperform larger but less diverse alternatives.
+                    Consequently, for studies requiring high visual specificity not represented in
+                    available data sets, a small, manually annotated training data set is still
+                    imperative for achieving high model performance.</p>
                 <p>It could be argued that relying on a single embedding space provides only a
                     partial understanding of the underlying structures in high-dimensional data. By
                     reducing the dimensionality of an originally practically inscrutable latent
@@ -836,16 +848,16 @@
                     the same data, i.e., not all apparent clusters in a two- or three-dimensional
                     projection necessarily exist in the original high-dimensional space, and points
                     that appear far apart in the embedded space may actually be close neighbors in
-                    the latent space. However, (Wang et al. 2021) observed empirically that certain
+                    the latent space. However, <ptr target="#wang_2021"/> observed empirically that certain
                     approaches can maintain more robust structures under parameter variation. Their
                     sensitivity analysis across multiple datasets — with both known local and global
                     structures — demonstrates that PaCMAP consistently preserves qualitative
                     relationships regardless of parameter choice. In the context of our case study,
                     this finding implies that the semantic positioning of similar postures remains
                     reproducible and is not merely a product of random chance or overly sensitive
-                    parameters. This level of robustness contrasts with methods such as UMAP
-                    (McInnes et al., 2018), which are more sensitive to parameter tuning.
-                    Ultimately, the decision to employ a particular dimensionality reduction
+                    parameters. This level of robustness contrasts with methods such as UMAP <ptr
+                        target="#mcinnes_2018"/>, which are more sensitive to parameter
+                    tuning. Ultimately, the decision to employ a particular dimensionality reduction
                     technique should be made in the context of the research scenario — the data’s
                     size and the nature of the structures one seeks to preserve — to ensure that any
                     conclusions drawn from a visual analysis are based on solid empirical ground
@@ -858,33 +870,33 @@
                     a large scale. In Section 3, we proposed a three-step methodology for this
                     purpose that leverages whole-body keypoints to differentiate the human body into
                     upper- and lower-body segments. These segments were first encoded in
-                    320-dimensional <emph>Probabilistic View-invariant Pose Embeddings</emph>
+                    320-dimensional <term>Probabilistic View-invariant Pose Embeddings</term>
                     (Pr-VIPEs). Using these Pr-VIPEs, we then assembled 110 reference postures for
                     classification purposes. This methodology’s relevance to art-historical research
                     was validated through qualitative experiments with a data set of
                     644,155 art-historical Wikidata objects, primarily addressing the following
                     questions:</p>
-                <p>“How can the perceptual space of embeddings, obtained by <hi rend="italic">Deep
-                        Learning</hi> (DL) models, be explored and interpreted? What spatial
+                <p>“How can the perceptual space of embeddings, obtained by <term>Deep
+                        Learning</term> (DL) models, be explored and interpreted? What spatial
                     patterns emerge within these spaces, and to what extent can they encode
                     posture?”</p>
                 <p>In this context, Section 4 outlined a two-stage approach of broad-scale filtering
-                    preceded by a detailed examination of individual postures: a <emph>distant
-                        viewing</emph> focused on an aggregate-level analysis of density-based
-                    hotspots, and a <emph>close viewing</emph> focused on an individual-level
+                    preceded by a detailed examination of individual postures: a <term>distant
+                        viewing</term> focused on an aggregate-level analysis of density-based
+                    hotspots, and a <term>close viewing</term> focused on an individual-level
                     analysis of query postures. At the aggregate level, certain posture
                     configurations were identified as compact hotspots that differed from other,
                     more common postures within the embedding space. Yet, for postures that have
                     undergone considerable historical evolution, the effectiveness of
                     metadata-driven pre-filtering diminishes. Here, the individual-level
-                        <emph>posture-to-posture</emph> search is advantageous because it provides
+                        <term>posture-to-posture</term> search is advantageous because it provides
                     resilience to minor inaccuracies without significantly affecting the retrieval’s
                     performance. Moreover, the case study revealed numerous dense clusters in the
                     two-dimensional embedding spaces, largely corresponding to the reference
                     postures. It proved the system’s ability to identify hotspots and decipher
                     connections between object entities, thus expediting cluster identification in
-                    the embedding space — DL models can thus serve effectively as <emph>recommender
-                        systems</emph>. However, their application must be critically evaluated and
+                    the embedding space — DL models can thus serve effectively as <term>recommender
+                        systems</term>. However, their application must be critically evaluated and
                     not undertaken without scholarly oversight, as misestimations could raise
                     concerns among traditional art historians about the trustworthiness of
                     computational methods. Nevertheless, we argue that even with manual
@@ -898,7 +910,7 @@
                     integration of a reference set can largely align with existing taxonomies of
                     body-related behavior, it also highlighted the challenges of discriminating
                     among a large number of postures with high variability. We intend to adopt a
-                    cross-modal retrieval framework, as introduced by (Delmas et al. 2022), which
+                    cross-modal retrieval framework, as introduced by <ptr target="#delmas_2022"/>, which
                     integrates two-dimensional keypoints with textual descriptions into a joint
                     embedding space. By synthesizing these methods into a unified pipeline, we are
                     for the first time able to trace the evolution of posture on a large scale,
@@ -912,22 +924,22 @@
             <div>
                 <head>Appendix A</head>
                 <figure>
-                    <head/>
-                    <graphic url="resources/images/image7.png"/>
+                    <head>Distribution of creation dates in art-historical Wikidata objects filtered
+                        by the term “crucifix” and its French and German translations.</head>
+                    <graphic url="resources/images/figure07.png"/>
                 </figure>
-                <p>Figure 7: Distribution of creation dates in art-historical Wikidata objects
-                    filtered by the term “crucifix” and its French and German translations.</p>
                 <figure>
-                    <head/>
-                    <graphic url="resources/images/image8.png"/>
+                    <head>Bootstrapped distribution of creation dates in the 100 Wikidata object
+                        entities most similar to the query postures of the crucified Christ in
+                        Marcello Venusti’s <title rend="italic">Christ on the Cross</title> (1500 —
+                        1625; <hi rend="italic">T-shape</hi>), Diego Velazquez’s <title
+                            rend="italic">Christ Crucified</title> (1632; <hi rend="italic">Y-shape
+                            (weak)</hi>), and Peter Paul Rubens’ <title rend="italic">Christ
+                            Expiring on the Cross</title> (1619; <hi rend="italic">Y-shape
+                            (strong)</hi>).</head>
+                    <graphic url="resources/images/figure08.png"/>
                 </figure>
-                <p>Figure 8: Bootstrapped distribution of creation dates in the 100 Wikidata object
-                    entities most similar to the query postures of the crucified Christ in Marcello
-                    Venusti’s <hi rend="italic">Christ on the Cross</hi> (1500 — 1625; <hi
-                        rend="italic">T-shape</hi>), Diego Velazquez’s <hi rend="italic">Christ
-                        Crucified</hi> (1632; <hi rend="italic">Y-shape (weak)</hi>), and Peter Paul
-                    Rubens’ <hi rend="italic">Christ Expiring on the Cross</hi> (1619; <hi
-                        rend="italic">Y-shape (strong)</hi>).</p>
+
             </div>
             <div>
                 <head>Appendix B</head>
@@ -957,7 +969,7 @@
                         Humanities</title>, (34), pp. i3–i16. Available at: <ref
                         target="https://doi.org/10.1093/llc/fqz013"
                         >https://doi.org/10.1093/llc/fqz013</ref>. </bibl>
-                <bibl xml:id="baxandall_2019" label="Baxandall 1972">Baxandall, M. (1972) <title
+                <bibl xml:id="baxandall_1972" label="Baxandall 1972">Baxandall, M. (1972) <title
                         rend="italic">Painting and Experience in 15th Century Italy: A Primer in the
                         Social History of Pictorial Style</title>. Oxford: Oxford University
                     Press.</bibl>
@@ -1128,11 +1140,12 @@
                         rend="italic">The Thief, the Cross and the Wheel: Pain and the Spectacle of
                         Punishment in Medieval and Renaissance Europe</title>. London: Reaktion
                     Books.</bibl>
-                <bibl xml:id="" label="">Offert, F. and Bell, P. (2023) <title rend="quotes"
-                        >imgs.ai. A deep visual search engine for digital art history</title>, in A.
-                    Baillot et al. (eds.) <title rend="italic">International Conference of the
-                        Alliance of Digital Humanities Organizations, DH 2022</title>. Available at:
-                        <ref target="https://doi.org/10.5281/zenodo.8107778"
+                <bibl xml:id="offert_2023" label="Offert and Bell 2023">Offert, F. and Bell, P.
+                    (2023) <title rend="quotes">imgs.ai. A deep visual search engine for digital art
+                        history</title>, in A. Baillot et al. (eds.) <title rend="italic"
+                        >International Conference of the Alliance of Digital Humanities
+                        Organizations, DH 2022</title>. Available at: <ref
+                        target="https://doi.org/10.5281/zenodo.8107778"
                         >https://doi.org/10.5281/zenodo.8107778</ref>. </bibl>
                 <bibl xml:id="pehlivan_2011" label="Pehlivan and Duygulu 2011">Pehlivan, S. and
                     Duygulu, P. (2011) <title rend="quotes">A new pose-based representation for
