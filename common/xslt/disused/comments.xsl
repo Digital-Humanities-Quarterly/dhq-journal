@@ -5,7 +5,7 @@
   <xsl:template name="comments">
     <xsl:param name="id"/>
     <xsl:param name="docurl"/>
-    <xsl:param name="baseurl" select="'http://www.digitalhumanities.org/dhq/'"/>
+    <xsl:param name="baseurl" select="'https://dhq.digitalhumanities.org/'"/>
     <div id="comments">
       <div id="disqus_thread"></div>
       <script type="text/javascript">

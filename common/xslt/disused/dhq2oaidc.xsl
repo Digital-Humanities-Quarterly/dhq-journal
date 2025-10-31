@@ -10,7 +10,7 @@
     version="2.0">
     <xsl:output method="xml" encoding="UTF-8"></xsl:output>
     <!-- The base web address expected for DHQ articles -->
-    <xsl:param name="baseAddress">http://www.digitalhumanities.org/dhq/vol</xsl:param>
+    <xsl:param name="baseAddress">https://dhq.digitalhumanities.org/vol</xsl:param>
     <!-- The assumed language of the TEI record -->
     <xsl:param name="language">
         <xsl:value-of select="//tei:langUsage/tei:language/@ident"/>
