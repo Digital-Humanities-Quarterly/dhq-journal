@@ -30,9 +30,13 @@
     <xsl:param name="show-zotero-json" select="false()" as="xs:boolean"/>
     
     <!-- Try to generate maps from the JSON contents of Zotero "CSL citation" processing instructions. -->
-    <xsl:variable name="zotero-citation-processing-instructions" as="item()*">
+    <xsl:variable name="zotero-citation-processing-instructions" as="map(*)*">
       <xsl:for-each select="//processing-instruction('biblio')[contains(., 'ZOTERO_ITEM CSL_CITATION')]">
-        <xsl:sequence select="parse-json(substring-after(., 'CSL_CITATION'))"/>
+        <xsl:variable name="citationMap" select="parse-json(substring-after(., 'CSL_CITATION'))" as="map(*)"/>
+        <!-- Zotero citation IDs are not guaranteed to be unique (I suspect they may be duplicated if 
+          the author copy-pasted a citation), so we add the processing instruction's XPath string as a 
+          means to identify a citation map from a particular PI. -->
+        <xsl:sequence select="map:merge(( $citationMap, map:entry('xpath', path(.)) ))"/>
       </xsl:for-each>
     </xsl:variable>
     
@@ -113,7 +117,11 @@
             <xsl:map>
               <!-- For each citation PI, create <ptr>s to each of the referenced bibliography entries. -->
               <xsl:for-each select="$zotero-citation-processing-instructions">
-                <xsl:map-entry key="?citationID">
+                <!-- Because Zotero's citation identifiers may be duplicated, we need to use the XPath 
+                  string for the PI to guarantee a unique map key. -->
+                <xsl:variable name="zoteroCitationId" select=".?citationID" as="xs:string"/>
+                <xsl:variable name="piPath" select=".?xpath" as="xs:string"/>
+                <xsl:map-entry key="dhq:make-unique-citation-key($zoteroCitationId, $piPath)">
                   <xsl:for-each select="?citationItems?*">
                     <xsl:variable name="zoteroID" select="?itemData?id cast as xs:string" as="xs:string"/>
                     <xsl:variable name="idref" select="dhq:get-bibliography-entry-id($zoteroID)"/>
@@ -505,10 +513,11 @@
         select="substring-after(., 'CSL_CITATION') 
                 => parse-json()
                 => map:get('citationID')"/>
+      <xsl:variable name="xpath" select="path(.)"/>
       <xsl:if test="$show-zotero-json">
         <xsl:copy/>
       </xsl:if>
-      <xsl:sequence select="$inline-citations?($citationID)"/>
+      <xsl:sequence select="$inline-citations?(dhq:make-unique-citation-key($citationID, $xpath))"/>
     </xsl:template>
     
     
@@ -1061,5 +1070,15 @@
       <xsl:sequence select="$bibliography-entries-from-citation-PIs?($zotero-id)?citationKey"/>
     </xsl:if>
   </xsl:function>
-    
+  
+  <!--
+      Given a Zotero citation ID and an XPath representing the processing instruction, concatenate the
+      strings to create a unique identifier and map key.
+    -->
+  <xsl:function name="dhq:make-unique-citation-key" as="xs:string">
+    <xsl:param name="zotero-id" as="xs:string"/>
+    <xsl:param name="xpath" as="xs:string"/>
+    <xsl:sequence select="$zotero-id||'-'||$xpath"/>
+  </xsl:function>
+  
 </xsl:stylesheet>
