@@ -48,6 +48,7 @@
       <meta name="date of publication" class="staticSearch_date" content="{$srcHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when}"/>
       <meta name="volume" class="staticSearch_num" content="{$srcHeader//tei:idno[@type eq 'volume']}"/>
       <meta name="issue"  class="staticSearch_num" content="{$srcHeader//tei:idno[@type eq 'issue']}"/>
+      <meta name="article number" class="staticSearch_feat" content="{$srcHeader//tei:idno[@type eq 'DHQarticle-id']}"/>
       <!--
           As of the original writing of this code (2024-02-21) —
           * There are no .xml files with 0 /*/teiHeader/fileDesc/titleStmt/title (of course not, that would be invalid)
