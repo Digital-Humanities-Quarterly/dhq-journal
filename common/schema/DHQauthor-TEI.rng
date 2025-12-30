@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:teix="http://www.tei-c.org/ns/Examples" xmlns:xlink="http://www.w3.org/1999/xlink" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" ns="http://www.tei-c.org/ns/1.0">
   <!--
-Schema generated from ODD source 2025-12-16T13:29:43Z. . 
+Schema generated from ODD source 2025-12-30T16:07:30Z. . 
 TEI Edition: P5 Version 4.9.0. Last updated on 24th January 2025, revision f73186978 
 TEI Edition Location: https://www.tei-c.org/Vault/P5/4.9.0/ 
  This schema supports basic journal features. 
@@ -7384,6 +7384,29 @@ Suggested values include: 1] ISBN; 2] ISSN; 3] DOI; 4] URI; 5] VIAF; 6] ESTC; 7]
           <ref name="dhq_change"/>
         </oneOrMore>
       </choice>
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-revisionDesc-require_proper_git_history-constraint-rule-15">
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:revisionDesc[ $numGitHxs eq 0 ]">
+          <sch:assert test="false()">A &lt;change&gt; element that gives git history is required.</sch:assert>
+        </sch:rule>
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:revisionDesc[ $numGitHxs gt 1]">
+          <sch:assert test="false()">There should be one and only one &lt;change&gt; element that gives the git history
+              (there appear to be <sch:value-of select="$numGitHxs"/> of ’em).</sch:assert>
+        </sch:rule>
+        <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:revisionDesc/tei:change[ tei:ref[ @type eq 'gitHist'] ]">
+          <sch:assert test="@who">git history change entry must be attributed (i.e., must have a @who attribute)</sch:assert>
+          <sch:assert test="normalize-space( text()[1] ) eq 'The version history for this file can be found on'">
+                git history change entry should start with “The version history for this file can be found on”.
+              </sch:assert>
+          <sch:assert test="starts-with( tei:ref/@target, $base_art_URL )">
+                git history target should start with git repo URL for articles 
+                (“https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/”).
+              </sch:assert>
+          <sch:assert test="ends-with( tei:ref/@target, concat('/', $artID, '/', $fn ) )">
+                git history target should end in same directory &amp; filename as current file
+                (“<sch:value-of select="concat( '/', $artID, '/',$fn )"/>”).
+              </sch:assert>
+        </sch:rule>
+      </pattern>
       <ref name="dhq_att.global.attributes"/>
       <ref name="dhq_att.docStatus.attributes"/>
       <empty/>
@@ -7724,14 +7747,14 @@ Suggested values include: 1] ISBN; 2] ISSN; 3] DOI; 4] URI; 5] VIAF; 6] ESTC; 7]
           </rng:group>
         </rng:optional>
       </group>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-div-abstractModel-structure-div-in-l-constraint-rule-15">
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-div-abstractModel-structure-div-in-l-constraint-rule-18">
         <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:l//tei:div">
           <sch:assert test="ancestor::tei:floatingText">
           Abstract model violation: Metrical lines may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.
         </sch:assert>
         </sch:rule>
       </pattern>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-div-abstractModel-structure-div-in-ab-or-p-constraint-rule-16">
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-div-abstractModel-structure-div-in-ab-or-p-constraint-rule-19">
         <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="tei:div">
           <sch:report test="(ancestor::tei:p or ancestor::tei:ab) and not(ancestor::tei:floatingText)">
           Abstract model violation: p and ab may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.
@@ -8144,7 +8167,7 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
     <element name="ab">
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(anonymous block) contains any component-level unit of text, acting as a container for phrase or inter level elements analogous to, but without the same constraints as, a paragraph. [17.3. Blocks, Segments, and Anchors]</a:documentation>
       <ref name="dhq_macro.abContent"/>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-ab-abstractModel-structure-ab-in-l-constraint-rule-17">
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-ab-abstractModel-structure-ab-in-l-constraint-rule-20">
         <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:xi="http://www.w3.org/2001/XInclude" context="tei:l//tei:ab">
           <sch:assert test="ancestor::tei:floatingText | parent::tei:figure | parent::tei:note">
           Abstract model violation: Metrical lines may not contain higher-level divisions such as p or ab, unless ab is a child of figure or note, or is a descendant of floatingText.
@@ -8474,7 +8497,7 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
     <element name="family" ns="http://www.digitalhumanities.org/ns/dhq">
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Identifies the family name of the author.</a:documentation>
       <text/>
-      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-family-family_must_have_content-constraint-rule-18">
+      <pattern xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:rng="http://relaxng.org/ns/structure/1.0" id="dhq-family-family_must_have_content-constraint-rule-21">
         <sch:rule xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sch="http://purl.oclc.org/dsdl/schematron" context="dhq:family">
           <sch:report test="normalize-space(.) eq ''">A family
                 name must be supplied inside &lt;dhq:family&gt;; if this
@@ -8734,6 +8757,10 @@ Sample values include: 1] TEI; 2] DBK (docbook); 3] XX (unknown); 4] Schematron;
   </start>
   <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
   <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="dhq" uri="http://www.digitalhumanities.org/ns/dhq"/>
+  <sch:let xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" name="numGitHxs" value="count( /*/tei:teiHeader/tei:revisionDesc/tei:change/tei:ref[ @type eq 'gitHist'] )"/>
+  <sch:let xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" name="fn" value="tokenize( base-uri(/), '/')[ last() ]"/>
+  <sch:let xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" name="artID" value="replace( $fn, '^([0-9]{6}).*\.xml$','$1')"/>
+  <sch:let xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" name="base_art_URL" value="'https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/'"/>
   <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
   <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="xs" uri="http://www.w3.org/2001/XMLSchema"/>
   <sch:ns xmlns="http://www.tei-c.org/ns/1.0" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:sch="http://purl.oclc.org/dsdl/schematron" prefix="rng" uri="http://relaxng.org/ns/structure/1.0"/>

@@ -26,11 +26,18 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2025-12-30" who="#sdb">
+        Insist that there must be a <gi>change</gi> that points reader
+        to current file’s git history (in a particular way), per
+        <ref
+        target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/133">issue
+        #133</ref>. (Most work done 2025-12-16, but not finished until today.)
+      </change>
       <change when="2025-12-15" who="#sdb">
-	<list>
-	  <item>added descriptions (by <persName ref="#jhf"/>) to recently added values of <att>type</att> of <gi>authorNote</gi></item>
-	  <item>added <val>gitHist</val> to value list of <att>type</att> of <gi>ref</gi></item>
-	</list>
+        <list>
+          <item>added descriptions (by <persName ref="#jhf"/>) to recently added values of <att>type</att> of <gi>authorNote</gi></item>
+          <item>added <val>gitHist</val> to value list of <att>type</att> of <gi>ref</gi></item>
+        </list>
       </change>
       <change when="2025-12-01" who="#sdb">
         Per comment
@@ -354,6 +361,10 @@ email (should only have an email address)
           ODD-generated Schematron should go here.</desc>
           <sch:ns prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
           <sch:ns prefix="dhq" uri="http://www.digitalhumanities.org/ns/dhq"/>
+          <sch:let name="numGitHxs" value="count( /*/tei:teiHeader/tei:revisionDesc/tei:change/tei:ref[ @type eq 'gitHist'] )"/>
+          <sch:let name="fn" value="tokenize( base-uri(/), '/')[ last() ]"/>
+          <sch:let name="artID" value="replace( $fn, '^([0-9]{6}).*\.xml$','$1')"/>
+          <sch:let name="base_art_URL" value="'https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/'"/>
         </constraintDecl>
 
         <!-- ======================================================================== -->
@@ -2207,6 +2218,35 @@ email (should only have an email address)
           <memberOf key="model.pPart.data" mode="delete"/>
         </classes>
       </classSpec>
+
+      <!-- Require a <change> that refers to git history (currently on gitHub) -->
+      <elementSpec ident="revisionDesc" module="header" mode="change">
+        <constraintSpec scheme="schematron" ident="require_proper_git_history">
+          <constraint>
+            <sch:rule context="tei:revisionDesc[ $numGitHxs eq 0 ]">
+              <sch:assert test="false()">A &lt;change> element that gives git history is required.</sch:assert>
+            </sch:rule>
+            <sch:rule context="tei:revisionDesc[ $numGitHxs gt 1]">
+              <sch:assert test="false()">There should be one and only one &lt;change> element that gives the git history
+              (there appear to be <sch:value-of select="$numGitHxs"/> of ’em).</sch:assert>
+            </sch:rule>
+            <sch:rule context="tei:revisionDesc/tei:change[ tei:ref[ @type eq 'gitHist'] ]">
+              <sch:assert test="@who">git history change entry must be attributed (i.e., must have a @who attribute)</sch:assert>
+              <sch:assert test="normalize-space( text()[1] ) eq 'The version history for this file can be found on'">
+                git history change entry should start with “The version history for this file can be found on”.
+              </sch:assert>
+              <sch:assert test="starts-with( tei:ref/@target, $base_art_URL )">
+                git history target should start with git repo URL for articles 
+                (“https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/”).
+              </sch:assert>
+              <sch:assert test="ends-with( tei:ref/@target, concat('/', $artID, '/', $fn ) )">
+                git history target should end in same directory &amp; filename as current file
+                (“<sch:value-of select="concat( '/', $artID, '/',$fn )"/>”).
+              </sch:assert>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
+      </elementSpec>
 
     </schemaSpec>
   </body>
