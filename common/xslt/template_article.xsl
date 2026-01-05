@@ -101,11 +101,12 @@
                     </xsl:call-template>
 		    <body>
                         <xsl:call-template name="topnavigation"/>
-                        <div id="main">
-                            <div id="leftsidebar">
+                        <main class="container-fluid py-3">
+                            <div class="row g-3">
+                            <aside id="leftsidebar" class="col-lg-3 col-xl-2 d-none d-lg-block">
                                 <xsl:call-template name="sidenavigation"/>
-                            </div>
-                            <div id="mainContent">
+                            </aside>
+                            <section id="mainContent" class="col-12 col-lg-9 col-xl-10">
                                 <xsl:call-template name="sitetitle"/>
                                 <h1>An error occurred.</h1>
                                 <p>We're sorry, but your request resulted in a processing error.</p>
@@ -115,8 +116,9 @@
                                 <xsl:call-template name="footer">
                                     <xsl:with-param name="docurl" select="'contact/error.html'"/>
                                 </xsl:call-template>
+                            </section>
                             </div>
-                        </div>
+                        </main>
 		        <xsl:call-template name="body-end-scripts"/>
                     </body>
                 </html>
@@ -128,11 +130,12 @@
                     </xsl:call-template>
                     <body>
                         <xsl:call-template name="topnavigation"/>
-                        <div id="main">
-                            <div id="leftsidebar">
+                        <main class="container-fluid py-3">
+                            <div class="row g-3">
+                            <aside id="leftsidebar" class="col-lg-3 col-xl-2 d-none d-lg-block">
                                 <xsl:call-template name="sidenavigation"/>
-                            </div>
-                            <div id="mainContent">
+                            </aside>
+                            <section id="mainContent" class="col-12 col-lg-9 col-xl-10">
                                 <xsl:call-template name="sitetitle"/>
                                 <h1>Resource not found.</h1>
                                 <p>The resource you requested<!-- 
@@ -147,8 +150,9 @@
                                 <xsl:call-template name="footer">
                                     <xsl:with-param name="docurl" select="'contact/notfound.html'"/>
                                 </xsl:call-template>
+                            </section>
                             </div>
-                        </div>
+                        </main>
                         <xsl:call-template name="body-end-scripts"/>
                     </body>
                 </html>                    
@@ -157,6 +161,7 @@
     </xsl:template>
     <xsl:template name="body-end-scripts">
         <script>hljs.highlightAll();</script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"><xsl:comment>gimme some comment</xsl:comment></script>
     </xsl:template>
         
     
@@ -168,11 +173,12 @@
             </xsl:call-template>
             <body>
                 <xsl:call-template name="topnavigation"/>
-                <div id="main">
-                    <div id="leftsidebar">
+                <main class="container-fluid py-3">
+                    <div class="row g-3">
+                    <aside id="leftsidebar" class="col-lg-3 col-xl-2 d-none d-lg-block">
                         <xsl:call-template name="sidenavigation"/>
-                    </div>
-                    <div id="mainContent">
+                    </aside>
+                    <section id="mainContent" class="col-12 col-lg-9 col-xl-10">
                         <xsl:call-template name="sitetitle"/>
                         <!-- Rest of the document/article is coverd in this template - this is a call to dhq2html.xsl -->
                         <xsl:call-template name="article_main_body"> 
@@ -193,8 +199,9 @@
                         <xsl:call-template name="footer">
                             <xsl:with-param name="docurl" select="$fpath"/>
                         </xsl:call-template>
+                    </section>
                     </div>
-                </div>
+                </main>
                 <xsl:call-template name="customBody"/>
                 <xsl:call-template name="body-end-scripts"/>
             </body>
