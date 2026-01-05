@@ -95,7 +95,7 @@ s.parentNode.insertBefore(ga, s);
       </script>
       <!-- New google analytics 2023-06-19 -->
       <!-- Google tag (gtag.js) -->
-      <script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-F59WMFKXLW"></script>
+      <script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-F59WMFKXLW"><xsl:comment>gimme some comment</xsl:comment></script>
       <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -133,8 +133,10 @@ s.parentNode.insertBefore(ga, s);
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/xcode.min.css" />
       <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"><xsl:comment>Gimme some comment!</xsl:comment></script>
       
-      <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"><xsl:comment>Gimme some comment!</xsl:comment></script>
+     
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous"/>
       <!-- Insert any special-case code defined by the caller: -->
+      
       <xsl:call-template name="customHead"/>       
             
     </head>
