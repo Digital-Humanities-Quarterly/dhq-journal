@@ -14,50 +14,89 @@
   <xsl:param name="path_to_home" select="''" as="xs:string"/>
   
   <xsl:template name="topnavigation">
-    <div id="top">
-      <xsl:call-template name="topbanner"/>
+    <header id="top" class="border-bottom">
+      <!-- xsl:call-template name="topbanner"/> -->
       <xsl:call-template name="topnav"/>
-    </div>
+    </header>
   </xsl:template>
   
   <!-- Home will always be index of the current issue- change that path accordingly -->
   <xsl:template name="topnav">
-    <div id="topNavigation">
-      <!-- 2024-07: Changed @hrefs to use relative links based on the value of $path_to_home -->
-      <div id="topnavlinks">
-        <span>
-          <a href="{$path_to_home}/index.html" class="topnav">home</a>
-        </span>
-        <span>
-          <a href="{$path_to_home}/submissions/index.html" class="topnav">submissions</a>
-        </span>
-        <span>
-          <a href="{$path_to_home}/about/about.html" class="topnav">about dhq</a>
-        </span>
-        <span>
-          <a href="{$path_to_home}/explore/explore.html" class="topnav">explore</a>
-        </span>
-        <span>
-          <a href="{$path_to_home}/people/people.html" class="topnav">dhq people</a>
-        </span>
-        <span>
-          <a href="{$path_to_home}/news/news.html" class="topnav">news</a>
-        </span>
-        <span id="rightmost">
-          <a href="{$path_to_home}/contact/contact.html" class="topnav">contact</a>
-        </span>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">DHQ</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{$path_to_home}/index.html">home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{$path_to_home}/submissions/index.html">submissions</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{$path_to_home}/about/about.html">about dhq</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{$path_to_home}/explore/explore.html">explore</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{$path_to_home}/people/people.html">dhq people</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{$path_to_home}/news/news.html">news</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{$path_to_home}/contact/contact.html">contact</a>
+            </li>
+            
+            <!-- Search toggle -->
+            <li class="nav-item">
+              <button class="nav-link btn btn-link"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navSearch"
+                aria-expanded="false"
+                aria-controls="navSearch"
+                aria-label="Search">
+                🔍
+              </button>
+            </li>
+            
+            <!-- Collapsing search -->
+            <li class="nav-item collapse" id="navSearch">
+              <form class="d-flex ms-lg-2"
+                role="search"
+                id="searchForm"
+                method="get"
+                action="{$path_to_home}/vol/search.html"
+                accept-charset="UTF-8">
+                <input id="q"
+                  class="form-control form-control-sm me-2"
+                  type="search"
+                  name="q"
+                  placeholder="keyword"
+                  aria-label="Search" />
+                  <button class="btn btn-outline-success btn-sm" type="submit">
+                    Go
+                  </button>
+              </form>
+            </li>
+          </ul>
+          <!-- 
+          <form class="d-flex" role="search" id="searchForm" method="get" action="{$path_to_home}/vol/search.html"
+            enctype="application/x-www-form-urlencoded" accept-charset="UTF-8">
+            <div id="search">
+              <input id="q" class="form-control me-2" type="text" name="q" value="" placeholder="keyword" aria-label="Search"/>
+              <button class="btn btn-outline-success" id="searchSubmit" value="go!" type="submit">Search</button>
+            </div>
+          </form>
+          -->
+        </div>
       </div>
-      <div id="searchStuff">
-        <form id="searchForm" method="get" action="{$path_to_home}/vol/search.html"
-              enctype="application/x-www-form-urlencoded" accept-charset="UTF-8">
-          <div id="search">
-            <label for="q">Search</label>
-            <input id="q" type="text" name="q" value="" placeholder="keyword"/>
-            <input id="searchSubmit" type="submit" value="go!"/>
-          </div>
-        </form>
-      </div>
-    </div>
+    </nav>
   </xsl:template>
 
   <xsl:template name="topbanner">
