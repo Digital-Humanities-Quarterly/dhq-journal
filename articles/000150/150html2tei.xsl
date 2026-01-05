@@ -292,10 +292,8 @@ of this software, even if advised of the possibility of such damage.
                         </list>
                     </keywords>
                     <keywords scheme="#authorial_keywords">
-                        <xsl:comment>Authors may include one or more keywords of their choice</xsl:comment>
-                        <list type="simple">
-                            <item></item>
-                        </list>
+                        <xsl:comment>Authors may include one or more keywords (in &lt;term> elements) of their choice</xsl:comment>
+                        <term/>
                     </keywords>
                 </textClass>
             </profileDesc>
