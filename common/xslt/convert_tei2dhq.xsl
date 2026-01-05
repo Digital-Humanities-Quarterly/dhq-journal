@@ -250,7 +250,7 @@
            </xsl:if>
            <revisionDesc>
              <xsl:comment> Replace both "NNNNNN"s in the @target of ther &lt;ref> below with the appropriate DHQarticle-id value. </xsl:comment>
-	     <change who="WWWWW" when="YYYY-MM-DD">The version history for this file can be found on <ref type="gitHist" target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub</ref>.</change>
+	     <change>The version history for this file can be found on <ref type="gitHist" target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub</ref>.</change>
            </revisionDesc>
         </teiHeader>
     </xsl:template>
