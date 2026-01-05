@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2">
    <title>ISO Schematron rules</title>
-   <!-- This file generated 2025-12-16T13:29:45Z by 'extract-isosch.xsl'. -->
+   <!-- This file generated 2025-12-30T16:42:59Z by 'extract-isosch.xsl'. -->
    <!-- ********************* -->
    <!-- namespaces, declared: -->
    <!-- ********************* -->
@@ -16,11 +16,17 @@
    <!-- ********************* -->
    <!-- namespaces, implicit: -->
    <!-- ********************* -->
-   <ns prefix="esp-d2e29120" uri="http://web.resource.org/cc/"/>
+   <ns prefix="esp-d2e29174" uri="http://web.resource.org/cc/"/>
    <ns prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
    <!-- ******************************************************* -->
-   <!-- constraints in en, und, mul, zxx, of which there are 18 -->
+   <!-- constraints in en, und, mul, zxx, of which there are 21 -->
    <!-- ******************************************************* -->
+   <let name="numGitHxs"
+        value="count( /*/tei:teiHeader/tei:revisionDesc/tei:change/tei:ref[ @type eq 'gitHist'] )"/>
+   <let name="fn" value="tokenize( base-uri(/), '/')[ last() ]"/>
+   <let name="artID" value="replace( $fn, '^([0-9]{6}).*\.xml$','$1')"/>
+   <let name="base_art_URL"
+        value="'https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/'"/>
    <pattern id="schematron-constraint-CMC_generatedBy_within_post-1">
       <rule context="tei:*[@generatedBy]">
          <assert test="ancestor-or-self::tei:post">The @generatedBy attribute is for use within a &lt;post&gt; element.</assert>
@@ -94,22 +100,40 @@
          <report test="$basename ne normalize-space(.)"> The &lt;idno type="DHQarticle-id"&gt; should match the filename (without ".xml"); i.e. both should be the article number</report>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-div-in-l-15">
+   <pattern id="schematron-constraint-require_proper_git_history-15">
+      <rule context="tei:revisionDesc[ $numGitHxs eq 0 ]">
+         <assert test="false()">A &lt;change&gt; element that gives git history is required.</assert>
+      </rule>
+   </pattern>
+   <pattern id="schematron-constraint-require_proper_git_history-16">
+      <rule context="tei:revisionDesc[ $numGitHxs gt 1]">
+         <assert test="false()">There should be one and only one &lt;change&gt; element that gives the git history (there appear to be <value-of select="$numGitHxs"/> of ’em).</assert>
+      </rule>
+   </pattern>
+   <pattern id="schematron-constraint-require_proper_git_history-17">
+      <rule context="tei:revisionDesc/tei:change[ tei:ref[ @type eq 'gitHist'] ]">
+         <assert test="@who">git history change entry must be attributed (i.e., must have a @who attribute)</assert>
+         <assert test="normalize-space( text()[1] ) eq 'The version history for this file can be found on'"> git history change entry should start with “The version history for this file can be found on”.</assert>
+         <assert test="starts-with( tei:ref/@target, $base_art_URL )"> git history target should start with git repo URL for articles (“https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/”).</assert>
+         <assert test="ends-with( tei:ref/@target, concat('/', $artID, '/', $fn ) )"> git history target should end in same directory &amp; filename as current file (“<value-of select="concat( '/', $artID, '/',$fn )"/>”).</assert>
+      </rule>
+   </pattern>
+   <pattern id="schematron-constraint-abstractModel-structure-div-in-l-18">
       <rule context="tei:l//tei:div">
          <assert test="ancestor::tei:floatingText"> Abstract model violation: Metrical lines may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-div-in-ab-or-p-16">
+   <pattern id="schematron-constraint-abstractModel-structure-div-in-ab-or-p-19">
       <rule context="tei:div">
          <report test="(ancestor::tei:p or ancestor::tei:ab) and not(ancestor::tei:floatingText)"> Abstract model violation: p and ab may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.</report>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-ab-in-l-17">
+   <pattern id="schematron-constraint-abstractModel-structure-ab-in-l-20">
       <rule context="tei:l//tei:ab">
          <assert test="ancestor::tei:floatingText | parent::tei:figure | parent::tei:note"> Abstract model violation: Metrical lines may not contain higher-level divisions such as p or ab, unless ab is a child of figure or note, or is a descendant of floatingText.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-family_must_have_content-18">
+   <pattern id="schematron-constraint-family_must_have_content-21">
       <rule context="dhq:family">
          <report test="normalize-space(.) eq ''">A family name must be supplied inside &lt;dhq:family&gt;; if this &lt;<value-of select="name(..)"/>&gt; does not need a family name, delete the entire &lt;dhq:family&gt; element.</report>
       </rule>

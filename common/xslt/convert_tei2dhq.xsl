@@ -242,17 +242,14 @@
            <xsl:if test="$show-zotero-json and exists($bibliography-entries-from-citation-PIs)">
               <xenoData>
                 <xsl:text>[ </xsl:text>
-                <xsl:sequence select="string-join($bibliography-entries-from-citation-PIs?*?jsonStr, ',  
-')"/>
+                <xsl:sequence select="string-join($bibliography-entries-from-citation-PIs?*?jsonStr, ',&#x20;&#x20;&#x0A;')"/>
                 <xsl:text> ]</xsl:text>
               </xenoData>
            </xsl:if>
            <revisionDesc>
-             <xsl:comment> Replace "NNNNNN" in the @target of ref below with the appropriate DHQarticle-id value. </xsl:comment>
-                   <change>The version history for this file can be found on <ref target=
-                        "https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub
-                   </ref></change>
-               </revisionDesc>
+             <xsl:comment> Replace both "NNNNNN"s in the @target of ther &lt;ref> below with the appropriate DHQarticle-id value. </xsl:comment>
+	     <change>The version history for this file can be found on <ref type="gitHist" target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/NNNNNN/NNNNNN.xml">GitHub</ref>.</change>
+           </revisionDesc>
         </teiHeader>
     </xsl:template>
     
