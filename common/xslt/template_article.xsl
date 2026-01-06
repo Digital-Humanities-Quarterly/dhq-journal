@@ -113,12 +113,12 @@
                                 <h2>Contact Information</h2>
                                 <h3>Email</h3>
                                 <p>General Information: <a href="mailto:dhqinfo@digitalhumanities.org">dhqinfo@digitalhumanities.org</a></p>
-                                <xsl:call-template name="footer">
+                                                            </section>
+                            </div>
+			    </main>
+			    <xsl:call-template name="footer">
                                     <xsl:with-param name="docurl" select="'contact/error.html'"/>
                                 </xsl:call-template>
-                            </section>
-                            </div>
-                        </main>
 		        <xsl:call-template name="body-end-scripts"/>
                     </body>
                 </html>
@@ -147,12 +147,13 @@
                                 <h2>Contact Information</h2>
                                 <h3>Email</h3>
                                 <p>General Information: <a href="mailto:dhqinfo@digitalhumanities.org">dhqinfo@digitalhumanities.org</a></p>
-                                <xsl:call-template name="footer">
+                                                            </section>
+                            </div>
+			    </main>
+			    <xsl:call-template name="footer">
                                     <xsl:with-param name="docurl" select="'contact/notfound.html'"/>
                                 </xsl:call-template>
-                            </section>
-                            </div>
-                        </main>
+
                         <xsl:call-template name="body-end-scripts"/>
                     </body>
                 </html>                    
@@ -196,12 +197,12 @@
 -->
 			
                         <!-- Use the URL generated to pass to the footer -->
-                        <xsl:call-template name="footer">
-                            <xsl:with-param name="docurl" select="$fpath"/>
-                        </xsl:call-template>
                     </section>
                     </div>
-                </main>
+		    </main>
+		    <xsl:call-template name="footer">
+                            <xsl:with-param name="docurl" select="$fpath"/>
+                        </xsl:call-template>
                 <xsl:call-template name="customBody"/>
                 <xsl:call-template name="body-end-scripts"/>
             </body>
