@@ -1626,7 +1626,20 @@
           </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:if test="ancestor::tei:cit"><xsl:text>&#xA0;</xsl:text></xsl:if>
+	  <!--
+	      Following conditional inserts a non-breaking space iff
+	      we are a descendant of <cit> AND we are not immediately
+	      following whitespace already.
+	      Personally, I think it may make sense to drop the <cit>
+	      requirement, in that if there is no preceding
+	      whitespace, we want some, whether or not we are in a
+	      <cit>, no? —Syd, 2026-01-11
+	  -->
+          <xsl:if test="ancestor::tei:cit
+			and
+			not( preceding-sibling::node()[1][ self::text()[ matches( ., '\s$') ] ] )">
+	    <xsl:text>&#xA0;</xsl:text>
+	  </xsl:if>
           <xsl:choose>
             <xsl:when test="key('element-by-id', substring-after(@target, '#'))">
               <xsl:apply-templates select="key('element-by-id', substring-after(@target, '#'))" mode="generated-reference">
