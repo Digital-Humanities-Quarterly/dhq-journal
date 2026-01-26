@@ -62,9 +62,11 @@
                 <publicationStmt>
                     <publisher>Alliance of Digital Humanities Organizations</publisher>
                     <publisher>Association for Computers and the Humanities</publisher>
-                    <xsl:comment>This information will be completed at publication</xsl:comment>
+                    <xsl:comment>This information should be added when the file is created</xsl:comment>                	
                     <idno type="DHQarticle-id"><xsl:comment>including leading zeroes: e.g. 000110</xsl:comment></idno>
-                    <idno type="volume"><xsl:comment>volume number, with leading zeroes as needed to make 3 digits: e.g. 006</xsl:comment></idno>
+
+                    <xsl:comment>This information will be completed at publication</xsl:comment>                	
+                	<idno type="volume"><xsl:comment>volume number, with leading zeroes as needed to make 3 digits: e.g. 006</xsl:comment></idno>
                     <idno type="issue"><xsl:comment>issue number, without leading zeroes: e.g. 2</xsl:comment></idno>
                     <date></date>
                     <dhq:articleType>article</dhq:articleType>
@@ -85,13 +87,13 @@
             <encodingDesc>
                 <classDecl>
                     <taxonomy xml:id="dhq_keywords">
-                        <bibl>DHQ classification scheme; full list available at <ref target="http://www.digitalhumanities.org/dhq/taxonomy.xml">http://www.digitalhumanities.org/dhq/taxonomy.xml</ref></bibl>
+                        <bibl>DHQ classification scheme; full list available at <ref target="https://dhq.digitalhumanities.org/taxonomy.xml">https://dhq.digitalhumanities.org/taxonomy.xml</ref></bibl>
                     </taxonomy>
                     <taxonomy xml:id="authorial_keywords">
                         <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
                     </taxonomy>
             		<taxonomy xml:id="project_keywords">
-            			<bibl>DHQ project registry; full list available at <ref target="http://www.digitalhumanities.org/dhq/projects.xml">http://www.digitalhumanities.org/dhq/projects.xml</ref></bibl>
+            			<bibl>DHQ project registry; full list available at <ref target="https://dhq.digitalhumanities.org/projects.xml">https://dhq.digitalhumanities.org/projects.xml</ref></bibl>
             		</taxonomy>
                 </classDecl>
             </encodingDesc>
@@ -102,16 +104,14 @@
                 </langUsage>
                 <textClass>
                     <keywords scheme="#dhq_keywords">
-                        <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
+                        <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at https://dhq.digitalhumanities.org/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
                         <list type="simple">
                             <item></item>
                         </list>
                     </keywords>
                     <keywords scheme="#authorial_keywords">
-                        <xsl:comment>Authors may include one or more keywords of their choice</xsl:comment>
-                        <list type="simple">
-                            <item></item>
-                        </list>
+                        <xsl:comment>Authors may include one or more keywords (in &lt;term> elements) of their choice</xsl:comment>
+                        <term/>
                     </keywords>
             		<keywords scheme="#project_keywords">
             			<list type="simple">

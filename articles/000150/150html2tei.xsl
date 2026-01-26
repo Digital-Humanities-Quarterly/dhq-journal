@@ -273,7 +273,7 @@ of this software, even if advised of the possibility of such damage.
             <encodingDesc>
                 <classDecl>
                     <taxonomy xml:id="dhq_keywords">
-                        <bibl>DHQ classification scheme; full list available at <ref target="http://www.digitalhumanities.org/dhq/taxonomy.xml">http://www.digitalhumanities.org/dhq/taxonomy.xml</ref></bibl>
+                        <bibl>DHQ classification scheme; full list available at <ref target="https://dhq.digitalhumanities.org/taxonomy.xml">https://dhq.digitalhumanities.org/taxonomy.xml</ref></bibl>
                     </taxonomy>
                     <taxonomy xml:id="authorial_keywords">
                         <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
@@ -286,16 +286,14 @@ of this software, even if advised of the possibility of such damage.
                 </langUsage>
                 <textClass>
                     <keywords scheme="#dhq_keywords">
-                        <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at http://www.digitalhumanities.org/dhq/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
+                        <xsl:comment>Authors may suggest one or more keywords from the DHQ keyword list, visible at https://dhq.digitalhumanities.org/taxonomy.xml; these may be supplemented or modified by DHQ editors</xsl:comment>
                         <list type="simple">
                             <item></item>
                         </list>
                     </keywords>
                     <keywords scheme="#authorial_keywords">
-                        <xsl:comment>Authors may include one or more keywords of their choice</xsl:comment>
-                        <list type="simple">
-                            <item></item>
-                        </list>
+                        <xsl:comment>Authors may include one or more keywords (in &lt;term> elements) of their choice</xsl:comment>
+                        <term/>
                     </keywords>
                 </textClass>
             </profileDesc>

@@ -10,7 +10,7 @@
     
     <xsl:import href="../../../../common/xslt/template_article.xsl"/>
     
-    <xsl:param name="staticPublishingPathPrefix"><xsl:value-of select="'../../../../toc/'"/></xsl:param>
+    <xsl:param name="staticPublishingPathPrefix" select="'../../toc/'"/>
     
     <xsl:variable name="articleHtml" select="document('../../000150.html')"/>
     
@@ -65,9 +65,11 @@
         
     </xsl:template>
     
-    <xsl:template name="sidenavigation">
+    <!-- 2024-07: Ash commented out the template below. There's no need to duplicate the code already 
+      present in sidenavigation.xsl (which is imported by template_article.xsl). -->
+    <!--<xsl:template name="sidenavigation">
         <xsl:param name="session"><session:getxml context="request" path="/"/></xsl:param>
-        <!--sidenavigation-->
+        <!-\-sidenavigation-\->
         <div id="leftsidenav">
             
             <span>Current Issue<br/>
@@ -89,7 +91,7 @@
                 </li>
             </ul>
             
-            <!-- if there are items in the preview, display the link to the section [CRB] -->
+            <!-\- if there are items in the preview, display the link to the section [CRB] -\->
             <xsl:if test="document(concat($staticPublishingPathPrefix,'toc.xml'))//journal[@preview]">
                 <span>Preview Issue<br/>
                 </span>
@@ -126,11 +128,11 @@
                         </a>
                     </li>
                 </xsl:for-each>
-                <!--<li> <a href="">Preview Next Issue</a></li>
+                <!-\-<li> <a href="">Preview Next Issue</a></li>
                     <li><a href="">Browse DHQ Archives</a></li>
                     <li> <a href="">Browse by Author</a></li>
                     <li><a href="">Browse by Title</a></li>
-                    <li> <a href="">Advanced Search</a></li>-->
+                    <li> <a href="">Advanced Search</a></li>-\->
             </ul>
             
             <span>Indexes<br />
@@ -159,7 +161,7 @@
             </xsl:attribute>
         </img>
         
-        <!-- issn announcement etc -->
+        <!-\- issn announcement etc -\->
         <div id="leftsideID">
             <b>ISSN 1938-4122</b>
             <br/>
@@ -184,18 +186,18 @@
         </div>
         <div class="leftsidecontent">
             
-            <!-- AddThis Button BEGIN -->
+            <!-\- AddThis Button BEGIN -\->
             <script type="text/javascript">addthis_pub  = 'dhq';</script>
             <a href="http://www.addthis.com/bookmark.php"
                 onmouseover="return addthis_open(this, '', '[URL]', '[TITLE]')"
                 onmouseout="addthis_close()" onclick="return addthis_sendto()">
                 <img src="http://s9.addthis.com/button1-addthis.gif" width="125" height="16" alt="button1-addthis.gif"/>
             </a>
-            <script type="text/javascript" src="http://s7.addthis.com/js/152/addthis_widget.js"><![CDATA[<!-- Javascript functions -->]]></script>
-            <!-- AddThis Button END -->
+            <script type="text/javascript" src="http://s7.addthis.com/js/152/addthis_widget.js"><![CDATA[<!-\- Javascript functions -\->]]></script>
+            <!-\- AddThis Button END -\->
             
-            <!-- Editorial area with logout button if we have a session variable [CRB] -->
-            <!--<br /><br /><span><a href="/dhq/login.html">Editorial Area</a></span>-->
+            <!-\- Editorial area with logout button if we have a session variable [CRB] -\->
+            <!-\-<br /><br /><span><a href="/dhq/login.html">Editorial Area</a></span>-\->
             
             <xsl:if test="string($session)">
                 <form action="/dhq/do-logout" method="post"><p><input type="submit" value="Logout" style="border: 1px solid black;"/></p></form>
@@ -203,7 +205,7 @@
         </div>
         
         
-    </xsl:template>
+    </xsl:template>-->
         
         
     

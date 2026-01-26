@@ -159,7 +159,7 @@
         <classDecl>
           <taxonomy xml:id="dhq_keywords">
             <bibl><xsl:text>DHQ classification scheme; full list available in the </xsl:text>
-              <ref target="http://www.digitalhumanities.org/dhq/taxonomy.xml">DHQ keyword taxonomy</ref></bibl>
+              <ref target="https://dhq.digitalhumanities.org/taxonomy.xml">DHQ keyword taxonomy</ref></bibl>
           </taxonomy>
           <taxonomy xml:id="authorial_keywords">
             <bibl>Keywords supplied by author; no controlled vocabulary</bibl>

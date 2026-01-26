@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://purl.oclc.org/dsdl/schematron"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  queryBinding="xslt2">
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	queryBinding="xslt2">
 
-
+  <ns prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
+  <ns prefix="dhq" uri="http://www.digitalhumanities.org/ns/dhq"/>
+  <ns prefix="cc"  uri="http://web.resource.org/cc/"/>
+  <ns prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+  <ns prefix="xs"  uri="http://www.w3.org/2001/XMLSchema"/>
+  
   <p>Authorial readiness check for DHQ articles.</p>
 
   <p>This checks a number of constraints on DHQauthor articles that we can't or
@@ -16,34 +21,44 @@
   <!-- Also check DHQ-TEI-diagnostic.sch for rules that should be
        in here -->
 
-  <ns prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
-  <ns prefix="dhq" uri="http://www.digitalhumanities.org/ns/dhq"/>
-  <ns prefix="cc"  uri="http://web.resource.org/cc/"/>
-  <ns prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
-  <ns prefix="xs"  uri="http://www.w3.org/2001/XMLSchema"/>
-  
+  <!--
+      ABSTRACT RULE PROBLEM
+      We want to use extensions of the abstract rule "target-uri-
+      constraints" from two different patterns. Some older processors
+      (e.g., skeleton) would allow the abstract rule to be in one
+      pattern, and extended by rules in a different pattern. Modern
+      processors (e.g., SchXslt2) do not allow this, since the
+      standard does not allow it. In modern Schematron the right way
+      to do this is to put the abstract rule in an <sch:rules> element
+      here as a child of <sch:schema>. We are *not* doing that right
+      now, because oXygen does not yet know about the <rules> element
+      and complains. Thus when oXygen gets updated so that it knows
+      about the new <rules> element, we should move the "target-uri-
+      constraints" rule from the “constraints on ptr and ref” pattern
+      to a new <rules> element here, and simultaneously replace the
+      duplicated assertions in the rule for "tei:change/ tei:ref in
+      the "soft-modeling" pattern with an <sch:extends rule=
+      "target-uri-constraints"/>.   — Syd, 2025-08-01
+  -->
+
+
   <pattern id="top-level">
-<!-- Cannot put up with hrefs to http: in
-      <?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
-      <?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>
-      <?xml-model href="../../toc/toc-xml.sch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
-    
-    -->
-    <!--<?oxygen RNGSchema="../../common/schema/DHQauthor-TEI.rng" type="xml"?>
-    <?oxygen SCHSchema="../../common/schema/dhqTEI-ready.sch"?>-->
+    <!-- Pointing to a schema on the internet means the file would not
+         be portable. Thus check that the references to schemas in the
+         <?oxygen?> or <?xml-model?> processing instructions (on their
+         RNGschema=, SCHschema, or href= pseudo attributes) do not
+         start with "http". -->
     <rule context="/processing-instruction()">
-      <report test="matches(.,'(RNGSchema|SCHSchema|href)=&quot;http')" role="warning">
+      <report test="matches(.,'(RNGSchema|SCHSchema|href)=\s*.http')" role="warning">
         Processing instruction points to the Internet - this file will not be portable.
-      </report>
-      
+      </report>      
     </rule>
   </pattern>
 
   <pattern id="id-check">
     <p>Element IDs must be unique</p>
-    <rule context="*[exists(@xml:id)]">
-      <assert test="empty(//*[@xml:id eq current()/@xml:id]
-        except .)">Element appears with a duplicate @xml:id</assert>
+    <rule context="*[ @xml:id ]">
+      <report test="//*[ @xml:id eq current()/@xml:id ] except .">Element appears with a duplicate @xml:id</report>
     </rule>
   </pattern>
   
@@ -57,14 +72,15 @@
                    tei:profileDesc//* |
                    tei:revisionDesc"
       >
-      <!-- matching these to create exceptions for the next rules --> </rule>
+      <assert test="true()"> matching these to create exceptions for the following rules </assert>
+    </rule>
 
     <rule context="tei:publicationStmt/tei:idno[@type = ('volume','issue')][. castable as xs:integer]">
       <let name="me" value="normalize-space(.)"/>
-      <assert test="$me eq .">There should be no spaces in the <value-of select="@type"/> number</assert>
-      <assert test="$me castable as xs:positiveInteger">The <value-of select="@type"/> number should be a positive integer</assert>
       <let name="min" value="1"/>
       <let name="max" value="if (@type eq 'issue') then 4 else 899"/> <!-- rule only works for ~900 years -->
+      <assert test="$me eq .">There should be no spaces in the <value-of select="@type"/> number</assert>
+      <assert test="$me castable as xs:positiveInteger">The <value-of select="@type"/> number should be a positive integer</assert>
       <assert test="$max ge xs:integer($me)  and  xs:integer($me) ge $min">The <value-of select="@type"/> number is out of range</assert>
       <assert test="if (@type eq 'volume') then string-length($me) eq 3 else true()">The volume number should be 3 digits long (with leading zeroes as needed)</assert>
       <assert test="if (@type eq 'issue') then string-length($me) eq 1 else true()">The issue number should be only 1 digit long (no leading zeroes allowed)</assert>
@@ -91,8 +107,8 @@
       <assert test="not(@when)">Publication date is missing its @when attribute value</assert>
     </rule>
     <rule context="tei:teiHeader//tei:date[ @when  and  @when ne '']">
-      <assert test="@when castable as xs:date"><value-of select="name(..)"/><name/>/@when is not an ISO date</assert>
       <let name="date-str" value="@when/format-date(.,'[D] [MNn] [Y]')"/>
+      <assert test="@when castable as xs:date"><value-of select="name(..)"/><name/>/@when is not an ISO date</assert>
       <assert test=". eq $date-str">date value is not @when in 'D Month YYYY' format (expecting '<value-of select="$date-str"/>')</assert>
     </rule>
     
@@ -104,19 +120,21 @@
     </rule>
 
     <rule context="tei:taxonomy[@xml:id='dhq_keywords']">
-      <!--<let name="contents" value="*|text()[normalize-space(.)]"/>
-      <assert test="exists(bibl[1]) and not($contents except tei:bibl[1])"><name/> contains
-      unexpected content (should have a single bibl)</assert>
-      <assert test="normalize-space(.) = 
-        normalize-space('DHQ classification scheme; full list available in the
-        DHQ keyword taxonomy')">text content of <name/> is incorrect: should be
-        "DHQ classification scheme; full list available in the
-        DHQ keyword taxonomy"</assert>--> </rule>
-    <rule context="tei:taxonomy[@xml:id='authorial_keywords']"/>
+      <assert test="true()"> could put a test for contents here; previous attempt commented out, below </assert>
+      <!--
+        <let name="contents" value="*|text()[normalize-space(.)]"/>
+        <assert test="exists(bibl[1]) and not($contents except tei:bibl[1])"><name/> contains unexpected content (should have a single bibl)</assert>
+        <assert test="normalize-space(.) = normalize-space('DHQ classification scheme; full list available in the DHQ keyword taxonomy')">
+          text content of <name/> is incorrect: should be "DHQ classification scheme; full list available in the DHQ keyword taxonomy"
+        </assert>
+      -->
+    </rule>
+    <rule context="tei:taxonomy[@xml:id='authorial_keywords']">
+      <assert test="true()"/>
+    </rule>
     <rule context="tei:classDecl/*">
       <report test="true()"><name/> unexpected here</report>
     </rule>
-
     <rule context="tei:front//dhq:*">
       <assert test="normalize-space(.)"><name/> is empty</assert>
     </rule>
@@ -137,16 +155,34 @@
     <rule role="warning" context="tei:div">
       <report test="empty(tei:head)">A div has no head.</report>
     </rule>
-  	
-  	<!-- Checks new  <change> template (implemented 2022-08)
-  		to verify the article number was replaced in the gitHub url -->
-  	<rule role="error" context="tei:change/tei:ref">
-  		<extends rule="target-uri-constraints"/>
-  		<report role="error" test="matches(@target,'NNNNNN')">
-  			Revision description appears suspect: does not contain proper article id.
-  		</report>
-  	</rule>
-  	
+        
+    <!-- Checks new  <change> template (implemented 2022-08)
+         to verify the article number was replaced in the gitHub url -->
+    <rule role="error" context="tei:change/tei:ref">
+      <!--
+	  ABSTRACT RULE PROBLEM
+	  The following set of <assert>ions are duplicated here becase
+	  we canot currently put them in an
+	  sch:schema/sch:rules/sch:rule[@abstract eq 'true'].
+	  As soon as oXygen knows how to handles a <rules> element, we
+	  can move the abstract rule and delete the following block.
+	  — Syd, 2025-08-01
+      -->
+      <!-- BEGIN set of <assert>ions that should be extension of "target-uri-constraints" -->
+      <assert test="normalize-space(@target)"><name/>/@target is empty</assert>
+      <assert test="@target castable as xs:anyURI"><name/>/@target is not a URI</assert>
+      <assert role="warning" test="matches(@target,'#|/')"><name/>/@target appears suspect: it has neither '#' nor '/'</assert>
+      <!-- END set of <assert>ions that should be extension of "target-uri-constraints" -->
+      <!--
+	  Above block should eventually read:
+	  <extends rule="target-uri-constraints"/>
+	  — Syd, 2025-08-01
+      -->
+      <report role="error" test="matches(@target,'NNNNNN')">
+        Revision description appears suspect: does not contain proper article id.
+      </report>
+    </rule>
+    
     <rule role="warning" context="tei:head">
       <assert test="empty(preceding-sibling::tei:head)">This is not the first head in this element; please check (is this a new div or caption)?</assert>
     </rule>
@@ -167,26 +203,42 @@
   <pattern>
     <title>constraints on ptr and ref</title>
 
+    <!--
+	ABSTRACT RULE PROBLEM
+	The following rule should be moved into a new <sch:rules> element
+	that is itself a child of <sch:schema> after oXygen learns to
+	treat that as a valid setup.
+	— Syd, 2025-08-01
+    -->
     <rule abstract="true" id="target-uri-constraints">
       <assert test="normalize-space(@target)"><name/>/@target is empty</assert>
-      <assert test="@target castable as xs:anyURI"><name/>/@target is not a
-      URI</assert>
-      <assert role="warning" test="matches(@target,'#|/')"><name/>/@target
-        appears suspect: it has neither '#' nor '/'</assert>
+      <assert test="@target castable as xs:anyURI"><name/>/@target is not a URI</assert>
+      <assert role="warning" test="matches(@target,'#|/')"><name/>/@target appears suspect: it has neither '#' nor '/'</assert>
     </rule>
-  	
-  	<!--checks to see when @target begins with a '#' AND does not point to an @xml:id-->
-  	<rule context="tei:ref[starts-with(normalize-space(@target),'#')]">
-  		<assert role="warning" test="substring(normalize-space(@target), 2) = //@xml:id">
-  			The @target of <name/> does not reference an @xml:id in this document</assert>
-  	</rule>
 
-    <rule context="tei:ptr[starts-with(@target,'#')]">
+    <!--checks to see when @target begins with a '#' AND does not point to an @xml:id-->
+    <rule context="tei:ref[starts-with(normalize-space(@target),'#')]">
+      <assert role="warning" test="substring(normalize-space(@target), 2) = //@xml:id">
+        The @target of <name/> ("<value-of select="@target"/>") does not reference an @xml:id in this document
+      </assert>
+    </rule>
+    
+    <!-- warns if @target seems to point externally and is missing a protocol or is missing a # -->
+    <rule context="*[ @target  and  not( starts-with( normalize-space(@target), '#') ) ]">
+      <assert role="warning"
+              test="starts-with( normalize-space(@target), 'http://') or
+                    starts-with( normalize-space(@target), 'https://')" >
+        @target should begin with 'http://' or 'https://' if it points to an external source.
+      </assert>
+    </rule>
+
+    <rule context="tei:ptr[ starts-with( normalize-space(@target), '#')]">
       <extends rule="target-uri-constraints"/>
-      <assert test="replace(@target,'^#','') = //tei:bibl/@xml:id"
-        role="warning"><name/> does not reference a bibl</assert>
-    	<!-- Removing the checks on @loc; actual values are too complex to model/constrain with Schematron. 
-    		Retaining the code in case we want it later.
+      <assert test="substring(normalize-space(@target), 2) = //tei:bibl/@xml:id" role="warning">
+        The @target of <name/> ("<value-of select="@target"/>") does not reference a bibl in this document
+      </assert>
+        <!-- Removing the checks on @loc; actual values are too complex to model/constrain with Schematron. 
+                Retaining the code in case we want it later.
       <!- $d is an arabic natural number (one or more digits not starting with 0) 
       <let name="d" value="'[1-9]\d*'"/>
       <!- $r is a lower-case roman numeral 
@@ -197,15 +249,15 @@
       <let name="rr" value="concat($r,'(&#x2013;',$r,')?')"/>
       <!- $drrr is a choice between $dr and $rr 
       <let name="drrr" value="concat('(',$dr,'|',$rr,')')"/>
-      <!- $s is one of a set of special characters 	
-      <let name="s" value="'[§¶]*'"></let>	
+      <!- $s is one of a set of special characters      
+      <let name="s" value="'[§¶]*'"></let>      
       <!- $seq is a sequence of one or more $drrr, comma-delimited, with optional special-character prefix $s 
       <let name="seq" value="concat('^',$s,$drrr,'(, ',$drrr,')*$')"/>
       
       <assert test="not(@loc) or matches(@loc,$seq)" role="warning"
         ><name/>/@loc '<value-of select="@loc"/>' is unusual: please
         check</assert>
-    	 -->
+         -->
       <report test="contains(@loc,'-')" role="warning"><name/>/@loc contains
         '-' (hyphen): try '&#x2013;' (en-dash)</report>
       <!-- elsewhere we check bibl elements to which we have ptr cross-references,
@@ -283,7 +335,9 @@
 
   <pattern>
     <title>flagging markup content</title>
-    <rule context="tei:code | tei:eg | tei:formula"/>
+    <rule context="tei:code | tei:eg | tei:formula">
+      <assert test="true()"> the exceptions to the following rule </assert>
+    </rule>
     <rule context="*[exists(text()[normalize-space(.)])]">
       <!-- matches any elements that don't match the first rule -->
       <report role="warning" test="exists(text()[matches(.,'&lt;|&gt;')])">
@@ -321,5 +375,13 @@
         next to non-space character</report>
     </rule>
   </pattern>
+
+  <properties>
+    <property id="placeholder" role="validity">
+      This is here only because ISO 19757-3:2016 appendix A requires
+      it for validity. We do not actually use properties. (I do not
+      even know how to.) —Syd, 2024-01-29
+    </property>
+  </properties>
   
 </schema>

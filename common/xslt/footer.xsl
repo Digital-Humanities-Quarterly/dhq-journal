@@ -1,44 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-    <xsl:param name="context"/>
-    <xsl:template name="footer">
-        <xsl:param name="docurl"/>
-        <xsl:param name="baseurl" select="concat('http://www.digitalhumanities.org/',$context,'/')"/>
-        <div id="footer"> 
-            <div style="float:left; max-width:70%;">
-            <!--DHQ Preview Web Site: Content in Draft Form. Final version will appear: <a
-                href="http://www.digitalhumanities.org/dhq/" class="footer"
-                >http://www.digitalhumanities.org/dhq/</a>. <br/> -->URL: <xsl:value-of
-                select="concat($baseurl,$docurl)"/><!--<br/>Last updated:
-            <script type="text/javascript">
-                var monthArray = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
-                var lastModifiedDate = new Date(document.lastModified);
-                var currentDate = new Date();
-                document.write(" ",monthArray[lastModifiedDate.getMonth()]," ");
-                document.write(lastModifiedDate.getDate(),", ",(lastModifiedDate.getFullYear()));
-            </script>-->
-            <br/> Comments: <a><xsl:attribute name="href">
-                <xsl:value-of select="'mailto:dhqinfo@digitalhumanities.org'"/>
-            </xsl:attribute><xsl:attribute name="class">
-                <xsl:value-of select="'footer'"/>
-            </xsl:attribute>dhqinfo@digitalhumanities.org</a><br/> Published by:
-            <a><xsl:attribute name="href">
-                <xsl:value-of select="'http://www.digitalhumanities.org'"/>
-            </xsl:attribute><xsl:attribute name="class">
-                <xsl:value-of select="'footer'"/>
-            </xsl:attribute>The Alliance of Digital Humanities Organizations</a> and <a><xsl:attribute name="href">
-                <xsl:value-of select="'http://www.ach.org'"/>
-            </xsl:attribute><xsl:attribute name="class">
-                <xsl:value-of select="'footer'"/>
-            </xsl:attribute>The Association for Computers and the Humanities</a><br />Affiliated with: <a>
-                <xsl:attribute name="href"><xsl:value-of select="'https://academic.oup.com/dsh'"/></xsl:attribute><xsl:value-of select="'Digital Scholarship in the Humanities'"/></a>
-            <br/> DHQ has been made possible in part by the <a href="https://www.neh.gov/">National Endowment for the Humanities</a>.<br />Copyright © 2005 - <script type="text/javascript">
-            	var currentDate = new Date();
-                document.write(currentDate.getFullYear());</script> <br/> <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/80x15.png" /></a><br />Unless otherwise noted, the DHQ web site and all DHQ published content are published under a <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>. Individual articles may carry a more permissive license, as described in the footer for the individual article, and in the article’s metadata.
-            </div>
-            <img style="max-width:200px;float:right;" src="https://www.neh.gov/sites/default/files/styles/medium/public/2019-08/NEH-Preferred-Seal820.jpg?itok=VyHHX8pd"/>
-        </div>
-        
-    </xsl:template>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:tei="http://www.tei-c.org/ns/1.0"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:dhq="http://www.digitalhumanities.org/ns/dhq"
+                xmlns="http://www.w3.org/1999/xhtml" version="3.0" >
+  
+  <xsl:param name="context"/>
+
+  <xsl:template name="footer">
+    <xsl:param name="docurl"/>
+    <!--
+	For creating the base URL we want (per Simon Wiles’ comment of
+	2025-08-22 on GitHub issue discussing these URLs[1]) just
+	"https://dhq.digitalhumanities.org/". I have to admit that at
+	the moment I do not understand what $context is supposed to be
+	or how it gets to this template. But I have tested, and every
+	single time this routine is called when running `ant
+	generateSite` it is called with $context set to "dhq". Thus I
+	am setting the base URL without reference to this
+	parameter. If I understood what was going on better I might at
+	least remove the code that sends an unused parameter in, or
+	perhaps do something more intelligent with it. —Syd, 2025-10-12
+	[1] https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/118#issuecomment-3214973810
+    -->
+    <xsl:param name="baseurl" select="'https://dhq.digitalhumanities.org/'"/>
+    <!--
+        For the 2nd part of the URL, examine $docurl — If it ends with
+        6_digits-dot-h-t-m-l it is an article, and should have an
+        article level directory specified.
+    -->
+    <xsl:variable name="latterurl">
+      <xsl:choose>
+        <xsl:when test="matches( $docurl, '/[0-9]{6}\.html$')">
+          <!-- Since the article level directory has the same name as
+               the 6-digits portion of the article filename, just
+               parse it off and duplicate it. -->
+          <xsl:sequence select="replace( $docurl, '((/[0-9]{6})\.html)$', '$2$1')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="$docurl"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <!--
+	Generate copyright notice string
+    -->
+    <xsl:variable name="isTEI" select="exists( /child::tei:* )" as="xs:boolean"/>
+    <xsl:variable name="yearPublished" as="xs:string">
+      <xsl:choose>
+        <!-- All articles have the publication date as <date when=""> in the header. -->
+        <xsl:when test="/*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when">
+          <xsl:sequence select="year-from-date( /*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:date/@when )!string()"/>
+        </xsl:when>
+        <!-- For the TOC, take the latest year that *something* was published. -->
+        <xsl:when test="/toc/journal">
+          <xsl:sequence select="//journal/title!normalize-space()[matches(.,'^[0-9]{4}$')] => max()"/>
+        </xsl:when>
+        <!-- Fallback: use the year that we generated the HTML page. -->
+        <xsl:otherwise>
+          <xsl:sequence select="year-from-date( current-date() )!string()"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <!-- The year for the copyright notice is either the year the
+         single article was originally published, or for generated
+         pages (like author bios or the about page) a range from
+         our first year of publication to the latest year that
+         *something* was published. -->
+    <xsl:variable name="copyYear" as="xs:string">
+      <xsl:choose>
+        <xsl:when test="$isTEI">
+          <!-- This is a TEI file, so use its year of publication -->
+          <xsl:sequence select="$yearPublished"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <!-- This is NOT a TEI file, so use range from 2005 to last published thingy -->
+          <xsl:sequence select="'2005–'||$yearPublished"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <!-- The copyright holder for the copyright notice. -->
+    <xsl:variable name="copyHolder">
+      <xsl:choose>
+        <xsl:when test="$isTEI">
+          <xsl:variable name="plural" select="if ( /*/tei:teiHeader/tei:fileDesc/tei:titleStmt/dhq:authorInfo[2] ) then 's' else ''"/>
+          <xsl:sequence select="'the author'||$plural"/>
+        </xsl:when>
+        <xsl:otherwise><xsl:sequence select="'DHQ'"/></xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <div id="footer"> 
+      <div style="float:left; max-width:70%;" xsl:expand-text="yes">
+        URL: {$baseurl}{$latterurl}
+        <br/>
+        Comments:&#x20;
+        <a href="mailto:dhqinfo@digitalhumanities.org" class="footer">dhqinfo@digitalhumanities.org</a>
+        <br/>Published by:&#x20;
+	<!-- Why not just use https://adho.org/, which is where the following URL forwards, anyway? —Syd, 2025-10-12 -->
+        <a href="https://www.digitalhumanities.org" class="footer">The Alliance of Digital Humanities Organizations</a>
+        &#x20;and&#x20;
+        <a href="http://www.ach.org" class="footer">The Association for Computers and the Humanities</a>
+        <br/>Affiliated with:&#x20;
+        <a href="https://academic.oup.com/dsh">Digital Scholarship in the Humanities</a>
+        <br/>DHQ has been made possible in part by the&#x20;
+        <a href="https://www.neh.gov/">National Endowment for the Humanities</a>.
+        <br/>© {$copyYear} {$copyHolder}
+        <br/>
+        <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">
+          <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/80x15.png"/>
+        </a>
+        <br/>Unless otherwise noted, the DHQ web site and all DHQ published content are published under a
+        <a rel="license" href="http://creativecommons.org/licenses/by-nd/4.0/">Creative Commons Attribution-NoDerivatives 4.0 International License</a>.
+        Individual articles may carry a more permissive license, as described in the footer for the individual article, and in the article’s metadata.
+      </div>
+      <img style="max-width:200px;float:right;" src="https://www.neh.gov/sites/default/files/styles/medium/public/2019-08/NEH-Preferred-Seal820.jpg?itok=VyHHX8pd"/>
+    </div>
+  </xsl:template>
+
 </xsl:stylesheet>
