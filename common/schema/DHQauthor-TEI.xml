@@ -26,10 +26,36 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2026-01-07" who="#sdb">
+	Remove constraint that requires a <att>who</att> on the
+	<val>gitHist</val> <gi>change</gi> element. I thought we
+	had already removed it (per request <persName ref="#jhf"/>)
+	before we merged a few days ago. Sigh.
+      </change>      
+      <change when="2025-12-30" who="#sdb">
+        Insist that there must be a <gi>change</gi> that points reader
+        to current file’s git history (in a particular way), per
+        <ref
+        target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/133">issue
+        #133</ref>. (Most work done 2025-12-16, but not finished until today.)
+      </change>
+      <change when="2025-12-15" who="#sdb">
+        <list>
+          <item>added descriptions (by <persName ref="#jhf"/>) to recently added values of <att>type</att> of <gi>authorNote</gi></item>
+          <item>added <val>gitHist</val> to value list of <att>type</att> of <gi>ref</gi></item>
+        </list>
+      </change>
+      <change when="2025-12-01" who="#sdb">
+        Per comment
+        https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/11#issuecomment-3542445736
+        add <gi>dhq:authorNotes</gi> for holding
+        <gi>dhq:authorNote</gi>s, and add (back) its <att>type</att>
+        attribute with controlled vocabulary.
+      </change>
       <change when="2025-10-12" who="#sdb">
-	Per
-	https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/11,
-	add <gi>dhq:authorNote</gi>.
+        Per
+        https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/11,
+        add <gi>dhq:authorNote</gi>.
       </change>
       <change when="2025-08-19" who="#sdb">
         Per idea of <persName>Ash Clark</persName>’s, test that value
@@ -341,6 +367,10 @@ email (should only have an email address)
           ODD-generated Schematron should go here.</desc>
           <sch:ns prefix="tei" uri="http://www.tei-c.org/ns/1.0"/>
           <sch:ns prefix="dhq" uri="http://www.digitalhumanities.org/ns/dhq"/>
+          <sch:let name="numGitHxs" value="count( /*/tei:teiHeader/tei:revisionDesc/tei:change/tei:ref[ @type eq 'gitHist'] )"/>
+          <sch:let name="fn" value="tokenize( base-uri(/), '/')[ last() ]"/>
+          <sch:let name="artID" value="replace( $fn, '^([0-9]{6}).*\.xml$','$1')"/>
+          <sch:let name="base_art_URL" value="'https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/'"/>
         </constraintDecl>
 
         <!-- ======================================================================== -->
@@ -661,13 +691,25 @@ email (should only have an email address)
 
         <!-- metadata elements distinctive to DHQ header -->
 
-	<!-- add dhq:authorNote -->
+        
+        <!-- add dhq:authorNotes to hold dhq:authorNotes -->
+        <elementSpec ident="authorNotes" module="dhq" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
+          <desc>Contains one or more <gi>dhq:authorNote</gi> elements.</desc>
+          <classes>
+            <memberOf key="att.global"/>
+          </classes>
+          <content>
+            <elementRef key="authorNote" minOccurs="1" maxOccurs="unbounded"/>
+          </content>
+        </elementSpec>
+
+        <!-- add dhq:authorNote -->
         <elementSpec ident="authorNote" module="dhq" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
-	  <desc>Contains an annotation (typically requested by the
-	  author(s)) to further explain authorship, e.g. “Both authors
-	  contributed equally to this article”.</desc>
-	  <!-- So much for <said who="p:CMSMcQ">Who wrote <title>Yesterday</title>?</said> -->
-	  <classes>
+          <desc>Contains an annotation (typically requested by the
+          author(s)) to further explain authorship, e.g. “Both authors
+          contributed equally to this article”.</desc>
+          <!-- So much for <said who="p:CMSMcQ">Who wrote <title>Yesterday</title>?</said> -->
+          <classes>
             <memberOf key="att.global"/>
             <memberOf key="att.anchoring"/>
             <memberOf key="att.cmc"/>
@@ -678,15 +720,33 @@ email (should only have an email address)
             <macroRef key="macro.specialPara"/>
           </content>
           <attList>
+            <attDef ident="type" mode="change" usage="req">
+              <datatype minOccurs="1" maxOccurs="1">
+                <dataRef key="teidata.enumerated"/>
+              </datatype>
+              <valList type="closed">
+                <valItem ident="thanks">
+                  <desc>acknowledgment of non-monetary assistance, or some other reason for gratitude</desc>
+                </valItem>
+                <valItem ident="conflict">
+                  <desc>declaration of a conflict of interest or lack thereof</desc>
+                </valItem>
+                <valItem ident="effort">
+                  <desc>description of allocation of effort among an author group</desc>
+                </valItem>
+                <valItem ident="funding">
+                  <desc>acknowledgment of funding support</desc>
+                </valItem>
+              </valList>
+            </attDef>
             <attDef ident="xml:id" mode="delete"/>
-            <attDef ident="type" mode="delete"/>
             <attDef ident="resp" mode="delete"/>
             <attDef ident="anchored" mode="delete"/>
             <attDef ident="target" mode="delete"/>
             <attDef ident="targetEnd" mode="delete"/>
           </attList>
-	</elementSpec>
-	
+        </elementSpec>
+        
         <!-- add dhq:articleType -->
         <elementSpec ident="articleType" module="dhq" mode="add" ns="http://www.digitalhumanities.org/ns/dhq">
           <desc>Designates the type of article</desc>
@@ -881,7 +941,7 @@ email (should only have an email address)
               <elementRef key="affiliation" minOccurs="0"/>
               <elementRef key="email" minOccurs="0"/>
               <elementRef key="bio" minOccurs="0"/>
-	      <elementRef key="authorInfo" minOccurs="0"/>
+              <elementRef key="authorInfo" minOccurs="0"/>
             </sequence>
           </content>
           <attList>
@@ -1009,18 +1069,18 @@ email (should only have an email address)
         <!-- ==================================== -->
         <!-- elements with changed content models -->
 
-	<!-- Modify <titleStmt> to allow <dhq:authorNote> as possible
-	     last child -->
+        <!-- Modify <titleStmt> to allow <dhq:authorNotes> as possible
+             last child -->
         <elementSpec module="header" ident="titleStmt" mode="change">
           <content>
             <sequence>
               <elementRef key="title" minOccurs="1" maxOccurs="unbounded"/>
               <classRef key="model.respLike" minOccurs="0" maxOccurs="unbounded"/>
-	      <elementRef key="authorNote" minOccurs="0"/>
+              <elementRef key="authorNotes" minOccurs="0" maxOccurs="1"/>
             </sequence>
           </content>
-	</elementSpec>
-	
+        </elementSpec>
+        
         <!-- modify <media> to include @poster and to use closed list
              for @type; modify @height and @width to eliminate
              specification of units. DHQ will always use pixels -->
@@ -2044,6 +2104,11 @@ email (should only have an email address)
                 <desc>Indicates that the reference in question does not have a linked
                 target.</desc>
               </valItem>
+              <valItem ident="gitHist">
+                <desc>Indicates that the reference in question is to
+                the <name>git</name> history of the current
+                document.</desc>
+              </valItem>
             </valList>
           </attDef>
           <attDef ident="target" mode="delete"/>
@@ -2159,6 +2224,34 @@ email (should only have an email address)
           <memberOf key="model.pPart.data" mode="delete"/>
         </classes>
       </classSpec>
+
+      <!-- Require a <change> that refers to git history (currently on gitHub) -->
+      <elementSpec ident="revisionDesc" module="header" mode="change">
+        <constraintSpec scheme="schematron" ident="require_proper_git_history">
+          <constraint>
+            <sch:rule context="tei:revisionDesc[ $numGitHxs eq 0 ]">
+              <sch:assert test="false()">A &lt;change> element that gives git history is required.</sch:assert>
+            </sch:rule>
+            <sch:rule context="tei:revisionDesc[ $numGitHxs gt 1]">
+              <sch:assert test="false()">There should be one and only one &lt;change> element that gives the git history
+              (there appear to be <sch:value-of select="$numGitHxs"/> of ’em).</sch:assert>
+            </sch:rule>
+            <sch:rule context="tei:revisionDesc/tei:change[ tei:ref[ @type eq 'gitHist'] ]">
+              <sch:assert test="normalize-space( text()[1] ) eq 'The version history for this file can be found on'">
+                git history change entry should start with “The version history for this file can be found on”.
+              </sch:assert>
+              <sch:assert test="starts-with( tei:ref/@target, $base_art_URL )">
+                git history target should start with git repo URL for articles 
+                (“https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/”).
+              </sch:assert>
+              <sch:assert test="ends-with( tei:ref/@target, concat('/', $artID, '/', $fn ) )">
+                git history target should end in same directory &amp; filename as current file
+                (“<sch:value-of select="concat( '/', $artID, '/',$fn )"/>”).
+              </sch:assert>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
+      </elementSpec>
 
     </schemaSpec>
   </body>
