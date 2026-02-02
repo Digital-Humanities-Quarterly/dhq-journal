@@ -163,9 +163,9 @@
                
                A Bayesian algorithm is “naïve” when it presumes that all units of information are discrete and have no other statistically meaningful relationships: for example, when one computes a sentence’s polarity scores based on individual words alone, regardless of syntactical context. Even given NaiveBayesAnalyzer’s relative sophistication when compared to PatternAnalyzer, they share many of the same conceptual underpinnings. Both decompose inputs into individual words, in doing so obviating finer points of lexical and syntactical relation. I make this observation, once again, not to dismiss the projects of either; sentiment analysis is an extraordinarily taxing operation, both at the level of conceptual development and machine operations. The task demands simplification, compression, and abstraction. What I am suggesting is that programs such as TextBlob could do more, from a user perspective, to flag the necessarily subjective models that underpin their analysis — particularly in the LLM moment, when the validity of automated computer-generated textual analysis is increasingly taken as a given by the public at large. Doing so would necessarily undercut sentiment analysis’s claims to objective utility. But by contrast, it would more accurately articulate what the technology actually does: namely, develop (imperfect, partial, but potentially useful) models of critical judgment.</p>
             
-            <p>Given that TextBlob provides two distinct sentiment analysis implementations, it provides us the opportunity to see how such models diverge. The following code runs the first sentence of this essay through both PatternAnalyzer and NaiveBayesAnalyzer:
+            <p>Given that TextBlob provides two distinct sentiment analysis implementations, it provides us the opportunity to see how such models diverge. The following code runs the first sentence of this essay through both PatterAnalyzer and NaiveBayesAnalyzer:
             
-          <![CDATA[# Runs the example sentence through `PatternAnalyzer`
+         <eg lang="xml"><![CDATA[# Runs the example sentence through `PatternAnalyzer`
 >>> from textblob import TextBlob
 >>> blob = TextBlob("Sentiment analysis encompasses a range of computational techniques for detecting and quantifying the presence of affect and emotion in written texts.")
 >>> blob.sentiment.polarity
@@ -177,13 +177,29 @@
 Sentiment(classification='pos', p_pos=0.9916363422665231, p_neg=0.008363657733478571)
 # `NaiveBayesAnalyzer` returns a sharply positive score, with a hint of negative characteristics.
 ]]>
+         </eg>
             </p>
             
             <p>Here, the model’s limitations become clear. While PatternAnalyzer appears to compute the sentence as perfectly neutral, in fact the score of 0.0 indicates that none of its constituent words appeared in <name>De Smedt</name> and <name>Daelemans</name>’ lexicon. NaiveBayesAnalyzer fares a tad better, given that it returns a score at all. However, as a human reader (to say nothing of the sentence’s author), I will admit that its sharply positive assessment gives me pause. Where do we locate such affirmative affect within an admittedly and self-consciously dry academic sentence? The gulf between human and machine interpretation becomes evident. N. Katherine Hayles argues that machine reading is principally distinct from human reading in its focus on interior, statistical connections between textual data rather than expansive, mediated contexts <ptr target="#hayles2018"/>. This is not to privilege one form of reading over another, although certainly from a human perspective, we may find the machine’s ability to “correctly” interpret these texts lacking. On the one hand, from my position as a critic trained in literary and media studies, I am skeptical that TextBlob’s sentiment analysis functions can do what they claim. I root this skepticism not in any particular valorization of human judgment (although my ethical and political convictions in the LLM moment admittedly encourage me to do so), but rather in the machine capacity to model human judgment through any statistical system, whether one as simple as TextBlob’s or as potentially complex as ChatGPT’s. On the other hand, I am intrigued by sentiment analysis’s capacities to model different forms of critical judgment, and in doing so remove them from an exclusively human context. When NaiveBayesAnalyzer returns a sharply positive score for my own prose, I take that as a moment less to disagree with the machine’s interpretation and more to ask after the conditions that gave rise to such an interpretation: what the machine is <hi rend="italic">doing</hi> with and to my text. This may not tell me anything new about the sentence itself, or at least nothing that I could not have already said as a human reader, but it does have the capacity to tell me more about the underlying models that power the program’s interpretation. Texts, it turns out, are not quieted so easily.</p>
             
             <p>PatternAnalzyer and NaiveBayesAnalyzer differ not only in how they compute sentiment statistically, but also in the root sources of their judgments. PatternAnalzyer, we have seen, draws its claims from the hand-tagged Pattern lexicon, in which each individual word arrives imputed with a discrete sentiment score, manually tagged by human readers. NaiveBayesAnalyzer, conversely, derives root scores programmatically by training a rudimentary machine learning model on a corpus of movie reviews assembled by NLP researchers Bo Pang and Lillian Lee [Pang and Lee 2005]. Pang and Lee’s work is influential in NLP and sentiment analysis research for addressing various computational problems related to the relationships between ratings systems and language: is there, for instance, a textual pattern, discernable at the level of tokenization, that distinguishes a two-star review from a four-star review? The various corpora they have assembled over the years as part of this research program have subsequently become popular readymades for programmers like Loria, who need well-formatted textual-numerical data upon which to derive sentiment analysis models like  NaiveBayesAnalyzer. In TextBlob, this training happens in lines 72–81:
             
-            <![CDATA[72	"""Train the Naïve Bayes classifier on the movie review corpus."""73	super(NaiveBayesAnalyzer, self).train()74	neg_ids = nltk.corpus.movie_reviews.fileids('neg')75	pos_ids = nltk.corpus.movie_reviews.fileids('pos')76	neg_feats = [(self.feature_extractor(77		nltk.corpus.movie_reviews.words(fileids=[f])), 'neg') for f in neg_ids]78		pos_feats = [(self.feature_extractor(79			nltk.corpus.movie_reviews.words(fileids=[f])), 'pos') for f in pos_ids]80		train_data = neg_feats + pos_feats81	self._classifier = nltk.classify.NaiveBayesClassifier.train(train_data)]]>
+            <eg lang="xml"><![CDATA[
+               72    """Train the Naïve Bayes classifier on the movie review 
+               corpus."""
+               73    super(NaiveBayesAnalyzer, self).train()
+               74    neg_ids = nltk.corpus.movie_reviews.fileids('neg')
+               75    pos_ids = nltk.corpus.movie_reviews.fileids('pos')
+               76    neg_feats = [(self.feature_extractor(
+               77          nltk.corpus.movie_reviews.words(fileids=[f])), 'neg') for f 
+               in neg_ids]
+               78    pos_feats = [(self.feature_extractor(
+               79    nltk.corpus.movie_reviews.words(fileids=[f])), 'pos') 
+               for f in pos_ids]
+               80    train_data = neg_feats + pos_feats
+               81    self._classifier = 
+               nltk.classify.NaiveBayesClassifier.train(train_data)]]>
+            </eg>
             </p>
             
             <p>In plain English, these lines call various submodules from NLTK (another dependency moment) to define both positive and negative “features,” or numerical representations of sentiment scores, derived from the Pang and Lee movie review corpus. These features are then assembled in line 80 into training data, which are used in line 81 to train the classifier itself.</p>
