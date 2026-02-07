@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns:if="ant:if" xmlns:unless="ant:unless" 
    name="dhq"
    default="help">
@@ -39,6 +41,19 @@
   <available classname="org.xmlresolver.Resolver" property="has.xmlresolver"/>
   
   
+  <!-- Properties used for validation, not static generation -->
+  <!-- The general set of article files to process -->
+  <fileset dir="articles" id="article.files">
+    <include name="0*/0*.xml"/>
+  </fileset>
+  <!-- The same set without the files we want to avoid validating
+       (typically because they are ill-formed, and thus would halt the
+       validation process). -->
+  <fileset dir="articles" id="article.files.2validate" excludes="${excludeFromValidation}">
+    <include name="0*/0*.xml"/>
+  </fileset>
+
+
   <!--
       ANT TASKS
     -->
@@ -58,7 +73,7 @@ is loaded when Ant starts up. Please run Ant again like this:
   
   <!-- Documentation for the targets defined by this Ant build file. -->
   <target name="help" description="Documentation on how to use DHQ Ant build targets.">
-    <echo>** DHQ static site generation build process **${line.separator}
+    <echo>** DHQ validation and static site generation build process **${line.separator}
 General format:
   ant [-lib common${file.separator}lib${file.separator}saxon] [-Dprop=val ...] [target ...]
 Where:
@@ -126,6 +141,23 @@ generateSearchableToGo
   As "generateSearchable" above, but then also creates a compressed archive of the
   generated output to make it easy to transfer (e.g., to a server). The output file
   can be found at ${toDir.base}${file.separator}${context}.zip.
+wf
+  (well-formedness) Check all articles${file.separator}0*${file.separator}0*.xml files for well-formedness.
+  Take heed, though: the message says “valid” where it means “well-formed”.
+validateClosed
+  Tests all articles${file.separator}0*${file.separator}0*.xml files against ${closedSchema} using jing.
+  WARNING: Does this in parallel which means it is very fast, but also that it
+  stops checking on the first file that is not well-formed!
+validateOpen
+  Tests all articles${file.separator}0*${file.separator}0*.xml files against both
+  ${schemaDir}${file.separator}${openSchema1} and
+  ${schemaDir}${file.separator}${openSchema2} using schXslt.
+  The raw results, as .svrl files, are placed in
+  ../${toDir.validation}${file.separator}${openSchema1}_results${file.separator} and
+  ../${toDir.validation}${file.separator}${openSchema2}_results${file.separator}.
+  No attempt is (yet) made to convert them to nice messages.
+validate
+  Performs both closed and open validation.
     </echo>
   </target>
 
@@ -508,6 +540,98 @@ To proof only the internal preview, hit the return key or type "false".
     <!-- Once the HTML is included in the ZIP, we can delete it. Its links won't 
       work in the preview directory anyway. -->
     <delete file="${previewDir}${file.separator}${article.id}.html"/>
+  </target>
+  
+  <!-- Check articles for well-formedness -->
+  <target name="wf" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for well-formedness">
+    <echo level="info" message="========= checking for well-formedness"/>
+    <xmlvalidate failonerror="no" lenient="true" warn="yes">
+      <!-- <attribute name="http://xml.org/sax/features/namespaces" value="true"/> -->
+      <!-- <attribute name="http://xml.org/sax/features/namespace-prefixes" value="true"/> -->
+      <fileset refid="article.files"/>
+    </xmlvalidate>
+    <echo level="info" message='Note: the word “validated” on the line above means “checked for well-formedness”.'/>
+  </target>
+
+  <target name="validate" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity (against several schemas)">
+    <antcall target="validateClosed"/>
+    <antcall target="validateOpen"/>
+  </target>
+
+  <target name="validationDir" description="Erase old ../${toDir.validation} and create empty one">
+    <delete dir="../${toDir.validation}" quiet="true"/>
+    <mkdir dir="../${toDir.validation}"/>
+  </target>
+  
+  <target name="validateClosed" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity against ${closedSchema}" depends="validationDir">
+    <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part iff it is empty. Someday. -->
+    <echo level="info" message="========= testing for validity against ${closedSchema} EXCEPT for ${excludeFromValidation} ..."/>
+    <apply executable="java" parallel="true" failonerror="false">
+      <arg value="-jar"/>
+      <arg value="${jingJar}"/>
+      <arg value="-i"/>
+      <arg value="${closedSchema}"/>
+      <srcfile/>
+      <path>
+        <fileset refid="article.files.2validate"/>
+      </path>
+    </apply>
+  </target>
+
+  <target name="validateOpen" depends="checkXmlResolver,validationDir"
+          description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity against ${openSchema}">
+    <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part if it is empty. Someday. -->
+    <echo level="info" message="========= testing for validity against ${openSchema} EXCEPT for ${excludeFromValidation} ..."/>
+
+    <!--
+	Note that this following task runs mausatron to create the
+	open schema XSLT iff the source (or the stylesheet, I presume)
+	has been updated since the output was last generated. This is
+	why the XSLT versions of the Schematron schemas are stored in
+	${schemaDir} and not in ../${toDir.validation}, where they
+	would be erased before this is run, and thus the open schema
+	XSLT would need to be generated *every* time.
+    -->
+    <xslt classpath="${processor.location}"
+          destdir="${schemaDir}"
+          style="${mausatronXSLT.compiler}"
+          basedir="${schemaDir}"
+          includes="${openSchema1},${openSchema2}"
+          extension=".xslt"
+          >
+      <factory name="${processor.name}"/>
+    </xslt>
+
+    <mkdir dir="../${toDir.validation}/${openSchema1}_results"/>
+    <mkdir dir="../${toDir.validation}/${openSchema2}_results"/>
+    <basename property="openSchema1base" file="${openSchema1}" suffix="isosch"/>
+    <basename property="openSchema2base" file="${openSchema2}" suffix="sch"/>
+
+    <xslt classpath="${processor.location}"
+          destdir="../${toDir.validation}/${openSchema1}_results"
+          style="${schemaDir}/${openSchema1base}.xslt"
+          includes="${article.files.2validate}"
+          extension=".svrl"
+          >
+      <factory name="${processor.name}"/>
+      <fileset refid="article.files.2validate"/>
+    </xslt>
+    <xslt classpath="${processor.location}"
+          destdir="../${toDir.validation}/${openSchema2}_results"
+          style="${schemaDir}/${openSchema2base}.xslt"
+          includes="${article.files.2validate}"
+          extension=".svrl"
+          >
+      <factory name="${processor.name}"/>
+      <fileset refid="article.files.2validate"/>
+    </xslt>
+    <!-- See commit 7383668d for some methods that did not work. -->
+    <echo>Schematron validation complete. Results are stored as SVRL files in</echo>
+    <echo>  ../${toDir.validation}${file.separator}${openSchema1}_results${file.separator}</echo>
+    <echo>and</echo>
+    <echo>  ../${toDir.validation}${file.separator}${openSchema2}_results${file.separator}</echo>
+    <echo>If you want to see just the error messages, you might try something like</echo>
+    <echo>$ time xmlstarlet sel -N svrl=http://purl.oclc.org/dsdl/svrl -t -m "//svrl:text" -v "preceding::svrl:active-pattern[1]/@documents" -o '#' -v "..//@location" -o "—" -v "normalize-space(.)" -n $(find ./common/schema/DHQauthor-TEI.isosch_results -name '*.svrl') $(find ./common/schema/dhqTEI-ready.sch_results -name '*.svrl') | perl -pe 's,Q{http://www.tei-c.org/ns/1.0},,g; s,Q{http://www.digitalhumanities.org/ns/dhq},dhq:,g; s,^.*dhq-journal/articles/000,articles/000,;'</echo>
   </target>
   
 </project>
