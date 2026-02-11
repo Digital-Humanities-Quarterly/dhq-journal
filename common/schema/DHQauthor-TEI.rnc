@@ -12,9 +12,9 @@ namespace teix = "http://www.tei-c.org/ns/Examples"
 namespace xi = "http://www.w3.org/2001/XInclude"
 namespace xlink = "http://www.w3.org/1999/xlink"
 
-# Schema generated from ODD source 2026-01-07T20:26:07Z. . 
-# TEI Edition: P5 Version 4.9.0. Last updated on 24th January 2025, revision f73186978 
-# TEI Edition Location: https://www.tei-c.org/Vault/P5/4.9.0/ 
+# Schema generated from ODD source 2026-01-26T16:02:25Z. . 
+# TEI Edition: Version 4.4.0. Last updated on 19th April 2022, revision ff9cc28b0 
+# TEI Edition Location: https://www.tei-c.org/Vault/P5/4.4.0/ 
 #  This schema supports basic journal features. 
 
 #
@@ -1201,8 +1201,13 @@ div {
     attribute cdgroup { xsd:anyURI }?,
     m_math.deprecatedattributes
 }
-dhq_macro.abContent = (text | dhq_model.paraPart | dhq_ab)*
-dhq_macro.paraContent = (text | dhq_model.paraPart)*
+dhq_macro.paraContent =
+  (text
+   | dhq_model.phrase
+   | dhq_model.inter
+   | dhq_model.global
+   | dhq_lg
+   | dhq_model.lLike)*
 dhq_macro.limitedContent =
   (text | dhq_model.limitedPhrase | dhq_model.inter)*
 dhq_macro.phraseSeq =
@@ -1234,11 +1239,15 @@ dhq_att.ascribed.attribute.who =
       xsd:anyURI { pattern = "\S+" }+
     }
   }?
-dhq_att.breaking.attributes = dhq_att.breaking.attribute.break
-dhq_att.breaking.attribute.break =
-  ## indicates whether or not the element bearing this attribute should be considered to mark the end of an orthographic token in the same way as whitespace.
-  attribute break {
-    xsd:token { pattern = "[^\p{C}\p{Z}]+" }
+dhq_att.ascribed.directed.attributes =
+  dhq_att.ascribed.attributes,
+  dhq_att.ascribed.directed.attribute.toWhom
+dhq_att.ascribed.directed.attribute.toWhom =
+  ## indicates the person, or group of people, to whom a speech act or action is directed.
+  attribute toWhom {
+    list {
+      xsd:anyURI { pattern = "\S+" }+
+    }
   }?
 dhq_att.canonical.attributes =
   dhq_att.canonical.attribute.key, dhq_att.canonical.attribute.ref
@@ -1248,6 +1257,179 @@ dhq_att.canonical.attribute.key =
 dhq_att.canonical.attribute.ref =
   ## (reference) provides an explicit means of locating a full definition or identity for the entity being named by means of one or more URIs.
   attribute ref {
+    list {
+      xsd:anyURI { pattern = "\S+" }+
+    }
+  }?
+dhq_att.written.attributes = dhq_att.written.attribute.hand
+dhq_att.written.attribute.hand =
+  [
+    a:documentation [
+      "points to a "
+      ns1:code [ "<handNote>" ]
+      " element describing the hand considered responsible for the content of the element concerned."
+    ]
+  ]
+  attribute hand {
+    xsd:anyURI { pattern = "\S+" }
+  }?
+dhq_att.breaking.attributes = dhq_att.breaking.attribute.break
+dhq_att.breaking.attribute.break =
+  ## indicates whether or not the element bearing this attribute should be considered to mark the end of an orthographic token in the same way as whitespace.
+  attribute break {
+    xsd:token { pattern = "[^\p{C}\p{Z}]+" }
+  }?
+dhq_att.fragmentable.attributes = dhq_att.fragmentable.attribute.part
+dhq_att.fragmentable.attribute.part =
+  ## specifies whether or not its parent element is fragmented in some way, typically by some other overlapping structure: for example a speech which is divided between two or more verse stanzas, a paragraph which is split across a page division, a verse line which is divided between two speakers.
+  [ a:defaultValue = "N" ]
+  attribute part {
+    ## (yes) the element is fragmented in some (unspecified) respect
+    "Y" | ## (no) the element is not fragmented, or no claim is made as to its completeness
+      "N" | ## (initial) this is the initial part of a fragmented element
+      "I" | ## (medial) this is a medial part of a fragmented element
+      "M" | ## (final) this is the final part of a fragmented element
+      "F"
+  }?
+dhq_att.docStatus.attributes = dhq_att.docStatus.attribute.status
+dhq_att.docStatus.attribute.status =
+  ## describes the status of a document either currently or, when associated with a dated element, at the time indicated.
+  ## Sample values include: 1] approved; 2] candidate; 3] cleared; 4] deprecated; 5] draft; 6] embargoed; 7] expired; 8] frozen; 9] galley; 10] proposed; 11] published; 12] recommendation; 13] submitted; 14] unfinished; 15] withdrawn
+  [ a:defaultValue = "draft" ]
+  attribute status {
+    xsd:token { pattern = "[^\p{C}\p{Z}]+" }
+  }?
+dhq_att.global.rendition.attributes =
+  dhq_att.global.rendition.attribute.style
+dhq_att.global.rendition.attribute.style =
+  ## contains an expression in some formal style definition language which defines the rendering or presentation used for this element in the source text
+  attribute style { xsd:string }?
+dhq_att.global.source.attributes =
+  dhq_att.global.source.attribute.source
+dhq_att.global.source.attribute.source =
+  ## specifies the source from which some aspect of this element is drawn.
+  attribute source {
+    list {
+      xsd:anyURI { pattern = "\S+" }+
+    }
+  }?
+sch:pattern [
+  id =
+    "dhq-att.global.source-source-only_1_ODD_source-constraint-rule-1"
+  "\x{a}" ~
+  "      "
+  sch:rule [
+    context = "tei:*/@source"
+    "\x{a}" ~
+    "         "
+    sch:let [
+      name = "srcs"
+      value = "tokenize( normalize-space(.),' ')"
+    ]
+    "\x{a}" ~
+    "         "
+    sch:report [
+      test =
+        "( parent::tei:classRef                               | parent::tei:dataRef                               | parent::tei:elementRef                               | parent::tei:macroRef                               | parent::tei:moduleRef                               | parent::tei:schemaSpec )                               and                               $srcs[2]"
+      "\x{a}" ~
+      "              When used on a schema description element (like\x{a}" ~
+      "              "
+      sch:value-of [ select = "name(..)" ]
+      "), the @source attribute\x{a}" ~
+      "              should have only 1 value. (This one has "
+      sch:value-of [ select = "count($srcs)" ]
+      ".)\x{a}" ~
+      "            "
+    ]
+    "\x{a}" ~
+    "      "
+  ]
+  "\x{a}" ~
+  "   "
+]
+dhq_att.global.attributes =
+  dhq_att.global.rendition.attributes,
+  dhq_att.global.source.attributes,
+  dhq_att.global.attribute.xmllang
+dhq_att.global.attribute.xmllang =
+  [
+    a:documentation [
+      "(language) indicates the language of the element content using a tag generated according to "
+      ns1:a [
+        href = "http://www.rfc-editor.org/rfc/bcp/bcp47.txt"
+        "BCP 47"
+      ]
+      "."
+    ]
+  ]
+  attribute xml:lang {
+    xsd:language
+    | (
+       "")
+  }?
+dhq_att.internetMedia.attributes =
+  dhq_att.internetMedia.attribute.mimeType
+dhq_att.internetMedia.attribute.mimeType =
+  ## (MIME media type) specifies the applicable multimedia internet mail extension (MIME) media type
+  attribute mimeType {
+    list {
+      xsd:token { pattern = "[^\p{C}\p{Z}]+" }+
+    }
+  }?
+dhq_att.media.attribute.scale =
+  ## Where the media are displayed, indicates a scale factor to be applied when generating the desired display size
+  attribute scale {
+    xsd:double
+    | xsd:token { pattern = "(\-?[\d]+/\-?[\d]+)" }
+    | xsd:decimal
+  }?
+dhq_att.resourced.attributes = dhq_att.resourced.attribute.url
+dhq_att.resourced.attribute.url =
+  ## (uniform resource locator) specifies the URL from which the media concerned may be obtained.
+  attribute url {
+    xsd:anyURI { pattern = "\S+" }
+  }
+dhq_att.notated.attributes = dhq_att.notated.attribute.notation
+dhq_att.notated.attribute.notation =
+  ## names the notation used for the content of the element.
+  attribute notation {
+    xsd:token { pattern = "[^\p{C}\p{Z}]+" }
+  }?
+dhq_att.typed.attributes = dhq_att.typed.attribute.type
+dhq_att.typed.attribute.type =
+  ## characterizes the element in some sense, using any convenient classification scheme or typology.
+  attribute type {
+    xsd:token { pattern = "[^\p{C}\p{Z}]+" }
+  }?
+sch:pattern [
+  id = "dhq-att.typed-subtypeTyped-constraint-rule-2"
+  "\x{a}" ~
+  "      "
+  sch:rule [
+    context = "tei:*[@subtype]"
+    "\x{a}" ~
+    "         "
+    sch:assert [
+      test = "@type"
+      "The "
+      sch:name [ ]
+      " element should not be categorized in detail with @subtype unless also categorized in general with @type"
+    ]
+    "\x{a}" ~
+    "      "
+  ]
+  "\x{a}" ~
+  "   "
+]
+dhq_att.sortable.attributes = dhq_att.sortable.attribute.sortKey
+dhq_att.sortable.attribute.sortKey =
+  ## supplies the sort key for this element in an index, list or group which contains it.
+  attribute sortKey {
+    xsd:token { pattern = "[^\p{C}\p{Z}]+" }
+  }?
+dhq_att.edition.attribute.edRef =
+  ## (edition reference) provides a pointer to the source edition in which the associated feature (for example, a page, column, or line break) occurs at this point in the text.
+  attribute edRef {
     list {
       xsd:anyURI { pattern = "\S+" }+
     }
@@ -1293,283 +1475,17 @@ dhq_att.citing.attribute.to =
   attribute to {
     xsd:token { pattern = "[^\p{C}\p{Z}]+" }
   }?
-dhq_att.cmc.attributes = dhq_att.cmc.attribute.generatedBy
-dhq_att.cmc.attribute.generatedBy =
-  ## (generated by) categorizes how the content of an element was generated in a CMC environment.
-  ## Suggested values include: 1] human; 2] template; 3] system; 4] bot; 5] unspecified
-  attribute generatedBy {
-    ## the content was naturally typed or spoken by a human user
-    "human" | ## the content was generated after a human user activated a template for its insertion
-      "template" | ## the content was generated by the system, i.e. the CMC environment
-      "system" | ## the content was generated by a bot, i.e. a non-human agent, typically one that is not part of the CMC environment itself
-      "bot" | ## the content was generated by an unknown or unspecified process
-      "unspecified"
-    | xsd:token { pattern = "[^\p{C}\p{Z}]+" }
-  }?
-sch:pattern [
-  id =
-    "dhq-att.cmc-generatedBy-CMC_generatedBy_within_post-constraint-rule-1"
-  "\x{a}" ~
-  "      "
-  sch:rule [
-    context = "tei:*[@generatedBy]"
-    "\x{a}" ~
-    "         "
-    sch:assert [
-      test = "ancestor-or-self::tei:post"
-      "The @generatedBy attribute is for use within a <post> element."
-    ]
-    "\x{a}" ~
-    "      "
-  ]
-  "\x{a}" ~
-  "   "
-]
-dhq_att.datcat.attributes =
-  dhq_att.datcat.attribute.datcat,
-  dhq_att.datcat.attribute.valueDatcat,
-  dhq_att.datcat.attribute.targetDatcat
-dhq_att.datcat.attribute.datcat =
-  [
-    a:documentation [
-      "provides a pointer to a definition of, and/or general information about, (a) an information container (element or attribute) or (b) a value of an information container (element content or attribute value), by referencing an external taxonomy or ontology. If "
-      ns1:code [ "@valueDatcat" ]
-      " is present in the immediate context, this attribute takes on role (a), while "
-      ns1:code [ "@valueDatcat" ]
-      " performs role (b)."
-    ]
-  ]
-  attribute datcat {
-    list {
-      xsd:anyURI { pattern = "\S+" }+
-    }
-  }?
-dhq_att.datcat.attribute.valueDatcat =
-  [
-    a:documentation [
-      "provides a definition of, and/or general information about a value of an information container (element content or attribute value), by reference to an external taxonomy or ontology. Used especially where a contrast with "
-      ns1:code [ "@datcat" ]
-      " is needed."
-    ]
-  ]
-  attribute valueDatcat {
-    list {
-      xsd:anyURI { pattern = "\S+" }+
-    }
-  }?
-dhq_att.datcat.attribute.targetDatcat =
-  [
-    a:documentation [
-      "provides a definition of, and/or general information about, information structure of an object referenced or modeled by the containing element, by reference to an external taxonomy or ontology. This attribute has the characteristics of the "
-      ns1:code [ "@datcat" ]
-      " attribute, except that it addresses not its containing element, but an object that is being referenced or modeled by its containing element."
-    ]
-  ]
-  attribute targetDatcat {
-    list {
-      xsd:anyURI { pattern = "\S+" }+
-    }
-  }?
-dhq_att.docStatus.attributes = dhq_att.docStatus.attribute.status
-dhq_att.docStatus.attribute.status =
-  ## describes the status of a document either currently or, when associated with a dated element, at the time indicated.
-  ## Sample values include: 1] approved; 2] candidate; 3] cleared; 4] deprecated; 5] draft; 6] embargoed; 7] expired; 8] frozen; 9] galley; 10] proposed; 11] published; 12] recommendation; 13] submitted; 14] unfinished; 15] withdrawn
-  [ a:defaultValue = "draft" ]
-  attribute status {
-    xsd:token { pattern = "[^\p{C}\p{Z}]+" }
-  }?
-dhq_att.edition.attribute.edRef =
-  ## (edition reference) provides a pointer to the source edition in which the associated feature (for example, a page, column, or line beginning) occurs at this point in the text.
-  attribute edRef {
-    list {
-      xsd:anyURI { pattern = "\S+" }+
-    }
-  }?
-dhq_att.fragmentable.attributes = dhq_att.fragmentable.attribute.part
-dhq_att.fragmentable.attribute.part =
-  ## specifies whether or not its parent element is fragmented in some way, typically by some other overlapping structure: for example a speech which is divided between two or more verse stanzas, a paragraph which is split across a page division, a verse line which is divided between two speakers.
-  [ a:defaultValue = "N" ]
-  attribute part {
-    ## (yes) the element is fragmented in some (unspecified) respect
-    "Y" | ## (no) the element is not fragmented, or no claim is made as to its completeness
-      "N" | ## (initial) this is the initial part of a fragmented element
-      "I" | ## (medial) this is a medial part of a fragmented element
-      "M" | ## (final) this is the final part of a fragmented element
-      "F"
-  }?
-dhq_att.global.rendition.attributes =
-  dhq_att.global.rendition.attribute.style
-dhq_att.global.rendition.attribute.style =
-  ## contains an expression in some formal style definition language which defines the rendering or presentation used for this element in the source text.
-  attribute style { xsd:string }?
-dhq_att.global.source.attributes =
-  dhq_att.global.source.attribute.source
-dhq_att.global.source.attribute.source =
-  ## specifies the source from which some aspect of this element is drawn.
-  attribute source {
-    list {
-      xsd:anyURI { pattern = "\S+" }+
-    }
-  }?
-sch:pattern [
-  id =
-    "dhq-att.global.source-source-only_1_ODD_source-constraint-rule-2"
-  "\x{a}" ~
-  "      "
-  sch:rule [
-    context = "tei:*[@source]"
-    "\x{a}" ~
-    "         "
-    sch:let [
-      name = "srcs"
-      value = "tokenize( normalize-space(@source),' ')"
-    ]
-    "\x{a}" ~
-    "         "
-    sch:report [
-      test =
-        "(   self::tei:classRef                                 | self::tei:dataRef                                 | self::tei:elementRef                                 | self::tei:macroRef                                 | self::tei:moduleRef                                 | self::tei:schemaSpec )                                   and                                   $srcs[2]"
-      "\x{a}" ~
-      "              When used on a schema description element (like\x{a}" ~
-      "              "
-      sch:value-of [ select = "name(.)" ]
-      "), the @source attribute\x{a}" ~
-      "              should have only 1 value. (This one has "
-      sch:value-of [ select = "count($srcs)" ]
-      ".)\x{a}" ~
-      "            "
-    ]
-    "\x{a}" ~
-    "      "
-  ]
-  "\x{a}" ~
-  "   "
-]
-dhq_att.internetMedia.attributes =
-  dhq_att.internetMedia.attribute.mimeType
-dhq_att.internetMedia.attribute.mimeType =
-  ## (MIME media type) specifies the applicable multimedia internet mail extension (MIME) media type.
-  attribute mimeType {
-    list {
-      xsd:token { pattern = "[^\p{C}\p{Z}]+" }+
-    }
-  }?
-dhq_att.notated.attributes = dhq_att.notated.attribute.notation
-dhq_att.notated.attribute.notation =
-  ## names the notation used for the content of the element.
-  attribute notation {
-    xsd:token { pattern = "[^\p{C}\p{Z}]+" }
-  }?
-dhq_att.resourced.attributes = dhq_att.resourced.attribute.url
-dhq_att.resourced.attribute.url =
-  ## (uniform resource locator) specifies the URL from which the media concerned may be obtained.
-  attribute url {
-    xsd:anyURI { pattern = "\S+" }
-  }
-dhq_att.scope.attributes = dhq_att.scope.attribute.scope
-dhq_att.scope.attribute.scope =
-  ## indicates the scope of application of the element
-  ## Suggested values include: 1] sole; 2] major; 3] minor
-  attribute scope {
-    ## only this particular feature is used throughout the document
-    "sole" | ## this feature is used through most of the document
-      "major" | ## this feature is used occasionally through the document
-      "minor"
-    | xsd:token { pattern = "[^\p{C}\p{Z}]+" }
-  }?
-dhq_att.sortable.attributes = dhq_att.sortable.attribute.sortKey
-dhq_att.sortable.attribute.sortKey =
-  ## supplies the sort key for this element in an index, list or group which contains it.
-  attribute sortKey {
-    xsd:token { pattern = "[^\p{C}\p{Z}]+" }
-  }?
-dhq_att.typed.attributes = dhq_att.typed.attribute.type
-dhq_att.typed.attribute.type =
-  ## characterizes the element in some sense, using any convenient classification scheme or typology.
-  attribute type {
-    xsd:token { pattern = "[^\p{C}\p{Z}]+" }
-  }?
-sch:pattern [
-  id = "dhq-att.typed-subtypeTyped-constraint-rule-3"
-  "\x{a}" ~
-  "      "
-  sch:rule [
-    context = "tei:*[@subtype]"
-    "\x{a}" ~
-    "         "
-    sch:assert [
-      test = "@type"
-      "The "
-      sch:name [ ]
-      " element should not be categorized in detail with @subtype unless also categorized in general with @type"
-    ]
-    "\x{a}" ~
-    "      "
-  ]
-  "\x{a}" ~
-  "   "
-]
-dhq_att.written.attributes = dhq_att.written.attribute.hand
-dhq_att.written.attribute.hand =
-  [
-    a:documentation [
-      "points to a "
-      ns1:code [ "<handNote>" ]
-      " element describing the hand considered responsible for the content of the element concerned."
-    ]
-  ]
-  attribute hand {
-    xsd:anyURI { pattern = "\S+" }
-  }?
-dhq_att.ascribed.directed.attributes =
-  dhq_att.ascribed.attributes,
-  dhq_att.ascribed.directed.attribute.toWhom
-dhq_att.ascribed.directed.attribute.toWhom =
-  ## indicates the person, or group of people, to whom a speech act or action is directed.
-  attribute toWhom {
-    list {
-      xsd:anyURI { pattern = "\S+" }+
-    }
-  }?
-dhq_att.global.attributes =
-  dhq_att.global.rendition.attributes,
-  dhq_att.global.source.attributes,
-  dhq_att.global.attribute.xmllang
-dhq_att.global.attribute.xmllang =
-  [
-    a:documentation [
-      "(language) indicates the language of the element content using a tag generated according to "
-      ns1:a [
-        href = "http://www.rfc-editor.org/rfc/bcp/bcp47.txt"
-        "BCP 47"
-      ]
-      "."
-    ]
-  ]
-  attribute xml:lang {
-    xsd:language
-    | (
-       "")
-  }?
-dhq_att.media.attribute.scale =
-  ## Where the media are displayed, indicates a scale factor to be applied when generating the desired display size.
-  attribute scale {
-    xsd:double
-    | xsd:token { pattern = "(\-?[\d]+/\-?[\d]+)" }
-    | xsd:decimal
-  }?
-dhq_model.nameLike.agent = dhq_name
-dhq_model.nameLike.agent_alternation = dhq_name
-dhq_model.nameLike.agent_sequence = dhq_name
-dhq_model.nameLike.agent_sequenceOptional = dhq_name?
-dhq_model.nameLike.agent_sequenceOptionalRepeatable = dhq_name*
-dhq_model.nameLike.agent_sequenceRepeatable = dhq_name+
+dhq_model.nameLike.agent = dhq_name | dhq_orgName | dhq_persName
+dhq_model.nameLike.agent_alternation =
+  dhq_name | dhq_orgName | dhq_persName
+dhq_model.nameLike.agent_sequence = dhq_name, dhq_orgName, dhq_persName
+dhq_model.nameLike.agent_sequenceOptional =
+  dhq_name?, dhq_orgName?, dhq_persName?
+dhq_model.nameLike.agent_sequenceOptionalRepeatable =
+  dhq_name*, dhq_orgName*, dhq_persName*
+dhq_model.nameLike.agent_sequenceRepeatable =
+  dhq_name+, dhq_orgName+, dhq_persName+
 dhq_model.segLike = dhq_seg
-dhq_model.segLike_alternation = dhq_seg
-dhq_model.segLike_sequence = dhq_seg
-dhq_model.segLike_sequenceOptional = dhq_seg?
-dhq_model.segLike_sequenceOptionalRepeatable = dhq_seg*
-dhq_model.segLike_sequenceRepeatable = dhq_seg+
 dhq_model.hiLike = dhq_hi | dhq_q
 dhq_model.hiLike_alternation = dhq_hi | dhq_q
 dhq_model.hiLike_sequence = dhq_hi, dhq_q
@@ -1625,19 +1541,6 @@ dhq_model.emphLike_sequenceRepeatable =
   dhq_title+,
   dhq_code+
 dhq_model.highlighted = dhq_model.hiLike | dhq_model.emphLike
-dhq_model.highlighted_alternation =
-  dhq_model.hiLike_alternation | dhq_model.emphLike_alternation
-dhq_model.highlighted_sequence =
-  dhq_model.hiLike_sequence, dhq_model.emphLike_sequence
-dhq_model.highlighted_sequenceOptional =
-  dhq_model.hiLike_sequenceOptional?,
-  dhq_model.emphLike_sequenceOptional?
-dhq_model.highlighted_sequenceOptionalRepeatable =
-  dhq_model.hiLike_sequenceOptionalRepeatable*,
-  dhq_model.emphLike_sequenceOptionalRepeatable*
-dhq_model.highlighted_sequenceRepeatable =
-  dhq_model.hiLike_sequenceRepeatable+,
-  dhq_model.emphLike_sequenceRepeatable+
 dhq_model.dateLike = dhq_date
 dhq_model.dateLike_alternation = dhq_date
 dhq_model.dateLike_sequence = dhq_date
@@ -1658,16 +1561,6 @@ dhq_model.egLike_sequenceOptionalRepeatable = dhq_eg*
 dhq_model.egLike_sequenceRepeatable = dhq_eg+
 dhq_model.graphicLike =
   dhq_media | dhq_graphic | dhq_formula | dhq_passThroughCode
-dhq_model.graphicLike_alternation =
-  dhq_media | dhq_graphic | dhq_formula | dhq_passThroughCode
-dhq_model.graphicLike_sequence =
-  dhq_media, dhq_graphic, dhq_formula, dhq_passThroughCode
-dhq_model.graphicLike_sequenceOptional =
-  dhq_media?, dhq_graphic?, dhq_formula?, dhq_passThroughCode?
-dhq_model.graphicLike_sequenceOptionalRepeatable =
-  dhq_media*, dhq_graphic*, dhq_formula*, dhq_passThroughCode*
-dhq_model.graphicLike_sequenceRepeatable =
-  dhq_media+, dhq_graphic+, dhq_formula+, dhq_passThroughCode+
 dhq_model.offsetLike = notAllowed
 dhq_model.offsetLike_alternation = notAllowed
 dhq_model.offsetLike_sequence = empty
@@ -1675,38 +1568,11 @@ dhq_model.offsetLike_sequenceOptional = empty
 dhq_model.offsetLike_sequenceOptionalRepeatable = empty
 dhq_model.offsetLike_sequenceRepeatable = notAllowed
 dhq_model.pPart.msdesc = notAllowed
-dhq_model.pPart.msdesc_alternation = notAllowed
-dhq_model.pPart.msdesc_sequence = empty
-dhq_model.pPart.msdesc_sequenceOptional = empty
-dhq_model.pPart.msdesc_sequenceOptionalRepeatable = empty
-dhq_model.pPart.msdesc_sequenceRepeatable = notAllowed
 dhq_model.pPart.editorial = notAllowed
-dhq_model.pPart.transcriptional = notAllowed
 dhq_model.ptrLike = dhq_ptr | dhq_ref
-dhq_model.ptrLike_alternation = dhq_ptr | dhq_ref
-dhq_model.ptrLike_sequence = dhq_ptr, dhq_ref
-dhq_model.ptrLike_sequenceOptional = dhq_ptr?, dhq_ref?
-dhq_model.ptrLike_sequenceOptionalRepeatable = dhq_ptr*, dhq_ref*
-dhq_model.ptrLike_sequenceRepeatable = dhq_ptr+, dhq_ref+
 dhq_model.lPart = notAllowed
-dhq_model.lPart_alternation = notAllowed
-dhq_model.lPart_sequence = empty
-dhq_model.lPart_sequenceOptional = empty
-dhq_model.lPart_sequenceOptionalRepeatable = empty
-dhq_model.lPart_sequenceRepeatable = notAllowed
 dhq_model.global.meta = notAllowed
-dhq_model.global.meta_alternation = notAllowed
-dhq_model.global.meta_sequence = empty
-dhq_model.global.meta_sequenceOptional = empty
-dhq_model.global.meta_sequenceOptionalRepeatable = empty
-dhq_model.global.meta_sequenceRepeatable = notAllowed
 dhq_model.milestoneLike = dhq_lb | dhq_anchor
-dhq_model.milestoneLike_alternation = dhq_lb | dhq_anchor
-dhq_model.milestoneLike_sequence = dhq_lb, dhq_anchor
-dhq_model.milestoneLike_sequenceOptional = dhq_lb?, dhq_anchor?
-dhq_model.milestoneLike_sequenceOptionalRepeatable =
-  dhq_lb*, dhq_anchor*
-dhq_model.milestoneLike_sequenceRepeatable = dhq_lb+, dhq_anchor+
 dhq_model.oddDecl = notAllowed
 dhq_model.oddDecl_alternation = notAllowed
 dhq_model.oddDecl_sequence = empty
@@ -1714,24 +1580,17 @@ dhq_model.oddDecl_sequenceOptional = empty
 dhq_model.oddDecl_sequenceOptionalRepeatable = empty
 dhq_model.oddDecl_sequenceRepeatable = notAllowed
 dhq_model.phrase.xml = dhq_att | dhq_gi | dhq_val
-dhq_model.phrase.xml_alternation = dhq_att | dhq_gi | dhq_val
-dhq_model.phrase.xml_sequence = dhq_att, dhq_gi, dhq_val
-dhq_model.phrase.xml_sequenceOptional = dhq_att?, dhq_gi?, dhq_val?
-dhq_model.phrase.xml_sequenceOptionalRepeatable =
-  dhq_att*, dhq_gi*, dhq_val*
-dhq_model.phrase.xml_sequenceRepeatable = dhq_att+, dhq_gi+, dhq_val+
 dhq_model.specDescLike = notAllowed
-dhq_model.specDescLike_alternation = notAllowed
-dhq_model.specDescLike_sequence = empty
-dhq_model.specDescLike_sequenceOptional = empty
-dhq_model.specDescLike_sequenceOptionalRepeatable = empty
-dhq_model.specDescLike_sequenceRepeatable = notAllowed
-dhq_model.biblLike = dhq_bibl | dhq_listBibl
-dhq_model.biblLike_alternation = dhq_bibl | dhq_listBibl
-dhq_model.biblLike_sequence = dhq_bibl, dhq_listBibl
-dhq_model.biblLike_sequenceOptional = dhq_bibl?, dhq_listBibl?
-dhq_model.biblLike_sequenceOptionalRepeatable = dhq_bibl*, dhq_listBibl*
-dhq_model.biblLike_sequenceRepeatable = dhq_bibl+, dhq_listBibl+
+dhq_model.biblLike = dhq_bibl | dhq_biblStruct | dhq_listBibl
+dhq_model.biblLike_alternation =
+  dhq_bibl | dhq_biblStruct | dhq_listBibl
+dhq_model.biblLike_sequence = dhq_bibl, dhq_biblStruct, dhq_listBibl
+dhq_model.biblLike_sequenceOptional =
+  dhq_bibl?, dhq_biblStruct?, dhq_listBibl?
+dhq_model.biblLike_sequenceOptionalRepeatable =
+  dhq_bibl*, dhq_biblStruct*, dhq_listBibl*
+dhq_model.biblLike_sequenceRepeatable =
+  dhq_bibl+, dhq_biblStruct+, dhq_listBibl+
 dhq_model.headLike = dhq_head
 dhq_model.headLike_alternation = dhq_head
 dhq_model.headLike_sequence = dhq_head
@@ -1739,11 +1598,6 @@ dhq_model.headLike_sequenceOptional = dhq_head?
 dhq_model.headLike_sequenceOptionalRepeatable = dhq_head*
 dhq_model.headLike_sequenceRepeatable = dhq_head+
 dhq_model.labelLike = dhq_desc | dhq_label
-dhq_model.labelLike_alternation = dhq_desc | dhq_label
-dhq_model.labelLike_sequence = dhq_desc, dhq_label
-dhq_model.labelLike_sequenceOptional = dhq_desc?, dhq_label?
-dhq_model.labelLike_sequenceOptionalRepeatable = dhq_desc*, dhq_label*
-dhq_model.labelLike_sequenceRepeatable = dhq_desc+, dhq_label+
 dhq_model.listLike = dhq_list | dhq_table
 dhq_model.listLike_alternation = dhq_list | dhq_table
 dhq_model.listLike_sequence = dhq_list, dhq_table
@@ -1751,11 +1605,6 @@ dhq_model.listLike_sequenceOptional = dhq_list?, dhq_table?
 dhq_model.listLike_sequenceOptionalRepeatable = dhq_list*, dhq_table*
 dhq_model.listLike_sequenceRepeatable = dhq_list+, dhq_table+
 dhq_model.noteLike = dhq_note | dhq_caption
-dhq_model.noteLike_alternation = dhq_note | dhq_caption
-dhq_model.noteLike_sequence = dhq_note, dhq_caption
-dhq_model.noteLike_sequenceOptional = dhq_note?, dhq_caption?
-dhq_model.noteLike_sequenceOptionalRepeatable = dhq_note*, dhq_caption*
-dhq_model.noteLike_sequenceRepeatable = dhq_note+, dhq_caption+
 dhq_model.lLike = dhq_l
 dhq_model.lLike_alternation = dhq_l
 dhq_model.lLike_sequence = dhq_l
@@ -1774,12 +1623,7 @@ dhq_model.stageLike_sequence = dhq_stage
 dhq_model.stageLike_sequenceOptional = dhq_stage?
 dhq_model.stageLike_sequenceOptionalRepeatable = dhq_stage*
 dhq_model.stageLike_sequenceRepeatable = dhq_stage+
-dhq_model.global.edit = notAllowed
-dhq_model.global.edit_alternation = notAllowed
-dhq_model.global.edit_sequence = empty
-dhq_model.global.edit_sequenceOptional = empty
-dhq_model.global.edit_sequenceOptionalRepeatable = empty
-dhq_model.global.edit_sequenceRepeatable = notAllowed
+dhq_model.global.edit = dhq_ellipsis
 dhq_model.divPart = dhq_model.lLike | dhq_model.pLike | dhq_lg | dhq_sp
 dhq_model.publicationStmtPart.agency = dhq_publisher
 dhq_model.publicationStmtPart.detail =
@@ -1824,59 +1668,46 @@ dhq_model.divBottomPart = notAllowed
 dhq_model.divBottom = dhq_model.divWrapper | dhq_model.divBottomPart
 dhq_model.imprintPart = dhq_publisher | dhq_biblScope | dhq_pubPlace
 dhq_model.nameLike =
-  dhq_model.nameLike.agent | dhq_model.offsetLike | dhq_idno
+  dhq_model.nameLike.agent
+  | dhq_model.offsetLike
+  | dhq_idno
+  | dhq_model.persNamePart
 dhq_model.nameLike_alternation =
   dhq_model.nameLike.agent_alternation
   | dhq_model.offsetLike_alternation
   | dhq_idno
+  | dhq_model.persNamePart_alternation
 dhq_model.nameLike_sequence =
   dhq_model.nameLike.agent_sequence,
   dhq_model.offsetLike_sequence,
-  dhq_idno
+  dhq_idno,
+  dhq_model.persNamePart_sequence
 dhq_model.nameLike_sequenceOptional =
   dhq_model.nameLike.agent_sequenceOptional?,
   dhq_model.offsetLike_sequenceOptional?,
-  dhq_idno?
+  dhq_idno?,
+  dhq_model.persNamePart_sequenceOptional?
 dhq_model.nameLike_sequenceOptionalRepeatable =
   dhq_model.nameLike.agent_sequenceOptionalRepeatable*,
   dhq_model.offsetLike_sequenceOptionalRepeatable*,
-  dhq_idno*
+  dhq_idno*,
+  dhq_model.persNamePart_sequenceOptionalRepeatable*
 dhq_model.nameLike_sequenceRepeatable =
   dhq_model.nameLike.agent_sequenceRepeatable+,
   dhq_model.offsetLike_sequenceRepeatable+,
-  dhq_idno+
+  dhq_idno+,
+  dhq_model.persNamePart_sequenceRepeatable+
 dhq_model.global =
   dhq_model.global.meta | dhq_model.global.edit | dhq_figure
 dhq_model.biblPart =
   dhq_model.respLike
   | dhq_model.imprintPart
-  | dhq_quote
   | dhq_series
   | dhq_citedRange
   | dhq_bibl
   | dhq_availability
 dhq_model.pPart.data =
   dhq_model.dateLike | dhq_model.measureLike | dhq_model.nameLike
-dhq_model.pPart.data_alternation =
-  dhq_model.dateLike_alternation
-  | dhq_model.measureLike_alternation
-  | dhq_model.nameLike_alternation
-dhq_model.pPart.data_sequence =
-  dhq_model.dateLike_sequence,
-  dhq_model.measureLike_sequence,
-  dhq_model.nameLike_sequence
-dhq_model.pPart.data_sequenceOptional =
-  dhq_model.dateLike_sequenceOptional?,
-  dhq_model.measureLike_sequenceOptional?,
-  dhq_model.nameLike_sequenceOptional?
-dhq_model.pPart.data_sequenceOptionalRepeatable =
-  dhq_model.dateLike_sequenceOptionalRepeatable*,
-  dhq_model.measureLike_sequenceOptionalRepeatable*,
-  dhq_model.nameLike_sequenceOptionalRepeatable*
-dhq_model.pPart.data_sequenceRepeatable =
-  dhq_model.dateLike_sequenceRepeatable+,
-  dhq_model.measureLike_sequenceRepeatable+,
-  dhq_model.nameLike_sequenceRepeatable+
 dhq_model.inter =
   dhq_model.egLike
   | dhq_model.oddDecl
@@ -1886,9 +1717,8 @@ dhq_model.inter =
   | dhq_model.attributable
   | dhq_passThroughCode
   | dhq_example
-dhq_model.cmc = notAllowed
 dhq_model.common =
-  dhq_model.divPart | dhq_model.inter | dhq_model.cmc | dhq_q | dhq_note
+  dhq_model.divPart | dhq_model.inter | dhq_q | dhq_note
 dhq_model.phrase =
   dhq_model.segLike
   | dhq_model.highlighted
@@ -1903,12 +1733,6 @@ dhq_model.phrase =
   | dhq_model.noteLike
   | dhq_model.pPart.data
   | dhq_q
-dhq_model.paraPart =
-  dhq_model.lLike
-  | dhq_model.global
-  | dhq_model.inter
-  | dhq_model.phrase
-  | dhq_lg
 dhq_model.limitedPhrase =
   dhq_model.hiLike
   | dhq_model.emphLike
@@ -1923,29 +1747,6 @@ dhq_model.teiHeaderPart =
 dhq_model.encodingDescPart = dhq_classDecl
 dhq_model.profileDescPart = dhq_langUsage | dhq_textClass
 dhq_model.resource = dhq_text
-sch:pattern [
-  id =
-    "dhq-att.calendarSystem-calendar-calendar_attr_on_empty_element-constraint-rule-4"
-  "\x{a}" ~
-  "      "
-  sch:rule [
-    context = "tei:*[@calendar]"
-    "\x{a}" ~
-    "         "
-    sch:assert [
-      test = "string-length( normalize-space(.) ) gt 0"
-      " @calendar indicates one or more\x{a}" ~
-      "              systems or calendars to which the date represented by the content of this element belongs,\x{a}" ~
-      "              but this "
-      sch:name [ ]
-      " element has no textual content."
-    ]
-    "\x{a}" ~
-    "      "
-  ]
-  "\x{a}" ~
-  "   "
-]
 
 dhq_p =
   ## (paragraph) marks paragraphs in prose. [3.1. Paragraphs 7.2.5. Speech Contents]
@@ -1953,7 +1754,7 @@ dhq_p =
     dhq_macro.paraContent
     >> sch:pattern [
          id =
-           "dhq-p-abstractModel-structure-p-in-ab-or-p-constraint-rule-5"
+           "dhq-p-abstractModel-structure-p-in-ab-or-p-constraint-report-2"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -1962,10 +1763,10 @@ dhq_p =
            "               "
            sch:report [
              test =
-               "(ancestor::tei:ab or ancestor::tei:p) and                        not( ancestor::tei:floatingText                           | parent::tei:exemplum                           | parent::tei:item                           | parent::tei:note                           | parent::tei:q                           | parent::tei:quote                           | parent::tei:remarks                           | parent::tei:said                           | parent::tei:sp                           | parent::tei:stage                           | parent::tei:cell                           | parent::tei:figure )"
+               "    (ancestor::tei:ab or ancestor::tei:p)                          and not( ancestor::tei:floatingText                                 |parent::tei:exemplum                                 |parent::tei:item                                 |parent::tei:note                                 |parent::tei:q                                 |parent::tei:quote                                 |parent::tei:remarks                                 |parent::tei:said                                 |parent::tei:sp                                 |parent::tei:stage                                 |parent::tei:cell                                 |parent::tei:figure                                )"
              "\x{a}" ~
-             "          Abstract model violation: Paragraphs may not occur inside other paragraphs or ab elements.\x{a}" ~
-             "        "
+             "        Abstract model violation: Paragraphs may not occur inside other paragraphs or ab elements.\x{a}" ~
+             "      "
            ]
            "\x{a}" ~
            "            "
@@ -1974,19 +1775,20 @@ dhq_p =
          "         "
        ]
     >> sch:pattern [
-         id = "dhq-p-abstractModel-structure-p-in-l-constraint-rule-6"
+         id =
+           "dhq-p-abstractModel-structure-p-in-l-or-lg-constraint-report-3"
          "\x{a}" ~
          "            "
          sch:rule [
-           context = "tei:l//tei:p"
+           context = "tei:p"
            "\x{a}" ~
            "               "
-           sch:assert [
+           sch:report [
              test =
-               "ancestor::tei:floatingText | parent::tei:figure | parent::tei:note"
+               "    (ancestor::tei:l or ancestor::tei:lg)                          and not( ancestor::tei:floatingText                                 |parent::tei:figure                                 |parent::tei:note                                )"
              "\x{a}" ~
-             "          Abstract model violation: Metrical lines may not contain higher-level structural elements such as div, p, or ab, unless p is a child of figure or note, or is a descendant of floatingText.\x{a}" ~
-             "        "
+             "        Abstract model violation: Lines may not contain higher-level structural elements such as div, p, or ab, unless p is a child of figure or note, or is a descendant of floatingText.\x{a}" ~
+             "      "
            ]
            "\x{a}" ~
            "            "
@@ -1995,7 +1797,6 @@ dhq_p =
          "         "
        ],
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.fragmentable.attributes,
     dhq_att.written.attributes,
     empty
@@ -2004,20 +1805,13 @@ dhq_p =
 dhq_foreign =
   ## (foreign) identifies a word or phrase as belonging to some language other than that of the surrounding text. [3.3.2.1. Foreign Words or Expressions]
   element tei:foreign {
-    dhq_macro.phraseSeq,
-    dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
-    empty
+    dhq_macro.phraseSeq, dhq_att.global.attributes, empty
   }
 
 dhq_emph =
   ## (emphasized) marks words or phrases which are stressed or emphasized for linguistic or rhetorical effect. [3.3.2.2. Emphatic Words and Phrases 3.3.2. Emphasis, Foreign Words, and Unusual Language]
   element tei:emph {
-    dhq_macro.paraContent,
-    dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
-    dhq_att.written.attributes,
-    empty
+    dhq_macro.paraContent, dhq_att.global.attributes, empty
   }
 
 dhq_hi =
@@ -2025,7 +1819,6 @@ dhq_hi =
   element tei:hi {
     dhq_macro.paraContent,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.written.attributes,
     ## Describes the presentation of the highlighted material.
     attribute rend {
@@ -2049,7 +1842,6 @@ dhq_said =
     dhq_macro.specialPara,
     dhq_att.global.attributes,
     dhq_att.ascribed.directed.attributes,
-    dhq_att.cmc.attributes,
     empty
   }
 
@@ -2058,9 +1850,8 @@ dhq_quote =
   element tei:quote {
     dhq_macro.specialPara,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
-    dhq_att.notated.attributes,
     dhq_att.typed.attributes,
+    dhq_att.notated.attributes,
     ## Describes the presentation of the quoted material, whether inline or set as a block.
     attribute rend {
       ## Designates an inline quotation (i.e. one that is flowed into the surrounding text rather than set off from it), typically containing text and inline elements.
@@ -2076,17 +1867,15 @@ dhq_q =
     dhq_macro.specialPara,
     dhq_att.global.attributes,
     dhq_att.ascribed.directed.attributes,
-    dhq_att.cmc.attributes,
     empty
   }
 
 dhq_cit =
-  ## (cited quotation) contains a quotation from some other document, together with a bibliographic reference to its source. In a dictionary it may contain an example text with at least one occurrence of the word form, used in the sense being described, or a translation of the headword, or an example. [3.3.3. Quotation 4.3.1. Grouped Texts 10.3.5.1. Examples]
+  ## (cited quotation) contains a quotation from some other document, together with a bibliographic reference to its source. In a dictionary it may contain an example text with at least one occurrence of the word form, used in the sense being described, or a translation of the headword, or an example. [3.3.3. Quotation 4.3.1. Grouped Texts 9.3.5.1. Examples]
   element tei:cit {
     (dhq_quote,
      (dhq_citRef | (dhq_ptr | dhq_ref | dhq_bibl | text)*)),
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.typed.attributes,
     empty
   }
@@ -2094,28 +1883,22 @@ dhq_cit =
 dhq_mentioned =
   ## an italicized word or phrase that the author is discussing or referencing (but not quoting from an external source) [3.3.3. Quotation]
   element tei:word {
-    dhq_macro.phraseSeq,
-    dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
-    empty
+    dhq_macro.phraseSeq, dhq_att.global.attributes, empty
   }
 
 dhq_soCalled =
   ## (so called) contains a word or phrase for which the author or narrator indicates a disclaiming of responsibility, for example by the use of scare quotes or italics. [3.3.3. Quotation]
   element tei:soCalled {
-    dhq_macro.phraseSeq,
-    dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
-    empty
+    dhq_macro.phraseSeq, dhq_att.global.attributes, empty
   }
 
 dhq_desc =
-  ## (description) contains a short description of the purpose, function, or use of its parent element, or when the parent is a documentation element, describes or defines the object being documented.  [23.4.1. Description of Components]
+  ## (description) contains a short description of the purpose, function, or use of its parent element, or when the parent is a documentation element, describes or defines the object being documented.  [22.4.1. Description of Components]
   element tei:desc {
     dhq_macro.limitedContent
     >> sch:pattern [
          id =
-           "dhq-desc-deprecationInfo-only-in-deprecated-constraint-rule-7"
+           "dhq-desc-deprecationInfo-only-in-deprecated-constraint-rule-3"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2137,7 +1920,6 @@ dhq_desc =
          "         "
        ],
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     empty
   }
 
@@ -2146,13 +1928,18 @@ dhq_term =
   element tei:term {
     dhq_macro.phraseSeq,
     dhq_att.global.attributes,
-    dhq_att.canonical.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.typed.attributes,
+    dhq_att.canonical.attributes,
     attribute corresp {
       "#access" | "#annotation" | "#anthropology" | "#ar" | "#archaeology" | "#archives" | "#area_studies" | "#citation" | "#classics" | "#code_studies" | "#collaboration" | "#comics" | "#communications" | "#content_analysis" | "#corpora" | "#cs" | "#cultural_criticism" | "#cultural_heritage" | "#data_analytics" | "#data_curation" | "#data_modeling" | "#data_visualization" | "#databases" | "#dh" | "#digital" | "#digital_libraries" | "#digital_literacy" | "#digitization" | "#editing" | "#elit" | "#ecocriticism" | "#ethics" | "#games" | "#gender" | "#geospatial" | "#glam" | "#globalDH" | "#graphic_design" | "#history" | "#hypertext" | "#images" | "#indigenous" | "#info_architecture" | "#informatics" | "#information_retrieval" | "#infrastructure" | "#interdisciplinarity" | "#language_studies" | "#linguistics" | "#literary_studies" | "#machine_learning" | "#manuscripts" | "#markup" | "#materialisms" | "#media_history" | "#media_studies" | "#medieval" | "#metadata" | "#minimal_computing" | "#mobile" | "#moving_images" | "#music" | "#network" | "#nlp" | "#oral_history" | "#pedagogy" | "#performance" | "#philosophy" | "#project_management" | "#project_report" | "#public_history" | "#publishing" | "#race" | "#reading" | "#religion" | "#rhetoric" | "#semantic_web" | "#social_justice" | "#social_media" | "#sound" | "#standards" | "#stylistics" | "#tools" | "#transcription" | "#translation" | "#users" | "#visual_art" | "#web"
     }?,
     empty
+  }
+
+dhq_ellipsis =
+  ## (deliberately marked omission) indicates a purposeful marking in the source document signalling that content has been omitted, and may also supply or describe the omitted content. [3.5.3. Additions, Deletions, and Omissions]
+  element tei:ellipsis {
+    dhq_model.descLike?, dhq_att.global.attributes, empty
   }
 
 dhq_name =
@@ -2160,7 +1947,6 @@ dhq_name =
   element tei:name {
     dhq_macro.phraseSeq,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     ## Specifies the role of the person named in relation to the bibliographic object.
     ## Suggested values include: 1] translator; 2] editor; 3] illustrator; 4] annotator; 5] programmer
     attribute role {
@@ -2173,19 +1959,15 @@ dhq_name =
 dhq_email =
   ## (electronic mail address) contains an email address identifying a location to which email messages can be delivered. [3.6.2. Addresses]
   element tei:email {
-    dhq_macro.phraseSeq,
-    dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
-    empty
+    dhq_macro.phraseSeq, dhq_att.global.attributes, empty
   }
 
 dhq_date =
-  ## (date) contains a date in any format. [3.6.4. Dates and Times 2.2.4. Publication, Distribution, Licensing, etc. 2.6. The Revision Description 3.12.2.4. Imprint, Size of a Document, and Reprint Information 16.2.3. The Setting Description 14.4. Dates]
+  ## (date) contains a date in any format. [3.6.4. Dates and Times 2.2.4. Publication, Distribution, Licensing, etc. 2.6. The Revision Description 3.12.2.4. Imprint, Size of a Document, and Reprint Information 15.2.3. The Setting Description 13.4. Dates]
   element tei:date {
     (text | dhq_model.phrase | dhq_model.global)*,
     dhq_att.global.attributes,
     dhq_att.canonical.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.typed.attributes,
     ## Provides a date in regularized format.
     attribute when {
@@ -2202,11 +1984,11 @@ dhq_date =
   }
 
 dhq_ptr =
-  ## (pointer) defines a pointer to another location. [3.7. Simple Links and Cross-References 17.1. Links]
+  ## (pointer) defines a pointer to another location. [3.7. Simple Links and Cross-References 16.1. Links]
   element tei:ptr {
     empty
     >> sch:pattern [
-         id = "dhq-ptr-ptrAtts-constraint-rule-8"
+         id = "dhq-ptr-ptrAtts-constraint-report-4"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2215,7 +1997,8 @@ dhq_ptr =
            "               "
            sch:report [
              test = "@target and @cRef"
-             "Only one of the attributes @target and @cRef may be supplied on "
+             "Only one of the\x{a}" ~
+             "attributes @target and @cRef may be supplied on "
              sch:name [ ]
              "."
            ]
@@ -2226,7 +2009,6 @@ dhq_ptr =
          "         "
        ],
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.internetMedia.attributes,
     ## Permits specialized types of pointers to be identified (e.g. those pointing to video or audio files).
     attribute type {
@@ -2245,11 +2027,11 @@ dhq_ptr =
   }
 
 dhq_ref =
-  ## (reference) defines a reference to another location, possibly modified by additional text or comment. [3.7. Simple Links and Cross-References 17.1. Links]
+  ## (reference) defines a reference to another location, possibly modified by additional text or comment. [3.7. Simple Links and Cross-References 16.1. Links]
   element tei:ref {
     dhq_macro.paraContent
     >> sch:pattern [
-         id = "dhq-ref-refAtts-constraint-rule-9"
+         id = "dhq-ref-refAtts-constraint-report-5"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2258,9 +2040,11 @@ dhq_ref =
            "               "
            sch:report [
              test = "@target and @cRef"
-             "Only one of the attributes @target and @cRef may be supplied on "
+             "Only one of the\x{a}" ~
+             "	attributes @target' and @cRef' may be supplied on "
              sch:name [ ]
-             "."
+             "\x{a}" ~
+             "               "
            ]
            "\x{a}" ~
            "            "
@@ -2269,7 +2053,6 @@ dhq_ref =
          "         "
        ],
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.internetMedia.attributes,
     ## Provides a classification of the reference
     attribute type {
@@ -2293,7 +2076,7 @@ dhq_list =
   element tei:list {
     (dhq_model.divTop*, dhq_item+)
     >> sch:pattern [
-         id = "dhq-list-gloss-list-must-have-labels-constraint-rule-10"
+         id = "dhq-list-gloss-list-must-have-labels-constraint-rule-4"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2311,7 +2094,6 @@ dhq_list =
          "         "
        ],
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.sortable.attributes,
     ## Classifies the element.
     attribute type {
@@ -2349,7 +2131,6 @@ dhq_label =
   element tei:label {
     (dhq_macro.phraseSeq | dhq_bibl | dhq_q)*,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.typed.attributes,
     dhq_att.written.attributes,
     empty
@@ -2371,18 +2152,16 @@ dhq_head =
      | dhq_q
      | dhq_note)*,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.typed.attributes,
     dhq_att.written.attributes,
     empty
   }
 
 dhq_note =
-  ## (note) contains a note or annotation. [3.9.1. Notes and Simple Annotation 2.2.6. The Notes Statement 3.12.2.8. Notes and Statement of Language 10.3.5.4. Notes within Entries]
+  ## (note) contains a note or annotation. [3.9.1. Notes and Simple Annotation 2.2.6. The Notes Statement 3.12.2.8. Notes and Statement of Language 9.3.5.4. Notes within Entries]
   element tei:note {
     dhq_macro.specialPara,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.written.attributes,
     ## Provides a unique identifier for the note
     attribute xml:id { xsd:ID }?,
@@ -2393,11 +2172,10 @@ dhq_media =
   ## indicates the location of any form of external media such as an audio or video clip etc. [3.10. Graphics and Other Non-textual Components]
   element tei:media {
     dhq_model.descLike*,
+    dhq_att.typed.attributes,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.media.attribute.scale,
     dhq_att.resourced.attributes,
-    dhq_att.typed.attributes,
     attribute width { xsd:integer }?,
     attribute height { xsd:integer }?,
     attribute mimeType {
@@ -2417,11 +2195,10 @@ dhq_media =
   }
 
 dhq_graphic =
-  ## (graphic) indicates the location of a graphic or illustration, either forming part of a text, or providing an image of it. [3.10. Graphics and Other Non-textual Components 12.1. Digital Facsimiles]
+  ## (graphic) indicates the location of a graphic or illustration, either forming part of a text, or providing an image of it. [3.10. Graphics and Other Non-textual Components 11.1. Digital Facsimiles]
   element tei:graphic {
     dhq_model.descLike*,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.internetMedia.attribute.mimeType,
     dhq_att.resourced.attributes,
     ## Classifies the type of graphic object.
@@ -2433,15 +2210,47 @@ dhq_graphic =
   }
 
 dhq_lb =
-  ## (line beginning) marks the beginning of a topographic line in some edition or version of a text. [3.11.3. Milestone
+  ## (line beginning) marks the beginning of a new (typographic) line in some edition or version of a text. [3.11.3. Milestone
   ## Elements 7.2.5. Speech Contents]
   element tei:lb {
     empty,
     dhq_att.global.attributes,
-    dhq_att.breaking.attributes,
-    dhq_att.cmc.attributes,
-    dhq_att.edition.attribute.edRef,
     dhq_att.typed.attributes,
+    dhq_att.edition.attribute.edRef,
+    dhq_att.breaking.attributes,
+    empty
+  }
+
+dhq_analytic =
+  ## (analytic level) contains bibliographic elements describing an item (e.g. an article or poem) published within a monograph or journal and not as an independent publication. [3.12.2.1. Analytic, Monographic, and Series Levels]
+  element tei:analytic {
+    (dhq_author
+     | dhq_editor
+     | dhq_title
+     | dhq_model.ptrLike
+     | dhq_date
+     | dhq_idno
+     | dhq_availability)*,
+    dhq_att.global.attributes,
+    empty
+  }
+
+dhq_monogr =
+  ## (monographic level) contains bibliographic elements describing an item (e.g. a book or journal) published as an independent item (i.e. as a separate physical object). [3.12.2.1. Analytic, Monographic, and Series Levels]
+  element tei:monogr {
+    ((((dhq_author | dhq_editor),
+       (dhq_author | dhq_editor)*,
+       dhq_title+,
+       (dhq_model.ptrLike | dhq_idno | dhq_editor)*)
+      | ((dhq_title | dhq_model.ptrLike | dhq_idno)+,
+         (dhq_author | dhq_editor)*)
+      | dhq_idno)?,
+     dhq_availability*,
+     dhq_model.noteLike*,
+     (dhq_idno | dhq_model.ptrLike | dhq_editor | dhq_sponsor)*,
+     dhq_imprint,
+     (dhq_imprint | dhq_biblScope)*),
+    dhq_att.global.attributes,
     empty
   }
 
@@ -2478,7 +2287,6 @@ dhq_title =
     dhq_macro.paraContent,
     dhq_att.global.attributes,
     dhq_att.canonical.attributes,
-    dhq_att.cmc.attributes,
     [
       a:documentation [
         "The "
@@ -2494,6 +2302,25 @@ dhq_title =
     attribute rend {
       "italic" | "none" | "quotes"
     }?,
+    ## indicates the bibliographic level for a title, that is, whether it identifies an article, book, journal, series, or unpublished material.
+    attribute level {
+      ## (analytic) the title applies to an analytic item, such as an article, poem, or other work published as part of a larger item.
+      "a" | ## (monographic) the title applies to a monograph such as a book or other item considered to be a distinct publication, including single volumes of multi-volume works
+        "m" | ## (journal) the title applies to any serial or periodical publication such as a journal, magazine, or newspaper
+        "j" | ## (series) the title applies to a series of otherwise distinct publications such as a collection
+        "s" | ## (unpublished) the title applies to any unpublished material (including theses and dissertations unless published by a commercial press)
+        "u"
+    }?,
+    empty
+  }
+
+dhq_imprint =
+  ## groups information relating to the publication or distribution of a bibliographic item. [3.12.2.4. Imprint, Size of a Document, and Reprint Information]
+  element tei:imprint {
+    (empty*,
+     ((dhq_model.imprintPart | dhq_model.dateLike),
+      dhq_model.global*)+),
+    dhq_att.global.attributes,
     empty
   }
 
@@ -2516,7 +2343,7 @@ dhq_biblScope =
   }
 
 dhq_citedRange =
-  ## (cited range) defines the range of cited content, often represented by pages or other units. [3.12.2.5. Scopes and Ranges in Bibliographic Citations]
+  ## (cited range) defines the range of cited content, often represented by pages or other units [3.12.2.5. Scopes and Ranges in Bibliographic Citations]
   element tei:citedRange {
     dhq_macro.phraseSeq,
     dhq_att.global.attributes,
@@ -2531,7 +2358,7 @@ dhq_pubPlace =
   }
 
 dhq_bibl =
-  ## (bibliographic citation) contains a loosely-structured bibliographic citation of which the sub-components may or may not be explicitly tagged. [3.12.1. Methods of Encoding Bibliographic References and Lists of References 2.2.7. The Source Description 16.3.2. Declarable Elements]
+  ## (bibliographic citation) contains a loosely-structured bibliographic citation of which the sub-components may or may not be explicitly tagged. [3.12.1. Methods of Encoding Bibliographic References and Lists of References 2.2.7. The Source Description 15.3.2. Declarable Elements]
   element tei:bibl {
     (text
      | dhq_model.highlighted
@@ -2542,10 +2369,9 @@ dhq_bibl =
      | dhq_model.global)*,
     dhq_att.canonical.attributes,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
-    dhq_att.docStatus.attributes,
-    dhq_att.sortable.attributes,
     dhq_att.typed.attributes,
+    dhq_att.sortable.attributes,
+    dhq_att.docStatus.attributes,
     ## provides a reference to a centralized bibliography
     attribute biblioID { xsd:string }?,
     ## Provides a label for use in generated bibliographies.
@@ -2555,15 +2381,33 @@ dhq_bibl =
     empty
   }
 
+dhq_biblStruct =
+  ## (structured bibliographic citation) contains a structured bibliographic citation, in which only bibliographic sub-elements appear and in a specified order. [3.12.1. Methods of Encoding Bibliographic References and Lists of References 2.2.7. The Source Description 15.3.2. Declarable Elements]
+  element tei:biblStruct {
+    (dhq_analytic*,
+     (dhq_monogr, dhq_series*)+,
+     (dhq_model.noteLike | dhq_model.ptrLike | dhq_citedRange)*),
+    dhq_att.global.attributes,
+    dhq_att.typed.attributes,
+    dhq_att.sortable.attributes,
+    dhq_att.docStatus.attributes,
+    ## Provides a link to a related record
+    attribute corresp {
+      xsd:anyURI { pattern = "\S+" }
+    }?,
+    ## Provides a unique identifier for the bibliographic item
+    attribute xml:id { xsd:ID }?,
+    empty
+  }
+
 dhq_listBibl =
-  ## (citation list) contains a list of bibliographic citations of any kind. [3.12.1. Methods of Encoding Bibliographic References and Lists of References 2.2.7. The Source Description 16.3.2. Declarable Elements]
+  ## (citation list) contains a list of bibliographic citations of any kind. [3.12.1. Methods of Encoding Bibliographic References and Lists of References 2.2.7. The Source Description 15.3.2. Declarable Elements]
   element tei:listBibl {
     (dhq_model.headLike*,
      dhq_desc*,
      (dhq_model.milestoneLike)*,
      (dhq_model.biblLike+, (dhq_model.milestoneLike)*)+),
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.sortable.attributes,
     dhq_att.typed.attributes,
     empty
@@ -2574,7 +2418,7 @@ dhq_l =
   element tei:l {
     ((text | dhq_model.phrase | dhq_model.inter | dhq_model.global)*)
     >> sch:pattern [
-         id = "dhq-l-abstractModel-structure-l-in-l-constraint-rule-11"
+         id = "dhq-l-abstractModel-structure-l-in-l-constraint-report-6"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2584,7 +2428,9 @@ dhq_l =
            sch:report [
              test =
                "ancestor::tei:l[not(.//tei:note//tei:l[. = current()])]"
-             "Abstract model violation: Lines may not contain lines or lg elements."
+             "\x{a}" ~
+             "        Abstract model violation: Lines may not contain lines or lg elements.\x{a}" ~
+             "      "
            ]
            "\x{a}" ~
            "            "
@@ -2593,7 +2439,6 @@ dhq_l =
          "         "
        ],
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     attribute rend {
       ## the line is indented by 1
       "indent-1" | ## the line is indented by 2
@@ -2613,17 +2458,15 @@ dhq_lg =
      (dhq_model.lLike
       | dhq_model.stageLike
       | dhq_model.labelLike
-      | dhq_model.pPart.transcriptional
       | dhq_lg),
      (dhq_model.lLike
       | dhq_model.stageLike
       | dhq_model.labelLike
-      | dhq_model.pPart.transcriptional
       | dhq_model.global
       | dhq_lg)*,
      (dhq_model.divBottom, dhq_model.global*)*)
     >> sch:pattern [
-         id = "dhq-lg-atleast1oflggapl-constraint-rule-12"
+         id = "dhq-lg-atleast1oflggapl-constraint-assert-4"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2633,7 +2476,8 @@ dhq_lg =
            sch:assert [
              test =
                "count(descendant::tei:lg|descendant::tei:l|descendant::tei:gap) > 0"
-             "An lg element must contain at least one child l, lg, or gap element."
+             "An lg element\x{a}" ~
+             "        must contain at least one child l, lg, or gap element."
            ]
            "\x{a}" ~
            "            "
@@ -2643,7 +2487,7 @@ dhq_lg =
        ]
     >> sch:pattern [
          id =
-           "dhq-lg-abstractModel-structure-lg-in-l-constraint-rule-13"
+           "dhq-lg-abstractModel-structure-lg-in-l-constraint-report-7"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2653,7 +2497,9 @@ dhq_lg =
            sch:report [
              test =
                "ancestor::tei:l[not(.//tei:note//tei:lg[. = current()])]"
-             "Abstract model violation: Lines may not contain line groups."
+             "\x{a}" ~
+             "        Abstract model violation: Lines may not contain line groups.\x{a}" ~
+             "      "
            ]
            "\x{a}" ~
            "            "
@@ -2662,7 +2508,6 @@ dhq_lg =
          "         "
        ],
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.typed.attributes,
     empty
   }
@@ -2681,26 +2526,21 @@ dhq_sp =
       (dhq_model.global* | dhq_q))+),
     dhq_att.global.attributes,
     dhq_att.ascribed.directed.attributes,
-    dhq_att.written.attributes,
     empty
   }
 
 dhq_speaker =
   ## contains a specialized form of heading or label, giving the name of one or more speakers in a dramatic text or fragment. [3.13.2. Core Tags for Drama]
   element tei:speaker {
-    dhq_macro.phraseSeq,
-    dhq_att.global.attributes,
-    dhq_att.written.attributes,
-    empty
+    dhq_macro.phraseSeq, dhq_att.global.attributes, empty
   }
 
 dhq_stage =
   ## (stage direction) contains any kind of stage direction within a dramatic text or fragment. [3.13.2. Core Tags for Drama 3.13. Passages of Verse or Drama 7.2.4. Stage Directions]
   element tei:stage {
     dhq_macro.specialPara,
-    dhq_att.global.attributes,
     dhq_att.ascribed.directed.attributes,
-    dhq_att.cmc.attributes,
+    dhq_att.global.attributes,
     dhq_att.written.attributes,
     empty
   }
@@ -2718,7 +2558,7 @@ dhq_att.patternReplacement.attribute.replacementPattern =
   attribute replacementPattern { text }
 
 dhq_teiHeader =
-  ## (TEI header) supplies descriptive and declarative metadata associated with a digital resource or set of resources. [2.1.1. The TEI Header and Its Components 16.1. Varieties of Composite Text]
+  ## (TEI header) supplies descriptive and declarative metadata associated with a digital resource or set of resources. [2.1.1. The TEI Header and Its Components 15.1. Varieties of Composite Text]
   element tei:teiHeader {
     (dhq_fileDesc, dhq_model.teiHeaderPart*, dhq_revisionDesc?),
     dhq_att.global.attributes,
@@ -2761,11 +2601,11 @@ dhq_publicationStmt =
   }
 
 dhq_idno =
-  ## (identifier) supplies any form of identifier used to identify some object, such as a bibliographic item, a person, a title, an organization, etc. in a standardized way. [14.3.1. Basic Principles 2.2.4. Publication, Distribution, Licensing, etc. 2.2.5. The Series Statement 3.12.2.4. Imprint, Size of a Document, and Reprint Information]
+  ## (identifier) supplies any form of identifier used to identify some object, such as a bibliographic item, a person, a title, an organization, etc. in a standardized way. [13.3.1. Basic Principles 2.2.4. Publication, Distribution, Licensing, etc. 2.2.5. The Series Statement 3.12.2.4. Imprint, Size of a Document, and Reprint Information]
   element tei:idno {
     ((text | dhq_idno)*)
     >> sch:pattern [
-         id = "dhq-idno-article-id_matches_fn-constraint-rule-14"
+         id = "dhq-idno-article-id_matches_fn-constraint-rule-5"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2791,7 +2631,6 @@ dhq_idno =
          "         "
        ],
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.sortable.attributes,
     ## categorizes the identifier, for example as an ISBN, Social Security number, etc.
     ## Suggested values include: 1] ISBN; 2] ISSN; 3] DOI; 4] URI; 5] VIAF; 6] ESTC; 7] OCLC
@@ -2841,7 +2680,7 @@ dhq_availability =
   }
 
 dhq_sourceDesc =
-  ## (source description) describes the source(s) from which an electronic text was derived or generated, typically a bibliographic description in the case of a digitized text, or a phrase such as born digital for a text which has no previous existence. [2.2.7. The Source Description]
+  ## (source description) describes the source(s) from which an electronic text was derived or generated, typically a bibliographic description in the case of a digitized text, or a phrase such as "born digital" for a text which has no previous existence. [2.2.7. The Source Description]
   element tei:sourceDesc {
     (dhq_model.pLike+ | (dhq_model.biblLike | dhq_model.listLike)+),
     dhq_att.global.attributes,
@@ -2869,7 +2708,6 @@ dhq_taxonomy =
       | ((dhq_model.descLike)+, (dhq_taxonomy)*))
      | (dhq_model.biblLike, (dhq_taxonomy)*)),
     dhq_att.global.attributes,
-    dhq_att.datcat.attributes,
     ## Provides a unique identifier for the taxonomy
     attribute xml:id { xsd:ID }?,
     empty
@@ -2882,7 +2720,7 @@ dhq_profileDesc =
   }
 
 dhq_langUsage =
-  ## (language usage) describes the languages, sublanguages, registers, dialects, etc. represented within a text. [2.4.2. Language Usage 2.4. The Profile Description 16.3.2. Declarable Elements]
+  ## (language usage) describes the languages, sublanguages, registers, dialects, etc. represented within a text. [2.4.2. Language Usage 2.4. The Profile Description 15.3.2. Declarable Elements]
   element tei:langUsage {
     (dhq_model.pLike+ | dhq_language+), dhq_att.global.attributes, empty
   }
@@ -2892,7 +2730,6 @@ dhq_language =
   element tei:language {
     dhq_macro.phraseSeq.limited,
     dhq_att.global.attributes,
-    dhq_att.scope.attributes,
     [
       a:documentation [
         "The "
@@ -2912,7 +2749,7 @@ dhq_language =
       a:documentation [
         "(identifier) Supplies a language code constructed as defined in "
         ns1:a [ href = "https://tools.ietf.org/html/bcp47" "BCP 47" ]
-        " which is used to identify the language documented by this element, and which may be referenced by the global "
+        " which is used to identify the language documented by this element, and which is referenced by the global "
         ns1:code [ "@xml:lang" ]
         " attribute."
       ]
@@ -2922,7 +2759,7 @@ dhq_language =
       | (
          "")
     },
-    ## specifies the approximate percentage of the text which uses this language.
+    ## specifies the approximate percentage (by volume) of the text which uses this language.
     attribute usage { xsd:nonNegativeInteger }?,
     empty
   }
@@ -2954,7 +2791,7 @@ dhq_keywords =
 dhq_xenoData =
   ## (non-TEI metadata) provides a container element into which metadata in non-TEI formats may be placed. [2.5. Non-TEI Metadata]
   element tei:xenoData {
-    (text | anyElement_xenoData_1+),
+    (text | anyElement_xenoData_1),
     dhq_att.global.attributes,
     ## characterizes the element in some sense, using any convenient classification scheme or typology.
     attribute type {
@@ -2969,10 +2806,10 @@ dhq_xenoData =
 dhq_revisionDesc =
   ## (revision description) summarizes the revision history for a file. [2.6. The Revision Description 2.1.1. The TEI Header and Its Components]
   element tei:revisionDesc {
-    (dhq_list+ | dhq_listChange+ | dhq_change+)
+    (dhq_list | dhq_listChange | dhq_change+)
     >> sch:pattern [
          id =
-           "dhq-revisionDesc-require_proper_git_history-constraint-rule-15"
+           "dhq-revisionDesc-require_proper_git_history-constraint-rule-6"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3049,12 +2886,12 @@ dhq_revisionDesc =
   }
 
 dhq_change =
-  ## (change) documents a change or set of changes made during the production of a source document, or during the revision of an electronic file. [2.6. The Revision Description 2.4.1. Creation 12.7. Identifying Changes and Revisions]
+  ## (change) documents a change or set of changes made during the production of a source document, or during the revision of an electronic file. [2.6. The Revision Description 2.4.1. Creation 11.7. Identifying Changes and Revisions]
   element tei:change {
     dhq_macro.specialPara,
-    dhq_att.global.attributes,
     dhq_att.ascribed.attributes,
     dhq_att.docStatus.attributes,
+    dhq_att.global.attributes,
     dhq_att.typed.attributes,
     ## Provides a date in regularized format.
     attribute when {
@@ -3077,7 +2914,7 @@ dhq_change =
   }
 
 dhq_listChange =
-  ## groups a number of change descriptions associated with either the creation of a source text or the revision of an encoded text. [2.6. The Revision Description 12.7. Identifying Changes and Revisions]
+  ## groups a number of change descriptions associated with either the creation of a source text or the revision of an encoded text. [2.6. The Revision Description 11.7. Identifying Changes and Revisions]
   element tei:listChange {
     (dhq_desc*, (dhq_listChange | dhq_change)+),
     dhq_att.global.attributes,
@@ -3088,7 +2925,7 @@ dhq_listChange =
       a:documentation [
         "indicates whether the ordering of its child "
         ns1:code [ "<change>" ]
-        " elements is to be considered significant or not."
+        " elements is to be considered significant or not"
       ]
     ]
     attribute ordered { xsd:boolean }?,
@@ -3103,19 +2940,25 @@ dhq_TEI =
       ns1:code [ "<TEI>" ]
       " (or "
       ns1:code [ "<teiCorpus>" ]
-      ") element. [4. Default Text Structure 16.1. Varieties of Composite Text]"
+      ") element. [4. Default Text Structure 15.1. Varieties of Composite Text]"
     ]
   ]
   element tei:TEI {
     (dhq_teiHeader,
-     ((dhq_model.resource+, dhq_TEI*) | dhq_TEI+)),
+     ((dhq_model.resource+, dhq_TEI*) | dhq_TEI+))
+    >> sch:ns [ prefix = "tei" uri = "http://www.tei-c.org/ns/1.0" ]
+    >> sch:ns [ prefix = "xs" uri = "http://www.w3.org/2001/XMLSchema" ]
+    >> sch:ns [
+         prefix = "rng"
+         uri = "http://relaxng.org/ns/structure/1.0"
+       ],
     dhq_att.global.attributes,
     dhq_att.typed.attributes,
     empty
   }
 
 dhq_text =
-  ## (text) contains a single text of any kind, whether unitary or composite, for example a poem or drama, a collection of essays, a novel, a dictionary, or a corpus sample. [4. Default Text Structure 16.1. Varieties of Composite Text]
+  ## (text) contains a single text of any kind, whether unitary or composite, for example a poem or drama, a collection of essays, a novel, a dictionary, or a corpus sample. [4. Default Text Structure 15.1. Varieties of Composite Text]
   element tei:text {
     (dhq_model.global*,
      (dhq_front, dhq_model.global*)?,
@@ -3163,7 +3006,7 @@ dhq_body =
   }
 
 dhq_group =
-  ## (group) contains the body of a composite text, grouping together a sequence of distinct texts (or groups of such texts) which are regarded as a unit for some purpose, for example the collected works of an author, a sequence of prose essays, etc. [4. Default Text Structure 4.3.1. Grouped Texts 16.1. Varieties of Composite Text]
+  ## (group) contains the body of a composite text, grouping together a sequence of distinct texts (or groups of such texts) which are regarded as a unit for some purpose, for example the collected works of an author, a sequence of prose essays, etc. [4. Default Text Structure 4.3.1. Grouped Texts 15.1. Varieties of Composite Text]
   element tei:group {
     ((dhq_model.divTop | dhq_model.global)*,
      ((dhq_text | dhq_group),
@@ -3183,7 +3026,6 @@ dhq_floatingText =
      dhq_model.global*,
      (dhq_back, dhq_model.global*)?),
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.typed.attributes,
     empty
   }
@@ -3198,18 +3040,19 @@ dhq_div =
       (dhq_model.divBottom, dhq_model.global*)*)?)
     >> sch:pattern [
          id =
-           "dhq-div-abstractModel-structure-div-in-l-constraint-rule-18"
+           "dhq-div-abstractModel-structure-div-in-l-or-lg-constraint-report-9"
          "\x{a}" ~
          "            "
          sch:rule [
-           context = "tei:l//tei:div"
+           context = "tei:div"
            "\x{a}" ~
            "               "
-           sch:assert [
-             test = "ancestor::tei:floatingText"
+           sch:report [
+             test =
+               "(ancestor::tei:l or ancestor::tei:lg) and not(ancestor::tei:floatingText)"
              "\x{a}" ~
-             "          Abstract model violation: Metrical lines may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.\x{a}" ~
-             "        "
+             "        Abstract model violation: Lines may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.\x{a}" ~
+             "      "
            ]
            "\x{a}" ~
            "            "
@@ -3219,7 +3062,7 @@ dhq_div =
        ]
     >> sch:pattern [
          id =
-           "dhq-div-abstractModel-structure-div-in-ab-or-p-constraint-rule-19"
+           "dhq-div-abstractModel-structure-div-in-ab-or-p-constraint-report-10"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3230,8 +3073,8 @@ dhq_div =
              test =
                "(ancestor::tei:p or ancestor::tei:ab) and not(ancestor::tei:floatingText)"
              "\x{a}" ~
-             "          Abstract model violation: p and ab may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.\x{a}" ~
-             "        "
+             "        Abstract model violation: p and ab may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.\x{a}" ~
+             "      "
            ]
            "\x{a}" ~
            "            "
@@ -3255,7 +3098,6 @@ dhq_epigraph =
   element tei:epigraph {
     (dhq_model.common | dhq_model.global)*,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     ## Describes the presentation of the quoted material, whether inline or set as a block.
     attribute rend {
       ## Designates a block quotation, typically containing one or more paragraphs or other chunky things, with the block and text centered. 
@@ -3270,6 +3112,49 @@ dhq_front =
 
 dhq_back =
   element tei:back { dhq_listBibl? }
+dhq_model.persNamePart = dhq_surname | dhq_forename
+dhq_model.persNamePart_alternation = dhq_surname | dhq_forename
+dhq_model.persNamePart_sequence = dhq_surname, dhq_forename
+dhq_model.persNamePart_sequenceOptional = dhq_surname?, dhq_forename?
+dhq_model.persNamePart_sequenceOptionalRepeatable =
+  dhq_surname*, dhq_forename*
+dhq_model.persNamePart_sequenceRepeatable = dhq_surname+, dhq_forename+
+
+dhq_orgName =
+  ## (organization name) contains an organizational name. [13.2.2. Organizational Names]
+  element tei:orgName {
+    dhq_macro.phraseSeq,
+    dhq_att.global.attributes,
+    dhq_att.typed.attributes,
+    empty
+  }
+
+dhq_persName =
+  ## (personal name) contains a proper noun or proper-noun phrase referring to a person, possibly including one or more of the person's forenames, surnames, honorifics, added names, etc. [13.2.1. Personal Names]
+  element tei:persName {
+    dhq_macro.phraseSeq,
+    dhq_att.global.attributes,
+    dhq_att.typed.attributes,
+    empty
+  }
+
+dhq_surname =
+  ## (surname) contains a family (inherited) name, as opposed to a given, baptismal, or nick name. [13.2.1. Personal Names]
+  element tei:surname {
+    dhq_macro.phraseSeq,
+    dhq_att.global.attributes,
+    dhq_att.typed.attributes,
+    empty
+  }
+
+dhq_forename =
+  ## (forename) contains a forename, given or baptismal name. [13.2.1. Personal Names]
+  element tei:forename {
+    dhq_macro.phraseSeq,
+    dhq_att.global.attributes,
+    dhq_att.typed.attributes,
+    empty
+  }
 dhq_att.tableDecoration.attribute.rows =
   ## (rows) indicates the number of rows occupied by this cell or row.
   [ a:defaultValue = "1" ] attribute rows { xsd:nonNegativeInteger }?
@@ -3278,11 +3163,10 @@ dhq_att.tableDecoration.attribute.cols =
   [ a:defaultValue = "1" ] attribute cols { xsd:nonNegativeInteger }?
 
 dhq_table =
-  ## (table) contains text displayed in tabular form, in rows and columns. [15.1.1. TEI Tables]
+  ## (table) contains text displayed in tabular form, in rows and columns. [14.1.1. TEI Tables]
   element tei:table {
     (dhq_head?, dhq_row+, dhq_caption?),
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.typed.attributes,
     ## Provides a unique identifier for the table
     attribute xml:id { xsd:ID }?,
@@ -3297,7 +3181,7 @@ dhq_table =
   }
 
 dhq_row =
-  ## (row) contains one row of a table. [15.1.1. TEI Tables]
+  ## (row) contains one row of a table. [14.1.1. TEI Tables]
   element tei:row {
     dhq_cell+,
     dhq_att.global.attributes,
@@ -3313,7 +3197,7 @@ dhq_row =
   }
 
 dhq_cell =
-  ## (cell) contains one cell of a table. [15.1.1. TEI Tables]
+  ## (cell) contains one cell of a table. [14.1.1. TEI Tables]
   element tei:cell {
     dhq_macro.specialPara,
     dhq_att.global.attributes,
@@ -3329,11 +3213,10 @@ dhq_cell =
   }
 
 dhq_formula =
-  ## (formula) contains a mathematical or other formula. [15.2. Formulæ and Mathematical Expressions]
+  ## (formula) contains a mathematical or other formula. [14.2. Formulæ and Mathematical Expressions]
   element tei:formula {
     (text | dhq_note | m_math | dhq_model.graphicLike)*,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     ## names the notation used for the content of the element.
     attribute notation {
       "asciimath" | "tex" | "mathml"
@@ -3347,14 +3230,13 @@ dhq_formula =
   }
 
 dhq_figure =
-  ## (figure) groups elements representing or containing graphic information such as an illustration, formula, or figure. [15.4. Specific Elements for Graphic Images]
+  ## (figure) groups elements representing or containing graphic information such as an illustration, formula, or figure. [14.4. Specific Elements for Graphic Images]
   element tei:figure {
     ((dhq_ptr, dhq_head?)
      | (dhq_head?,
         (dhq_figDesc | dhq_model.graphicLike | dhq_figure)*,
         dhq_caption?)),
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.typed.attributes,
     dhq_att.written.attributes,
     ## Provides a unique identifier for the figure
@@ -3363,13 +3245,13 @@ dhq_figure =
   }
 
 dhq_figDesc =
-  ## (description of figure) contains a brief prose description of the appearance or content of a graphic figure, for use when documenting an image without displaying it. [15.4. Specific Elements for Graphic Images]
+  ## (description of figure) contains a brief prose description of the appearance or content of a graphic figure, for use when documenting an image without displaying it. [14.4. Specific Elements for Graphic Images]
   element tei:figDesc {
     dhq_macro.limitedContent, dhq_att.global.attributes, empty
   }
 
 dhq_att =
-  ## (attribute) contains the name of an attribute appearing within running text. [23. Documentation Elements]
+  ## (attribute) contains the name of an attribute appearing within running text. [22. Documentation Elements]
   element tei:att {
     xsd:Name,
     dhq_att.global.attributes,
@@ -3383,7 +3265,7 @@ dhq_att =
   }
 
 dhq_code =
-  ## contains literal code from some formal language such as a programming language. [23.1.1. Phrase Level Terms]
+  ## contains literal code from some formal language such as a programming language. [22.1.1. Phrase Level Terms]
   element tei:code {
     text,
     dhq_att.global.attributes,
@@ -3407,7 +3289,7 @@ dhq_code =
   }
 
 dhq_eg =
-  ## (example) contains any kind of illustrative example. [23.5. Element Specifications 23.5.3. Attribute List Specification]
+  ## (example) contains any kind of illustrative example. [22.5. Element Specifications 22.5.3. Attribute List Specification]
   element tei:eg {
     (dhq_hi | dhq_formula | text)*,
     dhq_att.global.attributes,
@@ -3436,7 +3318,7 @@ dhq_eg =
   }
 
 dhq_gi =
-  ## (element name) contains the name (generic identifier) of an element. [23. Documentation Elements 23.5. Element Specifications]
+  ## (element name) contains the name (generic identifier) of an element. [22. Documentation Elements 22.5. Element Specifications]
   element tei:gi {
     xsd:Name,
     dhq_att.global.attributes,
@@ -3450,28 +3332,50 @@ dhq_gi =
   }
 
 dhq_val =
-  ## (value) contains a single attribute value. [23. Documentation Elements 23.5.3. Attribute List Specification]
+  ## (value) contains a single attribute value. [22. Documentation Elements 22.5.3. Attribute List Specification]
   element tei:val { text, dhq_att.global.attributes, empty }
 
 dhq_ab =
-  ## (anonymous block) contains any component-level unit of text, acting as a container for phrase or inter level elements analogous to, but without the same constraints as, a paragraph. [17.3. Blocks, Segments, and Anchors]
+  ## (anonymous block) contains any arbitrary component-level unit of text, acting as an anonymous container for phrase or inter level elements analogous to, but without the semantic baggage of, a paragraph. [16.3. Blocks, Segments, and Anchors]
   element tei:ab {
-    dhq_macro.abContent
+    dhq_macro.paraContent
     >> sch:pattern [
          id =
-           "dhq-ab-abstractModel-structure-ab-in-l-constraint-rule-20"
+           "dhq-ab-abstractModel-structure-ab-in-ab-or-p-constraint-report-11"
          "\x{a}" ~
          "            "
          sch:rule [
-           context = "tei:l//tei:ab"
+           context = "tei:ab"
            "\x{a}" ~
            "               "
-           sch:assert [
+           sch:report [
              test =
-               "ancestor::tei:floatingText | parent::tei:figure | parent::tei:note"
+               "    (ancestor::tei:p or ancestor::tei:ab)                          and not( ancestor::tei:floatingText                                  |parent::tei:exemplum                                 |parent::tei:item                                 |parent::tei:note                                 |parent::tei:q                                 |parent::tei:quote                                 |parent::tei:remarks                                 |parent::tei:said                                 |parent::tei:sp                                 |parent::tei:stage                                 |parent::tei:cell                                 |parent::tei:figure                                )"
              "\x{a}" ~
-             "          Abstract model violation: Metrical lines may not contain higher-level divisions such as p or ab, unless ab is a child of figure or note, or is a descendant of floatingText.\x{a}" ~
-             "        "
+             "        Abstract model violation: ab may not occur inside paragraphs or other ab elements.\x{a}" ~
+             "      "
+           ]
+           "\x{a}" ~
+           "            "
+         ]
+         "\x{a}" ~
+         "         "
+       ]
+    >> sch:pattern [
+         id =
+           "dhq-ab-abstractModel-structure-ab-in-l-or-lg-constraint-report-12"
+         "\x{a}" ~
+         "            "
+         sch:rule [
+           context = "tei:ab"
+           "\x{a}" ~
+           "               "
+           sch:report [
+             test =
+               "    (ancestor::tei:l or ancestor::tei:lg)                         and not( ancestor::tei:floatingText                                 |parent::tei:figure                                 |parent::tei:note                                )"
+             "\x{a}" ~
+             "        Abstract model violation: Lines may not contain higher-level divisions such as p or ab, unless ab is a child of figure or note, or is a descendant of floatingText.\x{a}" ~
+             "      "
            ]
            "\x{a}" ~
            "            "
@@ -3480,7 +3384,6 @@ dhq_ab =
          "         "
        ],
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.written.attributes,
     ## characterizes the element in some sense, using any convenient classification scheme or typology.
     attribute type { xsd:Name }?,
@@ -3488,11 +3391,10 @@ dhq_ab =
   }
 
 dhq_anchor =
-  ## (anchor point) attaches an identifier to a point within a text, whether or not it corresponds with a textual element. [8.4.2. Synchronization and Overlap 17.5. Correspondence and Alignment]
+  ## (anchor point) attaches an identifier to a point within a text, whether or not it corresponds with a textual element. [8.4.2. Synchronization and Overlap 16.5. Correspondence and Alignment]
   element tei:anchor {
     empty,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     ## characterizes the element in some sense, using any convenient classification scheme or typology.
     attribute type {
       ## identifies a revision location in a revised article
@@ -3503,13 +3405,12 @@ dhq_anchor =
   }
 
 dhq_seg =
-  ## (arbitrary segment) represents any segmentation of text below the chunk level. [17.3. Blocks, Segments, and Anchors 6.2. Components of the Verse Line 7.2.5. Speech Contents]
+  ## (arbitrary segment) represents any segmentation of text below the chunk level. [16.3. Blocks, Segments, and Anchors 6.2. Components of the Verse Line 7.2.5. Speech Contents]
   element tei:seg {
     dhq_macro.paraContent,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
-    dhq_att.notated.attributes,
     dhq_att.written.attributes,
+    dhq_att.notated.attributes,
     ## characterizes the element in some sense, using any convenient classification scheme or typology.
     attribute type { xsd:Name }?,
     empty
@@ -3585,7 +3486,6 @@ dhq_authorNote =
   element authorNote {
     dhq_macro.specialPara,
     dhq_att.global.attributes,
-    dhq_att.cmc.attributes,
     dhq_att.written.attributes,
     ## characterizes the element in some sense, using any convenient classification scheme or typology.
     attribute type {
@@ -3663,7 +3563,7 @@ dhq_family =
   element family {
     text
     >> sch:pattern [
-         id = "dhq-family-family_must_have_content-constraint-rule-21"
+         id = "dhq-family-family_must_have_content-constraint-rule-9"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3849,12 +3749,3 @@ sch:let [
   value =
     "'https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/'"
 ]
-sch:ns [ prefix = "tei" uri = "http://www.tei-c.org/ns/1.0" ]
-sch:ns [ prefix = "xs" uri = "http://www.w3.org/2001/XMLSchema" ]
-sch:ns [ prefix = "rng" uri = "http://relaxng.org/ns/structure/1.0" ]
-sch:ns [
-  prefix = "rna"
-  uri = "http://relaxng.org/ns/compatibility/annotations/1.0"
-]
-sch:ns [ prefix = "sch" uri = "http://purl.oclc.org/dsdl/schematron" ]
-sch:ns [ prefix = "sch1x" uri = "http://www.ascc.net/xml/schematron" ]
