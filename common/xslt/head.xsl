@@ -26,6 +26,7 @@
     <xsl:param name="title" as="xs:string"/>
     <head>
       <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
       <title>
         <xsl:sequence select="'DHQ: Digital Humanities Quarterly:&#x20;'||$title"/>
       </title>
