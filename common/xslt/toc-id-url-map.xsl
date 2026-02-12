@@ -22,7 +22,7 @@
                 for $id in $j//list[@id='articles']/item/@id ! string()
                 return map:entry(
                 $id,
-                '/vol/' || $j/@vol || '/' || $j/@issue || '/' || $id || '/' || $id || '.html'
+                'vol/' || $j/@vol || '/' || $j/@issue || '/' || $id || '/' || $id || '.html'
                 )
                 )
                 )
@@ -37,7 +37,7 @@
             for $id in $j//list[@id='articles']/item/@id ! string()
             return map:entry(
             $id,
-            '/vol/' || $j/@vol || '/' || $j/@issue || '/' || $id || '/' || $id || '.html'
+            'vol/' || $j/@vol || '/' || $j/@issue || '/' || $id || '/' || $id || '.html'
             )
             )
             )
