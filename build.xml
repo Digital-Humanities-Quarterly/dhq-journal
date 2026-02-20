@@ -201,7 +201,7 @@ validate
     <!-- No need to make the ${toDir.static} or ${toDir.use} directory
          here, as "generateIssues" should have already done so. -->
     <!-- Use the Ant build file created in "generateIssues" to copy articles' 
-	 resources to the right static directories. -->
+         resources to the right static directories. -->
     <ant antfile="${toDir.base.path}${file.separator}article-map.xml" 
          target="copyArticleResources" inheritRefs="true"/>
     <!-- Copy specific files in the base directory. -->
@@ -318,17 +318,17 @@ validate
       <fileset dir="data/uvepss"/>
     </copy>
     <!-- instead of
-	 copy file="${toDir.static.path}/data/uvepss/search.html" todir="${toDir.static.path}/vol"
-	 here, we are going to process with template_static_pages
-	 later. / -->
+         copy file="${toDir.static.path}/data/uvepss/search.html" todir="${toDir.static.path}/vol"
+         here, we are going to process with template_static_pages
+         later. / -->
     <!--
-	Note: At this point in the processing, if there are any
-	ill-formed HTML files they need to moved out of the way for
-	UVEPSS processing, because the staticSearch build process
-	depends on each file read being well-formed — an ill-formed
-	file breaks the entire process. For a method of doing so
-	(which involves listing ill-formed files by hand) see versions
-	of this file *prior* to 2025-01-08. —Syd
+        Note: At this point in the processing, if there are any
+        ill-formed HTML files they need to moved out of the way for
+        UVEPSS processing, because the staticSearch build process
+        depends on each file read being well-formed — an ill-formed
+        file breaks the entire process. For a method of doing so
+        (which involves listing ill-formed files by hand) see versions
+        of this file *prior* to 2025-01-08. —Syd
     -->
     <echo>Creating dhq-flavored search page at ${toDir.static}/vol/search.html ...</echo>
     <!-- We are creating the dhq-flavored search.html page here for
@@ -336,11 +336,11 @@ validate
          ./common/xslt/template_static_pages.xsl on
          ${toDir.static.path}/data/uvepss/search.html). -->
     <xslt in="${toDir.static.path}/data/uvepss/search.html"
-    	  out="${toDir.static.path}/vol/search.html"
+          out="${toDir.static.path}/vol/search.html"
           style="common/xslt/template_static_pages.xsl"
-    	  classpath="${processor.location}"
+          classpath="${processor.location}"
           force="true"
-	  failonerror="false"/>
+          failonerror="false"/>
     <!--
         The article-map.xml ant file created by the "generateSite"
         target copies over all of the potential assets for each
@@ -370,13 +370,13 @@ validate
     -->
     <echo> ... removing PREVIEW files</echo>
     <!--
-	What we would like to do here is just the bash cmd
-	rm $(egrep -l 'title>\[PREVIEW\] DHQ: Digital' ../../../dhq-static/dhq/vol/*.html)
-	but as far as we know removing files based on their contents
-	cannot be done in ant. I do not know how to do it in Windows,
-	so rather than use <exec> or some such the following code runs
-	XSLT to create a list of files to be removed and then removes
-	them. This should be system-independant.
+        What we would like to do here is just the bash cmd
+        rm $(egrep -l 'title>\[PREVIEW\] DHQ: Digital' ../../../dhq-static/dhq/vol/*.html)
+        but as far as we know removing files based on their contents
+        cannot be done in ant. I do not know how to do it in Windows,
+        so rather than use <exec> or some such the following code runs
+        XSLT to create a list of files to be removed and then removes
+        them. This should be system-independant.
     -->
     <property name="preview.list.file" location="${toDir.static.path}/list_of_preview_files_to_erase.txt"/>
     <xslt in="common/xslt/list_preview_files.xslt" 
@@ -400,9 +400,9 @@ validate
       <property name="ssConfigFile" value="${absolute.config.file}"/>
     </ant>
     <!--
-	Note: IF any ill-formed files were moved out of the way,
-	above, they should be moved them back here. For code that did
-	this see versions of this file prior to 2025-01-08. —Syd
+        Note: IF any ill-formed files were moved out of the way,
+        above, they should be moved them back here. For code that did
+        this see versions of this file prior to 2025-01-08. —Syd
     -->
     <echo> ... tweaking UVEPSS search page</echo>
     <xslt in="${toDir.static.path}/vol/search.html"
@@ -414,9 +414,9 @@ validate
       <factory name="${processor.name}"/>
     </xslt>    
     <move file="${toDir.static.path}/vol/search.html"
-	  tofile="${toDir.static.path}/vol/search_orig.html"/>
+          tofile="${toDir.static.path}/vol/search_orig.html"/>
     <move file="${toDir.static.path}/vol/search_tweaked.html"
-	  tofile="${toDir.static.path}/vol/search.html"/>
+          tofile="${toDir.static.path}/vol/search.html"/>
   </target>
   
   <target name="generateSearchableToGo" depends="generateSearchable"
@@ -543,7 +543,7 @@ To proof only the internal preview, hit the return key or type "false".
   </target>
   
   <!-- Check articles for well-formedness -->
-  <target name="wf" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for well-formedness">
+  <target name="wf" description="Check all article files (default is articles/0*/0*.xml) for well-formedness">
     <echo level="info" message="========= checking for well-formedness"/>
     <xmlvalidate failonerror="no" lenient="true" warn="yes">
       <!-- <attribute name="http://xml.org/sax/features/namespaces" value="true"/> -->
@@ -553,16 +553,16 @@ To proof only the internal preview, hit the return key or type "false".
     <echo level="info" message='Note: the word “validated” on the line above means “checked for well-formedness”.'/>
   </target>
 
-  <target name="validate" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity (against several schemas)">
+  <target name="validate" description="Check all article files (default is articles/0*/0*.xml) for validity (against several schemas)">
     <antcall target="validateWithClosedSchema"/>
     <antcall target="validateWithOpenSchema"/>
   </target>
 
-  <target name="createValidationDir" description="Create new ../${toDir.validation}">
+  <target name="createValidationDir" description="Create new validation directory (default is ../dhq-validation/)">
     <mkdir dir="../${toDir.validation}"/>
   </target>
   
-  <target name="validateWithClosedSchema" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity against ${closedSchemaPath}" depends="createValidationDir">
+  <target name="validateWithClosedSchema" description="Check all article files (default is articles/0*/0*.xml) for validity against closed (RELAX NG) schema (default is ./common/schema/DHQauthor-TEI.rng)" depends="createValidationDir">
     <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part iff it is empty. Someday. -->
     <echo level="info" message="========= testing for validity against ${closedSchemaPath} EXCEPT for ${excludeFromValidation}, results to ../${toDir.validation}/${closedSchemaFile}_results.txt ..."/>
     <delete file="../${toDir.validation}/${closedSchemaFile}_results.txt"/>
@@ -579,26 +579,25 @@ To proof only the internal preview, hit the return key or type "false".
   </target>
 
   <target name="validateWithOpenSchema" depends="checkXmlResolver,createValidationDir"
-          description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity against ${openSchemaPaths}">
+          description="Check all article files (default is articles/0*/0*.xml) for validity against both our open (Schematron) schemas (default is dhqTEI-ready.sch and DHQauthor-TEI.isosch)">
     <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part if it is empty. Someday. -->
     <echo level="info" message="========= testing for validity against ${openSchemaPaths} EXCEPT for ${excludeFromValidation} ..."/>
 
     <!--
-	Note that this following task runs mausatron to create the
-	open schema XSLT iff the source (or the stylesheet, I presume)
-	has been updated since the output was last generated. This is
-	why the XSLT versions of the Schematron schemas are stored in
-	${schemaDir} and not in ../${toDir.validation}, where they
-	would be erased before this is run, and thus the open schema
-	XSLT would need to be generated *every* time.
+        Note that this following task runs mausatron to create the
+        open schema XSLT iff the source (or the stylesheet, I presume)
+        has been updated since the output was last generated. This is
+        why the XSLT versions of the Schematron schemas are stored in
+        ${schemaDir} and not in ../${toDir.validation}, where they
+        would be erased before this is run, and thus the open schema
+        XSLT would need to be generated *every* time.
     -->
     <xslt classpath="${processor.location}"
           destdir="${schemaDir}"
           style="${mausatronXSLT.compiler}"
           basedir="${schemaDir}"
           includes="${openSchemaFile1},${openSchemaFile2}"
-          extension=".xslt"
-          >
+          extension=".xslt" >
       <factory name="${processor.name}"/>
     </xslt>
 
@@ -617,8 +616,7 @@ To proof only the internal preview, hit the return key or type "false".
           destdir="../${toDir.validation}/${openSchemaFile1}_results"
           style="${schemaDir}/${openSchemaFile1base}.xslt"
           includes="${article.files.2validate}"
-          extension=".svrl"
-          >
+          extension=".svrl" >
       <factory name="${processor.name}"/>
       <fileset refid="article.files.2validate"/>
     </xslt>
@@ -626,8 +624,7 @@ To proof only the internal preview, hit the return key or type "false".
           destdir="../${toDir.validation}/${openSchemaFile2}_results"
           style="${schemaDir}/${openSchemaFile2base}.xslt"
           includes="${article.files.2validate}"
-          extension=".svrl"
-          >
+          extension=".svrl" >
       <factory name="${processor.name}"/>
       <fileset refid="article.files.2validate"/>
     </xslt>
@@ -637,7 +634,7 @@ To proof only the internal preview, hit the return key or type "false".
     <echo>and</echo>
     <echo>  ../${toDir.validation}${file.separator}${openSchemaFile2}_results${file.separator}</echo>
     <echo>If you want to see just the error messages, you might try something like</echo>
-    <echo>$ time xmlstarlet sel -N svrl=http://purl.oclc.org/dsdl/svrl -t -m "//svrl:text" -v "preceding::svrl:active-pattern[1]/@documents" -o '#' -v "../@location" -o " — " -v "normalize-space(.)" -n $(find ../${toDir.validation}/${openSchemaFile1}_results -name '*.svrl') $(find ../${toDir.validation}/${openSchemaFile2}_results -name '*.svrl') | perl -pe 's,Q{http://www.tei-c.org/ns/1.0},,g; s,Q{http://www.digitalhumanities.org/ns/dhq},dhq:,g; s,^.*dhq-journal/articles/000,articles/000,;' | egrep -v '^# — [TA]'</echo>
+    <echo>$ time xmlstarlet sel -N svrl=http://purl.oclc.org/dsdl/svrl -t -m "//svrl:text" -v "preceding::svrl:active-pattern[1]/@documents" -o '#' -v "../@location" -o " — " -v "normalize-space(.)" -n $(find ../${toDir.validation}/${openSchemaFile1}_results -name '*.svrl') $(find ../${toDir.validation}/${openSchemaFile2}_results -name '*.svrl') | perl -pe 's,Q{http://www.tei-c.org/ns/1.0},,g; s,Q{http://www.digitalhumanities.org/ns/dhq},dhq:,g; s,^.*dhq-journal/articles/000,articles/000,;' | egrep -v '^# — [TA]' | sort</echo>
   </target>
   
 </project>
