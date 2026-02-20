@@ -558,14 +558,14 @@ To proof only the internal preview, hit the return key or type "false".
     <antcall target="validateWithOpenSchema"/>
   </target>
 
-  <target name="replaceValidationDir" description="Erase old ../${toDir.validation} and create empty one">
-    <delete dir="../${toDir.validation}" quiet="true"/>
+  <target name="createValidationDir" description="Create new ../${toDir.validation}">
     <mkdir dir="../${toDir.validation}"/>
   </target>
   
-  <target name="validateWithClosedSchema" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity against ${closedSchemaPath}" depends="replaceValidationDir">
+  <target name="validateWithClosedSchema" description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity against ${closedSchemaPath}" depends="createValidationDir">
     <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part iff it is empty. Someday. -->
     <echo level="info" message="========= testing for validity against ${closedSchemaPath} EXCEPT for ${excludeFromValidation}, results to ../${toDir.validation}/${closedSchemaFile}_results.txt ..."/>
+    <delete file="../${toDir.validation}/${closedSchemaFile}_results.txt"/>
     <apply executable="java" parallel="true" failonerror="false" output="../${toDir.validation}/${closedSchemaFile}_results.txt">
       <arg value="-jar"/>
       <arg value="${jingJar}"/>
@@ -578,7 +578,7 @@ To proof only the internal preview, hit the return key or type "false".
     </apply>
   </target>
 
-  <target name="validateWithOpenSchema" depends="checkXmlResolver,replaceValidationDir"
+  <target name="validateWithOpenSchema" depends="checkXmlResolver,createValidationDir"
           description="Check all article files (.${file.separator}articles${file.separator}0*${file.separator}0*.xml) for validity against ${openSchemaPaths}">
     <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part if it is empty. Someday. -->
     <echo level="info" message="========= testing for validity against ${openSchemaPaths} EXCEPT for ${excludeFromValidation} ..."/>
@@ -603,7 +603,13 @@ To proof only the internal preview, hit the return key or type "false".
     </xslt>
 
     <mkdir dir="../${toDir.validation}/${openSchemaFile1}_results"/>
+    <delete>
+      <fileset dir="../${toDir.validation}/${openSchemaFile1}_results" includes="**/*"/>
+    </delete>
     <mkdir dir="../${toDir.validation}/${openSchemaFile2}_results"/>
+    <delete>
+      <fileset dir="../${toDir.validation}/${openSchemaFile2}_results" includes="**/*"/>
+    </delete>
     <basename property="openSchemaFile1base" file="${openSchemaFile1}" suffix="isosch"/>
     <basename property="openSchemaFile2base" file="${openSchemaFile2}" suffix="sch"/>
 
