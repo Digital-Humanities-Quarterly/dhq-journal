@@ -58,6 +58,26 @@
       ANT TASKS
     -->
 
+  <!--
+      Leaving this unused, non-working target here just so it is checked
+      into version control at least once, if nothing else to prove that
+      I tried using a non-XSLT solution first. :-)
+  -->
+  <target name="TOClistNOT" depends="checkXmlResolver">
+    <tempfile property="DHQ_tmp_gizmo.xpath" destDir="/tmp"/>
+    <concat destfile="${DHQ_tmp_gizmo.xpath}">/toc/journal[ not( @editorial eq 'true') ]//item!concat( 'articles/', @id, '/', @id, '.xml')</concat>
+    <java maxmemory="2g"
+          fork="true"
+          classname="net.sf.saxon.Gizmo">
+      <modulepath>
+        <pathelement location="common/lib/saxon/saxon-he-12.4.jar"/>
+        <pathelement location="common/lib/saxon/lib/jline-2.14.6.jar"/>
+      </modulepath>
+      <arg value="-s:toc/toc.xml"/>
+      <arg value="-q:${DHQ_tmp_gizmo.xpath}"/>
+    </java>
+  </target>
+
   <!-- If the XML Resolver JAR file is not already loaded, provide instructions for 
     running Ant with the "lib" command line option. Ant <target>s that use Saxon HE 
     should list this one as a dependency. -->
