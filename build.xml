@@ -41,42 +41,9 @@
   <available classname="org.xmlresolver.Resolver" property="has.xmlresolver"/>
   
   
-  <!-- Properties used for validation, not static generation -->
-  <!-- The general set of article files to process -->
-  <fileset dir="articles" id="article.files">
-    <include name="0*/0*.xml"/>
-  </fileset>
-  <!-- The same set without the files we want to avoid validating
-       (typically because they are ill-formed, and thus would halt the
-       validation process). -->
-  <fileset dir="articles" id="article.files.2validate" excludes="${excludeFromValidation}">
-    <include name="0*/0*.xml"/>
-  </fileset>
-
-
   <!--
       ANT TASKS
     -->
-
-  <!--
-      Leaving this unused, non-working target here just so it is checked
-      into version control at least once, if nothing else to prove that
-      I tried using a non-XSLT solution first. :-)
-  -->
-  <target name="TOClistNOT" depends="checkXmlResolver">
-    <tempfile property="DHQ_tmp_gizmo.xpath" destDir="/tmp"/>
-    <concat destfile="${DHQ_tmp_gizmo.xpath}">/toc/journal[ not( @editorial eq 'true') ]//item!concat( 'articles/', @id, '/', @id, '.xml')</concat>
-    <java maxmemory="2g"
-          fork="true"
-          classname="net.sf.saxon.Gizmo">
-      <modulepath>
-        <pathelement location="common/lib/saxon/saxon-he-12.4.jar"/>
-        <pathelement location="common/lib/saxon/lib/jline-2.14.6.jar"/>
-      </modulepath>
-      <arg value="-s:toc/toc.xml"/>
-      <arg value="-q:${DHQ_tmp_gizmo.xpath}"/>
-    </java>
-  </target>
 
   <!-- If the XML Resolver JAR file is not already loaded, provide instructions for 
     running Ant with the "lib" command line option. Ant <target>s that use Saxon HE 
@@ -581,12 +548,34 @@ To proof only the internal preview, hit the return key or type "false".
 
   <target name="createValidationDir" description="Create new validation directory (default is ../dhq-validation/)">
     <mkdir dir="../${toDir.validation}"/>
+    <xslt in="toc/toc.xml" 
+          out="toc/toc.list"
+          style="common/xslt/articles_from_TOC.xslt"
+          classpath="${processor.location}"
+          force="true"
+          failonerror="true">
+      <factory name="${processor.name}"/>
+    </xslt>
+    <!-- The general set of article files to process -->
+    <fileset dir="articles" id="article.files">
+      <include name="0*/0*.xml" if="validateAll"/>
+      <includesfile name="toc/toc.list" unless="validateAll"/>
+    </fileset>
+    <!-- The same set without the files we want to avoid validating
+	 (typically because they are ill-formed, and thus would halt the
+	 validation process). -->
+    <fileset dir="articles" id="article.files.2validate" excludes="${excludeFromValidation}">
+      <include name="0*/0*.xml" if="validateAll"/>
+      <includesfile name="toc/toc.list" unless="validateAll"/>
+    </fileset>
   </target>
   
   <target name="validateWithClosedSchema" description="Check all article files (default is articles/0*/0*.xml) for validity against closed (RELAX NG) schema (default is ./common/schema/DHQauthor-TEI.rng)" depends="createValidationDir">
     <!-- Note-to-self: following line should test $excludeFromValidation and skip the “EXCEPT …” part iff it is empty. Someday. -->
     <echo level="info" message="========= testing for validity against ${closedSchemaPath} EXCEPT for ${excludeFromValidation}, results to ../${toDir.validation}/${closedSchemaFile}_results.txt ..."/>
     <delete file="../${toDir.validation}/${closedSchemaFile}_results.txt"/>
+    <echo level="info">fileset a.f = ${article.files}</echo>
+    <echo level="info">fileset a.f.2v = ${article.files.2validate}</echo>
     <apply executable="java" parallel="true" failonerror="false" output="../${toDir.validation}/${closedSchemaFile}_results.txt">
       <arg value="-jar"/>
       <arg value="${jingJar}"/>
