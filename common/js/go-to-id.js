@@ -11,9 +11,21 @@
     if (el) el.textContent = text || "";
   }
 
-  function normalizeId(s) {
-    return (s || "").trim();
-  }
+
+function normalizeId(input) {
+  if (!input) return "";
+
+  // Trim whitespace
+  let id = input.trim();
+
+  // Remove any accidental non-digit characters
+  id = id.replace(/\D+/g, "");
+
+  if (!id) return "";
+
+  // Pad to 6 digits
+  return id.padStart(6, "0");
+}
 
   async function loadIndex() {
     // Cache within the session so repeated lookups are fast.
