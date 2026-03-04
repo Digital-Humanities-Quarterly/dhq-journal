@@ -113,9 +113,9 @@
     </rule>
     
     <rule context="tei:classDecl">
-      <assert test="exists(tei:taxonomy[@xml:id='dhq_keywords'])"><name/> is
+      <assert test="exists( tei:taxonomy[ @xml:id eq 'dhq_keywords'] )"><name/> is
         missing a 'dhq_keywords' taxonomy declaration</assert>
-      <assert test="exists(tei:taxonomy[@xml:id='authorial_keywords'])"><name/>
+      <assert test="exists( tei:taxonomy[ @xml:id eq 'authorial_keywords'] )"><name/>
         is missing an 'authorial_keywords' taxonomy declaration</assert>
     </rule>
 
