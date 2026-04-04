@@ -26,6 +26,11 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2026-04-04" who="#sdb">
+        Change DOI constraints so that <tag>idno type="DOI"</tag> is
+        only required if file is in the TOC, and its content is tested
+        to be plausibly correct only if it is not a preview document.
+      </change>
       <change when="2026-03-20" who="#sdb">
         <list>
           <item>Add <val>DOI</val> as a value of <gi>idno</gi></item>
@@ -378,6 +383,18 @@ email (should only have an email address)
           <sch:let name="fn" value="tokenize( base-uri(/), '/')[ last() ]"/>
           <sch:let name="artID" value="replace( $fn, '^([0-9]{6}).*\.xml$','$1')"/>
           <sch:let name="base_art_URL" value="'https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/'"/>
+          <sch:let name="TOC" value="if ( doc-available('file:../../toc/toc.xml') )
+                                     then document('file:../../toc/toc.xml')/*
+                                     else element(NOTOC)">
+            <!-- Note: Above does not “work” in that the value of $TOC
+            is not set to be a <NOTOC> element iff the toc file is not
+            available. But it does “work” in that whatever it is set to,
+            the following variables get set properly (i.e., are set to
+            false() when the toc file is not available). -->
+          </sch:let>
+          <sch:let name="IamInTOC" value="exists( $TOC//item[@id=$artID] )"/>
+          <sch:let name="IamPreview" value="exists( $TOC//item[@id=$artID]/ancestor::journal[@preview='true'] )"/>
+          <sch:let name="numDOIs" value="count( /*/tei:teiHeader//tei:idno[ @type eq 'DOI'] )"/>
         </constraintDecl>
 
         <!-- ======================================================================== -->
@@ -1370,15 +1387,31 @@ email (should only have an email address)
               <sch:assert test="count( tei:idno[ @type eq 'DHQarticle-id'] ) eq 1">
                 There should be one and only one "DHQarticle-id" &lt;idno> in the publication statement
               </sch:assert>
-              <sch:assert test="count( tei:idno[ @type eq 'DOI'] ) eq 1">
+              <!-- For DOIs, we don’t bother to check files that are not in the TOC  -->
+              <sch:report test="$IamInTOC  and  $numDOIs ne 1">
                 There should be one and only one "DOI" &lt;idno> in the publication statement
-              </sch:assert>
+              </sch:report>
               <sch:assert test="count( tei:idno[ @type eq 'issue'] ) eq 1">
                 There should be one and only one "issue" &lt;idno> in the publication statement
               </sch:assert>
               <sch:assert test="count( tei:idno[ @type eq 'volume'] ) eq 1">
                 There should be one and only one "volume" &lt;idno> in the publication statement
               </sch:assert>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
+        <constraintSpec scheme="schematron" ident="DOI_content" mode="add">
+          <constraint>
+            <sch:rule context="tei:idno[ @type eq 'DOI'][ $IamInTOC  and  not( $IamPreview) ]">
+              <sch:assert test="matches( ., '\s*10\.63744/[2-9a-hjkmnp-z]{12}\s*')">DOI appears inavlid</sch:assert>
+              <!-- Note: The format of the DOI (10.63744/diobid, where
+                   “diobid” is 12 characters from a specifc 31-character
+                   alphabet — which is just the 36-character alphabet of
+                   digits and standard ASCII lowercase letters without
+                   the possibly confusing ‘o’, ‘0’, ‘i’, ‘l’, or ‘1’)
+                   was ascertained just by looking at the DOIs assigned
+                   so far. Thus this regexp may need to be loosened up
+                   in the future. -->
             </sch:rule>
           </constraint>
         </constraintSpec>
