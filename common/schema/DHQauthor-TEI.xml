@@ -26,6 +26,12 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2026-04-19" who="#sdb">
+        Change DOI constraints so that it must be either the string
+        “pending” (case insensitive) or look like a valid DOI (i.e.,
+        be the string “10.63744/” followed by 12 lowercase letters or
+        digits except ‘o’, ‘0’, ‘i’, ‘l’, or ‘1’.
+      </change>
       <change when="2026-03-20" who="#sdb">
         <list>
           <item>Add <val>DOI</val> as a value of <gi>idno</gi></item>
@@ -1361,6 +1367,28 @@ email (should only have an email address)
               <sch:report test="$basename ne normalize-space(.)">
                 The &lt;idno type="DHQarticle-id"> should match the filename (without ".xml"); i.e. both should be the article number
               </sch:report>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
+        <constraintSpec scheme="schematron" ident="reasonable_doi" mode="add">
+          <constraint>
+            <sch:rule context="tei:idno[ @type eq 'DOI']">
+              <sch:let name="value" value="normalize-space(.)"/>
+              <sch:assert test="matches( $value, '^10\.63744/[2-9a-hjkmnp-z]{12}$')
+                                or
+                                matches( $value, 'pending','i')">DOI
+              appears inavlid; should be “pending” or the string
+              “10.63744/” followed by 12 digits or lowercase letters
+              except ‘o’, ‘0’, ‘i’, ‘l’, or ‘1’</sch:assert>
+              <!-- Note: The format of the DOI (10.63744/diobid, where
+                   “diobid” is 12 characters from a specifc
+                   31-character alphabet — which is just the
+                   36-character alphabet of digits and standard ASCII
+                   lowercase letters without the possibly confusing
+                   ‘o’, ‘0’, ‘i’, ‘l’, or ‘1’). This was ascertained
+                   just by looking at the DOIs assigned so far. Thus
+                   this regexp may need to be loosened up in the
+                   future. -->
             </sch:rule>
           </constraint>
         </constraintSpec>
