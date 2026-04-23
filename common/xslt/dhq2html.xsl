@@ -1941,7 +1941,18 @@
           not(following-sibling::* | following-sibling::text()[normalize-space()])]"/>
 
     <xsl:template match="tei:idno[ @type eq 'DOI']">
-      <p>DOI: <a href="{$doiURL}"><xsl:sequence select="$doiURL"/></a></p>
+      <xsl:if test="$doi ne .">
+        <xsl:message select="'debug doi: '||$doi||' ≠ '||.||'!  for='||$id"/>
+      </xsl:if>
+      <xsl:choose>
+	<xsl:when test="not( $doi )"/>
+	<xsl:when test="matches( $doiURL, 'pending$','i')">
+          <p>DOI: pending</p>
+	</xsl:when>
+	<xsl:otherwise>
+	  <p>DOI: <a href="{$doiURL}"><xsl:sequence select="$doiURL"/></a></p>
+	</xsl:otherwise>
+      </xsl:choose>
     </xsl:template>
     
     <xsl:template match="dhq:revisionNote">
