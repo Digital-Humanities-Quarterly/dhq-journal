@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2">
    <title>ISO Schematron rules</title>
-   <!-- This file generated 2026-03-30T16:16:52Z by 'extract-isosch.xsl'. -->
+   <!-- This file generated 2026-04-19T16:53:00Z by 'extract-isosch.xsl'. -->
    <!-- ********************* -->
    <!-- namespaces, declared: -->
    <!-- ********************* -->
@@ -16,10 +16,10 @@
    <!-- ********************* -->
    <!-- namespaces, implicit: -->
    <!-- ********************* -->
-   <ns prefix="esp-d2e29607" uri="http://web.resource.org/cc/"/>
+   <ns prefix="esp-d2e29240" uri="http://web.resource.org/cc/"/>
    <ns prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
    <!-- ******************************************************* -->
-   <!-- constraints in en, und, mul, zxx, of which there are 22 -->
+   <!-- constraints in en, und, mul, zxx, of which there are 23 -->
    <!-- ******************************************************* -->
    <let name="numGitHxs"
         value="count( /*/tei:teiHeader/tei:revisionDesc/tei:change/tei:ref[ @type eq 'gitHist'] )"/>
@@ -100,7 +100,13 @@
          <report test="$basename ne normalize-space(.)"> The &lt;idno type="DHQarticle-id"&gt; should match the filename (without ".xml"); i.e. both should be the article number</report>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-publication_idnos-15">
+   <pattern id="schematron-constraint-reasonable_doi-15">
+      <rule context="tei:idno[ @type eq 'DOI']">
+         <let name="value" value="normalize-space(.)"/>
+         <assert test="matches( $value, '^10\.63744/[2-9a-hjkmnp-z]{12}$')                                 or                                 matches( $value, 'pending','i')">DOI appears inavlid; should be “pending” or the string “10.63744/” followed by 12 digits or lowercase letters except ‘o’, ‘0’, ‘i’, ‘l’, or ‘1’</assert>
+      </rule>
+   </pattern>
+   <pattern id="schematron-constraint-publication_idnos-16">
       <rule context="tei:publicationStmt">
          <assert test="count( tei:idno[ @type eq 'DHQarticle-id'] ) eq 1"> There should be one and only one "DHQarticle-id" &lt;idno&gt; in the publication statement</assert>
          <assert test="count( tei:idno[ @type eq 'DOI'] ) eq 1"> There should be one and only one "DOI" &lt;idno&gt; in the publication statement</assert>
@@ -108,39 +114,39 @@
          <assert test="count( tei:idno[ @type eq 'volume'] ) eq 1"> There should be one and only one "volume" &lt;idno&gt; in the publication statement</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-require_proper_git_history-16">
+   <pattern id="schematron-constraint-require_proper_git_history-17">
       <rule context="tei:revisionDesc[ $numGitHxs eq 0 ]">
          <assert test="false()">A &lt;change&gt; element that gives git history is required.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-require_proper_git_history-17">
+   <pattern id="schematron-constraint-require_proper_git_history-18">
       <rule context="tei:revisionDesc[ $numGitHxs gt 1]">
          <assert test="false()">There should be one and only one &lt;change&gt; element that gives the git history (there appear to be <value-of select="$numGitHxs"/> of ’em).</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-require_proper_git_history-18">
+   <pattern id="schematron-constraint-require_proper_git_history-19">
       <rule context="tei:revisionDesc/tei:change[ tei:ref[ @type eq 'gitHist'] ]">
          <assert test="normalize-space( text()[1] ) eq 'The version history for this file can be found on'"> git history change entry should start with “The version history for this file can be found on”.</assert>
          <assert test="starts-with( tei:ref/@target, $base_art_URL )"> git history target should start with git repo URL for articles (“https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/”).</assert>
          <assert test="ends-with( tei:ref/@target, concat('/', $artID, '/', $fn ) )"> git history target should end in same directory &amp; filename as current file (“<value-of select="concat( '/', $artID, '/',$fn )"/>”).</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-div-in-l-19">
+   <pattern id="schematron-constraint-abstractModel-structure-div-in-l-20">
       <rule context="tei:l//tei:div">
          <assert test="ancestor::tei:floatingText"> Abstract model violation: Metrical lines may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-div-in-ab-or-p-20">
+   <pattern id="schematron-constraint-abstractModel-structure-div-in-ab-or-p-21">
       <rule context="tei:div">
          <report test="(ancestor::tei:p or ancestor::tei:ab) and not(ancestor::tei:floatingText)"> Abstract model violation: p and ab may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.</report>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-ab-in-l-21">
+   <pattern id="schematron-constraint-abstractModel-structure-ab-in-l-22">
       <rule context="tei:l//tei:ab">
          <assert test="ancestor::tei:floatingText | parent::tei:figure | parent::tei:note"> Abstract model violation: Metrical lines may not contain higher-level divisions such as p or ab, unless ab is a child of figure or note, or is a descendant of floatingText.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-family_must_have_content-22">
+   <pattern id="schematron-constraint-family_must_have_content-23">
       <rule context="dhq:family">
          <report test="normalize-space(.) eq ''">A family name must be supplied inside &lt;dhq:family&gt;; if this &lt;<value-of select="name(..)"/>&gt; does not need a family name, delete the entire &lt;dhq:family&gt; element.</report>
       </rule>
