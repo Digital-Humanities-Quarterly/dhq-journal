@@ -1814,6 +1814,7 @@ dhq_model.attributable_sequenceRepeatable =
 dhq_model.respLike =
   dhq_author
   | dhq_editor
+  | dhq_respStmt
   | dhq_sponsor
   | dhq_authorInfo
   | dhq_translatorInfo
@@ -2452,6 +2453,7 @@ dhq_series =
      | dhq_title
      | dhq_model.ptrLike
      | dhq_editor
+     | dhq_respStmt
      | dhq_biblScope
      | dhq_idno
      | dhq_model.global
@@ -2470,6 +2472,28 @@ dhq_editor =
   ## contains a secondary statement of responsibility for a bibliographic item, for example the name of an individual, institution or organization, (or of several such) acting as editor, compiler, translator, etc. [3.12.2.2. Titles, Authors, and Editors]
   element tei:editor {
     dhq_macro.phraseSeq, dhq_att.global.attributes, empty
+  }
+
+dhq_respStmt =
+  ## (statement of responsibility) supplies a statement of responsibility for the intellectual content of a text, edition, recording, or series, where the specialized elements for authors, editors, etc. do not suffice or do not apply. May also be used to encode information about individuals or organizations which have played a role in the production or distribution of a bibliographic work. [3.12.2.2. Titles, Authors, and Editors 2.2.1. The Title Statement 2.2.2. The Edition Statement 2.2.5. The Series Statement]
+  element tei:respStmt {
+    (((dhq_resp+, dhq_model.nameLike.agent+)
+      | (dhq_model.nameLike.agent+, dhq_resp+)),
+     dhq_note*),
+    dhq_att.global.attributes,
+    dhq_att.canonical.attributes,
+    ## Provides a unique identifier for the responsibility statement
+    attribute xml:id { xsd:ID }?,
+    empty
+  }
+
+dhq_resp =
+  ## (responsibility) contains a phrase describing the nature of a person's intellectual responsibility, or an organization's role in the production or distribution of a work. [3.12.2.2. Titles, Authors, and Editors 2.2.1. The Title Statement 2.2.2. The Edition Statement 2.2.5. The Series Statement]
+  element tei:resp {
+    dhq_macro.phraseSeq.limited,
+    dhq_att.global.attributes,
+    dhq_att.canonical.attributes,
+    empty
   }
 
 dhq_title =
@@ -2968,14 +2992,14 @@ dhq_language =
         ns1:code [ "@extent" ]
         " attribute is used on "
         ns1:code [ "<language>" ]
-        " to indicate the nature of the usage of the language in question: whether it is used for the original article, for a translation stub, or for a full translation."
+        " to indicate the nature of the usage of the language in question: whether it is used for the original article, for a translation of just the abstract, or for a full translation."
       ]
     ]
     attribute extent {
-      ## indicates that the language is used for the original article
-      "original" | ## indicates that the language is used for a translation stub (i.e. a placeholder or incomplete translation)
-        "translation_stub" | ## indicates that the language is used for a full translation of the article
-        "translation"
+      ## indicates that the language is used for the original article or the language the author deems should be displayed by default
+      "default" | ## indicates that the language is used for an abstract without a full article
+        "abstract_only" | ## indicates that the language is used for a full article that is in a different language than the default
+        "alternate"
     }?,
     [
       a:documentation [
@@ -3193,12 +3217,12 @@ dhq_text =
      (dhq_back, dhq_model.global*)?),
     dhq_att.global.attributes,
     dhq_att.written.attributes,
-    ## Identifies whether the text is in the language of its original authorship, or is a full translation, or is a stub translation (i.e. abstract only)
+    ## Identifies whether the text is in the default language, is a full translation, or is a translation of only the abstract
     attribute type {
-      ## The text is in the language of its original authorship
-      "original" | ## The text is a full translation of the originally authored article
-        "translation" | ## The text is a stub or partial translation
-        "translation_stub"
+      ## The text in the default language (as determined by the author(s))
+      "default" | ## The text contains only an abstract (not the full article) in some language other than the default
+        "abstract_only" | ## The text contains the entire article in some language other than the default
+        "alternate"
     }?,
     [
       a:documentation [
