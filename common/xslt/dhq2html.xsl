@@ -524,6 +524,20 @@
         </div>
     </xsl:template>
 
+    <!--
+	Note that (at least for now) there are *no* other <respStmt>s
+	to be processed, they are *all* xml:id="AI_trans_info_[LANGCODE]".
+    -->
+    <xsl:template match="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:respStmt[starts-with( @xml:id, 'AI_trans_info') ]">
+      <p class="MTinfo" xsl:expand-text="yes">
+	{tei:resp!normalize-space(.)}: machine translation by
+	<xsl:apply-templates select="tei:name"/>
+	<xsl:apply-templates select="tei:note[@type eq 'boilerplate']"/>
+      </p>
+    </xsl:template>
+
+    <xsl:template match="tei:note[ @type eq 'boilerplate']"/>
+    
     <xsl:template match="dhq:author_name | dhq:translator_name">
       <xsl:sequence select="normalize-space(.)"/>
     </xsl:template>
