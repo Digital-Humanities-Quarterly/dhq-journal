@@ -5684,6 +5684,7 @@ Suggested values include: 1] sole; 2] major; 3] minor</a:documentation>
     <choice>
       <ref name="dhq_author"/>
       <ref name="dhq_editor"/>
+      <ref name="dhq_respStmt"/>
       <ref name="dhq_sponsor"/>
       <ref name="dhq_authorInfo"/>
       <ref name="dhq_translatorInfo"/>
@@ -6677,6 +6678,7 @@ Elements 7.2.5. Speech Contents]</a:documentation>
           <ref name="dhq_title"/>
           <ref name="dhq_model.ptrLike"/>
           <ref name="dhq_editor"/>
+          <ref name="dhq_respStmt"/>
           <ref name="dhq_biblScope"/>
           <ref name="dhq_idno"/>
           <ref name="dhq_model.global"/>
@@ -6700,6 +6702,52 @@ Elements 7.2.5. Speech Contents]</a:documentation>
       <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">contains a secondary statement of responsibility for a bibliographic item, for example the name of an individual, institution or organization, (or of several such) acting as editor, compiler, translator, etc. [3.12.2.2. Titles, Authors, and Editors]</a:documentation>
       <ref name="dhq_macro.phraseSeq"/>
       <ref name="dhq_att.global.attributes"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="dhq_respStmt">
+    <element name="respStmt">
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(statement of responsibility) supplies a statement of responsibility for the intellectual content of a text, edition, recording, or series, where the specialized elements for authors, editors, etc. do not suffice or do not apply. May also be used to encode information about individuals or organizations which have played a role in the production or distribution of a bibliographic work. [3.12.2.2. Titles, Authors, and Editors 2.2.1. The Title Statement 2.2.2. The Edition Statement 2.2.5. The Series Statement]</a:documentation>
+      <group>
+        <choice>
+          <group>
+            <oneOrMore>
+              <ref name="dhq_resp"/>
+            </oneOrMore>
+            <oneOrMore>
+              <ref name="dhq_model.nameLike.agent"/>
+            </oneOrMore>
+          </group>
+          <group>
+            <oneOrMore>
+              <ref name="dhq_model.nameLike.agent"/>
+            </oneOrMore>
+            <oneOrMore>
+              <ref name="dhq_resp"/>
+            </oneOrMore>
+          </group>
+        </choice>
+        <zeroOrMore>
+          <ref name="dhq_note"/>
+        </zeroOrMore>
+      </group>
+      <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.canonical.attributes"/>
+      <optional>
+        <attribute name="xml:id">
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Provides a unique identifier for the responsibility statement</a:documentation>
+          <data type="ID"/>
+        </attribute>
+      </optional>
+      <empty/>
+    </element>
+  </define>
+  <define name="dhq_resp">
+    <element name="resp">
+      <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">(responsibility) contains a phrase describing the nature of a person's intellectual responsibility, or an organization's role in the production or distribution of a work. [3.12.2.2. Titles, Authors, and Editors 2.2.1. The Title Statement 2.2.2. The Edition Statement 2.2.5. The Series Statement]</a:documentation>
+      <ref name="dhq_macro.phraseSeq.limited"/>
+      <ref name="dhq_att.global.attributes"/>
+      <ref name="dhq_att.canonical.attributes"/>
       <empty/>
     </element>
   </define>
@@ -7293,14 +7341,14 @@ Suggested values include: 1] ISBN; 2] ISSN; 3] DOI; 4] URI; 5] VIAF; 6] ESTC; 7]
       <ref name="dhq_att.scope.attributes"/>
       <optional>
         <attribute name="extent">
-          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">The <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@extent</code> attribute is used on <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;language&gt;</code> to indicate the nature of the usage of the language in question: whether it is used for the original article, for a translation stub, or for a full translation.</a:documentation>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">The <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">@extent</code> attribute is used on <code xmlns="http://www.w3.org/1999/xhtml" xmlns:rng="http://relaxng.org/ns/structure/1.0">&lt;language&gt;</code> to indicate the nature of the usage of the language in question: whether it is used for the original article, for a translation of just the abstract, or for a full translation.</a:documentation>
           <choice>
-            <value>original</value>
-            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates that the language is used for the original article</a:documentation>
-            <value>translation_stub</value>
-            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates that the language is used for a translation stub (i.e. a placeholder or incomplete translation)</a:documentation>
-            <value>translation</value>
-            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates that the language is used for a full translation of the article</a:documentation>
+            <value>default</value>
+            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates that the language is used for the original article or the language the author deems should be displayed by default</a:documentation>
+            <value>abstract_only</value>
+            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates that the language is used for an abstract without a full article</a:documentation>
+            <value>alternate</value>
+            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">indicates that the language is used for a full article that is in a different language than the default</a:documentation>
           </choice>
         </attribute>
       </optional>
@@ -7559,14 +7607,14 @@ Suggested values include: 1] ISBN; 2] ISSN; 3] DOI; 4] URI; 5] VIAF; 6] ESTC; 7]
       <ref name="dhq_att.written.attributes"/>
       <optional>
         <attribute name="type">
-          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Identifies whether the text is in the language of its original authorship, or is a full translation, or is a stub translation (i.e. abstract only)</a:documentation>
+          <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">Identifies whether the text is in the default language, is a full translation, or is a translation of only the abstract</a:documentation>
           <choice>
-            <value>original</value>
-            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">The text is in the language of its original authorship</a:documentation>
-            <value>translation</value>
-            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">The text is a full translation of the originally authored article</a:documentation>
-            <value>translation_stub</value>
-            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">The text is a stub or partial translation</a:documentation>
+            <value>default</value>
+            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">The text in the default language (as determined by the author(s))</a:documentation>
+            <value>abstract_only</value>
+            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">The text contains only an abstract (not the full article) in some language other than the default</a:documentation>
+            <value>alternate</value>
+            <a:documentation xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0">The text contains the entire article in some language other than the default</a:documentation>
           </choice>
         </attribute>
       </optional>
