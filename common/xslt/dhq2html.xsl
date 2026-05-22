@@ -42,6 +42,8 @@
     <xsl:param name="id" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type eq 'DHQarticle-id']!normalize-space(.)"/>
     <xsl:param name="cssFile"/>
     <xsl:param name="biblioData" select="'../../data/biblio-full.xml'"/>
+    <xsl:param name="doi" select="/*/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[ @type eq 'DOI']!normalize-space(.)"/>
+    <xsl:variable name="doiURL" select="escape-html-uri('https://doi.org/'||$doi )"/>
     <!-- The relative path from the webpage to the DHQ home directory. The path must not end with a 
       slash. This value is used by this and other stylesheets to construct links relative, if not 
       directly from the current page, then from the DHQ home directory. Because this stylesheet is used 
@@ -119,6 +121,7 @@
     <xsl:template match="dhq:caption"/>
 
     <xsl:template match="tei:publicationStmt">
+      <xsl:apply-templates select="./tei:idno[ @type eq 'DOI']"/>
       <xsl:apply-templates select=".//dhq:revisionNote"/>
     </xsl:template>
 
@@ -521,6 +524,20 @@
         </div>
     </xsl:template>
 
+    <!--
+	Note that (at least for now) there are *no* other <respStmt>s
+	to be processed, they are *all* xml:id="AI_trans_info_[LANGCODE]".
+    -->
+    <xsl:template match="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:respStmt[starts-with( @xml:id, 'AI_trans_info') ]">
+      <p class="MTinfo" xsl:expand-text="yes">
+	{tei:resp!normalize-space(.)}: machine translation by
+	<xsl:apply-templates select="tei:name"/>
+	<xsl:apply-templates select="tei:note[@type eq 'boilerplate']"/>
+      </p>
+    </xsl:template>
+
+    <xsl:template match="tei:note[ @type eq 'boilerplate']"/>
+    
     <xsl:template match="dhq:author_name | dhq:translator_name">
       <xsl:sequence select="normalize-space(.)"/>
     </xsl:template>
@@ -1937,6 +1954,21 @@
          [not(preceding-sibling::* | preceding-sibling::text()[normalize-space()]) or
           not(following-sibling::* | following-sibling::text()[normalize-space()])]"/>
 
+    <xsl:template match="tei:idno[ @type eq 'DOI']">
+      <xsl:if test="$doi ne .">
+        <xsl:message select="'debug doi: '||$doi||' ≠ '||.||'!  for='||$id"/>
+      </xsl:if>
+      <xsl:choose>
+	<xsl:when test="not( $doi )"/>
+	<xsl:when test="matches( $doiURL, 'pending$','i')">
+          <p>DOI: pending</p>
+	</xsl:when>
+	<xsl:otherwise>
+	  <p>DOI: <a href="{$doiURL}"><xsl:sequence select="$doiURL"/></a></p>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
+    
     <xsl:template match="dhq:revisionNote">
       <div class="revisionNote">
         <h2 style="font-size:90%;">Revision Note</h2>

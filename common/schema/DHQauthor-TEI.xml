@@ -26,11 +26,31 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2026-04-19" who="#sdb">
+        Change DOI constraints so that it must be either the string
+        “pending” (case insensitive) or look like a valid DOI (i.e.,
+        be the string “10.63744/” followed by 12 lowercase letters or
+        digits except ‘o’, ‘0’, ‘i’, ‘l’, or ‘1’.
+      </change>
+      <change when="2026-03-30" who="#sdb">
+        Per this morning’s discussion:
+        <list>
+          <item>add <gi>respStmt</gi> and <gi>resp</gi></item>
+          <item>change values and descriptions of <att>extent</att> of
+          <gi>language</gi> and <att>type</att> of <gi>text</gi></item>
+        </list>
+      <change when="2026-03-20" who="#sdb">
+        <list>
+          <item>Add <val>DOI</val> as a value of <gi>idno</gi></item>
+          <item>Add check that there is one and only one of each of
+          the four <gi>idno</gi>s inside <gi>publicationStmt</gi></item>
+        </list>
+      </change>
       <change when="2026-01-07" who="#sdb">
-	Remove constraint that requires a <att>who</att> on the
-	<val>gitHist</val> <gi>change</gi> element. I thought we
-	had already removed it (per request <persName ref="#jhf"/>)
-	before we merged a few days ago. Sigh.
+        Remove constraint that requires a <att>who</att> on the
+        <val>gitHist</val> <gi>change</gi> element. I thought we
+        had already removed it (per request <persName ref="#jhf"/>)
+        before we merged a few days ago. Sigh.
       </change>      
       <change when="2025-12-30" who="#sdb">
         Insist that there must be a <gi>change</gi> that points reader
@@ -377,7 +397,7 @@ email (should only have an email address)
         <!-- Modules for DHQ: TEI modules, the DHQ module, and MathML (in that order) -->
 
         <moduleRef key="core"
-                   except="abbr add addrLine address analytic biblStruct binaryObject cb choice corr del distinct divGen ellipsis expan gap gb gloss headItem headLabel imprint index measure measureGrp meeting milestone monogr noteGrp num orig pb postBox postCode rb reg relatedItem resp respStmt rs rt ruby sic street teiCorpus textLang time unclear unit"/>
+                   except="abbr add addrLine address analytic biblStruct binaryObject cb choice corr del distinct divGen ellipsis expan gap gb gloss headItem headLabel imprint index measure measureGrp meeting milestone monogr noteGrp num orig pb postBox postCode rb reg relatedItem rs rt ruby sic street teiCorpus textLang time unclear unit"/>
         <moduleRef key="tei"/>
         <moduleRef key="header"
                    except="abstract appInfo application authority biblFull calendar calendarDesc catDesc catRef category citeData citeStructure classCode conversion correction correspAction correspContext correspDesc creation distributor edition editionStmt editorialDecl extent funder geoDecl handNote hyphenation interpretation licence listPrefixDef namespace normalization notesStmt prefixDef principal projectDesc quotation refState refsDecl rendition samplingDecl schemaRef segmentation seriesStmt stdVals styleDefDecl tagUsage tagsDecl unitDecl unitDef"/>
@@ -515,11 +535,10 @@ email (should only have an email address)
         </classSpec>
         <classSpec type="atts" ident="att.global" mode="change">
           <attList>
-            <attDef ident="xml:id" mode="delete"></attDef>
             <attDef ident="n" mode="delete"></attDef>
-            <attDef ident="xml:space" mode="delete"></attDef>
             <attDef ident="xml:base" mode="delete"></attDef>
             <attDef ident="xml:id" mode="delete"></attDef>
+            <attDef ident="xml:space" mode="delete"></attDef>
           </attList>
         </classSpec>
         <classSpec type="atts" ident="att.handFeatures" mode="delete"/>
@@ -1291,19 +1310,42 @@ email (should only have an email address)
       <elementSpec ident="language" mode="change" module="header">
         <attList>
           <attDef ident="extent" mode="add">
-            <desc>The <att>extent</att> attribute is used on <gi>language</gi> to indicate the nature of the usage of the language in question: whether it is used for the original article, for a translation stub, or for a full translation.</desc>
+            <desc>The <att>extent</att> attribute is used on
+            <gi>language</gi> to indicate the nature of the usage of
+            the language in question: whether it is used for the
+            original article, for a translation of just the abstract,
+            or for a full translation.</desc>
             <datatype>
               <dataRef key="teidata.enumerated"/>
             </datatype>
             <valList type="closed">
-              <valItem ident="original">
-              <desc>indicates that the language is used for the original article</desc></valItem>
-              <valItem ident="translation_stub">
-              <desc>indicates that the language is used for a translation stub (i.e. a placeholder or incomplete translation)</desc></valItem>
-              <valItem ident="translation">
-                <desc>indicates that the language is used for a full translation of the article</desc>
+              <valItem ident="default">
+                <desc>indicates that the language is used for the
+                original article or the language the author deems
+                should be displayed by default</desc>
+              </valItem>
+              <valItem ident="abstract_only">
+                <desc>indicates that the language is used for an
+                abstract without a full article</desc>
+              </valItem>
+              <valItem ident="alternate">
+                <desc>indicates that the language is used for a full
+                article that is in a different language than the
+                default</desc>
               </valItem>
             </valList>
+          </attDef>
+        </attList>
+      </elementSpec>
+
+      <!-- Add @xml:id to <respStmt> -->
+      <elementSpec ident="respStmt" module="core" mode="change">
+        <attList>
+          <attDef ident="xml:id" mode="add">
+            <desc>Provides a unique identifier for the responsibility statement</desc>
+            <datatype>
+              <dataRef name="ID"/>
+            </datatype>
           </attDef>
         </attList>
       </elementSpec>
@@ -1357,10 +1399,51 @@ email (should only have an email address)
             </sch:rule>
           </constraint>
         </constraintSpec>
+        <constraintSpec scheme="schematron" ident="reasonable_doi" mode="add">
+          <constraint>
+            <sch:rule context="tei:idno[ @type eq 'DOI']">
+              <sch:let name="value" value="normalize-space(.)"/>
+              <sch:assert test="matches( $value, '^10\.63744/[2-9a-hjkmnp-z]{12}$')
+                                or
+                                matches( $value, 'pending','i')">DOI
+              appears inavlid; should be “pending” or the string
+              “10.63744/” followed by 12 digits or lowercase letters
+              except ‘o’, ‘0’, ‘i’, ‘l’, or ‘1’</sch:assert>
+              <!-- Note: The format of the DOI (10.63744/diobid, where
+                   “diobid” is 12 characters from a specifc
+                   31-character alphabet — which is just the
+                   36-character alphabet of digits and standard ASCII
+                   lowercase letters without the possibly confusing
+                   ‘o’, ‘0’, ‘i’, ‘l’, or ‘1’). This was ascertained
+                   just by looking at the DOIs assigned so far. Thus
+                   this regexp may need to be loosened up in the
+                   future. -->
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
+        <constraintSpec scheme="schematron" ident="publication_idnos" mode="add">
+          <constraint>
+            <sch:rule context="tei:publicationStmt">
+              <sch:assert test="count( tei:idno[ @type eq 'DHQarticle-id'] ) eq 1">
+                There should be one and only one "DHQarticle-id" &lt;idno> in the publication statement
+              </sch:assert>
+              <sch:assert test="count( tei:idno[ @type eq 'DOI'] ) eq 1">
+                There should be one and only one "DOI" &lt;idno> in the publication statement
+              </sch:assert>
+              <sch:assert test="count( tei:idno[ @type eq 'issue'] ) eq 1">
+                There should be one and only one "issue" &lt;idno> in the publication statement
+              </sch:assert>
+              <sch:assert test="count( tei:idno[ @type eq 'volume'] ) eq 1">
+                There should be one and only one "volume" &lt;idno> in the publication statement
+              </sch:assert>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
         <attList>
           <attDef ident="type" mode="change">
             <valList type="closed">
               <valItem ident="DHQarticle-id"><desc>used for the DHQ article ID</desc></valItem>
+              <valItem ident="DOI"><desc>used for the assigned digital object identifier</desc></valItem>
               <valItem ident="volume"><desc>used for the volume number</desc></valItem>
               <valItem ident="issue"><desc>used for the issue number</desc></valItem>
               <valItem ident="ORCID"><desc>used for author ORCID IDs</desc></valItem>
@@ -1844,19 +1927,25 @@ email (should only have an email address)
             </datatype>
           </attDef>
           <attDef ident="type" mode="change">
-            <desc>Identifies whether the text is in the language of its original authorship, or is a full translation, or is a stub translation (i.e. abstract only)</desc>
+            <desc>Identifies whether the text is in the default
+            language, is a full translation, or is a translation of
+            only the abstract</desc>
             <datatype>
               <dataRef key="teidata.enumerated"/>
             </datatype>
             <valList type="closed">
-              <valItem ident="original">
-                <desc>The text is in the language of its original authorship</desc>
+              <valItem ident="default">
+                <desc>The text in the default language (as determined
+                by the author(s))</desc>
               </valItem>
-              <valItem ident="translation">
-                <desc>The text is a full translation of the originally authored article</desc>
+              <valItem ident="abstract_only">
+                <desc>The text contains only an abstract (not the full
+                article) in some language other than the
+                default</desc>
               </valItem>
-              <valItem ident="translation_stub">
-                <desc>The text is a stub or partial translation</desc>
+              <valItem ident="alternate">
+                <desc>The text contains the entire article in some
+                language other than the default</desc>
               </valItem>
             </valList>
           </attDef>
