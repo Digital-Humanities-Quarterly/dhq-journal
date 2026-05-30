@@ -48,15 +48,16 @@
       <encodingDesc>
          <classDecl>
             <taxonomy xml:id="dhq_keywords">
-               <bibl>DHQ classification scheme; full list available at <ref target="https://dhq.digitalhumanities.org/taxonomy.xml">https://dhq.digitalhumanities.org/taxonomy.xml</ref>
+               <bibl>DHQ classification scheme; full list available at <ref target="https://dhq.digitalhumanities.org/common/xml/taxonomy.xml">https://dhq.digitalhumanities.org/common/xml/taxonomy.xml</ref>
                </bibl>
             </taxonomy>
             <taxonomy xml:id="authorial_keywords">
                <bibl>Keywords supplied by author; no controlled vocabulary</bibl>
             </taxonomy>
             <taxonomy xml:id="project_keywords">
-               <bibl>DHQ project registry; full list available at <ref target="https://dhq.digitalhumanities.org/projects.xml">https://dhq.digitalhumanities.org/projects.xml</ref>
-               </bibl>
+               <bibl>DHQ Project Registry (in development)
+<!--DHQ project registry; full list available at  https://dhq.digitalhumanities.org/projects.xml-->
+</bibl>
             </taxonomy>
          </classDecl>
       </encodingDesc>
@@ -66,7 +67,7 @@
             <!--add <language> with appropriate @ident for any additional languages-->
          </langUsage>
          <textClass>
-            <keywords scheme="#dhq_keywords"><!--Authors may suggest one or more keywords from the DHQ keyword list, visible at https://dhq.digitalhumanities.org/taxonomy.xml; these may be supplemented or modified by DHQ editors--><!--Enter keywords below preceeded by a "#". Create a new term element for each-->
+            <keywords scheme="#dhq_keywords"><!--Authors may suggest one or more keywords from the DHQ keyword list, visible at https://dhq.digitalhumanities.org/common/xml/taxonomy.xml; these may be supplemented or modified by DHQ editors--><!--Enter keywords below preceeded by a "#". Create a new term element for each-->
                <term corresp="#code_studies"/>
                
             </keywords>
@@ -149,8 +150,8 @@
 <word form="alas" wordnet_id="" pos="UH" polarity="-0.4" subjectivity="1.0" intensity="1.0" confidence="0.8" />
                ...
             </sentiment>
-               ]]>
-            </eg>
+               
+            ]]></eg>
             </p>
                
             <p>Just as <name>Loria</name> imports the Pattern library’s algorithmic functionality, so too does he re-use <name>De Smedt</name> and <name>Daelemans</name>’ lexicon. In their 2012 paper introducing Pattern, <name>De Smedt</name> and <name>Daelemans</name> describe using the web scraping tool to produce the lexicon itself: <quote rend="inline">We mined online Dutch book reviews and extracted the 1,000 most frequent adjectives. These were manually annotated with positivity, negativity, and subjectivity scores,</quote> a task they repeated with a number of European languages, including English <ptr target="#desmedt_daelemans2012"/>. <quote rend="inline">Manual annotation</quote> means exactly what it sounds like: <name>De Smedt</name> and <name>Daelemans</name> hand-tagged (or computationally inferred, for words with related senses and meanings) words with polarity scores. These scores came from their own critical judgment rather than any computational process. While this practice may raise eyebrows to an audience of digital humanists — it seems an excellent way to encode a whole range of unattested biases and subjectivities into the program, for one — it’s a standard approach in NLP. While programmers often document such development processes in code comments and research papers, these innate subjectivities get effaced in the movement from data to code. Here I want to emphasize that I am not accusing Loria or any NLP researchers of intentionally black-boxing the textual laundering that necessarily occurs in the production of these corpora. <name>De Smedt</name> and <name>Daelemans</name> have accounted for their methodologies in their published work, and these methodologies follow best practices within their field. Rather, my point is that the operation of <hi rend="italic">encoding</hi> these corpora within TextBlob or any similar sentiment analysis tool is where effacement occurs. In order to make language “work” as data, TextBlob strips it clean of context, even as that context is what allowed the initial humans composing these corpora to make judgments in the first place.</p>
@@ -162,7 +163,7 @@
             
             <p>Given that TextBlob provides two distinct sentiment analysis implementations, it provides us the opportunity to see how such models diverge. The following code runs the first sentence of this essay through both <hi rend="monospace">PatterAnalyzer</hi> and <hi rend="monospace">NaiveBayesAnalyzer</hi>:
             
-         <eg lang="xml"><![CDATA[# Runs the example sentence through `PatternAnalyzer`
+         <eg lang="xml"># Runs the example sentence through `PatternAnalyzer`
 >>> from textblob import TextBlob
 >>> blob = TextBlob("Sentiment analysis encompasses a range of computational techniques for detecting and quantifying the presence of affect and emotion in written texts.")
 >>> blob.sentiment.polarity
@@ -173,7 +174,7 @@
 >>> blob.sentiment
 Sentiment(classification='pos', p_pos=0.9916363422665231, p_neg=0.008363657733478571)
 # `NaiveBayesAnalyzer` returns a sharply positive score, with a hint of negative characteristics.
-]]>
+
          </eg>
             </p>
             
@@ -183,7 +184,7 @@ Sentiment(classification='pos', p_pos=0.9916363422665231, p_neg=0.00836365773347
             
             <p><hi rend="monospace">PatternAnalzyer</hi> and <hi rend="monospace">NaiveBayesAnalyzer</hi> differ not only in how they compute sentiment statistically, but also in the root sources of their judgments. <hi rend="monospace">PatternAnalzyer</hi>, we have seen, draws its claims from the hand-tagged Pattern lexicon, in which each individual word arrives imputed with a discrete sentiment score, manually tagged by human readers. <hi rend="monospace">NaiveBayesAnalyzer</hi>, conversely, derives root scores programmatically by training a rudimentary machine learning model on a corpus of movie reviews assembled by NLP researchers <name>Bo Pang</name> and <name>Lillian Lee</name> <ptr target="#pang_lee2005"/>. <name>Pang</name> and <name>Lee</name>’s work is influential in NLP and sentiment analysis research for addressing various computational problems related to the relationships between ratings systems and language: is there, for instance, a textual pattern, discernable at the level of tokenization, that distinguishes a two-star review from a four-star review? The various corpora they have assembled over the years as part of this research program have subsequently become popular readymades for programmers like Loria, who need well-formatted textual-numerical data upon which to derive sentiment analysis models like <hi rend="monospace">NaiveBayesAnalyzer</hi>. In TextBlob, this training happens in lines 72–81:
             
-            <eg lang="xml"><![CDATA[
+            <eg lang="xml">
                72    """Train the Naïve Bayes classifier on the movie review 
                corpus."""
                73    super(NaiveBayesAnalyzer, self).train()
@@ -197,7 +198,7 @@ Sentiment(classification='pos', p_pos=0.9916363422665231, p_neg=0.00836365773347
                for f in pos_ids]
                80    train_data = neg_feats + pos_feats
                81    self._classifier = 
-               nltk.classify.NaiveBayesClassifier.train(train_data)]]>
+               nltk.classify.NaiveBayesClassifier.train(train_data)
             </eg>
             </p>
             
@@ -238,7 +239,7 @@ Sentiment(classification='pos', p_pos=0.9916363422665231, p_neg=0.00836365773347
             <div>
                <head>Annotation continued</head>
                <eg lang="python">
-<![CDATA[1	# -*- coding: utf-8 -*-
+1	# -*- coding: utf-8 -*-
 2	"""Sentiment analysis implementations.
 3
 4	.. versionadded:: 0.5.0
@@ -334,7 +335,7 @@ Sentiment(classification='pos', p_pos=0.9916363422665231, p_neg=0.00836365773347
 94	            classification=prob_dist.max(),
 95	            p_pos=prob_dist.prob('pos'),
 96	            p_neg=prob_dist.prob("neg")
-97        )]]>
+97        )
                </eg>
                
                <p>1–4: TextBlob’s release in 2013 entered into a fruitful space for sentiment analysis. The rising wave of Web 2.0 and social media more generally encouraged internet users to enter unprecedented amounts of self-authored text into their machines, in turn finally providing data sets at the scale required for meaningful analysis. Development on TextBlob was at first fast and dense, although the pace of its development slowed over time. Loria added sentiment analysis to TextBlob in version 0.5.0, published on 10 August 2013. According to the changelog on GitHub, where TextBlob’s code is hosted, <hi rend="monospace">en/sentiments.py</hi> was most recently updated on 2 December 2017.</p>
