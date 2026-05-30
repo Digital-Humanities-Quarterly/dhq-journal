@@ -239,8 +239,62 @@
     <xsl:param name="number" as="xs:string"/>
     <xsl:sequence select="replace(normalize-space($number), '^0+', '')"/>
   </xsl:function>
-  
-  
+
+
+  <!--  -->
+  <xsl:function name="dhqf:localization" expand-text="yes" as="xs:string">
+    <xsl:param name="key" as="xs:string"/> <!-- arg 1 is the ID of the <item> we are looking for -->
+    <xsl:param name="here" as="node()"/> <!-- input node (so we can look up the current language) -->
+    <xsl:variable name="lang" select="('en', $here/ancestor-or-self::*/@xml:lang )[last()]" as="xs:string"/>
+    <!-- Why is the above an xs:string, not an xs:language you ask?
+         Because the only argument to the fn:lang() function is an
+         xs:string, not an xs:language, don’t know why. —Syd -->
+    <!-- check that supplied key is at least viable as an identifier -->
+    <xsl:if test="not( $key castable as xs:ID )">
+      <!-- Note: if we are strict about ID values in the i18n file, we
+           might want a stricter test, above. E.g., currently matches(
+           $key, '^ui\.[a-z]+([A-Z][a-z]+)$') would be a good
+           test. —Syd -->
+      <xsl:message terminate="yes">Internal error from dhqf:localization() — provided key ({$key}) is not a valid XML ID</xsl:message>
+    </xsl:if>
+    <!-- establish path to internationalization file -->
+    <xsl:variable name="i18n_termFile" select="'../xml/i18n_terms.xml'" as="xs:string"/>
+    <!-- make sure we can read it -->
+    <xsl:if test="not( doc-available( $i18n_termFile ) )">
+      <xsl:message terminate="yes">Error: file {$i18n_termFile} not readable</xsl:message>
+    </xsl:if>
+    <!-- OK, we can read it, go ahead and do so, extracting just the list of translations -->
+    <xsl:variable name="i18nList" select="doc($i18n_termFile)/tei:TEI/tei:text/tei:body/tei:list[ @type eq 'i18n']" as="element(tei:list)"/>
+    <!-- From that list, get the list item of interest -->
+    <xsl:variable name="i18nItem" select="$i18nList/tei:item[ @xml:id eq $key ]" as="element(tei:item)?"/>
+    <xsl:if test="not( $i18nItem )">
+      <xsl:message terminate="yes">Error: no translation entry found for key {$key}!</xsl:message>
+    </xsl:if>
+    <!-- Grab the translation. If there is an exact match, take that;
+         second choice is to look for a case where the translation is
+         a more precise version of the main language (e.g., given the
+         language we are looking for is "fr", take "fr-CA"); if
+         neither of those is available, take the English one. -->
+    <xsl:variable name="i18nGloss"
+                  select="( $i18nItem/tei:gloss[ @xml:lang eq $lang ],
+                            $i18nItem/tei:gloss[ lang($lang) ],
+                            $i18nItem/tei:gloss[ lang('en') ]
+                          )[1]" as="element(tei:gloss)"/>
+    <!-- Whatever we grabbed, return the processed version
+         thereof. -->
+    <xsl:apply-templates select="$i18nGloss" mode="localization"/>
+  </xsl:function>
+
+  <!-- Process the localization <gloss> with low priority, so some
+       other routine can override. In the vast majority, if not all,
+       of cases what we want is just the string value of the <gloss>
+       itself; but just in case there is markup of some kind *inside*
+       that gloss, we process it. This might be helpful, e.g., when
+       some phrase-level element would require the generation of
+       quotation marks of various sorts or gillmets or whatever.) -->
+  <xsl:template match="gloss" mode="localization" priority="-2">
+    <xsl:sequence select="normalize-space(.)"/>
+  </xsl:template>
   
   <!--
       SUPPORT TEMPLATES
