@@ -2084,8 +2084,7 @@
                         notation="tex" rend="inline">\(t\)</formula>.</p>
                 <p>The bipartite graph is projected onto the space of Round Table individuals, <formula
                     notation="tex" rend="inline">\(ν_1\)</formula> such that nodes share an edge in <formula
-                        notation="tex" rend="inline">\(G_t\)</formula>if there exists a two-degree path between them in <hi
-                        rend="italic">G_t</hi>, and the edge is weighted by the number of unique
+                        notation="tex" rend="inline">\(G_t\)</formula> if there exists a two-degree path between them in <formula rend="inline" notation="tex">\(G_t\)</formula>, and the edge is weighted by the number of unique
                     connecting paths. (We note that <formula
                         notation="tex" rend="inline">\(G_t\)</formula> may be projected on
                     to the space of <formula
@@ -2096,7 +2095,44 @@
                     in Section 3 is to visualize the network <formula
                         notation="tex" rend="inline">\(G_t\)</formula> dynamically
                     for any user-chosen date <formula
-                        notation="tex" rend="inline">\(t\)</formula></p>
+                        notation="tex" rend="inline">\(t\)</formula>.</p>
+            </div>
+            <div>
+                <head>Appendix 2: Detailed model fitting, selection, and tuning </head>
+                <p>With the data prepared, we took a machine learning approach to predict (given an individual’s IA affiliations in pre-defined Eras) their formal affiliation at the Round Table meetings. The purpose of this analysis, however, is interpretive, not predictive. We seek to gain insight into which Institutional Affiliations — and at what times — are most associated with individuals representing the Opposition or Communist Government at the Round Table.</p>
+                <p>We opted to fit eight separate models, capturing the predictive power of recorded IA information as of each of the historical checkpoints. That is, 
+                <list type="unordered">
+                    <item><hi rend="bold">Model 1:</hi> Contains Era1 data, i.e., IA membership up to (not including) June 1, 1956.</item>
+                    <item><hi rend="bold">Model 2:</hi> Contains Era1 and Era2 data, i.e., IA membership up to (not including) March 1, 1968.</item>
+                    <item>... and so on. </item>
+                </list></p>
+                <p>For each of the eight modeling scenarios, we considered two machine learning algorithms: a <term>decision tre</term>e and a <term>penalized logistic regression</term>. We did not consider any non-interpretable models, even though they may have had stronger predictive power, because our purpose in this analysis was solely interpretation. For the logistic regression models, we considered only a LASSO (L1) penalty rather than a full elastic net, to encourage strict variable selection while preserving interpretability of the coefficient estimates.</p>
+                <p>We made use of the <title rend="italic">tidymodels</title> (kuhn-wickham, 2020) package for tuning and model assessment. The decision tree models were each tuned for cost complexity and tree depth; while the logistic regression models were tuned on the penalty hyperparameter across a large grid of values.</p>
+                <div>
+                    <head>Hyperparameter tuning</head>
+                    <p>To select a best tuned model of each type, we prioritized <term>Cohen’s Kappa</term> (cohen, 1960), which can be interpreted as the “lift” in predictive ability provided by the model compared to a fully random guess. We opted for the “one standard error rule” approach to hyperparameter selection (breiman,1984), which selects the most parsimonious model — in this case, the largest L1 penalty — that results in a cross-validated Kappa value within one standard error of the best-scoring model. This choice makes sense for our particular problem space, since our goal in penalization is stricter variable selection. In other words, we sacrifice a statistically negligible drop in estimated predictive ability to achieve a simpler and more interpretable final model.</p>
+                    <p>Figure 14 shows the cross-validated values of Cohen’s Kappa across the hyperparameter grid for the logistic regression model for the eight Eras. The patterns in this figure support our use of Breiman’s one-SE approach: In each era, there is a range of L1 penalty values that achieve near-equal Kappa metrics, before a steeper drop-off at higher penalty values.
+                    <figure>
+                        <head>Penalties selected by Breiman’s 1-SE method achieve near-identical metric scores to best model. </head>
+                        <graphic url="resources/images/figure14.png"></graphic>
+                        <figDesc>PLACEHOLDER</figDesc>
+                    </figure></p>
+                    <p>Appendix 3 shows the numeric values for this figure, as well as values of other common classification metrics: ROC-AUC, F1 Score, and accuracy. The patterns in these metrics over the hyperparameter grid are similar to those seen in Figure 13.</p>
+                </div>
+                <div>
+                    <head>Model selection</head>
+                    <p>With our selected hyperparameter values for each model type, we then compare the decision tree algorithm to the logistic regression algorithm. Figure 13 shows the cross-validated Cohen’s Kappa values for the selected model of each type at each era.</p>
+                    <p>It became evident that the penalized logistic regression outperformed the decision tree counterpart consistently across nearly all eras, although the difference is not compelling for earlier era models. (See Figure 13) Since logistic regression is both the more frequently higher-performance option and the easier of the two to compare interpretive results across eras, we focus only on this model option for the paper.</p>
+                    <div>
+                        <head>Note</head>
+                        <p>Recall that the cutoffs for the eight Eras were chosen ad hoc choices based on domain expertise, identified prior to any data analysis. In the interest of being thorough, we also applied this analysis to a structure where each individual calendar year from 1950 to 1989 was treated as a standalone era. The resulting pattern in measured predictive abilities over time was similar to that seen in Figure 13; although models were in general more volatile due to the large number of coefficients (i.e., one dummy variable for each IA in each of the 40 years).</p>
+                        <p>We view the original eight eras not as indisputable truths, but as reasonable narrative choices for checkpoints along the longitudinal data analysis.</p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <head>Appendix 3: Tuning results</head>
+                
             </div>
         </body>
         <back>
