@@ -12,7 +12,7 @@ namespace teix = "http://www.tei-c.org/ns/Examples"
 namespace xi = "http://www.w3.org/2001/XInclude"
 namespace xlink = "http://www.w3.org/1999/xlink"
 
-# Schema generated from ODD source 2026-04-19T16:52:58Z. . 
+# Schema generated from ODD source 2026-06-10T18:58:49Z. . 
 # TEI Edition: P5 Version 4.9.0. Last updated on 24th January 2025, revision f73186978 
 # TEI Edition Location: https://www.tei-c.org/Vault/P5/4.9.0/ 
 #  This schema supports basic journal features. 
@@ -2557,13 +2557,53 @@ dhq_pubPlace =
 dhq_bibl =
   ## (bibliographic citation) contains a loosely-structured bibliographic citation of which the sub-components may or may not be explicitly tagged. [3.12.1. Methods of Encoding Bibliographic References and Lists of References 2.2.7. The Source Description 16.3.2. Declarable Elements]
   element tei:bibl {
-    (text
-     | dhq_model.highlighted
-     | dhq_model.pPart.data
-     | dhq_model.segLike
-     | dhq_model.ptrLike
-     | dhq_model.biblPart
-     | dhq_model.global)*,
+    ((text
+      | dhq_model.highlighted
+      | dhq_model.pPart.data
+      | dhq_model.segLike
+      | dhq_model.ptrLike
+      | dhq_model.biblPart
+      | dhq_model.global)*)
+    >> sch:pattern [
+         id = "dhq-bibl-identify_works_cited-constraint-rule-11"
+         "\x{a}" ~
+         "            "
+         sch:rule [
+           context = "tei:back/tei:listBibl/tei:bibl"
+           "\x{a}" ~
+           "               "
+           sch:assert [
+             test = "@xml:id"
+             "\x{a}" ~
+             "                A bibliographic entry in the works cited needs to be identifiable (i.e., must have an @xml:id)\x{a}" ~
+             "              "
+           ]
+           "\x{a}" ~
+           "            "
+         ]
+         "\x{a}" ~
+         "         "
+       ]
+    >> sch:pattern [
+         id = "dhq-bibl-no_empty_bibls-constraint-rule-12"
+         "\x{a}" ~
+         "            "
+         sch:rule [
+           context = "tei:bibl"
+           "\x{a}" ~
+           "               "
+           sch:assert [
+             test = "*  or  normalize-space( . ) ne ''"
+             "\x{a}" ~
+             "                A bibliographic entry in the works cited must have some content\x{a}" ~
+             "              "
+           ]
+           "\x{a}" ~
+           "            "
+         ]
+         "\x{a}" ~
+         "         "
+       ],
     dhq_att.canonical.attributes,
     dhq_att.global.attributes,
     dhq_att.cmc.attributes,
@@ -2598,7 +2638,7 @@ dhq_l =
   element tei:l {
     ((text | dhq_model.phrase | dhq_model.inter | dhq_model.global)*)
     >> sch:pattern [
-         id = "dhq-l-abstractModel-structure-l-in-l-constraint-rule-11"
+         id = "dhq-l-abstractModel-structure-l-in-l-constraint-rule-13"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2647,7 +2687,7 @@ dhq_lg =
       | dhq_lg)*,
      (dhq_model.divBottom, dhq_model.global*)*)
     >> sch:pattern [
-         id = "dhq-lg-atleast1oflggapl-constraint-rule-12"
+         id = "dhq-lg-atleast1oflggapl-constraint-rule-14"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2667,7 +2707,7 @@ dhq_lg =
        ]
     >> sch:pattern [
          id =
-           "dhq-lg-abstractModel-structure-lg-in-l-constraint-rule-13"
+           "dhq-lg-abstractModel-structure-lg-in-l-constraint-rule-15"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2789,7 +2829,7 @@ dhq_idno =
   element tei:idno {
     ((text | dhq_idno)*)
     >> sch:pattern [
-         id = "dhq-idno-article-id_matches_fn-constraint-rule-14"
+         id = "dhq-idno-article-id_matches_fn-constraint-rule-16"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2815,7 +2855,7 @@ dhq_idno =
          "         "
        ]
     >> sch:pattern [
-         id = "dhq-idno-reasonable_doi-constraint-rule-15"
+         id = "dhq-idno-reasonable_doi-constraint-rule-17"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -2840,7 +2880,7 @@ dhq_idno =
          "         "
        ]
     >> sch:pattern [
-         id = "dhq-idno-publication_idnos-constraint-rule-16"
+         id = "dhq-idno-publication_idnos-constraint-rule-18"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3065,7 +3105,7 @@ dhq_revisionDesc =
     (dhq_list+ | dhq_listChange+ | dhq_change+)
     >> sch:pattern [
          id =
-           "dhq-revisionDesc-require_proper_git_history-constraint-rule-17"
+           "dhq-revisionDesc-require_proper_git_history-constraint-rule-19"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3215,8 +3255,24 @@ dhq_text =
      (dhq_body | dhq_group),
      dhq_model.global*,
      (dhq_back, dhq_model.global*)?),
-    dhq_att.global.attributes,
+    dhq_att.global.rendition.attribute.style,
+    dhq_att.global.source.attribute.source,
     dhq_att.written.attributes,
+    [
+      a:documentation [
+        "(language) indicates the language of the element content using a tag generated according to "
+        ns1:a [
+          href = "http://www.rfc-editor.org/rfc/bcp/bcp47.txt"
+          "BCP 47"
+        ]
+        "."
+      ]
+    ]
+    attribute xml:lang {
+      xsd:language
+      | (
+         "")
+    },
     ## Identifies whether the text is in the default language, is a full translation, or is a translation of only the abstract
     attribute type {
       ## The text in the default language (as determined by the author(s))
@@ -3291,7 +3347,7 @@ dhq_div =
       (dhq_model.divBottom, dhq_model.global*)*)?)
     >> sch:pattern [
          id =
-           "dhq-div-abstractModel-structure-div-in-l-constraint-rule-20"
+           "dhq-div-abstractModel-structure-div-in-l-constraint-rule-22"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3312,7 +3368,7 @@ dhq_div =
        ]
     >> sch:pattern [
          id =
-           "dhq-div-abstractModel-structure-div-in-ab-or-p-constraint-rule-21"
+           "dhq-div-abstractModel-structure-div-in-ab-or-p-constraint-rule-23"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3552,7 +3608,7 @@ dhq_ab =
     dhq_macro.abContent
     >> sch:pattern [
          id =
-           "dhq-ab-abstractModel-structure-ab-in-l-constraint-rule-22"
+           "dhq-ab-abstractModel-structure-ab-in-l-constraint-rule-24"
          "\x{a}" ~
          "            "
          sch:rule [
@@ -3756,7 +3812,7 @@ dhq_family =
   element family {
     text
     >> sch:pattern [
-         id = "dhq-family-family_must_have_content-constraint-rule-23"
+         id = "dhq-family-family_must_have_content-constraint-rule-25"
          "\x{a}" ~
          "            "
          sch:rule [
