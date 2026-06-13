@@ -26,6 +26,20 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2026-06-10" who="#sdb">
+        Per <ref
+        target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/210">issue 210</ref>
+        add constraints to require some content (i.e., a
+        non-whitespace only text node or a child element) in any
+        <gi>bibl</gi>, and for those
+        that are in a <gi>listBibl</gi> in the <gi>back</gi> also
+        require <att>xml:id</att>.
+      </change>
+      <change when="2026-04-19" who="#sdb">
+        Per <ref
+        target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/88">issue 88</ref>
+        require <att>xml:lang</att> of <gi>text</gi>.
+      </change>            
       <change when="2026-04-19" who="#sdb">
         Change DOI constraints so that it must be either the string
         “pending” (case insensitive) or look like a valid DOI (i.e.,
@@ -39,6 +53,7 @@
           <item>change values and descriptions of <att>extent</att> of
           <gi>language</gi> and <att>type</att> of <gi>text</gi></item>
         </list>
+      </change>
       <change when="2026-03-20" who="#sdb">
         <list>
           <item>Add <val>DOI</val> as a value of <gi>idno</gi></item>
@@ -1919,6 +1934,7 @@ email (should only have an email address)
 
       <elementSpec ident="text" mode="change" module="textstructure">
         <attList>
+          <attDef ident="xml:lang" mode="change" usage="req"/>
           <attDef ident="resp" mode="add">
             <desc>Identifies the agent responsible for the content of the <gi>text</gi>
             element</desc>
@@ -2250,6 +2266,24 @@ email (should only have an email address)
           <memberOf key="att.canonical" mode="add"/>
           <!-- permit @key on <bibl> -->
         </classes>
+        <constraintSpec scheme="schematron" ident="identify_works_cited">
+          <constraint>
+            <sch:rule context="tei:back/tei:listBibl/tei:bibl">
+              <sch:assert test="@xml:id">
+                A bibliographic entry in the works cited needs to be identifiable (i.e., must have an @xml:id)
+              </sch:assert>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
+        <constraintSpec scheme="schematron" ident="no_empty_bibls">
+          <constraint>
+            <sch:rule context="tei:bibl">
+              <sch:assert test="*  or  normalize-space( . ) ne ''">
+                A bibliographic entry in the works cited must have some content
+              </sch:assert>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
         <attList>
           <attDef ident="biblioID">
             <desc>provides a reference to a centralized bibliography</desc>

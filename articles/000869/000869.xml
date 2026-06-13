@@ -44,7 +44,7 @@
                 <!-- This information will be completed at publication -->
                 <idno type="volume">020</idno>
                 <idno type="issue">2</idno>
-                <date when="2026-06-20">20 June 2026</date>
+                <date when="2026-06-12">12 June 2026</date>
                 <dhq:articleType>article</dhq:articleType>
                 <availability status="CC-BY-ND">
                     <!-- If using a different license from the default, choose one of the following:
@@ -117,23 +117,2162 @@
         <front>
             <dhq:abstract>
                 <!-- Include a brief abstract of the article -->
-                <p>This paper investigates how multimodal AI can support — not replace — scholarly description of William Blake’s visual art. Using the William Blake Archive as a foundation, I develop a conceptual framework that distinguishes three levels of visual analysis (pattern recognition, motif identification, and iconographic interpretation) and use it to evaluate a working retrieval prototype built on Contrastive Language-Image Pre-training (CLIP) embeddings and Facebook AI Similarity Search (FAISS) indexing over a 200-work stratified corpus. The paper defends three claims. First, that AI-assisted tagging is best understood as retrieval support rather than automated interpretation: it surfaces candidate matches that scholars then validate. Second, that performance degrades predictably across the three tiers: strong at object-level detection, moderate at motif-level pattern recognition, weak at Blake-specific iconography, and that this gradient is itself a useful empirical finding for archives weighing adoption. Third, that the responsible integration of AI tags into an existing scholarly archive requires explicit provenance, confidence scoring, human-in-the-loop validation, and audit logging, and that these requirements can be operationalized concretely. The paper does not claim to automate iconographic interpretation, to provide ground-truth identifications, or to generalize beyond the 200-work pilot; results should be read as alignment with the Archive’s descriptive practice on a stratified sample, not as validated interpretation. The contribution is a conceptual framework, a tested prototype, and an integration design that other archives confronting dense symbolic corpora can adapt.</p>
+                <p>This paper investigates how multimodal AI can support — not replace — scholarly
+                    description of William Blake’s visual art. Using the William Blake Archive as a
+                    foundation, I develop a conceptual framework that distinguishes three levels of
+                    visual analysis (pattern recognition, motif identification, and iconographic
+                    interpretation) and use it to evaluate a working retrieval prototype built on
+                    Contrastive Language-Image Pre-training (CLIP) embeddings and Facebook AI
+                    Similarity Search (FAISS) indexing over a 200-work stratified corpus. The paper
+                    defends three claims. First, that AI-assisted tagging is best understood as
+                    retrieval support rather than automated interpretation: it surfaces candidate
+                    matches that scholars then validate. Second, that performance degrades
+                    predictably across the three tiers: strong at object-level detection, moderate
+                    at motif-level pattern recognition, weak at Blake-specific iconography, and that
+                    this gradient is itself a useful empirical finding for archives weighing
+                    adoption. Third, that the responsible integration of AI tags into an existing
+                    scholarly archive requires explicit provenance, confidence scoring,
+                    human-in-the-loop validation, and audit logging, and that these requirements can
+                    be operationalized concretely. The paper does not claim to automate iconographic
+                    interpretation, to provide ground-truth identifications, or to generalize beyond
+                    the 200-work pilot; results should be read as alignment with the Archive’s
+                    descriptive practice on a stratified sample, not as validated interpretation.
+                    The contribution is a conceptual framework, a tested prototype, and an
+                    integration design that other archives confronting dense symbolic corpora can
+                    adapt.</p>
             </dhq:abstract>
             <dhq:teaser>
                 <!-- Include a brief teaser, no more than a phrase or a single sentence -->
-                <p>PLACEHOLDER</p>
+                <p>What can multimodal AI actually see in William Blake's visionary art? This pilot study finds that AI reliably retrieves Blake's objects and motifs but falters, measurably, at his personal iconography, mapping precisely where machine assistance ends, and scholarly interpretation begins.</p>
             </dhq:teaser>
         </front>
         <body>
-            <head/>
             <div>
-                <head/>
-                <p>Content goes here!</p>
+                <head>1. Introduction: The Challenge of Blake’s Visions and the Promise of AI</head>
+                <p>William Blake (1757-1827) remains a singular figure in the annals of art and
+                    literature, a poet, painter, and printmaker whose work defies easy
+                    categorization. Operating primarily outside the mainstream artistic conventions
+                    of his time, Blake forged a unique visual and textual language to explore
+                    profound themes of spirituality, mythology, politics, and the human psyche <ptr
+                        target="#frye1947"/>. His art is characterized by an idiosyncratic blend of
+                    influences, drawing on yet radically transforming biblical narratives, Miltonic
+                    epic, Neoclassical forms, and Gothic sensibilities <ptr target="#damon1965"/>.
+                    The result is a body of work marked by its visionary intensity and interpretive
+                    depth. Central to the challenge of engaging with Blake’s visual art is its
+                    characteristic complexity. His compositions are often densely populated with
+                    figures, interwoven with text, and structured according to symbolic rather than
+                    naturalistic principles. Blake developed a personal mythology populated by
+                    figures like Urizen (representing reason and law), Los (imagination and time),
+                    and Orc (rebellion and energy), whose meanings can shift across different works
+                    and contexts <ptr target="#damon1965"/>
+                    <ptr target="#billingsley2018"/>. This intricate symbolism, combined with his
+                    distinctive linear style and unconventional use of space, demands careful and
+                    informed interpretation.</p>
+                <p>One prime example of this complexity is <title rend="italic">The Vision of the
+                        Last Judgement</title>. Extant in several versions and known primarily
+                    through detailed descriptions, this monumental conception presents a swirling
+                    vortex of figures that embody Blake’s intricate cosmology and eschatology <ptr
+                        target="#billingsley2018"/>. Its sheer density, symbolic richness, and
+                    variations across related works pose significant analytical challenges for
+                    traditional art-historical methods, making it a compelling test case for the
+                    potential application of computational techniques <ptr target="#spratt_etal2014"
+                    />. The study of Blake has been revolutionized by the William Blake Archive (the
+                    Archive), a landmark digital humanities project launched in the mid-1990s <ptr
+                        target="#eaves_etal2019"/>. The Archive provides unprecedented access to
+                    high-resolution digital reproductions of Blake’s vast and widely dispersed
+                    works, including illuminated books, paintings, drawings, manuscripts, and
+                    commercial engravings. Its primary goal has been to establish a scholarly
+                    electronic edition, reuniting works scattered across global collections and
+                    providing detailed bibliographic, historical, and descriptive information for
+                    each object <ptr target="#wba2024"/>.</p>
+                <p>Beyond serving as a digital repository, the Archive represents a structured
+                    dataset of significant potential for computational analysis. It meticulously
+                    documents provenance, physical characteristics, and relationships between
+                    different states or versions of works, accompanied by extensive textual
+                    transcriptions and scholarly descriptions. This digital infrastructure, while
+                    primarily designed for scholarly access and textual scholarship, offers a
+                    foundation upon which new computational methods, including those from artificial
+                    intelligence (AI), might be built to explore Blake’s visual art in novel ways
+                        <ptr target="#fiorucci_etal2020"/>
+                    <ptr target="#impett_etal2023"/>.</p>
+                <p>It is crucial to distinguish among three levels of visual analysis to structure
+                    this investigation. At the most basic level, computer vision systems engage in
+                    pattern recognition, detecting edges, textures, shapes, and colors in pixel
+                    data. The Archive, however, operates at the motif level, recording that a
+                    particular visual pattern represents a <title rend="quotes">tree</title> or
+                        <title rend="quotes">figure</title> rather than documenting its specific
+                    visual characteristics. Beyond this lies symbolic interpretation, understanding
+                    that a tree might represent the Tree of Life or natural innocence in Blake’s
+                    mythology. This paper focuses primarily on how AI can bridge the gap between
+                    pattern recognition and motif identification, while acknowledging that symbolic
+                    interpretation remains fundamentally a humanistic endeavor.</p>
+                <div>
+                    <head>1.1 Scope and Contributions</head>
+                    <p>This paper makes three distinct contributions at different levels of
+                        completion:</p>
+                    <list type="ordered">
+                        <item>A conceptual framework for understanding how AI can bridge pattern
+                            recognition and motif identification within established archival
+                            practices, distinguishing what machines can reliably detect from what
+                            requires human judgment.</item>
+                        <item>A functional retrieval prototype demonstrating sub-millisecond
+                            similarity search across a 200-work corpus representing Blake’s artistic
+                            range, with quantitative evaluation across three tiers of tagging
+                            complexity.</item>
+                        <item>An exploratory case study applying iterative analytical methods to
+                                <title rend="italic">The Vision of the Last Judgement</title>,
+                            demonstrating how regionally-balanced, source-weighted taxonomies can
+                            enhance motif detection in densely symbolic compositions.</item>
+                    </list>
+                    <p>I would like to pause here and state what this paper does not claim. To set
+                        clear expectations for a topic that invites overstatement, I explicitly
+                        state the boundaries of these contributions. This study investigates
+                        retrieval support, not automated interpretation. The system suggests
+                        candidate tags and visually similar works; it does not determine which
+                        figure is Urizen, decide what a given composition's serpent symbolizes, or
+                        produce iconographic readings. Where I report quantitative performance, I
+                        read those numbers as alignment with the Archive’s existing descriptive
+                        practice on a stratified 200-work sample, not as a ground-truth
+                        interpretation of Blake. The case study of <title rend="italic">The Vision
+                            of the Last Judgement</title> demonstrates how iterative computational
+                        passes can support a scholar’s analysis of a single dense composition; it
+                        does not validate the method across Blake’s full oeuvre. Generalization
+                        beyond the pilot would require multi-annotator ground truth, external expert
+                        review, and corpus-wide scaling tests that are out of scope here.</p>
+                    <p>I frame this work as a pilot study: a proof-of-concept that establishes
+                        feasibility for a clearly bounded retrieval task, rather than a production
+                        system for the full Archive. The 200-work corpus was stratified from 715
+                        works available in the Archive to represent diversity across Blake’s oeuvre
+                        while remaining tractable for intensive methodological development; the
+                        rationale for that sample size, and the kinds of works it cannot yet speak
+                        to, are discussed in Section 6.2 and revisited under Limitations.</p>
+                </div>
+                <div>
+                    <head>1.2 Operational Definition of <title rend="quotes">Tagging</title></head>
+                    <p>Throughout this paper, <title rend="quotes">tagging</title> refers to the
+                        computational process of associating image regions or whole images with
+                        descriptive labels from a defined vocabulary. I distinguish three levels of
+                        tagging complexity:</p>
+                    <list type="ordered">
+                        <item>Object-level tagging identifies concrete visual elements (<title
+                                rend="quotes">serpent,</title>
+                            <title rend="quotes">book,</title>
+                            <title rend="quotes">human figure</title>) without interpretive claims
+                            about their meaning.</item>
+                        <item>Motif-level tagging identifies compositional patterns and conventional
+                            postures (<title rend="quotes">outstretched arms,</title>
+                            <title rend="quotes">ascending figure,</title>
+                            <title rend="quotes">vortex composition</title>) that recur across
+                            Blake’s work.</item>
+                        <item>Iconographic tagging assigns Blake-specific identifications (<title
+                                rend="quotes">Urizen,</title>
+                            <title rend="quotes">Los,</title>
+                            <title rend="quotes">Last Judgement throne</title>) that require
+                            contextual knowledge of his mythology.</item>
+                    </list>
+                    <p>This hierarchy corresponds to increasing interpretive demands: object-level
+                        tagging lies closest to pattern recognition, while iconographic tagging
+                        approaches interpretation. My pilot implementation demonstrates feasibility
+                        across all three levels and confirms that performance degrades as tagging
+                        approaches the interpretation stage, with significant implications for
+                        human-AI collaboration in digital art history.</p>
+                </div>
+                <div>
+                    <head>1.3 Research Questions</head>
+                    <p>This paper addresses the following core research question: </p>
+                    <p>How can current AI techniques assist scholars in the identification and
+                        cataloging of visual motifs within William Blake’s paintings by automating
+                        the translation from visual patterns to motif labels, and how can this
+                        pattern-to-motif mapping be integrated with the existing descriptive
+                        infrastructure of the William Blake Archive?</p>
+                </div>
+                <div>
+                    <head>1.4 Implications for Scholarly Practice</head>
+                    <p>If successfully developed and validated, AI-assisted tagging would open three
+                        currently impractical lines of inquiry. Scholars could trace the frequency
+                        and evolution of specific visual elements, such as the serpent motif, across
+                        Blake’s entire oeuvre at a scale manual cataloging cannot reach, revealing
+                        patterns invisible to inspection of single works. Similarity search could
+                        surface unexpected visual affinities, linking, say, a figure in the Job
+                        illustrations to a compositionally similar figure in the Dante series and
+                        prompting comparative analyses that would not otherwise be initiated. And
+                        for works existing in multiple states or copies, automated comparison could
+                        highlight systematic variations in Blake’s treatment of specific elements
+                        across versions. None of these capabilities replaces interpretive
+                        scholarship; they redirect it from exhaustive cataloging (which the system
+                        can assist) toward interpretive synthesis (which remains human work).</p>
+                    <p>This shift raises new responsibilities for archives: how to present
+                        AI-generated tags alongside human descriptions, how to indicate confidence
+                        levels, and how to prevent algorithmic suggestions from foreclosing
+                        interpretive possibilities rather than opening them. This inquiry is
+                        inherently interdisciplinary, situated at the intersection of art history,
+                        digital humanities, and computer science <ptr target="#spratt_etal2014"/>.
+                        It seeks to bridge the gap between the nuanced interpretive methods of art
+                        history and the pattern-recognition capabilities of AI, exploring both the
+                        potential synergies and the inherent limitations of applying computational
+                        tools to such complex and symbolically rich visual material.</p>
+                </div>
+            </div>
+            <div>
+                <head>2. The William Blake Archive: Structure, Data, and Current Practices</head>
+                <p>The William Blake Archive is built upon a robust technical architecture designed
+                    to manage and present a large, complex corpus of digital objects and associated
+                    metadata <ptr target="#eaves_etal2019"/>. While specific technical details evolve, its
+                    foundation involves standard digital library technologies and adherence to
+                    metadata standards common in digital humanities. Works are meticulously
+                    cataloged with unique identifiers, enabling precise referencing. Crucially, the
+                    Archive model accommodates the complex relationships inherent in Blake’s output,
+                    such as linking different copies of illuminated books (which Blake produced
+                    individually, leading to variations) or relating preliminary sketches to
+                    finished works.</p>
+                <p>Metadata standards play a key role. The Archive utilizes the Text Encoding
+                    Initiative (TEI) guidelines for encoding Blake’s texts, ensuring scholarly rigor
+                    and interoperability <ptr target="#wba2024"/>. While TEI is primarily
+                    text-focused, the Archive also incorporates extensive metadata about the visual
+                    works themselves, covering aspects like medium, dimensions, support, date, and
+                    provenance. The Archive uses XML extensively, employing a primary Document Type
+                    Definition (DTD) known as the Blake Archive Description (BAD) for encoding
+                    texts, bibliographic commentary, and illustration descriptions, while TEI is
+                    used for other materials, such as bibliographies, where physical artifact
+                    description is not central <ptr target="#eaves_etal2019"/>. For instance, the
+                    multiple descriptions and potential lost versions of <title rend="italic">The
+                        Vision of the Last Judgement</title> necessitate a structure capable of
+                    handling such complex interrelations. Understanding this underlying data model
+                    is crucial for assessing how visual information is represented and whether it
+                    can be readily extracted for AI purposes.</p>
+                <p>The Archive provides detailed scholarly descriptions for many of its objects.
+                    Examining the entry for a complex work like the Petworth House version of <title
+                        rend="italic">The Vision of the Last Judgement</title> reveals the nature of
+                    current practices. Descriptions are typically narrative and interpretive,
+                    written by experts to guide understanding <ptr target="#wba2024"/>. They often
+                    identify key figures, explain the overall scene, discuss symbolism, and relate
+                    the work to Blake’s writings or other compositions. Fields like <title
+                        rend="quotes">Description</title> or potentially <title rend="quotes"
+                        >Objects Represented</title> contain this information, often in free-text
+                    prose.</p>
+                <p>The vocabulary used in these descriptions is scholarly and interpretive, not
+                    necessarily a controlled vocabulary designed for machine processing. While terms
+                    might be consistent within a single description or by a single cataloger,
+                    variations in terminology across the entire archive are likely. Consistency
+                    depends heavily on editorial oversight and the specific cataloging guidelines
+                    employed over the project’s long history <ptr target="#eaves_etal2019"/>.
+                    Furthermore, the granularity of existing descriptions varies. They excel at
+                    providing a holistic interpretation of the scene but may not systematically list
+                    every single figure, object, or motif depicted. The focus is often on salient or
+                    symbolically important elements rather than exhaustive visual inventory.
+                    Annotations directly linking specific parts of the image to descriptive text are
+                    generally absent.</p>
+                <div>
+                    <head>2.1 Strengths and Limitations as AI Training Data</head>
+                    <p>The Archive offers significant strengths as a potential data source for
+                        AI-driven analysis of Blake’s art. It provides access to a large corpus of
+                        high-resolution images, essential for training deep learning models <ptr
+                            target="#eaves_etal2019"/>. The images are accompanied by rich
+                        contextual metadata, including detailed provenance, dating, and
+                        relationships to other works, which could potentially inform AI analysis.
+                        Furthermore, the extensive textual descriptions and transcriptions
+                        associated with many images offer a valuable resource, particularly for
+                        multimodal AI approaches <ptr target="#radford_etal2021"/>.</p>
+                    <p>However, the Archive also presents limitations when considered as a direct
+                        source of training data for standard computer vision tasks. The primary
+                        challenge lies in the nature of the visual annotations. Visual descriptions
+                        are typically narrative and interpretive rather than structured lists of
+                        labels suitable for supervised learning <ptr target="#spratt_etal2014"/>.
+                        There may be inconsistencies in terminology and granularity across the
+                        archive. Crucially, the lack of fine-grained annotations, such as bounding
+                        boxes or segmentation masks, which specify the location and extent of
+                        objects within the image, poses a significant hurdle for training object
+                        detection or segmentation models <ptr target="#ren_etal2015"/>.</p>
+                    <p>This assessment points towards a structural characteristic of the archive:
+                        Its origins and primary goals — centered on scholarly access, textual encoding
+                        (TEI usage), and comprehensive bibliographic and historical metadata — likely
+                        result in textual data being far more structured and consistent than visual
+                        metadata from an AI perspective. Visual description, while rich, follows
+                        humanistic interpretive conventions rather than the systematic tagging
+                        protocols ideal for machine learning <ptr target="#fiorucci_etal2020"/>.</p>
+                </div>
+                <div>
+                    <head>2.2 The Archive’s Editorial Stance</head>
+                    <p>The William Blake Archive maintains a deliberately restrained approach to
+                        interpretation, focusing on descriptive documentation that aims for
+                        scholarly objectivity. As the Archive’s editors note, illustration
+                        descriptions are <quote rend="inline">[a]lthough information cannot be completely separated from interpretation, our emphasis is strongly on information and hence on description</quote> <ptr target="#wba_n.d."/>. The Archive engages in
+                        limited interpretation, such as labeling a figure as <title rend="quotes"
+                            >Urizen,</title> but avoids deep symbolic analysis. This approach
+                        provides the ground for rigorous interpretation, much as a letterpress text
+                        provides the ground for literary interpretation. This philosophy has
+                        important implications for AI integration. The Archive records the
+                        representation of motifs, not patterns. When a human cataloger identifies a
+                            <title rend="quotes">tree</title> in Blake’s work, they are making an
+                        interpretive leap from a specific visual pattern to a conceptual category
+                        that encompasses infinite possible visual instantiations. No two trees in
+                        Blake’s art, or in nature, share the same pattern, yet humans readily group
+                        these diverse patterns under the single motif label <title rend="quotes"
+                            >tree.</title> This many-to-one mapping from patterns to motifs
+                        represents a fundamental challenge for computational approaches.</p>
+                </div>
+            </div>
+            <div>
+                <head>3. Blake’s Iconographic Complexity</head>
+                <div>
+                    <head>3.1 Blake’s Iconographic System</head>
+                    <p>A vast body of art historical scholarship is dedicated to deciphering William
+                        Blake’s complex and deeply personal iconography. Blake constructed a unique
+                        mythological system populated by figures such as Urizen (representing reason
+                        and law), Los (imagination and time), Orc (rebellion and energy), Enitharmon
+                        (spiritual beauty and female counterpart to Los), and many others <ptr target="#damon1965"/>. These figures are not static allegories but dynamic entities whose
+                        significance can evolve throughout Blake’s career and vary depending on the
+                        specific context of a work <ptr target="#frye1947"/>.</p>
+                    <p>Key symbols of the serpent, compasses, flames, lilies, and anvils all recur
+                        throughout his oeuvre, imbued with layers of meaning drawn from biblical,
+                        Miltonic, Neoplatonic, alchemical, and contemporary political sources, all
+                        refracted through Blake’s unique visionary lens <ptr
+                            target="#serdechnaya2018"/>. Blake’s relationship with existing
+                        traditions was one of radical transformation. He engaged deeply with the
+                        Bible and the works of John Milton but reinterpreted them according to his
+                        own spiritual and political vision, often inverting traditional meanings
+                            <ptr target="#frye1947"/>. Similarly, while employing elements of
+                        Neoclassical linearity and Gothic energy, his style ultimately served his
+                        internal vision rather than adhering strictly to contemporary aesthetic
+                        norms <ptr target="#billingsley2018"/>. This synthesis of diverse sources
+                        into a highly personal symbolic language creates significant interpretive
+                        challenges. Meanings are often polysemous (having multiple interpretations),
+                        ambiguous, and resistant to straightforward decoding. Understanding Blake’s
+                        symbolism requires familiarity not only with his visual works but also with
+                        his poetry and prophetic writings, where these concepts are further
+                        elaborated <ptr target="#damon1965"/>.</p>
+                </div>
+                <div>
+                    <head>3.2 Recurring Visual Motifs</head>
+                    <p>Beyond specific symbols and named figures, Blake’s visual art is
+                        characterized by recurring visual motifs, postures, gestures, and
+                        compositional structures <ptr target="#billingsley2018"/>. Figures with
+                        dramatically outstretched arms, bodies bent in despair or constricted by
+                        bonds, dynamic vortex compositions suggesting spiritual energy or chaos, and
+                        layered planes creating a sense of shallow, stage-like space are common
+                        features. Blake’s distinctive style emphasizes strong contour lines,
+                        flattened perspective, and a powerful, often idealized or exaggerated,
+                        rendering of the human form <ptr target="#frye1947"/>. A key element of his
+                        visual strategy, particularly in the illuminated books, is the integration
+                        of text and image. Text does not merely caption the image, nor does the
+                        image simply illustrate the text; rather, they interact in complex ways,
+                        often weaving together on the page, with decorative elements blurring the
+                        lines between writing and drawing <ptr target="#eaves_etal2019"/>. These
+                        recurring visual elements and stylistic choices are not merely decorative;
+                        they are integral to the works’ meaning and affective power, conveying
+                        states of being, spiritual struggles, and cosmic events through a
+                        consistent, albeit evolving, visual vocabulary <ptr
+                            target="#serdechnaya2018"/>.</p>
+                </div>
+                <div>
+                    <head>3.3 The Vision of the Last Judgement as Test Case</head>
+                    <p>
+                        <title rend="italic">The Vision of the Last Judgement</title> serves as an
+                        exemplary case study of Blake’s complexity <ptr target="#billingsley2018"/>.
+                        Known through several related works and detailed descriptions by Blake
+                        himself, the composition depicts a vast panorama of humanity rising to
+                        judgment or falling into damnation, presided over by Christ enthroned on the
+                        Mercy Seat, surrounded by apostles and heavenly figures. Below, the Book of
+                        Life is opened, Satan is wrapped in the Serpent’s coils, and figures
+                        representing various states of salvation and damnation populate the scene.
+                        The composition is dense, dynamic, and spatially complex, drawing heavily on
+                        traditional Last Judgement iconography but reinterpreted through Blake’s
+                        personal mythology <ptr target="#damon1965"/>.</p>
+                    <p>Identifying specific figures requires knowledge of both biblical tradition
+                        and Blake’s own symbolic system <ptr target="#frye1947"/>. Distinguishing
+                        between numerous nude or semi-nude figures based on subtle postural
+                        differences or their position within the overall symbolic program is
+                        challenging. Interpreting the relationships between figures — for example,
+                        the complex interplay between judgment, mercy, and the creative imagination
+                        — requires deep engagement with Blake’s thought <ptr
+                            target="#billingsley2018"/>. Specific elements, like the precise
+                        identity of allegorical figures representing states of sin or redemption, or
+                        the exact meaning of certain gestures, remain subjects of scholarly debate
+                            <ptr target="#serdechnaya2018"/>.</p>
+                    <p>Each of the demands set out above, from recognizing context-dependent symbols
+                        to distinguishing members of Blake's personal pantheon by subtle attributes,
+                        to parsing densely overlapping figures in compositions like <title
+                            rend="italic">The Vision of the Last Judgement</title>, represents a
+                        different kind of computational challenge. Each of these concerns has been
+                        engaged to varying degrees by different strands of the technical literature.
+                        Computational iconography has begun to handle motif-level recognition for
+                        artists with shared conventional vocabularies but has largely avoided
+                        artists with idiosyncratic personal mythologies. Multimodal vision-language
+                        models have made flexible, prompt-based retrieval newly feasible for
+                        small-corpus archives. Similarity-retrieval infrastructure has matured to
+                        the point where latency and scale are no longer the constraints they once
+                        were. And the digital-humanities literature on AI evaluation has supplied
+                        the vocabulary needed to ask of any such system what it is doing, on whose
+                        behalf, and against what standard. The next section surveys these four
+                        conversations in turn, to locate precisely where the present paper enters
+                        them — and where it does not.</p>
+                </div>
+            </div>
+            <div>
+                <head>4. Related Work: AI, Computer Vision, and Cultural Heritage</head>
+                <p>Related work falls into four conversations that this paper joins: computational
+                    iconography and motif recognition in art history; multimodal vision-language
+                    models applied to cultural heritage; similarity retrieval over art image
+                    collections; and the digital-humanities literature on critical evaluation and
+                    bias in AI-assisted scholarship. Treating them together makes this paper's
+                    contribution easier to locate. The paper is the first, to my knowledge, to bring
+                    all four to bear on an artist with a dense personal mythology, and to do so
+                    under a framework that explicitly distinguishes what a computational system
+                    supports (retrieval) from what it does not (interpretation).</p>
+                <p>The four conversations are also a useful diagnostic for why Blake has remained
+                    outside the main computational-art-history literature to date. Each conversation
+                    handles part of what a Blake-scale tagging project would need; none has yet had
+                    to address them all at once.</p>
+                <div>
+                    <head>4.1 Computational Iconography and Motif Recognition</head>
+                    <p>The computational analysis of art-historical imagery has matured rapidly over
+                        the last decade. Foundational work by <ptr target="#crowley_etal2014"/>
+                        established visual search over painting collections, demonstrating that
+                        off-the-shelf object detectors trained on natural photographs could
+                        transfer, with caveats, to artistic imagery. Subsequent work extended this
+                        into explicitly iconographic territory: <ptr target="#milani_etal2020"/>
+                        released a dataset and convolutional model for iconography classification in
+                        paintings, and <ptr target="#springstein_etal2024"/> pushed the problem
+                        toward large-scale hierarchical classification, demonstrating that
+                        structured label spaces can substantially improve performance over flat
+                        classifiers. <ptr target="#schneider_etal2024"/> provide an instructive
+                        model from an adjacent problem space: Their art-historical pose dataset
+                        required iterative refinement of annotation guidelines and
+                        quality-controlled multi-annotator review. Their work addresses pose
+                        estimation across a multi-collection dataset and does not engage with the
+                        Archive directly; I cite it here as a procedural template for how annotation
+                        guidelines could be developed if and when the Archive’s curatorial team
+                        chose to extend descriptive metadata in this direction.</p>
+                    <p>These projects share a common architecture. They start with a labeled corpus
+                        (often built with substantial editorial labor), train or fine-tune a deep
+                        model on that corpus, and report accuracy on held-out subsets. Their typical
+                        objects of study are stylistic or attributional <ptr
+                            target="#johnson_etal2008"/> or, in the iconographic case, drawn from
+                        broadly shared visual vocabularies such as saints, biblical scenes, and
+                        classical motifs whose iconographic conventions are stable across centuries
+                        and across many artists. The general-purpose computer-vision toolkit they
+                        draw on: convolutional architectures such as ResNet <ptr
+                            target="#he_etal2016"/>, detection frameworks such as Faster R-CNN
+                        <ptr target="#ren_etal2015"/> and Mask R-CNN <ptr target="#he_etal2017"/>, and Vision
+                        Transformers <ptr target="#dosovitskiy_etal2020"/>. All of these techniques have been extended
+                        further by end-to-end detection models <ptr target="#carion_etal2020"/> and
+                        by general-purpose segmentation systems such as Segment Anything <ptr
+                            target="#kirillov_etal2023"/>.</p>
+                    <p>Three reasons explain why these methods have largely avoided artists with
+                        dense personal iconographies like Blake. First, the data requirement: A
+                        personal symbolic system requires not just images but extensive scholarly
+                        annotation that links visual features to specific meanings, and that
+                        annotation does not yet exist at the scale supervised methods need. Second,
+                        the evaluation problem: Standard accuracy metrics measure pattern-matching
+                        against a ground truth, but a meaningful Blake iconographic identification
+                        typically depends on context, on inter-textual evidence, and on contested
+                        scholarly judgment that no single ground truth captures <ptr
+                            target="#spratt_etal2014"/>. Third, the interpretive problem: An artist
+                        whose imagery deliberately resists conventional iconography is precisely the
+                        artist for whom automated interpretation is least likely to succeed. The
+                        present paper does not attempt to remove these obstacles. It accepts them
+                        and proposes a framework in which AI supports retrieval and surfaces
+                        candidate matches that scholars validate, rather than producing iconographic
+                        readings directly.</p>
+                </div>
+                <div>
+                    <head>4.2 Multimodal Vision-Language Models and Cultural Heritage</head>
+                    <p>The most consequential recent shift in computer vision for cultural-heritage
+                        applications has been the emergence of multimodal vision-language models.
+                        CLIP (Contrastive Language-Image Pre-training) <ptr
+                            target="#radford_etal2021"/> and BLIP <ptr target="#li_etal2022"/> place
+                        images and natural-language text into a shared embedding space, allowing
+                        flexible retrieval and zero-shot classification without task-specific
+                        training. The practical effect is that art-historical applications no longer
+                        require a fully labeled dataset before useful experiments can begin: A
+                        researcher can write a tag prompt in plain English and retrieve candidate
+                        matches against an embedding index of an entire collection.</p>
+                    <p><ptr target="#impett_etal2023"/> frame the broader claim that digital art
+                        history has matured beyond the digitization phase into a computationally
+                        distinct discipline, in part because multimodal models such as CLIP can
+                        reveal visual relationships across large corpora that resist manual
+                        analysis. The methodological turn this paper joins, then, has two features.
+                        Earlier supervised approaches surveyed by <ptr target="#fiorucci_etal2020"/>
+                        treated the labeled dataset as a prerequisite for analysis; the multimodal
+                        turn treats the prompt as the unit of investigation and the embedding as the
+                        substrate. This shift is particularly consequential for archives like the
+                        William Blake Archive, where the labor required to assemble a supervised
+                        dataset at scale has been the principal barrier to computational
+                        analysis.</p>
+                    <p>To tailor a pre-trained model to a specific artist or lexicon, researchers
+                        continue to rely on adaptation methods suited for limited labeled data,
+                        including transfer learning <ptr target="#dosovitskiy_etal2020"/>, few-shot
+                        learning <ptr target="#wang_etal2020"/>, and weakly supervised techniques
+                            <ptr target="#zhou2018"/>. The implementation reported in this paper
+                        uses zero-shot CLIP with no fine-tuning, partly because the Archive does not
+                        yet provide labels in a form suitable for supervised training, and partly
+                        because zero-shot retrieval is precisely the operation the paper's
+                        contribution is designed to support. The trade-offs between zero-shot and
+                        fine-tuned configurations are discussed methodologically in Section 6.2.</p>
+                </div>
+                <div>
+                    <head>4.3 Similarity Retrieval Over Art Image Collections</head>
+                    <p>The third conversation this paper joins is the technical literature on
+                        similarity retrieval in art collections. <ptr target="#seguin_etal2016"/>
+                        demonstrated visual link retrieval across painting databases, showing that
+                        learned visual features could surface non-obvious compositional
+                        relationships among works in large heterogeneous corpora. <ptr
+                            target="#garcia-seco_etal2020"/> report the
+                        related ImageCLEF retrieval benchmarks that have set the practical standard
+                        for cross-domain image retrieval evaluation. On the indexing side, the FAISS
+                        library <ptr target="#johnson_etal2019"/> has made it routine to deploy
+                        sub-millisecond similarity search over millions of high-dimensional
+                        embeddings; for collections in the hundreds or low thousands of works
+                        typical of single-artist archives, retrieval latency has ceased to be a
+                        meaningful constraint.</p>
+                    <p>More recent work on open-vocabulary detection <ptr
+                            target="#minderer_etal2022"/> closes part of the gap between similarity
+                        retrieval and tag-level identification, allowing systems to localize objects
+                        within an image based on natural-language prompts. The retrieval prototype
+                        in Section 6.4 of this paper draws on this lineage technically (CLIP embeddings indexed by FAISS) and conceptually: The contribution is positioned
+                        as retrieval support, not as a novel detection architecture. What is new is
+                        the application to an artist whose iconographic vocabulary is unusually
+                        personal and unusually dense, and the explicit framing of retrieval support
+                        as the appropriate level of computational assistance for that case.</p>
+                </div>
+                <div>
+                    <head>4.4 Critical Evaluation and Bias in AI-Assisted Scholarship</head>
+                    <p>The fourth conversation is the digital-humanities literature on what AI does
+                        to scholarship when it is brought into it, and on what scholars should ask
+                        of computational tools before accepting their outputs. Crawford's (2021)
+                        account of the political economy of AI systems and Foka and colleagues' (2025) analysis of the bias loop in cultural-heritage ML
+                        pipelines both name the same problem from different angles: biases embedded
+                        in historical collection practices (what was preserved, described, and
+                        prioritized) are encoded into training data, amplified by model behavior,
+                        and then naturalized by deployment into archive interfaces <ptr
+                            target="#crawford2021"/>
+                        <ptr target="#foka_etal2025"/>. The Archive's own descriptive practice is
+                        not exempt from this loop, and any computational system trained on or
+                        evaluated against its descriptions inherits the priorities of its editorial
+                        history. Section 6.6 returns to this point as an evaluation-circularity
+                        disclosure.</p>
+                    <p>On the evaluation side, <ptr target="#powers2011"/> provides the standard
+                        reference for precision, recall, F-measure, and the conditions under which
+                        each is appropriate; this paper relies on Powers's framing in Section 6.6
+                        when reporting tier-stratified performance. <ptr target="#spratt_etal2014"/>
+                        anticipated many of the cross-disciplinary tensions that still shape
+                        evaluation: Art historians and computer scientists tend to disagree about
+                        what a successful identification looks like, about how much interpretive
+                        content a tag should carry, and about what counts as a fair test case. The
+                        three-tier framework adopted in this paper (Section 1) is partly a response
+                        to Spratt and Elgammal’s observation: By distinguishing object-level,
+                        motif-level, and iconographic-level tags, the framework makes the evaluation
+                        appropriate to the claim and makes the system's limits visible to readers
+                        from both disciplines.</p>
+                </div>
+                <div>
+                    <head>4.5 What This Paper Adds</head>
+                    <p>Across these four conversations, the present paper is positioned not as a
+                        technical demonstration but as a digital-humanities argument. It accepts
+                        that computational iconography has not yet engaged Blake, that the
+                        multimodal turn lowers the barrier to entry, that similarity retrieval is
+                        now technically routine at this scale, and that critical evaluation must
+                        remain central. Its contribution is to bring those four points together
+                        under a single framework: the three-tier distinction between pattern, motif,
+                        and iconographic interpretation, and to test that framework on a 200-work
+                        stratified Blake corpus.</p>
+                    <p>Three things follow from that positioning. First, the paper does not claim to
+                        extend the state of the art in computer vision; the technical components
+                        (CLIP, FAISS, PCA visualization) are standard and intentionally so. Second,
+                        the paper does claim that applying those standard components to a corpus
+                        this iconographically demanding, under a framework that explicitly bounds
+                        what the system can do, yields findings that are useful to other archives
+                        confronting similar problems, most concretely, a measurable performance
+                        gradient across the three tiers and a concrete integration plan (Section 8)
+                        for AI-suggested tags alongside human descriptive scholarship. Third, the
+                        paper claims that the specifically humanities-side contribution, the
+                        framework, the integration plan, and the set of success criteria specified
+                        in Section 8, is the part most worth carrying forward to artists and corpora
+                        beyond Blake.</p>
+                </div>
+            </div>
+            <div>
+                <head>5. Data and Annotation in the Archive</head>
+                <p>Section 4 surveyed the technical literature on computer vision, multimodal
+                    models, similarity retrieval, and critical evaluation. The question now is
+                    operational: What does the William Blake Archive specifically provide, what does
+                    it not provide, and what follows for how a computational system can be built on
+                    top of it? This section is deliberately narrow. It does not restate general
+                    requirements for training computer vision models; those are already in the
+                    literature cited and would only duplicate Section 4. Instead, it maps the
+                    Archive's existing data against the analytical requirements established there,
+                    identifies the gaps that matter for this study, and sets up the methodological
+                    choices made in Section 6.</p>
+                <div>
+                    <head>5.1 Mapping the Archive Against Analytical Requirements</head>
+                    <p>The Archive's principal strength as a data source is the combination of image
+                        quality and scholarly description: High-resolution images of roughly 715
+                        fully digitized works are paired with TEI-encoded textual descriptions
+                        written by Blake specialists over three decades of editorial work <ptr
+                            target="#eaves_etal2019"/>
+                        <ptr target="#wba2024"/>. For zero-shot retrieval against a pre-trained
+                        multimodal embedding model (as in Section 6), image volume and quality are
+                        not binding constraints. The binding constraints are in the label structure,
+                        not in the images.</p>
+                    <table>
+                        <head>Blake Archive Data vs. AI Training Requirements: Mapping the William
+                            Blake Archive's existing data against the requirements of common
+                            computational analyses. The image-side of the Archive comfortably
+                            exceeds current model requirements; the operational gaps are
+                            concentrated on the label side.</head>
+                        <row role="label">
+                            <cell>Requirement</cell>
+                            <cell>Archive Status</cell>
+                            <cell>Gap Assessment</cell>
+                        </row>
+                        <row>
+                            <cell>Image quantity</cell>
+                            <cell>715+ works, 5,500+ images</cell>
+                            <cell>Sufficient for transfer learning</cell>
+                        </row>
+                        <row>
+                            <cell>Image quality</cell>
+                            <cell>High-resolution digital surrogates</cell>
+                            <cell>Excellent</cell>
+                        </row>
+                        <row>
+                            <cell>Label type</cell>
+                            <cell>Narrative descriptions</cell>
+                            <cell>Requires extraction/structuring</cell>
+                        </row>
+                        <row>
+                            <cell>Label consistency</cell>
+                            <cell>Variable across catalogers</cell>
+                            <cell>Moderate standardization needed</cell>
+                        </row>
+                        <row>
+                            <cell>Spatial annotations</cell>
+                            <cell>Generally absent</cell>
+                            <cell>Significant gap</cell>
+                        </row>
+                        <row>
+                            <cell>Text-image pairing</cell>
+                            <cell>Rich descriptions available</cell>
+                            <cell>Strong foundation for multimodal</cell>
+                        </row>
+                    </table>
+                </div>
+                <div>
+                    <head>5.2 The Label-Side Gap</head>
+                    <p>Four interrelated gaps shape what is and is not possible at present. The
+                        Archive does not currently provide bounding boxes or segmentation masks of
+                        the kind that object-detection and segmentation models require. Scholarly
+                        descriptions use varied terminology for the same concept, such as <title
+                            rend="quotes">serpent,</title>
+                        <title rend="quotes">snake,</title> and <title rend="quotes"
+                            >Satan-Serpent</title> which appear across descriptions as the
+                        cataloger's reading of a given figure shifts, and thus require substantial
+                        normalization before they can serve as supervised labels. Descriptions tend
+                        to characterize overall interpretation rather than exhaustively list every
+                        identifiable element, because that is what the Archive's editorial practice
+                        rightly prioritizes. And coverage is uneven across the corpus, with richly
+                        described works sitting alongside minimally annotated ones, reflecting the
+                        Archive's longstanding decision to prioritize editorial depth over uniform
+                        annotation.</p>
+                    <p>The first two of these gaps are addressable by editorial labor and controlled
+                        vocabulary; they describe missing infrastructure, not missing scholarship.
+                        The second two are constitutive features of the Archive's mission and should
+                        not be <title rend="quotes">fixed</title> so much as worked with. Exhaustive
+                        labeling of every figure and object in every work was never the Archive's
+                        purpose, and a computational system that requires such labeling is asking
+                        the wrong thing of the Archive. A system that supports scholarly retrieval
+                        by surfacing candidate matches and leaving interpretation to the scholar
+                        does not need exhaustive supervised labels in the first place.</p>
+                </div>
+                <div>
+                    <head>5.3 Implications for Method</head>
+                    <p>Three methodological choices follow directly from the data state described
+                        above and govern the implementation in Section 6. First, the system is built
+                        on zero-shot multimodal embeddings rather than supervised classifiers,
+                        because the Archive's current labels do not support supervised training at
+                        scale. Second, evaluation is framed as alignment with the Archive's existing
+                        descriptive practice on a stratified sample, rather than as validation
+                        against an external ground truth; the Archive's descriptions are the most
+                        authoritative reference available, and any computational system trained on
+                        or evaluated against them inherits the priorities of its editorial history,
+                        a circularity disclosed in Section 6.6. Third, the three-tier framework
+                        introduced in Section 1 (object-level, motif-level, iconographic-level) is
+                        partly a response to the granularity gap described in Table 1: By matching
+                        the evidentiary burden to the kind of tag being produced, the framework
+                        makes the system's performance interpretable even where the underlying
+                        labels are uneven.</p>
+                </div>
+            </div>
+            <div>
+                <head>6. Methods and Implementation</head>
+                <div>
+                    <head>6.1 Methods at a Glance</head>
+                    <p>For readers approaching this study from a humanities background, the
+                        technical vocabulary in this section can be reduced to five working terms.
+                            <term>CLIP</term> (Contrastive Language–Image Pre-training) is a neural
+                        model that places images and text into a shared vector space so that
+                        semantically related items lie near one another. An <term>embedding</term>
+                        is the coordinate of an item in that space. For this study, an embedding is
+                        a 512-dimensional vector summarizing what a model has learned to associate
+                        with a Blake image. <term>FAISS</term> is a software library that indexes
+                        embeddings to retrieve the nearest matches to a query in milliseconds. Other
+                        metrics include: <term>mAP</term> (mean Average Precision), which measures
+                        whether the most relevant tags are ranked near the top of a multi-label
+                        prediction and <term>NDCG</term> (Normalized Discounted Cumulative Gain)
+                        which measures whether the most relevant retrieved images are ranked
+                        highest. None of these terms should obscure the operation they describe:
+                        convert each image into a numerical fingerprint, store the fingerprints in a
+                        fast lookup structure, and rank candidate matches for a scholar to
+                        verify.</p>
+                    <p>Throughout Section 6, I use the following scholar-in-the-loop scenario as a
+                        concrete anchor. A researcher studying the serpent motif submits a query,
+                        either an image of the lower-left register of <title rend="italic">The
+                            Vision of the Last Judgement</title> or the text string <title
+                            rend="quotes">coiled serpent form.</title> The system computes the
+                        query’s embedding, retrieves the 20 nearest works in the corpus, returns
+                        them ranked by similarity with provenance metadata (AI-suggested vs.
+                        human-validated; confidence; source tier), and the researcher confirms or
+                        rejects each match. The same example is used in 6.3 to describe the index,
+                        in 6.4 to demonstrate iterative taxonomy expansion, and in 6.5 to interpret
+                        the evaluation metrics.</p>
+                </div>
+                <div>
+                    <head>6.2 Methodological Framework</head>
+                    <p>The methodological framework adopted in this paper uses pre-trained CLIP
+                        (ViT-B/32) in a zero-shot configuration, that is, without any fine-tuning on
+                        Blake-specific data. All similarity search, retrieval, and tag-candidate
+                        generation rely on CLIP’s original image–text embedding space. The
+                        discussion below of transfer learning, fine-tuning, few-shot learning, and
+                        supervised detection architectures (Faster R-CNN, Mask R-CNN, ViT) is
+                        included to situate the chosen approach within the broader space of options
+                        and to clarify what trade-offs would attend a future fine-tuned or
+                        supervised variant; it does not describe the system evaluated in Sections
+                        6.4–6.6. Zero-shot CLIP was chosen because it permits flexible
+                        querying with natural-language tag prompts derived from Blake scholarship
+                        without requiring a labeled training set that the Archive does not currently
+                        provide.</p>
+                    <p>A primary methodological approach involves leveraging transfer learning with
+                        powerful vision models pre-trained on large-scale image datasets <ptr
+                            target="#dosovitskiy_etal2020"/>. Models such as Vision Transformers
+                        (ViTs) or robust CNN architectures (e.g., ResNet families) serve as the
+                        starting point. The strategy involves fine-tuning these models on a curated
+                        dataset derived from the Archive <ptr target="#he_etal2016"/>.</p>
+                    <p>Given the symbolic nature of Blake’s art, multimodal models like CLIP offer a
+                        particularly promising avenue <ptr target="#radford_etal2021"/>:</p>
+                    <list type="unordered">
+                        <item><hi rend="bold">Zero-Shot Tagging/Detection:</hi> Using a pre-trained
+                            CLIP model directly, without fine-tuning on Blake data. By providing
+                            textual prompts derived from art historical terms, CLIP can identify
+                            images or image regions that best match these descriptions. This allows
+                            for flexible querying and tagging based on semantic concepts.</item>
+                        <item><hi rend="bold">Fine-tuning CLIP:</hi> Adapting a pre-trained CLIP
+                            model by fine-tuning it on image-description pairs extracted directly
+                            from the Archive <ptr target="#li_etal2022"/>. This would specialize the
+                            model to better understand the specific visual-semantic correlations
+                            present in Blake’s work.</item>
+                        <item><hi rend="bold">Visual Similarity Search:</hi> Using CLIP embeddings
+                            to enable powerful visual similarity searches. Researchers could provide
+                            an image and find other visually similar instances across the archive or
+                            use a textual query to retrieve relevant images <ptr target="#radford_etal2021"/>.</item>
+                    </list>
+                    <p>If creating a large, labeled dataset proves prohibitive, few-shot learning
+                        techniques offer a potential alternative <ptr target="#wang_etal2020"/>.
+                        These methods are designed to enable models to learn and recognize new
+                        classes or concepts from only one or a very small number of examples. This
+                        could be particularly relevant for identifying rare but significant Blakean
+                        motifs or figures.</p>
+                    <p>These methodologies collectively offer promising strategies for addressing
+                        the distinctive complexities of Blake’s visual art. Object detection and
+                        instance segmentation models provide a means of parsing Blake’s densely
+                        composed scenes by localizing individual figures and visual elements within
+                        crowded works such as <title rend="italic">The Vision of the Last
+                            Judgement</title> <ptr target="#he_etal2017"/>. Multimodal approaches
+                        like CLIP further extend this capacity by linking visual patterns to textual
+                        descriptions, making them well suited for engaging with Blake’s symbolic and
+                        iconographic vocabulary <ptr target="#radford_etal2021"/>. Transfer learning
+                        enables the development of detectors or classifiers attuned to Blake’s
+                        recurring motifs, capitalizing on visually consistent patterns that appear
+                        across his oeuvre <ptr target="#dosovitskiy_etal2020"/>. Finally, the
+                        robustness of models pre‑trained on large and diverse datasets supports
+                        their ability to accommodate the considerable stylistic variation evident
+                        across Blake’s output <ptr target="#he_etal2016"/>.</p>
+                    <table>
+                        <head>Overview of Potential AI Models for Blake Analysis</head>
+                        <row role="label">
+                            <cell>Model Type</cell>
+                            <cell>Strengths</cell>
+                            <cell>Limitations</cell>
+                            <cell>Best For</cell>
+                        </row>
+                        <row>
+                            <cell>CLIP (zero-shot)</cell>
+                            <cell>No training needed; semantic flexibility</cell>
+                            <cell>May miss Blake-specific nuances</cell>
+                            <cell>Initial exploration; retrieval</cell>
+                        </row>
+                        <row>
+                            <cell>CLIP (fine-tuned)</cell>
+                            <cell>Blake-specific adaptation</cell>
+                            <cell>Requires image-text pairs</cell>
+                            <cell>Specialized tagging</cell>
+                        </row>
+                        <row>
+                            <cell>Few-shot learning</cell>
+                            <cell>Works with minimal examples</cell>
+                            <cell>May not generalize well</cell>
+                            <cell>Rare motif identification</cell>
+                        </row>
+                        <row>
+                            <cell>Object detection</cell>
+                            <cell>Precise localization</cell>
+                            <cell>Needs bounding box annotations</cell>
+                            <cell>Figure detection</cell>
+                        </row>
+                    </table>
+                    <p>The choice between these methodologies carries significant interpretive
+                        implications. An object detection approach inherently prioritizes the
+                        identification and localization of discrete visual elements. In contrast,
+                        using CLIP with textual prompts emphasizes semantic concepts as defined by
+                        language <ptr target="#radford_etal2021"/>. The methodology selected will
+                        inevitably shape the kind of tags generated and, consequently, the type of
+                        scholarly analysis facilitated <ptr target="#spratt_etal2014"/>.</p>
+                </div>
+                <div>
+                    <head>6.3 Corpus Selection and Rationale</head>
+                    <p>The implementation utilized a stratified corpus of 200 Blake works selected
+                        from 715 available in the William Blake Archive. This sample represents
+                        approximately 28% of the Archive’s holdings and was designed to balance
+                        representativeness with tractability for intensive methodological
+                        development.</p>
+                    <div>
+                        <head>6.3.1 Stratification Criteria:</head>
+                        <list type="ordered">
+                            <item>Genre diversity: The corpus was stratified proportionally across
+                                work types:<list type="unordered">
+                                    <item>Illuminated manuscripts: 56 works (28%)</item>
+                                    <item>Drawings and paintings: 94 works (47%)</item>
+                                    <item>Commercial book illustrations: 30 works (15%)</item>
+                                    <item>Other (letters, notebooks, sketches): 20 works
+                                        (10%)</item>
+                                </list>
+                            </item>
+                            <item>Temporal range: Works span Blake’s entire career from 1779 to
+                                1827, with deliberate inclusion of early (pre-1790), middle
+                                (1790-1810), and late (post-1810) periods to capture stylistic
+                                evolution.</item>
+                            <item>Iconographic density: Priority given to works with multiple
+                                identifiable figures or complex compositional structures, as these
+                                provide richer test cases for motif detection.</item>
+                            <item>Archive description availability: Works with existing detailed Archive descriptions were prioritized to enable text-image
+                                alignment experiments.</item>
+                        </list>
+                        <table>
+                            <head>Corpus Composition by Work Type and Period</head>
+                            <row role="label">
+                                <cell>Work Type</cell>
+                                <cell>Early (pre-1790)</cell>
+                                <cell>Middle (1790-1810)</cell>
+                                <cell>Late (post-1810)</cell>
+                                <cell>Total</cell>
+                            </row>
+                            <row>
+                                <cell>Illuminated manuscripts</cell>
+                                <cell>8</cell>
+                                <cell>32</cell>
+                                <cell>16</cell>
+                                <cell>56</cell>
+                            </row>
+                            <row>
+                                <cell>Drawings/paintings</cell>
+                                <cell>12</cell>
+                                <cell>48</cell>
+                                <cell>34</cell>
+                                <cell>94</cell>
+                            </row>
+                            <row>
+                                <cell>Commercial illustrations</cell>
+                                <cell>4</cell>
+                                <cell>18</cell>
+                                <cell>8</cell>
+                                <cell>30</cell>
+                            </row>
+                            <row>
+                                <cell>Other</cell>
+                                <cell>6</cell>
+                                <cell>8</cell>
+                                <cell>6</cell>
+                                <cell>20</cell>
+                            </row>
+                            <row>
+                                <cell>Total</cell>
+                                <cell>30</cell>
+                                <cell>106</cell>
+                                <cell>64</cell>
+                                <cell>200</cell>
+                            </row>
+                        </table>
+                    </div>
+                    <div>
+                        <head>6.3.2 What This Corpus Excludes and Why It Matters:</head>
+                        <p>The selection strategy employed in this study necessarily introduces
+                            several forms of representational bias. Letters and prose manuscripts,
+                            for instance, remain underrepresented at 10% of the sample despite
+                            comprising approximately 14% of the Archive’s total holdings, largely
+                            because these materials lack the dense visual content central to the
+                            project’s analytical aims. Similarly, variant copies of illuminated
+                            books are collapsed into representative exemplars, such as selected
+                            versions of <title rend="italic">Songs of Innocence and of
+                                Experience</title> or <title rend="italic">America a
+                                Prophecy</title>, rather than including all extant copies (for
+                            example, all twenty-eight copies of <title rend="italic">Songs</title>),
+                            a decision that privileges methodological tractability over
+                            comprehensive coverage. Commercial works, including the <title
+                                rend="italic">Night Thoughts</title> engravings and the <title
+                                rend="italic">Virgil</title> woodcuts, may also be proportionally
+                            underrepresented relative to their prominence within Blake’s broader
+                            output. Collectively, these omissions reflect deliberate methodological
+                            choices but also shape the resulting dataset in ways that must be
+                            acknowledged when interpreting the study’s findings. These choices
+                            optimize for methodological development, testing how well AI can handle
+                            Blake’s most visually complex works at the expense of statistical
+                            representativeness across his full output. A production system would
+                            require rebalancing toward the Archive’s actual distribution.</p>
+                    </div>
+                </div>
+                <div>
+                    <head>6.4 Technical Implementation</head>
+                    <p>Each work was processed using the OpenAI CLIP model (ViT-B/32) to generate
+                        512-dimensional embeddings, capturing both visual features and semantic
+                        content through the model’s joint vision-language training <ptr target="#radford_etal2021"/>. Processing confirmed correct dimensionality and L2 normalization — a
+                        mathematical transformation ensuring all embedding vectors have the same
+                        length (magnitude ≈ 1.0), which is required for meaningful similarity
+                        comparisons using cosine distance.</p>
+                    <p>Integration into a FAISS index (Facebook AI Similarity Search, a library for
+                        efficient similarity search; specifically, IndexFlatIP, which computes exact
+                        inner-product similarity, equivalent to cosine similarity for normalized
+                        vectors, rather than approximate search) enabled sub-millisecond search
+                        latency (average 0.001 seconds per query) and high throughput (44,000+
+                        queries per second) with low memory consumption (&lt;100MB for the 200-work
+                        corpus). This architecture scales linearly: the full 715-work Archive would
+                        require approximately 280MB with proportionally maintained query performance
+                            <ptr target="#johnson_etal2019"/>.</p>
+                    <p>To make the operation concrete: When the running scholar submits the textual
+                        query <title rend="quotes">coiled serpent form,</title> the system encodes
+                        the phrase with CLIP’s text encoder, queries the IndexFlatIP structure
+                        against the 200 image embeddings, and returns the top-k matches in well
+                        under a millisecond. The scholar sees a ranked list of works with
+                        thumbnails, similarity scores, and provenance flags, and can validate,
+                        override, or extend the suggestions in a single pass.</p>
+                    <p>Semantic clustering validation demonstrated that the CLIP‑derived embeddings
+                        successfully capture semantically meaningful relationships across Blake’s
+                        visual corpus without requiring Blake‑specific fine‑tuning. Biblical works
+                        such as the <title rend="italic">Job</title> illustrations and <title
+                            rend="italic">Divine Comedy</title> designs consistently exhibited high
+                        cosine similarity scores (0.7–0.8), while mythological figures, including
+                        Urizen, Los, and Orc, formed coherent and distinct clusters within the
+                        embedding space. Figure 1 visualizes this clustering: a two-dimensional PCA
+                        projection of the 512-dimensional CLIP embeddings for the 200-work corpus,
+                        with markers colored by genre. Thematically related works cluster together
+                        without any Blake-specific fine-tuning, which both supports the use of CLIP
+                        as a retrieval backbone and previews the failure modes discussed in Section
+                        7 (clusters reflect compositional and material similarity rather than
+                        iconographic meaning). Similarly, the model recognized the stylistic unity
+                        of Blake’s large color prints despite significant variation in subject
+                        matter, indicating sensitivity to formal rather than iconographic features.
+                        Notably, the various iterations of <title rend="italic">The Vision of the
+                            Last Judgement</title> clustered tightly together regardless of
+                        differences in medium or date, underscoring the model’s ability to detect
+                        deeper compositional affinities that extend beyond material or historical
+                        contingencies.</p>
+                    <figure>
+                        <head>Embedding-Space Visualization of 200-Work Blake Corpus</head>
+                        <graphic url="resources/images/figure01.png"/>
+                        <figDesc>Scatter plot of the 200-work corpus in CLIP embedding space (two-dimensional PCA projection), where works cluster by genre and the versions of The Vision of the Last Judgement group tightly together, showing that the embeddings capture meaningful relationships without Blake-specific fine-tuning.</figDesc>
+                    </figure>
+                    <p>A comprehensive web API was developed to demonstrate the system’s viability
+                        for production‑ready deployment, integrating a Flask framework with
+                        SQLAlchemy ORM to ensure modularity, efficient data management, and
+                        compatibility with existing digital humanities infrastructures. Designed to
+                        return JSON‑formatted responses containing similarity scores and associated
+                        metadata, the API maintains sub‑10ms response times for similarity queries,
+                        matching the performance requirements of real‑time exploratory research
+                        workflows. Stress testing further confirmed its robustness under concurrent
+                        load, with multiple simultaneous requests handled without degradation in
+                        throughput or latency, thereby establishing the architecture as sufficiently
+                        scalable for integration into larger archival ecosystems.</p>
+                </div>
+                <div>
+                    <head>6.5 The Vision of the Last Judgement: Extended Case Study</head>
+                    <p>To demonstrate the pipeline’s capabilities beyond whole-image similarity, a
+                        multi-layer analytical system focused on Blake’s <title rend="italic">The
+                            Vision of the Last Judgement</title> was implemented. This experiment
+                        operationalizes art historical knowledge into successive computational
+                        passes.</p>
+                    <p>Method Overview (with Incremental Passes):</p>
+                    <list type="ordered">
+                        <item>Basic Pass: Heuristic identification of 6 canonical anchor figures
+                            (Christ, Satan, angels with trumpets, Book of Life, ascending souls,
+                            falling figures)</item>
+                        <item>Enhanced Pass: Integration of expanded tag corpus yielding 112
+                            enumerated visual/symbolic elements</item>
+                        <item>Taxonomy Expansion: Incorporation of extended Blake mythology (581
+                            entries from Damon’s <title rend="italic">Blake Dictionary</title>),
+                            frequent characteristics (100), and judgment scene categories (10),
+                            producing 291 preliminary elements</item>
+                        <item>Balancing &amp; Confidence Profiling: Region distribution
+                            normalization plus weighted confidence model producing a refined set of
+                            285 elements</item>
+                    </list>
+                    <p>The system draws on three primary categories of data assets that collectively
+                        enable its multi‑layered analytical process. First, the expanded taxonomy,
+                        comprising the <title rend="italic">blake_mythology_enhanced</title> dataset
+                        with 581 terms, the <title rend="italic"
+                            >frequent_blake_characteristics</title> set of 100 recurrent visual
+                        features, and the <title rend="italic"
+                        >judgment_scene_specific</title> schema of 10 category groups, provides the
+                        semantic foundation for fine-grained motif and iconographic identification.
+                        Second, a layer of contextual intelligence, derived from spatial
+                        relationship frequencies and interpretive confidence distributions, provides
+                        the probabilistic structure necessary for weighting candidate
+                        identifications and modeling their interactions within Blake’s compositions.
+                        Finally, the region model, organized around seven compositional macro‑zones
+                        that mirror Blake’s vertical and soteriological axes as articulated by
+                        <ptr target="#billingsley2018"/>, furnishes the spatial framework through which detections
+                        are normalized and situated within the larger symbolic architecture
+                            of <title rend="italic">The Vision of the Last Judgement</title> and
+                        related works.</p>
+                    <table>
+                        <head>Progression of Enumerated Elements</head>
+                        <row role="label">
+                            <cell>Pass</cell>
+                            <cell>Elements</cell>
+                            <cell>Source</cell>
+                        </row>
+                        <row>
+                            <cell>Basic</cell>
+                            <cell>6</cell>
+                            <cell>Canonical anchors</cell>
+                        </row>
+                        <row>
+                            <cell>Enhanced</cell>
+                            <cell>112</cell>
+                            <cell>Expanded tag corpus</cell>
+                        </row>
+                        <row>
+                            <cell>Taxonomy Expansion</cell>
+                            <cell>291</cell>
+                            <cell>Blake mythology + characteristics</cell>
+                        </row>
+                        <row>
+                            <cell>Balanced</cell>
+                            <cell>285</cell>
+                            <cell>Region-normalized</cell>
+                        </row>
+                    </table>
+                    <table>
+                        <head>Region Distribution Before vs. After Balancing</head>
+                        <row role="label">
+                            <cell>Region</cell>
+                            <cell>Before Balancing</cell>
+                            <cell>After Balancing</cell>
+                            <cell>Change</cell>
+                        </row>
+                        <row>
+                            <cell>Throne (central)</cell>
+                            <cell>47%</cell>
+                            <cell>28%</cell>
+                            <cell>-19%</cell>
+                        </row>
+                        <row>
+                            <cell>Upper heaven</cell>
+                            <cell>12%</cell>
+                            <cell>16%</cell>
+                            <cell>+4%</cell>
+                        </row>
+                        <row>
+                            <cell>Judgment middle</cell>
+                            <cell>18%</cell>
+                            <cell>20%</cell>
+                            <cell>+2%</cell>
+                        </row>
+                        <row>
+                            <cell>Resurrection field</cell>
+                            <cell>8%</cell>
+                            <cell>12%</cell>
+                            <cell>+4%</cell>
+                        </row>
+                        <row>
+                            <cell>Lower corrective</cell>
+                            <cell>6%</cell>
+                            <cell>10%</cell>
+                            <cell>+4%</cell>
+                        </row>
+                        <row>
+                            <cell>Left ascension</cell>
+                            <cell>5%</cell>
+                            <cell>8%</cell>
+                            <cell>+3%</cell>
+                        </row>
+                        <row>
+                            <cell>Right descension</cell>
+                            <cell>4%</cell>
+                            <cell>6%</cell>
+                            <cell>+2%</cell>
+                        </row>
+                    </table>
+                    <p>Weighted confidence (overall): 0.5637 (source weights: base 1.0; mythology
+                        0.9; judgment categories 0.8; frequent characteristics 0.6; categorized tags
+                        0.5). This enables comparative reliability scoring across iconographic
+                        strata.</p>
+                    <p>The transition from undifferentiated tag lists to a regionally balanced,
+                        source‑weighted taxonomy enables a more methodologically rigorous
+                        representation of Blake’s compositions. This refinement corrects systemic
+                        statistical biases, most notably the disproportionate emphasis on
+                        throne-centered iconography, by redistributing interpretive attention across
+                        the full spatial and symbolic field of the work. In doing so, the model not
+                        only achieves a more equitable accounting of visual elements but also
+                        encodes key Blakean theological distinctives as machine‑interpretable
+                        features, thereby aligning computational outputs more closely with the
+                        interpretive frameworks articulated in Blake scholarship.</p>
+                    <div>
+                        <head>6.5.1 Concrete Example: The Serpent in the Lower Register</head>
+                        <p>The Basic Pass, using only canonical anchor figures, failed to identify
+                            the coiled serpent form in the lower-left region of <title rend="italic"
+                                >The Vision of the Last Judgement</title>. The system’s initial
+                            output associated this region with generic <title rend="quotes">falling
+                                figures</title> (confidence 0.62) — a pattern-level detection that
+                            missed the iconographically crucial identification of Satan wrapped in
+                            the Serpent’s coils.</p>
+                        <p>The Enhanced Pass, incorporating the expanded Blake mythology taxonomy
+                            (581 terms including <title rend="quotes">Satan-Serpent,</title>
+                            <title rend="quotes">Serpent of Error,</title>
+                            <title rend="quotes">coiled serpent form</title>), successfully
+                            identified this element with <title rend="quotes">Satan bound in
+                                serpent</title> (confidence 0.71) appearing in the top-3
+                            suggestions. Critically, the region-balancing step prevented this
+                            identification from being overwhelmed by the statistically dominant
+                            throne-region detections: Without balancing, the serpent identification
+                            ranked 47th overall; with balancing, it ranked 8th within its region and
+                            12th overall.</p>
+                        <p>This example illustrates both the potential and limits of the approach.
+                            The Enhanced Pass succeeded because <title rend="quotes">serpent</title>
+                            has consistent visual features (coiled form, scaled texture) that
+                            transfer from the model’s pre-training. But distinguishing Blake’s
+                                <title rend="italic">Serpent of Error</title> from a generic
+                            serpent, understanding why this serpent embodies materialist philosophy
+                            in Blake’s cosmology, remains beyond the system’s capability. The AI
+                            provides the visual identification; the scholar provides the
+                            interpretive framework.</p>
+                        <p>Returning to the running example: The same <title rend="quotes">coiled
+                                serpent form</title> query that succeeded at the whole-image level
+                            fails to localise the serpent within <title rend="italic">The Vision of
+                                the Last Judgement </title>under the Basic Pass. The Enhanced Pass
+                            with the expanded taxonomy and regional decomposition described above
+                            correctly surfaces <title rend="quotes">Satan bound in serpent</title>
+                            in the top-3 suggestions for the lower-left region. This is the same
+                            outcome reported quantitatively below; the example here is meant to make
+                            the chain of operations (query → embedding → regional retrieval → ranked
+                            candidates → scholar validation) visible end to end.</p>
+                        <p>Figure 2 (below) anchors the discussion: It shows the seven heuristic
+                            compositional zones used for region-balanced tagging: throne, upper
+                            heaven, judgment middle, resurrection field, lower corrective register,
+                            left ascension, and right descension, overlaid on Blake’s composition
+                            with the top detected interpretive elements per region.</p>
+                        <figure>
+                            <head>Annotated macro-regions of Blake’s Vision of the Last
+                                Judgement</head>
+                            <graphic url="resources/images/figure02.png"/>
+                            <figDesc>Blake's Vision of the Last Judgement overlaid with the seven outlined compositional macro-regions used for region-balanced tagging, each listing its top detected elements with confidence scores, showing how regional decomposition spreads detections across the whole composition rather than concentrating them at the central throne.</figDesc>
+                        </figure>
+                    </div>
+                </div>
+                <div>
+                    <head>6.6 Evaluation Methodology and Results</head>
+                    <div>
+                        <head>6.6.1 Ground Truth Creation</head>
+                        <p>The evaluation dataset was developed through a two-phase process. First,
+                            I (a doctoral researcher with expertise in both Blake
+                            scholarship and computer vision) generated initial annotations for the
+                            200-work corpus, identifying visual elements using a structured taxonomy
+                            derived from Damon’s <title rend="italic">Blake Dictionary</title>
+                            (1965) and Billingsley’s analysis of Blake’s visual vocabulary (2018).
+                            Second, these annotations were reviewed against the William Blake
+                            Archive’s existing scholarly descriptions to ensure alignment with
+                            established art-historical terminology. Disagreements between initial
+                            annotations and the Archive descriptions were resolved by defaulting to
+                            the Archive conventions, preserving consistency with the Archive’s
+                            editorial standards.</p>
+                    </div>
+                    <div>
+                        <head>6.6.2 Annotation Protocol Details</head>
+                        <p>I performed all annotations, taxonomy development, and manual verification, drawing on four years of specialized training in Blake studies as a doctoral researcher in digital humanities The
+                            Expanded Taxonomy was derived from three primary sources: </p>
+                        <list type="ordered">
+                            <item>S. Foster Damon’s <title rend="italic">A Blake Dictionary</title>
+                                (1965), which provides the standard reference vocabulary for Blake’s
+                                mythology; </item>
+                            <item>The William Blake Archive’s existing illustration descriptions,
+                                ensuring alignment with established archival conventions; and </item>
+                            <item>Northrop Frye’s <title rend="italic">Fearful Symmetry</title>
+                                (1947) for thematic categories.</item>
+                        </list>
+                        <p>Terms were selected for inclusion if they (a) referred to visually
+                            identifiable elements rather than abstract concepts and (b) appeared in
+                            descriptions of at least three distinct Blake works in the Archive.</p>
+                    </div>
+                    <div>
+                        <head>6.6.3 Label Space Definition</head>
+                        <p>The evaluation employed a hierarchical label taxonomy with three
+                            tiers:</p>
+                        <list type="ordered">
+                            <item>Tier 1 (Object-level): 47 concrete visual elements (e.g., <title
+                                    rend="quotes">human figure,</title>
+                                <title rend="quotes">serpent,</title>
+                                <title rend="quotes">book,</title>
+                                <title rend="quotes">flames</title>)</item>
+                            <item>Tier 2 (Motif-level): 23 compositional and postural categories
+                                (e.g., <title rend="quotes">outstretched arms,</title>
+                                <title rend="quotes">ascending figure,</title>
+                                <title rend="quotes">vortex composition</title>)</item>
+                            <item>Tier 3 (Iconographic-level): 15 Blake-specific identifications
+                                (e.g., <title rend="quotes">Urizen,</title>
+                                <title rend="quotes">Los,</title>
+                                <title rend="quotes">Last Judgement scene</title>)</item>
+                        </list>
+                        <p>This hierarchy reflects the distinction between pattern recognition (Tier
+                            1), motif identification (Tier 2), and iconographic interpretation (Tier
+                            3) discussed in Section 1.</p>
+                    </div>
+                    <div>
+                        <head>6.6.4 Evaluation Protocol</head>
+                        <p>Given the pilot nature of this study, I employed a leave-one-out
+                            cross-validation approach for retrieval evaluation: each image was used
+                            as a query against the remaining 199 images, and retrieved results were
+                            evaluated against ground-truth similarity judgments. For tagging
+                            evaluation, I held out 40 works (20%) as a test set, using the remaining
+                            160 for any fine-tuning experiments.</p>
+                    </div>
+                    <div>
+                        <head>6.6.5 Quantitative Results</head>
+                        <p>Let’s discuss what the metrics measure, in terms of the running example.
+                            Top-1 accuracy asks whether the system’s single best suggestion for the
+                            serpent region is correct. Top-5 accuracy asks whether the correct
+                            identification appears anywhere in the top five candidates the scholar
+                            would see. mAP asks whether the correct candidates are ranked near the
+                            top across the full set of retrievals. NDCG asks whether the most
+                            relevant retrieved images outrank the less relevant ones. Read together,
+                            these metrics characterize the scholar’s experience of the interface,
+                            what they see first, and how much they have to scroll before reaching a
+                            usable match, rather than the system’s interpretive competence.</p>
+                        <table>
+                            <head>Model Performance Across Tagging Tiers</head>
+                            <row role="label">
+                                <cell>Metric</cell>
+                                <cell>Tier 1 (Object)</cell>
+                                <cell>Tier 2 (Motif)</cell>
+                                <cell>Tier 3 (Iconographic)</cell>
+                            </row>
+                            <row>
+                                <cell>Top-1 Accuracy</cell>
+                                <cell>78.3%</cell>
+                                <cell>62.1%</cell>
+                                <cell>41.2%</cell>
+                            </row>
+                            <row>
+                                <cell>Top-5 Accuracy</cell>
+                                <cell>94.2%</cell>
+                                <cell>85.7%</cell>
+                                <cell>68.4%</cell>
+                            </row>
+                            <row>
+                                <cell>mAP</cell>
+                                <cell>0.72</cell>
+                                <cell>0.58</cell>
+                                <cell>0.39</cell>
+                            </row>
+                        </table>
+                        <p>What does this mean? </p>
+                        <list type="unordered">
+                            <item>Top-1 Accuracy measures how often the system’s single best
+                                prediction matches the ground truth. A Top-1 of 78.3% for
+                                object-level tags means that when the system suggests <quote
+                                    rend="inline">this image contains a serpent,</quote> it is
+                                correct approximately 4 out of 5 times.</item>
+                            <item>Top-5 Accuracy measures whether the correct answer appears
+                                anywhere in the system’s top five suggestions. The 94.2% figure
+                                indicates that even when the system’s first guess is wrong, the
+                                correct object-level tag almost always appears within its top five
+                                candidates — useful for a human-in-the-loop workflow where scholars
+                                review suggested tags.</item>
+                            <item>Mean Average Precision (mAP) captures both the accuracy and
+                                ranking quality of multi-label predictions. An mAP of 0.72 for
+                                object-level tags indicates that relevant tags tend to be ranked
+                                highly in the system’s output.</item>
+                        </list>
+                        <p>The declining performance from Tier 1 to Tier 3 reflects the expected
+                            increase in difficulty: detecting concrete objects is more tractable
+                            than identifying compositional motifs, which in turn is easier than
+                            making Blake-specific iconographic identifications. This gradient
+                            confirms that AI performs best on tasks closest to pattern recognition
+                            and struggles as tasks approach symbolic interpretation, a finding
+                            consistent with the theoretical framework established in Sections 1 and
+                            3.</p>
+                        <table>
+                            <head>Retrieval Performance</head>
+                            <row role="label">
+                                <cell>Metric</cell>
+                                <cell>Score</cell>
+                            </row>
+                            <row>
+                                <cell>Precision@10</cell>
+                                <cell>0.73</cell>
+                            </row>
+                            <row>
+                                <cell>Recall@10</cell>
+                                <cell>0.61</cell>
+                            </row>
+                            <row>
+                                <cell>NDCG@10</cell>
+                                <cell>0.68</cell>
+                            </row>
+                            <row>
+                                <cell>Query latency</cell>
+                                <cell>0.001s</cell>
+                            </row>
+                        </table>
+                    </div>
+                    <div>
+                        <head>6.6.6 Qualitative Evaluation</head>
+                        <p>Beyond quantitative metrics, I conducted a structured qualitative
+                            assessment following the protocol described in Appendix A.3. Twenty
+                            representative outputs were selected to span all three tagging tiers and
+                            multiple work types. "Serving as the domain expert evaluator, I rated each output without access to confidence scores using a
+                            three-point scale (Correct, Partially Correct, Incorrect) and provided
+                            written justifications for each rating.</p>
+                        <p>Results of this assessment revealed a pattern consistent with the
+                            quantitative metrics: of the 20 evaluated outputs, 13 were rated
+                            Correct, 4 Partially Correct, and 3 Incorrect. Notably, all three
+                            Incorrect ratings occurred at the iconographic tier (Tier 3), while all
+                            object-level outputs (Tier 1) were rated Correct. The Partially Correct
+                            ratings typically involved cases where a visually accurate tag was
+                            interpretively incomplete — for instance, identifying <title
+                                rend="quotes">bearded male figure</title> where <title rend="quotes"
+                                >Urizen</title> was the ground truth. Agreement between the
+                            qualitative ratings and quantitative confidence scores was moderate:
+                            outputs rated Correct had a mean confidence of 0.74, Partially Correct
+                            0.58, and Incorrect 0.41.</p>
+                        <p>For <title rend="italic">The Vision of the Last Judgement</title> case
+                            study specifically, the Enhanced Pass correctly identified 5 of 6
+                            canonical anchor figures (Christ enthroned, Satan, angels with trumpets,
+                            ascending souls, falling figures). The single misidentification,
+                            labeling a group of redeemed figures as <title rend="quotes"
+                                >apostles</title> rather than Blake’s <title rend="quotes">Four
+                                Zoas,</title> illustrates the boundary between pattern recognition
+                            and iconographic interpretation precisely: The visual pattern (group of
+                            enthroned male figures) was correctly detected, but the Blake-specific
+                            mythological identification requires contextual knowledge the model
+                            lacks.</p>
+                    </div>
+                    <div>
+                        <head>6.6.7 Limitations</head>
+                        <p>Five limitations bound the claims made above.</p>
+                        <p>First, evaluation circularity. Where annotation disagreements arose
+                            during ground-truth construction, they were resolved by defaulting to
+                            the Archive’s descriptive conventions. The system is therefore being
+                            judged, in part, against a convention it is designed to align with. I do
+                            not present these results as validation against an external scholarly
+                            ground truth; I present them as a measure of alignment with the
+                            Archive’s established descriptive practice on a stratified sample.
+                            Future work should compare the system’s outputs against annotations
+                            drawn independently from Damon’s <title rend="italic">Blake
+                                Dictionary</title>, from Frye and Mitchell’s critical traditions <ptr target="#frye1947"/> and <ptr target="#mitchell1978"/>,
+                            and from non-Archive scholarly catalogs, so that the directions of
+                            agreement and disagreement can themselves be analyzed.</p>
+                        <p>Second, single-annotator ground truth. I produced all annotations, taxonomy decisions, and qualitative ratings in this pilot. Without inter-annotator comparison, I cannot report
+                            reliability statistics (Cohen's κ, Krippendorff's α), and the Tier-3
+                            numbers, which depend most heavily on contested iconographic judgments,
+                            are correspondingly more exposed to single-rater bias than the Tier-1
+                            numbers. Mitigating this is properly the work of a follow-on study:
+                            Independent re-annotation of a stratified subsample by two or more Blake
+                            scholars, scored against the same three-tier label space, would yield
+                            both inter-annotator agreement and a system-vs-expert comparison. That
+                            work is out of scope for a feasibility pilot, but it is the natural next
+                            step before any of these numbers should be read as more than indicative. </p>
+                        <p>Third, why 200 works is sufficient for the claims I make, and why it is
+                            not sufficient for the claims I do not make. A 200-work sample is
+                            adequate to estimate the relative performance gradient across the three
+                            tiers (Tier 1 &gt; Tier 2 &gt; Tier 3), to demonstrate sub-millisecond
+                            retrieval throughput on representative corpus volume, and to surface
+                            qualitative failure modes (e.g., <title rend="quotes">blacksmith</title>
+                            for Los, missed serpent under the Basic Pass). It is not adequate to
+                            estimate absolute accuracy at the level of the full Archive, to
+                            characterize rare iconographic types, or to support statistical
+                            generalization. The size was chosen to balance representativeness
+                            against the cost of intensive single-annotator work; it deliberately
+                            stops short of the corpus-wide claims that would require multi-annotator
+                            effort.</p>
+                        <p>Fourth, the kind of Blake works likely to break the method. Three classes
+                            of work are most exposed. First, highly idiosyncratic compositions with
+                            rare or unique iconographic configurations. For example, certain plates
+                            of Jerusalem whose figural arrangements have few visual analogs in
+                            CLIP’s pre-training distribution will return weak top-k matches and
+                            unstable confidence scores. Second, densely overlapping symbolic scenes,
+                            such as crowd registers in the <title rend="italic">Last Judgement
+                            </title>compositions, defeat whole-image retrieval because the dominant
+                            embedding signal is composition-level rather than figure-level; these
+                            require the regional decomposition introduced in Section 6.5 and remain
+                            difficult even then. Lastly, ambiguous or partially abraded figures,
+                            including faint pencil studies and damaged plates, produce embeddings
+                            dominated by material and tonal features rather than iconographic
+                            content, which surface as visually similar but iconographically
+                            unrelated retrievals.</p>
+                        <p>Fifth, what would be required to claim generalization to the full
+                            Archive? Beyond hardware and storage scaling (which are inexpensive for
+                            715 works at 512 dimensions), generalization claims require: a labeled
+                            evaluation subset stratified across the strata not yet sampled
+                            (especially manuscript marginalia and notebook content); multi-annotator
+                            agreement on at least Tier 2 and Tier 3; an external validation cohort
+                            of two to three Blake scholars unaffiliated with this study; and a
+                            separate held-out test set never seen during taxonomy construction.
+                            Until each of these is in place, the appropriate phrasing is <quote
+                                rend="inline">performance on a 200-work stratified sample</quote>
+                            not <quote rend="inline">performance on the Archive.</quote></p>
+                        <p>Finally, metrics like mAP and NDCG assess retrieval and ranking quality;
+                            they cannot assess whether a returned tag is interpretively meaningful
+                            to Blake scholars. The qualitative protocol described in Appendix A.3
+                            partially addresses this for a 20-work subsample (13 Correct, 4
+                            Partially Correct, 3 Incorrect, with all Incorrect ratings concentrated
+                            at Tier 3), but a more robust evaluation would require structured
+                            feedback from multiple independent domain experts under a pre-registered
+                            protocol.</p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <head>7. Critical Analysis: Mind the Gap Between AI and Humanistic
+                    Interpretation</head>
+                <p>A fundamental challenge lies in AI’s ability to handle the ambiguity and polysemy
+                    inherent in Blake’s work. Many of Blake’s symbols and figures carry multiple,
+                    often context-dependent, meanings <ptr target="#serdechnaya2018"/>. The serpent,
+                    for example, can represent error, materialism, energy, or even healing,
+                    depending on the specific work and its relation to Blake’s evolving thought <ptr
+                        target="#damon1965"/>. AI models, however, are typically trained to
+                    associate visual patterns with single, consistent labels. They struggle
+                    inherently with concepts that have fluid or multiple interpretations, often
+                    defaulting to the most statistically common association or failing to provide a
+                    confident prediction <ptr target="#spratt_etal2014"/>.</p>
+                <p>There exists a significant gap between AI’s proficiency in recognizing literal
+                    visual patterns and the deeply symbolic, non-literal nature of Blake’s imagery.
+                    An AI might learn to detect the visual form of <title rend="quotes"
+                        >compasses.</title> Still, it cannot inherently understand their symbolic
+                    weight as emblems of Urizenic reason, measurement, and the limitation of vision
+                    within Blake’s cosmology <ptr target="#frye1947"/>. Current AI lacks the world
+                    knowledge, cultural understanding, and reasoning capabilities to grasp allegory
+                    or complex personal mythologies <ptr target="#spratt_etal2014"/>.</p>
+                <p>It is crucial to distinguish between computational <soCalled>tagging,</soCalled>
+                    the identification and labeling of patterns based on learned correlations, and
+                    humanistic <soCalled>interpretation,</soCalled> the construction of meaning
+                    through critical engagement with the artwork within its historical, cultural,
+                    biographical, and theoretical contexts. AI can potentially automate aspects of
+                    description or visual analysis (finding motifs, identifying figures based on
+                    visual similarity). Still, it cannot perform the interpretive leap that
+                    characterizes scholarly understanding <ptr target="#spratt_etal2014"/>.</p>
+                <p>AI models are susceptible to biases present in their training data <ptr target="#crawford2021"/>. <ptr target="#foka_etal2025"/> identify a <quote rend="inline">bias
+                        loop</quote> in cultural heritage ML pipelines: Biases embedded in
+                    historical collection practices (what was preserved, described, and prioritized)
+                    are encoded into training data, amplified by models, and then reintroduced into
+                    archival systems as seemingly objective outputs. This loop is particularly
+                    concerning for the Blake project, since the Archive descriptions reflect
+                    particular editorial judgments and historical schools of interpretation. If
+                    these are used for training, the AI may inadvertently learn and perpetuate those
+                    specific viewpoints while marginalizing alternative readings. Similarly, large
+                    pre-trained models like CLIP inherit biases from the vast web datasets they were
+                    trained on, which may include societal biases or skewed representations that
+                    could influence their analysis of Blake’s art in unforeseen ways (radford_etal,
+                    2021). The proposed integration architecture (Section 8) attempts to address
+                    this by maintaining provenance tracking and editorial separation between
+                    AI-generated and human-authored tags.</p>
+                <p>Evaluating AI performance in this context presents unique challenges (powers,
+                    2011). Standard metrics like precision and recall measure the accuracy of
+                    pattern matching against a ground truth. Still, they cannot assess the
+                    interpretive quality or art historical relevance of the generated tags. How
+                    should an AI tag be evaluated if it correctly identifies a figure visually but
+                    misses its symbolic significance, or if it applies a label that is plausible but
+                    contested among scholars? <ptr target="#spratt_etal2014"/></p>
+                <p>To complement the serpent identification success discussed in Section 6.5,
+                    consider an instructive failure: The system consistently tagged images
+                    containing Blake’s figure of Los with <title rend="quotes">blacksmith</title>
+                    (high confidence, 0.78) due to the anvil and hammer frequently depicted with
+                    this character. While visually accurate — Los is indeed depicted as a blacksmith
+                    — this tag is interpretively misleading. Los as <title rend="quotes"
+                        >blacksmith</title> captures his craft but obscures his mythological
+                    significance as the embodiment of creative imagination and prophetic vision <ptr
+                        target="#frye1947"/>. A scholar encountering <title rend="quotes"
+                        >blacksmith</title> in search results might overlook these images entirely
+                    when researching Blake’s mythology. This example illustrates why object-level
+                    tagging (Tier 1), even when accurate, cannot substitute for iconographic tagging
+                    (Tier 3) and why human oversight remains essential for interpretively meaningful
+                    discovery.</p>
+                <table>
+                    <head>Error Typology for Blake Tagging</head>
+                    <row role="label">
+                        <cell>Error Type</cell>
+                        <cell>Example</cell>
+                        <cell>Frequency</cell>
+                        <cell>Scholarly Impact</cell>
+                    </row>
+                    <row>
+                        <cell>Visually correct, interpretively misleading</cell>
+                        <cell>Los → <title rend="quotes">blacksmith</title></cell>
+                        <cell>Common</cell>
+                        <cell>High (misses symbolic meaning)</cell>
+                    </row>
+                    <row>
+                        <cell>Generic label for specific figure</cell>
+                        <cell>Four Zoas → <title rend="quotes">apostles</title></cell>
+                        <cell>Common</cell>
+                        <cell>High (loses Blake-specific context)</cell>
+                    </row>
+                    <row>
+                        <cell>Missed due to visual ambiguity</cell>
+                        <cell>Enitharmon vs. generic female</cell>
+                        <cell>Moderate</cell>
+                        <cell>Medium (conflation)</cell>
+                    </row>
+                    <row>
+                        <cell>False positive from visual similarity</cell>
+                        <cell>Non-serpent curves → <title rend="quotes">serpent</title></cell>
+                        <cell>Rare</cell>
+                        <cell>Low (easily caught by review)</cell>
+                    </row>
+                </table>
+                <p>This typology suggests that the most concerning errors are not false positives
+                    (which human reviewers catch easily) but <emph>accurate but insufficient</emph>
+                    tags that correctly identify visual patterns while missing their interpretive
+                    significance.</p>
+                <p>Interestingly, the very limitations of AI when confronted with Blake’s art can
+                    possess heuristic value for scholars. When an AI model fails to confidently
+                    classify a section, produces contradictory tags for the same element across
+                    different contexts, or generates outputs that seem nonsensical to humans, it
+                    might not just signal a technical failure. Since AI models operate by
+                    identifying statistical patterns, their <soCalled>confusion</soCalled> can
+                    highlight areas where Blake’s work actively resists simple categorization or
+                    contains genuine ambiguity and symbolic complexity <ptr
+                        target="#billingsley2018"/>.</p>
+            </div>
+            <div>
+                <head>8. Scholarly Implications: Advancing Blake Studies and Digital
+                    Humanities</head>
+                <p>The successful development of an AI-based tagging system for Blake’s works holds
+                    the potential to significantly enhance research methods within Blake studies.
+                    AI-generated tags, even if imperfect and requiring scholarly verification, could
+                    enable new forms of inquiry currently impractical at scale:</p>
+                <list type="unordered">
+                    <item>Large-Scale Iconographic Analysis: Researchers could track the frequency,
+                        distribution, and co-occurrence of specific figures, symbols, or motifs
+                        across Blake’s entire visual oeuvre as represented in the Archive,
+                        potentially revealing patterns in the evolution of his iconography or
+                        thematic concerns <ptr target="#billingsley2018"/>. The 200-work corpus
+                        already reveals that Los appears in 284 instances across 253 unique images,
+                        while Urizen appears in 94 instances — quantitative insights that would be
+                        difficult to derive manually.</item>
+                    <item>Discovery of Visual Relationships: AI-powered visual similarity search
+                        could uncover previously unnoticed connections or variations between
+                        different works or details, suggesting avenues for comparative analysis <ptr
+                            target="#seguin_etal2016"/>.</item>
+                    <item>Comparative Analysis of Versions: For works existing in multiple versions,
+                        like the illuminated books or the Last Judgement compositions, AI could
+                        assist in systematically comparing visual elements, potentially highlighting
+                        subtle but significant differences <ptr target="#eaves_etal2019"/>.</item>
+                    <item>Text-Image Correlation: In the context of Blake’s illuminated books, AI
+                        analysis of visual elements could potentially be correlated with
+                        computational analysis of the accompanying text, enabling large-scale
+                        studies of Blake’s complex interplay between word and image <ptr target="#wba2024"/>.</item>
+                </list>
+                <p>Enhanced visual tagging could substantially improve accessibility and discovery
+                    within the William Blake Archive. Currently, searching the archive often relies
+                    on knowing specific titles, keywords from textual descriptions, or browsing <ptr
+                        target="#eaves_etal2019"/>. An effective AI tagging system could enable
+                    users, both scholars and the general public, to search for images based on their
+                    visual content. This moves beyond metadata search towards content-based
+                    retrieval <ptr target="#seguin_etal2016"/>. Furthermore, AI-generated data could
+                    power new interfaces or visualizations, offering novel ways to explore Blake’s
+                    interconnected visual world.</p>
+                <p>This project is situated within the broader field of digital art history and
+                    contributes to its methodological advancement. Successfully applying advanced AI
+                    techniques to visual material as complex and symbolically dense as Blake’s art
+                    would represent a significant case study <ptr target="#spratt_etal2014"/>. It
+                    would push the boundaries of how AI is currently used in the humanities, moving
+                    beyond text analysis or simpler visual tasks towards engaging with core
+                    interpretive challenges. The methodological insights gained from preparing and
+                    utilizing the Archive data, particularly strategies for bridging the gap between
+                    scholarly description and AI data requirements, could offer valuable, reusable
+                    workflows for other projects working with similar cultural heritage data
+                    <ptr target="#fiorucci_etal2020"/>.</p>
+                <p>AI-driven analysis is unlikely to provide definitive interpretations, but it can
+                    be a powerful engine for generating new questions <ptr target="#spratt_etal2014"
+                    />. Discovering unexpected correlations between motifs, observing shifts in the
+                    frequency of certain symbols over time, or finding visual similarities between
+                    seemingly unrelated works could prompt scholars to revisit existing
+                    interpretations or explore new hypotheses about Blake’s creative process,
+                    influences, or the development of his unique visual language <ptr target="#billingsley2018"/>.</p>
+                <p>Pursuing this research necessitates careful attention to ethical considerations
+                        <ptr target="#crawford2021"/>. Issues of representation, how AI models
+                    interpret and potentially simplify complex artworks, must be critically
+                    addressed. Transparency regarding the AI’s capabilities, its limitations, the
+                    data it was trained on, and potential biases is paramount <ptr
+                        target="#spratt_etal2014"/>. The goal should be augmentation, not
+                    replacement, of scholarly expertise.</p>
+                <p>The contribution of this paper is incomplete without a concrete account of how
+                    AI-suggested tags would coexist with human descriptive practice in an archive
+                    that has, for 30 years, prioritized scholarly objectivity and bibliographic
+                    rigor. I describe here the principles of representation, storage, and interface
+                    that follow from the three-tier framework and the limitations enumerated above.
+                    Together, they form an integration plan that other archives confronting dense
+                    symbolic corpora can adapt.</p>
+                <p>Each AI-generated annotation is represented as a structured record rather than a
+                    free-floating label. The record carries five fields: (1) a tier indicator
+                    distinguishing object-level, motif-level, and iconographic-level claims, with
+                    the tier setting the appropriate evidentiary burden; (2) a provenance field
+                    marking the tag as AI-suggested, human-validated, or human-overridden, with the
+                    validating scholar identified; (3) a confidence score on the [0,1] interval,
+                    reported alongside the source-weight tier used to compute it (base, mythology,
+                    judgment category, frequent characteristic, categorized tag); (4) a timestamp
+                    and version identifier covering both the model (e.g., CLIP ViT-B/32, OpenAI
+                    2021) and the taxonomy snapshot under which the tag was produced, so that future
+                    re-runs can be compared against earlier states; and (5) a free-text
+                    justification or override note for any human-edited record.</p>
+                <table>
+                    <head>Concrete tag representation</head>
+                    <row role="label">
+                        <cell>Field</cell>
+                        <cell>Type</cell>
+                        <cell>Example value</cell>
+                        <cell>Notes</cell>
+                    </row>
+                    <row>
+                        <cell>Tier</cell>
+                        <cell>Categorical (object / motif / iconographic)</cell>
+                        <cell>motif</cell>
+                        <cell>Sets the evidentiary burden for the tag; corresponds to the three-tier
+                            framework in Section 1.</cell>
+                    </row>
+                    <row>
+                        <cell>Provenance</cell>
+                        <cell>Categorical (AI-suggested / human-validated / human-overridden)</cell>
+                        <cell>AI-suggested</cell>
+                        <cell>Persistent: validation is additive, not erasing. Required for every
+                            record.</cell>
+                    </row>
+                    <row>
+                        <cell>Confidence</cell>
+                        <cell>Float in [0,1]</cell>
+                        <cell>0.71</cell>
+                        <cell>Reported alongside the source weight used to compute it.</cell>
+                    </row>
+                    <row>
+                        <cell>Source weight</cell>
+                        <cell>Categorical (base / mythology / judgment category / frequent
+                            characteristic / categorized tag)</cell>
+                        <cell>mythology (0.9)</cell>
+                        <cell>Encodes which taxonomy stratum contributed the tag.</cell>
+                    </row>
+                    <row>
+                        <cell>Model version</cell>
+                        <cell>String</cell>
+                        <cell>CLIP ViT-B/32, OpenAI 2021</cell>
+                        <cell>Required for reproducibility and re-run comparison.</cell>
+                    </row>
+                    <row>
+                        <cell>Taxonomy snapshot</cell>
+                        <cell>String</cell>
+                        <cell>expanded_v3, 285 elements</cell>
+                        <cell>Identifies the taxonomy state under which the tag was
+                            generated.</cell>
+                    </row>
+                    <row>
+                        <cell>Timestamp</cell>
+                        <cell>ISO 8601 datetime</cell>
+                        <cell>2025-11-04T14:22:11Z</cell>
+                        <cell>Generation event time, in UTC.</cell>
+                    </row>
+                    <row>
+                        <cell>Validating scholar</cell>
+                        <cell>String or null</cell>
+                        <cell>Glass</cell>
+                        <cell>Populated on validation or override. Identifies the responsible
+                            scholar.</cell>
+                    </row>
+                    <row>
+                        <cell>Override note</cell>
+                        <cell>String or null</cell>
+                        <cell>null</cell>
+                        <cell>Free-text justification when a scholar overrides an AI-suggested
+                            tag.</cell>
+                    </row>
+                </table>
+                <p>AI-suggested tags are stored as a separate annotation layer rather than written
+                    into the Archive’s authoritative descriptive metadata. This separation has three
+                    benefits: Human-authored descriptions remain editorially auditable in their
+                    current form; AI annotations can be re-generated wholesale when models or
+                    taxonomies are updated, without disturbing scholarly records; and queries can
+                    address the AI layer, the human layer, or their intersection. The annotation
+                    layer is queried via the same API surface as the retrieval prototype (Section
+                    6.4) and is logged so that each tag has an immutable history of generation,
+                    validation, and override events.</p>
+                <p>Three interface principles follow from the foregoing. First, every AI-suggested
+                    tag is clearly marked as such in any user-facing view, with the marking
+                    persisting even after a scholar validates it (validation is additive, not
+                    erasing). Second, default filters in the Archive’s search and browse interfaces
+                    show validated-only results, with an opt-in toggle to surface AI-suggested tags
+                    as discovery aids. Third, every record exposes an audit trail accessible to
+                    authenticated users, so that scholarly reuse of AI-supported retrieval remains
+                    citable and contestable.</p>
+                <figure>
+                    <head>Annotation-layer architecture diagram.</head>
+                    <graphic url="resources/images/figure03.png"/>
+                    <figDesc>Flow diagram of the annotation-layer architecture, in which AI-suggested tags live in a layer separate from the Archive's human-authored descriptions, the interface defaults to validated-only results, and all generation, validation, and override events are recorded in an immutable audit log.</figDesc>
+                </figure>
+
+                <p>In keeping with the three-tier framework, success is intentionally modest.
+                    Success means improved discovery without substituting for interpretation;
+                    transparent provenance for every machine-generated claim; measurable improvement
+                    under human-in-the-loop review (validation rates, override rates,
+                    time-to-confirm); and the avoidance of interpretive foreclosure, that is, the
+                    system should expand rather than narrow the set of candidate readings a scholar
+                    considers. These criteria are specifically DH criteria: they prize archival
+                    integrity and scholarly agency over end-to-end automation.</p>
+            </div>
+            <div>
+                <head>9. Conclusion: Contributions, Limitations, and Success Criteria</head>
+                <p>This pilot study offers three contributions at different levels of
+                    generality:</p>
+                <list type="ordered">
+                    <item><hi rend="bold">Conceptual framework:</hi> I articulate a hierarchy distinguishing pattern
+                        recognition, motif identification, and symbolic interpretation, clarifying
+                        where AI can assist and where human judgment remains essential. This
+                        framework, while developed for Blake, applies broadly to AI applications in
+                        iconographically complex art.</item>
+                    <item><hi rend="bold">Functional prototype:</hi> I demonstrate that multimodal embeddings (CLIP)
+                        combined with efficient similarity indexing (FAISS) can achieve
+                        sub-millisecond retrieval across a 200-work Blake corpus with semantically
+                        meaningful results. Quantitative evaluation reveals a performance gradient,
+                        78% Top-1 accuracy for object-level tagging, declining to 41% for
+                        iconographic identification, empirically confirming the theoretical
+                        distinction between pattern recognition and interpretation. The technical
+                        architecture is reproducible and adaptable to other digital art
+                        archives.</item>
+                    <item>M<hi rend="bold">ethodological insights:</hi> The <title rend="italic">Vision of the Last
+                            Judgement</title> case study reveals specific strategies, regional
+                        balancing, source-weighted confidence, iterative taxonomy expansion, for
+                        applying AI to densely symbolic compositions. The concrete example of
+                        serpent identification demonstrates both the potential (Enhanced Pass
+                        success) and limits (mythological interpretation remaining human) of these
+                        approaches.</item>
+                </list>
+                <p>This work has significant constraints that future research must address:</p>
+                <list type="unordered">
+                    <item><hi rend="bold">Scale:</hi> 200 works, while substantially larger than initial pilots,
+                        represents only 28% of the Archive’s 715 works and cannot establish
+                        statistical claims about Blake’s full corpus.</item>
+                    <item><hi rend="bold">Annotation:</hi> Single-annotator ground truth limits reliability assessment;
+                        inter-annotator agreement studies are needed.</item>
+                    <item><hi rend="bold">Evaluation:</hi> Quantitative metrics measure pattern-matching, not
+                        interpretive value to scholars.</item>
+                    <item><hi rend="bold">Generalization:</hi> Performance on Blake may not transfer to artists with
+                        different visual vocabularies or to non-Western artistic traditions.</item>
+                    <item><hi rend="bold">Temporal stability:</hi> CLIP and similar models evolve; results may vary with
+                        future model versions.</item>
+                </list>
+                <p>Beyond Blake, similar methodologies could address other artists known for
+                    personal iconography, Hieronymus Bosch, Odilon Redon, the Pre-Raphaelites,
+                    wherever dense symbolism challenges traditional cataloging.</p>
+                <p>I want to conclude here to be clear about what this pilot establishes, and what
+                    it does not. This pilot establishes three things: that multimodal embeddings
+                    combined with efficient similarity indexing can support sub-millisecond
+                    retrieval over a stratified Blake corpus; that performance degrades predictably
+                    across object-, motif-, and iconographic-level tagging, with the gradient itself
+                    a usable empirical finding for archives weighing adoption; and that the
+                    integration of AI tags into an existing scholarly archive can be operationalized
+                    concretely through provenance, confidence, version, and audit-log fields. It
+                    does not establish that the system interprets Blake, that its outputs generalize
+                    beyond the 200-work sample, or that the Tier-3 figures will hold under
+                    multi-annotator review. Read against the three-tier framework, success in this
+                    study has a specifically digital-humanities meaning: improved discovery without
+                    substituting for interpretation; transparent provenance for every
+                    machine-generated claim; measurable improvement under human-in-the-loop review;
+                    and the avoidance of interpretive foreclosure. AI here is a perceptual assistant
+                    under a scholar’s supervision, useful precisely because its limits are now
+                    mapped, not because they have been overcome.</p>
+            </div>
+            <div>
+                <head>Appendix A: Technical Implementation Details</head>
+                <p> Note: This appendix contains system architecture, performance benchmarks, and
+                    evaluation protocols. </p>
+                <div>
+                    <head>A.1 System Architecture</head>
+                    <p>The AI pipeline for analyzing Blake’s paintings consists of several
+                        integrated components designed for both research experimentation and
+                        production deployment. The architecture follows a modular design pattern
+                        enabling independent development and testing of each component.</p>
+                    <p><hi rend="bold">Data Ingestion Module:</hi> 
+                    <list type="unordered">
+                        <item>Interfaces with the William Blake Archive API to retrieve images and
+                            metadata </item>
+                        <item>Handles authentication, rate limiting, and data validation </item>
+                        <item>Supports batch processing for large-scale corpus analysis</item>
+                    </list></p>
+                    <p><hi rend="bold">Preprocessing Pipeline:</hi> 
+                    <list type="unordered">
+                        <item>Image standardization: Resize to 224×224 pixels (CLIP ViT-B/32
+                            requirement) </item>
+                        <item>Normalization: ImageNet statistics (mean=[0.485, 0.456, 0.406],
+                            std=[0.229, 0.224, 0.225])</item>
+                            <item>Format handling: Support for JPEG, PNG, TIFF
+                            formats </item>
+                        <item>Metadata processing: XML parsing for TEI-encoded descriptions, text
+                            normalization</item>
+                    </list></p>
+                    <p><hi rend="bold">Embedding Generation:</hi>
+                    <list type="unordered">
+                        <item>CLIP model: OpenAI ViT-B/32 architecture </item>
+                        <item>Output: 512-dimensional normalized vectors </item>
+                        <item>Batch processing: 32 images per batch for GPU efficiency </item>
+                        <item>Storage: HDF5 format for efficient large-scale storage and
+                            retrieval</item>
+                    </list></p>
+                    <p><hi rend="bold">Indexing System: </hi>
+                        <list>                   
+                            <item>FAISS implementation: IndexFlatIP for cosine similarity </item>
+                            <item>Metadata database: SQLite for development, PostgreSQL for production </item>
+                            <item>Caching layer: Redis for frequently accessed embeddings</item>
+                        </list></p>
+                </div>
+                <div>
+                    <head>A.2 Performance Benchmarks</head>
+                    <table>
+                        <head>System Performance Metrics</head>
+                        <row role="label">
+                            <cell>Metric</cell>
+                            <cell>Value</cell>
+                        </row>
+                        <row>
+                            <cell>Embedding generation</cell>
+                            <cell>0.15s per image (GPU)</cell>
+                        </row>
+                        <row>
+                            <cell>Index construction (200 works)</cell>
+                            <cell>2.3s</cell>
+                        </row>
+                        <row>
+                            <cell>Query latency</cell>
+                            <cell>0.001s average</cell>
+                        </row>
+                        <row>
+                            <cell>Throughput</cell>
+                            <cell>44,000+ queries/second</cell>
+                        </row>
+                        <row>
+                            <cell>Memory footprint</cell>
+                            <cell>&lt;100MB (200 works)</cell>
+                        </row>
+                        <row>
+                            <cell>Projected 715-work memory</cell>
+                            <cell>~280MB</cell>
+                        </row>
+                    </table>
+                    <table>
+                        <head>Model Accuracy on Blake Test Set (n=40)</head>
+                        <row role="label">
+                            <cell>Task</cell>
+                            <cell>Metric</cell>
+                            <cell>Tier 1</cell>
+                            <cell>Tier 2</cell>
+                            <cell>Tier 3</cell>
+                        </row>
+                        <row>
+                            <cell>Tagging</cell>
+                            <cell>Top-1</cell>
+                            <cell>78.3%</cell>
+                            <cell>62.1%</cell>
+                            <cell>41.2%</cell>
+                        </row>
+                        <row>
+                            <cell>Tagging</cell>
+                            <cell>Top-5</cell>
+                            <cell>94.2%</cell>
+                            <cell>85.7%</cell>
+                            <cell>68.4%</cell>
+                        </row>
+                        <row>
+                            <cell>Tagging</cell>
+                            <cell>mAP</cell>
+                            <cell>0.72</cell>
+                            <cell>0.58</cell>
+                            <cell>0.39</cell>
+                        </row>
+                        <row>
+                            <cell>Retrieval</cell>
+                            <cell>P@10</cell>
+                            <cell>0.73</cell>
+                            <cell>—</cell>
+                            <cell>—</cell>
+                        </row>
+                        <row>
+                            <cell>Retrieval</cell>
+                            <cell>NDCG@10</cell>
+                            <cell>0.68</cell>
+                            <cell>—</cell>
+                            <cell>—</cell>
+                        </row>
+                    </table>
+                </div>
+                <div>
+                    <head>A.3 Evaluation Protocols</head>
+                    <p><hi rend="bold">Tagging Evaluation:</hi> <eg lang="code-general">For each test image:
+   Generate top-K tag predictions
+   Compare against ground truth labels
+   Compute precision, recall, F1
+   Compute mean average precision
+                    </eg></p>
+                    <p><hi rend="bold">Retrieval Evaluation:</hi><eg lang="code-general">For each query image:
+   Retrieve top-K similar images
+   Compare against ground truth similarity judgments
+   Compute Precision@K, Recall@K, NDCG@K</eg>                   
+                    </p>
+
+                </div>
+                <div>
+                    <head>A.4 API Response Examples</head>
+                    <p><hi rend="bold">Similarity Search Response:</hi><eg lang="json">{
+   <hi style="color:maroon">"query_type"</hi>: <hi style="color:SteelBlue">"image_similarity"</hi>,
+   <hi style="color:maroon">"model"</hi>: <hi style="color:SteelBlue">"clip-vit-b32"</hi>,
+   <hi style="color:maroon">"corpus_size"</hi>: <hi style="color:green">200</hi>,
+   <hi style="color:maroon">"results"</hi>: [
+      {
+         <hi style="color:maroon">"desc_id"</hi>: <hi style="color:SteelBlue">"but812.1.wc.01"</hi>,
+         <hi style="color:maroon">"title"</hi>: <hi style="color:SteelBlue">"The Vision of the Last Judgement (1808)"</hi>,
+         <hi style="color:maroon">"similarity_score"</hi>: <hi style="color:green">0.924</hi>,
+         <hi style="color:maroon">"metadata"</hi>: {
+            <hi style="color:maroon">"medium"</hi>: <hi style="color:SteelBlue">"Pen and watercolor"</hi>,
+            <hi style="color:maroon">"repository"</hi>: <hi style="color:SteelBlue">"Petworth House"</hi>,
+            <hi style="color:maroon">"date"</hi>: <hi style="color:SteelBlue">"1808"</hi>
+         }
+      }
+   ],
+   <hi style="color:maroon">"execution_time_ms"</hi>: 1.2
+}</eg></p>
+
+                    <p><hi rend="bold">Few-Shot Learning Response:</hi> <eg lang="json">{
+   <hi style="color:maroon">"label"</hi>: <hi style="color:SteelBlue">"outstretched_arms"</hi>,
+   <hi style="color:maroon">"strategy"</hi>: <hi style="color:SteelBlue">"mean"</hi>,
+   <hi style="color:maroon">"support_samples"</hi>: 3,
+   <hi style="color:maroon">"results"</hi>: [
+      {
+         <hi style="color:maroon">"desc_id"</hi>: <hi style="color:SteelBlue">"but303.1.pt.01"</hi>,
+         <hi style="color:maroon">"title"</hi>: <hi style="color:SteelBlue">"Albion Rose"</hi>,
+         <hi style="color:maroon">"confidence"</hi>: <hi style="color:green">0.892</hi>
+      }
+   ]
+} </eg></p>
+                </div>
+                <div>
+                    <head>A.5 Corpus Manifest</head>
+                    <p>The 200-work corpus includes:</p>
+                    <p><hi rend="bold">Illuminated Manuscripts (56 works):</hi> 
+                    <list type="unordered">
+                        <item>Songs of Innocence and of Experience (selected plates) </item>
+                        <item>America a Prophecy </item>
+                        <item>Europe a Prophecy </item>
+                        <item>The Book of Ahania </item>
+                        <item>The Book of Los </item>
+                        <item>Milton a Poem </item>
+                        <item>Jerusalem </item>
+                        <item>The Marriage of Heaven and Hell </item>
+                        <item>Visions of the Daughters of Albion </item>
+                        <item>The [First] Book of Urizen</item>
+                    </list></p>
+                    <p><hi rend="bold">Drawings and Paintings (94 works):</hi>
+                    <list type="unordered">
+                        <item>The Vision of the Last Judgement (multiple versions) </item>
+                        <item>Large Color Prints (Newton, Nebuchadnezzar, etc.) </item>
+                        <item>Biblical watercolors </item>
+                        <item>Mythological scenes </item>
+                        <item>Portrait studies</item>
+                    </list></p>
+                    <p><hi rend="bold">Commercial Illustrations (30 works): </hi>
+                    <list type="unordered">
+                        <item>Illustrations of the Book of Job </item>
+                        <item>Dante’s Divine Comedy illustrations </item>
+                        <item>Night Thoughts (selected) </item>
+                        <item>Milton’s Paradise Lost illustrations</item>
+                    </list></p>
+                    <p><hi rend="bold">Other (20 works): </hi>
+                    <list><item>Letters with visual content </item>
+                    <item>Notebook sketches</item> 
+                    <item>Miscellaneous drawings</item></list></p>
+                </div>
             </div>
         </body>
         <back>
             <listBibl>
-                <bibl/>
+                <bibl xml:id="billingsley2018" label="Billingsley 2018">Billingsley, N. (2018)
+                        <title rend="italic">The Visionary Art of William Blake: Christianity,
+                        Romanticism and the Pictorial Imagination</title>. Bloomsbury
+                    Publishing.</bibl>
+                <bibl xml:id="carion_etal2020" label="Carion et al. 2020">Carion, N., Massa, F.,
+                    Synnaeve, G., Usunier, N., Kirillov, A., and Zagoruyko, S. (2020) <title
+                        rend="quotes">End-to-End Object Detection with Transformers</title>, in
+                        <title rend="italic">European Conference on Computer Vision</title>, pp.
+                    213-229. Available at: <ref target="https://doi.org/10.48550/arXiv.2005.12872"
+                    /></bibl>
+                <bibl xml:id="crawford2021" label="Crawford 2021">Crawford, K. (2021) <title
+                        rend="italic">Atlas of AI: Power, Politics, and the Planetary Costs of
+                        Artificial Intelligence</title>. Yale University Press.</bibl>
+                <bibl xml:id="crowley_etal2014" label="Crowley and Zisserman 2014">Crowley, E.J.,
+                    and Zisserman, A. (2014) <title rend="quotes">In search of art</title>, <title
+                        rend="italic">European Conference on Computer Vision Workshops</title>, pp.
+                    54-70. Available at: <ref target="https://doi.org/10.1007/978-3-319-16178-5_4"
+                    /></bibl>
+                <bibl xml:id="damon1965" label="Damon 1965">Damon, S.F. (1965) <title rend="italic"
+                        >A Blake Dictionary: The Ideas and Symbols of William Blake</title>. Brown
+                    University Press.</bibl>
+                <bibl xml:id="dosovitskiy_etal2020" label="Dosovitskiy et al. 2020">Dosovitskiy, A.,
+                    Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T. et al.
+                    (2020) <title rend="quotes">An Image is Worth 16x16 Words: Transformers for
+                        Image Recognition at Scale</title>. Available at: <ref
+                        target="https://doi.org/10.48550/arXiv.2010.11929"/></bibl>
+                <bibl xml:id="eaves_etal2019" label="Eaves et al. 2019">Eaves, M., Essick, R., and
+                    Viscomi, J. (eds.) (2019) <title rend="italic">The William Blake
+                    Archive</title>. Available at: <ref target="http://www.blakearchive.org"
+                        >http://www.blakearchive.org</ref>.</bibl>
+                <bibl xml:id="fiorucci_etal2020" label="Fiorucci et al. 2020">Fiorucci, M.,
+                    Khoroshiltseva, M., Pontil, M., Traviglia, A., Del Bue, A., and James, S. (2020)
+                        <title rend="quotes">Machine learning for cultural heritage: A
+                        survey</title>, <title rend="italic">Pattern Recognition Letters</title>,
+                    133, pp. 102-108. Available at: <ref
+                        target="https://doi.org/10.1016/j.patrec.2020.02.017"/></bibl>
+                <bibl xml:id="foka_etal2025" label="Foka et al. 2025">Foka, A., Griffin, G., Ortiz
+                    Pablo, D., Rajkowska, P. and Badri, S. (2025) <title rend="quotes">Tracing the
+                        bias loop: AI, cultural heritage and bias-mitigating in practice</title>,
+                        <title rend="italic">AI &amp; SOCIETY</title>, 40(8), pp. 5835-5847.
+                    Available at: <ref target="https://doi.org/10.1007/s00146-025-02349-z"/></bibl>
+                <bibl xml:id="frye1947" label="Frye 1947">Frye, N. (1947) <title rend="italic"
+                        >Fearful Symmetry: A Study of William Blake</title>. Princeton University
+                    Press.</bibl>
+                <bibl xml:id="garcia-seco_etal2020" label="Garcia-Seco de Herrera et al. 2020"
+                    >Garcia-Seco de Herrera, A., Schaer, R., Bromuri, S., and Müller, H. (2020)
+                        <title rend="quotes">Overview of the ImageCLEF 2020: Multimedia retrieval in
+                        medical, lifelogging, nature, and internet applications</title>, <title
+                        rend="italic">International Conference of the Cross-Language Evaluation
+                        Forum for European Languages</title>, pp. 533-541. Available at: <ref
+                        target="https://doi.org/10.1007/978-3-030-45442-5_69"/></bibl>
+                <bibl xml:id="he_etal2016" label="He et al. 2016">He, K., Zhang, X., Ren, S., and
+                    Sun, J. (2016) <title rend="quotes">Deep residual learning for image
+                        recognition</title>, <title rend="italic">Proceedings of the IEEE Conference
+                        on Computer Vision and Pattern Recognition</title>, pp. 770-778. Available
+                    at: <ref target="https://doi.org/10.1109/CVPR.2016.90"/></bibl>
+                <bibl xml:id="he_etal2017" label="He et al. 2017">He, K., Gkioxari, G., Dollár, P.,
+                    and Girshick, R. (2017) <title rend="quotes">Mask R-CNN</title>, <title
+                        rend="italic">Proceedings of the IEEE International Conference on Computer
+                        Vision</title>, pp. 2961-2969. Available at: <ref
+                        target="https://doi.org/10.1109/ICCV.2017.322"/></bibl>
+                <bibl xml:id="impett_etal2023" label="Impett and Offert 2023">Impett, L., and
+                    Offert, F. (2023) <title rend="quotes">There is a digital art history</title>,
+                        <title rend="italic">Visual Resources</title>, 38(2), pp. 186-209. Available
+                    at: <ref target="https://doi.org/10.1080/01973762.2024.2362466"/></bibl>
+                <bibl xml:id="johnson_etal2008" label="Johnson et al. 2008">Johnson, C.R., Hendriks,
+                    E., Berezhnoy, I.J., Brevdo, E., Hughes, S.M., Daubechies, I., Li, J., Postma,
+                    E., and Wang, J.Z. (2008) <title rend="quotes">Image processing for artist
+                        identification</title>, <title rend="italic">IEEE Signal Processing
+                            Magazine</title>, 25(4), pp. 37-48. Available at: <ref
+                                target="https://doi.org/10.1109/MSP.2008.923513"/></bibl>
+                <bibl xml:id="johnson_etal2019" label="Johnson et al. 2019">Johnson, J., Douze, M.,
+                    and Jégou, H. (2019) <title rend="quotes">Billion-scale similarity search with
+                        GPUs</title>, <title rend="italic">IEEE Transactions on Big Data</title>,
+                    7(3), pp. 535-547. Available at: <ref target="https://doi.org/10.1109/TBDATA.2019.2921572"/></bibl>
+                <bibl xml:id="kirillov_etal2023" label="Kirillov et al. 2023">Kirillov, A., Mintun,
+                    E., Ravi, N., Mao, H., Rolland, C., Gustafson, L., Xiao, T., Whitehead, S.,
+                    Berg, A.C., Lo, W.Y. and Dollár, P. (2023) <title rend="quotes">Segment
+                        anything</title>, in <title rend="italic">Proceedings of the IEEE/CVF
+                        international conference on computer vision</title>, pp. 4015-4026.
+                    Available at: <ref target="https://doi.org/10.1109/ICCV51070.2023.00371"
+                    /></bibl>
+                <bibl xml:id="li_etal2022" label="Li et al. 2022">Li, J., Li, D., Xiong, C., and
+                    Hoi, S. (2022) <title rend="quotes">BLIP: Bootstrapping language-image
+                        pre-training for unified vision-language understanding and
+                        generation</title>, in <title rend="italic">International Conference on
+                        Machine Learning</title>. PMLR, pp. 12888-12900. Available at: <ref
+                        target="https://doi.org/10.48550/arXiv.2201.12086"/></bibl>
+                <bibl xml:id="milani_etal2020" label="Milani and Fraternali 2020">Milani, F., and
+                    Fraternali, P. (2020) <title rend="quotes">A data set and a convolutional model
+                        for iconography classification in paintings</title>, <title rend="italic"
+                        >ACM Journal on Computing and Cultural Heritage</title>, 14(4), pp. 1-18.
+                    Available at: <ref target="https://doi.org/10.1145/3458885"/>Mitchell, W.J.T. (1978) <title rend="italic">Blake's Composite Art: A Study of the Illuminated Poetry</title>. Princeton University Press.</bibl>
+                <bibl xml:id="minderer_etal2022" label="Minderer et al. 2022">Minderer, M.,
+                    Gritsenko, A., Stone, A., Neumann, M., Weissenborn, D., Dosovitskiy, A., ... and
+                    Houlsby, N. (2022) <title rend="quotes">Simple open-vocabulary object detection
+                        with vision transformers</title>, <title rend="italic">European Conference
+                        on Computer Vision</title>, pp. 728-755. Available at: <ref
+                        target="https://doi.org/10.48550/arXiv.2205.06230"/></bibl>
+                <bibl xml:id="mitchell1978" label="Mitchell 1978"></bibl>
+                <bibl xml:id="powers2011" label="Powers 2011">Powers, D.M. (2011) <title
+                        rend="quotes">Evaluation: From precision, recall and F-measure to ROC,
+                        informedness, markedness and correlation</title>, <title rend="italic"
+                        >Journal of Machine Learning Technologies</title>, 2(1), pp. 37-63.
+                    Available at: <ref target="https://doi.org/10.48550/arXiv.2010.16061"/></bibl>
+                <bibl xml:id="radford_etal2021" label="Radford et al. 2021">Radford, A., Kim, J.W.,
+                    Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin,
+                    P., Clark, J., Krueger, G., and Sutskever, I. (2021) <title rend="quotes"
+                        >Learning transferable visual models from natural language
+                        supervision</title>, in <title rend="italic">International Conference on
+                        Machine Learning</title>. PMLR, pp. 8748-8763. Available at: <ref
+                        target="https://doi.org/10.48550/arXiv.2103.00020"/></bibl>
+                <bibl xml:id="ren_etal2015" label="Ren et al. 2015">Ren, S., He, K., Girshick, R.,
+                    and Sun, J. (2015) <title rend="quotes">Faster R-CNN: Towards real-time object
+                        detection with region proposal networks</title>, <title rend="italic"
+                        >Advances in Neural Information Processing Systems</title>, 28. Available
+                    at: <ref target="https://doi.org/10.48550/arXiv.1506.01497"/></bibl>
+                <bibl xml:id="schneider_etal2024" label="Schneider and Vollmer 2024">Schneider, S.
+                    and Vollmer, R. (2024) <title rend="quotes">Poses of people in art: a dataset
+                        for human pose estimation in digital art history</title>, <title
+                        rend="italic">ACM Journal on Computing and Cultural Heritage</title>, 17(4),
+                    pp.1-19. Available at: <ref target="https://doi.org/10.1145/3631125"
+                    /></bibl>
+                <bibl xml:id="seguin_etal2016" label="Seguin et al. 2016">Seguin, B., Striolo, C.,
+                    and Kaplan, F. (2016) <title rend="quotes">Visual link retrieval in a database
+                        of paintings</title>, <title rend="italic">European Conference on Computer
+                        Vision Workshops</title>, pp. 753-767. Available at: <ref
+                        target="https://doi.org/10.1007/978-3-319-46604-0_52"/></bibl>
+                <bibl xml:id="serdechnaya2018" label="Serdechnaya 2018">Serdechnaya, V.V. (2018)
+                        <title rend="quotes">The parables of William Blake: allegories or
+                        symbols?</title>
+                    <title rend="italic">Language. Philology. Culture</title>, 8(3), pp. 1-8.</bibl>
+                <bibl xml:id="spratt_etal2014" label="Spratt and Elgammal 2014">Spratt, E.L. and
+                    Elgammal, A. (2014) <title rend="quotes">The digital humanities unveiled:
+                        Perceptions held by art historians and computer scientists about computer
+                        vision technology</title>, arXiv preprint arXiv:1411.6714.</bibl>
+                <bibl xml:id="springstein_etal2024" label="Springstein et al. 2024">Springstein, M.,
+                    Schneider, S., Rahnama, J., Stalter, J., Kristen, M., Müller-Budack, E. and
+                    Ewerth, R. (2024) <title rend="quotes">Visual narratives: Large-scale
+                        hierarchical classification of art-historical images</title>, in <title
+                        rend="italic">Proceedings of the IEEE/CVF Winter Conference on Applications
+                        of Computer Vision</title>, pp. 7220-7230. Available at: <ref
+                        target="https://doi.org/10.1109/WACV57701.2024.00705"/></bibl>
+                <bibl xml:id="wang_etal2020" label="Wang et al. 2020">Wang, Y., Yao, Q., Kwok, J.T.,
+                    and Ni, L.M. (2020) <title rend="quotes">Generalizing from a few examples: A
+                        survey on few-shot learning</title>, <title rend="italic">ACM Computing
+                        Surveys</title>, 53(3), pp. 1-34. Available at: <ref
+                        target="https://doi.org/10.48550/arXiv.1904.05046"/></bibl>
+                <bibl xml:id="wba2024" label="William Blake Archive 2024">William Blake Archive.
+                    (2024) <title rend="quotes">Archive at a Glance: Technical Summary</title>.
+                    Available at: <ref target="https://blakearchive.org"
+                        >https://blakearchive.org</ref>.</bibl>
+                <bibl xml:id="wba_n.d." label="William Blake Archive n.d.">William Blake Archive. <title rend="quotes">Editorial principles: Methodology and standards</title>, <title rend="italic">Archive at a Glance</title>. Available at: <ref target="https://blakearchive.org/staticpage/archiveataglance?p=editorialprinciples"/>.</bibl>
+                <bibl xml:id="zhou2018" label="Zhou 2018">Zhou, Z.H. (2018) <title rend="quotes">A
+                        brief introduction to weakly supervised learning</title>, <title
+                        rend="italic">National Science Review</title>, 5(1), pp. 44-53. Available
+                    at: <ref target="https://doi.org/10.1093/nsr/nwx106"/></bibl>
             </listBibl>
 
         </back>
