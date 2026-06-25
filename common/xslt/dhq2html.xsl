@@ -1237,13 +1237,6 @@
       </xsl:if>
     </xsl:template>
 
-    <xsl:template match="*" mode="id">
-      <xsl:value-of select="@xml:id"/>
-      <xsl:if test="not(@xml:id)">
-        <xsl:value-of select="generate-id()"/>
-      </xsl:if>
-    </xsl:template>
-
     <xdoc:doc>
       <xdoc:short>Transfers TEI @rend values to XHTML @class values.</xdoc:short>
       <xdoc:detail>This template assumes a specific encoding practice whereby TEI @rend values are
@@ -1699,17 +1692,7 @@
     <xsl:template match="*" mode="generated-reference">
       <a>
         <xsl:attribute name="class">ref</xsl:attribute>
-        <xsl:attribute name="href">
-          <xsl:text>#</xsl:text>
-          <xsl:choose>
-            <xsl:when test="@xml:id">
-              <xsl:value-of select="@xml:id"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="generate-id()"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:attribute>
+        <xsl:attribute name="href" select="'#'||( @xml:id, generate-id(.) )[1]"/>
         <xsl:apply-templates select="." mode="label"/>
       </a>
     </xsl:template>
@@ -1719,7 +1702,7 @@
       <xsl:text>[</xsl:text>
       <a>
         <xsl:attribute name="class">ref</xsl:attribute>
-        <xsl:attribute name="href" select="'#'||( @xml:id, generate-id() )[1]"/>
+        <xsl:attribute name="href" select="'#'||( @xml:id, generate-id(.) )[1]"/>
         <xsl:apply-templates select="." mode="label"/>
       </a>
       <xsl:if test="$loc">
@@ -1823,9 +1806,7 @@
 
     <xsl:template name="show-bibl-fallback">
       <span class="ref">
-        <xsl:attribute name="id">
-          <xsl:apply-templates select="." mode="id"/>
-        </xsl:attribute>
+        <xsl:attribute name="id" select="( @xml:id, generate-id(.) )[1]"/>
         <xsl:comment> close </xsl:comment>
         <xsl:apply-templates select="@label"/>
       </span>
@@ -1838,9 +1819,7 @@
     <!--  
   <xsl:template name="non-WC-bibl">
     <span class="ref">
-      <xsl:attribute name="id">
-        <xsl:apply-templates select="." mode="id"/>
-      </xsl:attribute>
+       <xsl:attribute name="id" select="( @xml:id, generate-id(.) )[1]"/>
     </span>
     <xsl:if test="normalize-space(@label)">
       <xsl:text>&#xA0;</xsl:text>
