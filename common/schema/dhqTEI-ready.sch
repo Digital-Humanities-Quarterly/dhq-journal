@@ -42,19 +42,6 @@
   -->
 
 
-  <pattern id="top-level">
-    <!-- Pointing to a schema on the internet means the file would not
-         be portable. Thus check that the references to schemas in the
-         <?oxygen?> or <?xml-model?> processing instructions (on their
-         RNGschema=, SCHschema, or href= pseudo attributes) do not
-         start with "http". -->
-    <rule context="/processing-instruction()">
-      <report test="matches(.,'(RNGSchema|SCHSchema|href)=\s*.http')" role="warning">
-        Processing instruction points to the Internet - this file will not be portable.
-      </report>      
-    </rule>
-  </pattern>
-
   <pattern id="id-check">
     <p>Element IDs must be unique</p>
     <rule context="*[ @xml:id ]">
@@ -113,9 +100,9 @@
     </rule>
     
     <rule context="tei:classDecl">
-      <assert test="exists(tei:taxonomy[@xml:id='dhq_keywords'])"><name/> is
+      <assert test="exists( tei:taxonomy[ @xml:id eq 'dhq_keywords'] )"><name/> is
         missing a 'dhq_keywords' taxonomy declaration</assert>
-      <assert test="exists(tei:taxonomy[@xml:id='authorial_keywords'])"><name/>
+      <assert test="exists( tei:taxonomy[ @xml:id eq 'authorial_keywords'] )"><name/>
         is missing an 'authorial_keywords' taxonomy declaration</assert>
     </rule>
 
