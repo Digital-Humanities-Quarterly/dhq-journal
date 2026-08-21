@@ -173,11 +173,33 @@
                     <dhq:authorInfo>
                         <xsl:comment>Include a separate &lt;dhq:authorInfo&gt; element for each author</xsl:comment>
                         <dhq:author_name>first name(s) <dhq:family>family name</dhq:family></dhq:author_name>
-                    <idno type="ORCID"><xsl:comment>if the author has an ORCID ID, include the full URI, e.g. https://orcid.org/0000-0000-0000-0000</xsl:comment></idno>
+			<idno type="ORCID"><xsl:comment>if the author has an ORCID ID, include the full URI, e.g. https://orcid.org/0000-0000-0000-0000</xsl:comment></idno>
                         <dhq:affiliation></dhq:affiliation>
                         <email></email>
                         <dhq:bio><p></p></dhq:bio>
                     </dhq:authorInfo>
+		    <xsl:comment> Use the following if &amp; only if there is a translation
+			 that was provided or facilitated, at least initially, by
+			 an AI system like Google Translate or Claude. If no such
+			 translation was provided, delete this entire comment and
+			 the entire &lt;respStmt> that follows. </xsl:comment>
+		    <respStmt xml:id="AI_trans_info_[2- or 3-letter language code]">
+		      <name>
+			<ref target="[URI of translation AI, e.g. https://translate.google.com/]">[Name of AI, e.g. Google Translate]</ref>
+		      </name>
+		      <resp>Initial translation into [name of language]</resp>
+		      <note type="boilerplate">Artificial intelligence systems,
+		      including machine translation systems, are not considered by
+		      DHQ to be authors and hence are not accorded authorial
+		      agency. See DHQ's <ref
+		      target="../../submissions/ai_policies.html">AI policy
+		      page</ref> for more information.</note>
+		      <note type="process">[Any annotations on the translation
+		      process can go here. If there is more than one such note
+		      (e.g. one by the author, one by the managing editor) this
+		      element can be repeated. If there are no annotations, this
+		      element should be deleted.]</note>
+		    </respStmt>
                 </titleStmt>
                 <publicationStmt>
                     <publisher>Alliance of Digital Humanities Organizations</publisher>
