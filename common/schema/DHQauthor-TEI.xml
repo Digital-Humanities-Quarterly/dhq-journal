@@ -29,6 +29,23 @@
       <change when="2026-07-17" who="#sdb">
         Disallow empty (or whitespace only) values on <att>xml:lang</att>.
       </change>
+      <change when="2026-07-18" who="#sdb">
+	<list>
+	  <item>Main change: Add an optional <att>type</att> attribute to <gi>note</gi>
+          with values <val>boilerplate</val> and <val>process</val>.</item>
+	  <item>Add a constraint to flag most (but not all) departures
+	  from correct structure of <gi>respStmt</gi> for AI
+	  translation.</item>
+	  <item>Add a draconian constraint on the textual content of
+	  <val>boilerplate</val> annotations in AI translation
+	  responsibility statements.</item>
+	  <item>Cosmetic change: Add an explicit <att>usage</att> to
+	  every <gi>attDef</gi> defining an <att>xml:id</att>
+	  attribute, just to be explicit.</item>
+	  <item>Cosmetic change: Some whitespace and self-closing
+	  empty tag changes.</item>
+	</list>
+      </change>
       <change when="2026-06-10" who="#sdb">
         Per <ref
         target="https://github.com/Digital-Humanities-Quarterly/dhq-journal/issues/210">issue 210</ref>
@@ -547,16 +564,16 @@ email (should only have an email address)
         <classSpec type="atts" ident="att.global.change" mode="delete"/>
         <classSpec type="atts" ident="att.global.rendition" mode="change">
           <attList>
-            <attDef ident="rendition" mode="delete"></attDef>
-            <attDef ident="rend" mode="delete"></attDef>
+            <attDef ident="rendition" mode="delete"/>
+            <attDef ident="rend" mode="delete"/>
           </attList>
         </classSpec>
         <classSpec type="atts" ident="att.global" mode="change">
           <attList>
-            <attDef ident="n" mode="delete"></attDef>
-            <attDef ident="xml:base" mode="delete"></attDef>
-            <attDef ident="xml:id" mode="delete"></attDef>
-            <attDef ident="xml:space" mode="delete"></attDef>
+            <attDef ident="n" mode="delete"/>
+            <attDef ident="xml:base" mode="delete"/>
+            <attDef ident="xml:id" mode="delete"/>
+            <attDef ident="xml:space" mode="delete"/>
           </attList>
         </classSpec>
         <classSpec type="atts" ident="att.handFeatures" mode="delete"/>
@@ -580,7 +597,7 @@ email (should only have an email address)
         <classSpec type="atts" ident="att.translatable" mode="delete"/>
         <classSpec type="atts" ident="att.typed" mode="change">
           <attList>
-            <attDef ident="subtype" mode="delete"></attDef>
+            <attDef ident="subtype" mode="delete"/>
           </attList>
         </classSpec>
         <classSpec type="atts" ident="att.xmlspace" mode="delete"/>
@@ -677,7 +694,7 @@ email (should only have an email address)
                 <desc>indicates that the embedded code should be presented as an inline element</desc></valItem>
               </valList>
             </attDef>
-            <attDef ident="xml:id" mode="add">
+            <attDef ident="xml:id" usage="opt" mode="add">
               <desc>Provides a unique identifier for the element</desc>
               <datatype>
                 <dataRef name="ID"/>
@@ -712,7 +729,7 @@ email (should only have an email address)
             </sequence>
           </content>
           <attList>
-            <attDef ident="xml:id" mode="add">
+            <attDef ident="xml:id" usage="opt" mode="add">
               <desc>Provides a unique identifier for the example item</desc>
               <datatype>
                 <dataRef name="ID"/>
@@ -859,7 +876,7 @@ email (should only have an email address)
           </content>
           <attList>
             <attDef ident="type" mode="delete"/>
-            <attDef ident="xml:id" mode="add">
+            <attDef ident="xml:id" usage="opt" mode="add">
               <datatype>
                 <dataRef name="ID"/>
               </datatype>
@@ -982,7 +999,7 @@ email (should only have an email address)
             </sequence>
           </content>
           <attList>
-            <attDef ident="xml:id" mode="add">
+            <attDef ident="xml:id" usage="opt" mode="add">
               <datatype>
                 <dataRef name="ID"/>
               </datatype>
@@ -1036,7 +1053,7 @@ email (should only have an email address)
             </sequence>
           </content>
           <attList>
-            <attDef ident="xml:id" mode="add">
+            <attDef ident="xml:id" usage="opt" mode="add">
               <datatype>
                 <dataRef name="ID"/>
               </datatype>
@@ -1297,7 +1314,7 @@ email (should only have an email address)
       <!-- Add @xml:id and @type to <anchor>  -->
       <elementSpec ident="anchor" mode="change" module="core">
         <attList>
-          <attDef ident="xml:id" mode="add">
+          <attDef ident="xml:id" usage="opt" mode="add">
             <datatype>
               <dataRef name="ID"/>
             </datatype>
@@ -1315,7 +1332,7 @@ email (should only have an email address)
      <!-- Add @xml:id to <item>  -->
       <elementSpec ident="item" mode="change" module="core">
         <attList>
-          <attDef ident="xml:id" mode="add">
+          <attDef ident="xml:id" usage="opt" mode="add">
             <datatype>
               <dataRef name="ID"/>
             </datatype>
@@ -1356,10 +1373,24 @@ email (should only have an email address)
         </attList>
       </elementSpec>
 
-      <!-- Add @xml:id to <respStmt> -->
+      <!-- Add @xml:id and a <constraintSpec> to <respStmt> -->
       <elementSpec ident="respStmt" module="core" mode="change">
+        <constraintSpec scheme="schematron" ident="content_of_AI_translation_confession">
+          <constraint>
+            <sch:rule context="tei:respStmt[ starts-with( @xml:id, 'AI_trans_info_') ]">
+              <sch:assert test="    *[1][self::tei:name]
+                                and *[1]/*[1][self::tei:ref[@target]]
+                                and *[2][self::tei:resp]
+                                and *[3][self::tei:note[@type eq 'boilerplate']]">
+                Structure of &lt;respStmt xml:id=<sch:value-of
+                select="@xml:id"/>> is incorrect; see 999998.xml
+                for an example.
+              </sch:assert>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
         <attList>
-          <attDef ident="xml:id" mode="add">
+          <attDef ident="xml:id" usage="opt" mode="add">
             <desc>Provides a unique identifier for the responsibility statement</desc>
             <datatype>
               <dataRef name="ID"/>
@@ -1783,7 +1814,7 @@ email (should only have an email address)
               <valItem ident="block"/>
             </valList>
           </attDef>
-                  <attDef ident="xml:id" mode="add" usage="opt">
+          <attDef ident="xml:id" usage="opt" mode="add">
             <desc>Provides a unique identifier for the formula</desc>
             <datatype>
               <dataRef name="ID"/>
@@ -2049,7 +2080,7 @@ email (should only have an email address)
           </sequence>
         </content>
         <attList>
-          <attDef ident="xml:id" mode="add">
+          <attDef ident="xml:id" usage="opt" mode="add">
             <desc>Provides a unique identifier for the table</desc>
             <datatype>
               <dataRef name="ID"/>
@@ -2065,7 +2096,7 @@ email (should only have an email address)
       
       <elementSpec ident="div" mode="change" module="textstructure">
         <attList>
-          <attDef ident="xml:id">
+          <attDef ident="xml:id" usage="opt" mode="add">
             <desc>Provides a unique identifier for the division.</desc>
             <datatype>
               <dataRef name="ID"/>
@@ -2098,7 +2129,7 @@ email (should only have an email address)
           </alternate>
         </content>
         <attList>
-          <attDef ident="xml:id" usage="opt">
+          <attDef ident="xml:id" usage="opt" mode="add">
             <!-- Someday we may want this to be required, not optional. —Syd, 2025-06-11 -->
             <desc>Provides a unique identifier for the figure</desc>
             <datatype>
@@ -2113,16 +2144,44 @@ email (should only have an email address)
           <memberOf key="model.common" mode="add"/>
         </classes>
         <attList>
-          <attDef ident="type" mode="delete"/>
           <attDef ident="resp" mode="delete"/>
           <attDef ident="anchored" mode="delete"/>
           <attDef ident="target" mode="delete"/>
           <attDef ident="targetEnd" mode="delete"/>
-          <attDef ident="xml:id" mode="add">
+          <attDef ident="xml:id" usage="opt" mode="add">
             <desc>Provides a unique identifier for the note</desc>
             <datatype>
               <dataRef name="ID"/>
             </datatype>
+          </attDef>
+          <attDef ident="type" mode="change">
+            <desc>characterizes the <gi>note</gi> element</desc>
+            <constraintSpec scheme="schematron" ident="boilerplate_is_boilerplate">
+              <constraint>
+                <sch:rule context="tei:respStmt[ starts-with( @xml:id, 'AI_trans_info_') ]/tei:note[ @type eq 'boilerplate']">
+                  <sch:assert test='normalize-space(.) eq "Artificial intelligence systems, including machine translation systems, are not considered by DHQ to be authors and hence are not accorded authorial agency. See DHQ&apos;s AI policy page for more information."'>
+                    Content of boilerplate note is not the standard boilerplate text. Any notes on the AI translation process used should be added as a "process" note below.
+                  </sch:assert>
+                </sch:rule>
+              </constraint>
+            </constraintSpec>
+            <valList type="closed" mode="add">
+              <valItem ident="boilerplate">
+                <desc>
+                  Boilerplate note describing DHQ's position on AI and authorial agency.
+                </desc>
+              </valItem>
+              <valItem ident="process">
+                <desc>
+                  Note describing the machine translation process(es) used in translating the article.
+                </desc>
+              </valItem>
+            </valList>
+            <remarks>
+              <p>Currently this attribute is only used inside the
+              <gi>respStmt</gi> used to confess that AI was used to
+              perform the inital translation of something.</p>
+            </remarks>
           </attDef>
         </attList>
       </elementSpec>
@@ -2300,7 +2359,7 @@ email (should only have an email address)
               <dataRef key="teidata.text"/>
             </datatype>
           </attDef>
-          <attDef ident="xml:id" mode="add">
+          <attDef ident="xml:id" usage="opt" mode="add">
             <desc>Provides a unique identifier for the bibliographic item</desc>
             <datatype>
               <dataRef name="ID"/>
@@ -2311,7 +2370,7 @@ email (should only have an email address)
       
       <elementSpec ident="taxonomy" mode="change" module="header">
         <attList>
-          <attDef ident="xml:id">
+          <attDef ident="xml:id" usage="opt" mode="add">
             <desc>Provides a unique identifier for the taxonomy</desc>
             <datatype>
               <dataRef name="ID"/>
@@ -2368,7 +2427,7 @@ email (should only have an email address)
               </sch:assert>
               <sch:assert test="starts-with( tei:ref/@target, $base_art_URL )">
                 git history target should start with git repo URL for articles 
-                (“https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/”).
+                (“<sch:value-of select="base_art_URL"/>”).
               </sch:assert>
               <sch:assert test="ends-with( tei:ref/@target, concat('/', $artID, '/', $fn ) )">
                 git history target should end in same directory &amp; filename as current file

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2">
    <title>ISO Schematron rules</title>
-   <!-- This file generated 2026-07-17T14:59:26Z by 'extract-isosch.xsl'. -->
+   <!-- This file generated 2026-09-04T13:25:05Z by 'extract-isosch.xsl'. -->
    <!-- ********************* -->
    <!-- namespaces, declared: -->
    <!-- ********************* -->
@@ -16,10 +16,10 @@
    <!-- ********************* -->
    <!-- namespaces, implicit: -->
    <!-- ********************* -->
-   <ns prefix="esp-d2e29672" uri="http://web.resource.org/cc/"/>
+   <ns prefix="esp-d2e29765" uri="http://web.resource.org/cc/"/>
    <ns prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
    <!-- ******************************************************* -->
-   <!-- constraints in en, und, mul, zxx, of which there are 25 -->
+   <!-- constraints in en, und, mul, zxx, of which there are 27 -->
    <!-- ******************************************************* -->
    <let name="numGitHxs"
         value="count( /*/tei:teiHeader/tei:revisionDesc/tei:change/tei:ref[ @type eq 'gitHist'] )"/>
@@ -78,45 +78,55 @@
          <assert test="tei:label">The content of a "gloss" list should include a sequence of one or more pairs of a label element followed by an item element</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-identify_works_cited-11">
+   <pattern id="schematron-constraint-boilerplate_is_boilerplate-11">
+      <rule context="tei:respStmt[ starts-with( @xml:id, 'AI_trans_info_') ]/tei:note[ @type eq 'boilerplate']">
+         <assert test="normalize-space(.) eq &#34;Artificial intelligence systems, including machine translation systems, are not considered by DHQ to be authors and hence are not accorded authorial agency. See DHQ's AI policy page for more information.&#34;"> Content of boilerplate note is not the standard boilerplate text. Any notes on the AI translation process used should be added as a "process" note below.</assert>
+      </rule>
+   </pattern>
+   <pattern id="schematron-constraint-content_of_AI_translation_confession-12">
+      <rule context="tei:respStmt[ starts-with( @xml:id, 'AI_trans_info_') ]">
+         <assert test="    *[1][self::tei:name]                                 and *[1]/*[1][self::tei:ref[@target]]                                 and *[2][self::tei:resp]                                 and *[3][self::tei:note[@type eq 'boilerplate']]"> Structure of &lt;respStmt xml:id=<value-of select="@xml:id"/>&gt; is incorrect; see 999998.xml for an example.</assert>
+      </rule>
+   </pattern>
+   <pattern id="schematron-constraint-identify_works_cited-13">
       <rule context="tei:back/tei:listBibl/tei:bibl">
          <assert test="@xml:id"> A bibliographic entry in the works cited needs to be identifiable (i.e., must have an @xml:id)</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-no_empty_bibls-12">
+   <pattern id="schematron-constraint-no_empty_bibls-14">
       <rule context="tei:bibl">
          <assert test="*  or  normalize-space( . ) ne ''"> A bibliographic entry in the works cited must have some content</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-l-in-l-13">
+   <pattern id="schematron-constraint-abstractModel-structure-l-in-l-15">
       <rule context="tei:l">
          <report test="ancestor::tei:l[not(.//tei:note//tei:l[. = current()])]">Abstract model violation: Lines may not contain lines or lg elements.</report>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-atleast1oflggapl-14">
+   <pattern id="schematron-constraint-atleast1oflggapl-16">
       <rule context="tei:lg">
          <assert test="count(descendant::tei:lg|descendant::tei:l|descendant::tei:gap) &gt; 0">An lg element must contain at least one child l, lg, or gap element.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-lg-in-l-15">
+   <pattern id="schematron-constraint-abstractModel-structure-lg-in-l-17">
       <rule context="tei:lg">
          <report test="ancestor::tei:l[not(.//tei:note//tei:lg[. = current()])]">Abstract model violation: Lines may not contain line groups.</report>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-article-id_matches_fn-16">
+   <pattern id="schematron-constraint-article-id_matches_fn-18">
       <rule context="tei:idno[ @type eq 'DHQarticle-id']">
          <let name="basename"
               value="replace( base-uri(.), '^.*/([^/.]+)\.xml$','$1')"/>
          <report test="$basename ne normalize-space(.)"> The &lt;idno type="DHQarticle-id"&gt; should match the filename (without ".xml"); i.e. both should be the article number</report>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-reasonable_doi-17">
+   <pattern id="schematron-constraint-reasonable_doi-19">
       <rule context="tei:idno[ @type eq 'DOI']">
          <let name="value" value="normalize-space(.)"/>
          <assert test="matches( $value, '^10\.63744/[2-9a-hjkmnp-z]{12}$')                                 or                                 matches( $value, 'pending','i')">DOI appears inavlid; should be “pending” or the string “10.63744/” followed by 12 digits or lowercase letters except ‘o’, ‘0’, ‘i’, ‘l’, or ‘1’</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-publication_idnos-18">
+   <pattern id="schematron-constraint-publication_idnos-20">
       <rule context="tei:publicationStmt">
          <assert test="count( tei:idno[ @type eq 'DHQarticle-id'] ) eq 1"> There should be one and only one "DHQarticle-id" &lt;idno&gt; in the publication statement</assert>
          <assert test="count( tei:idno[ @type eq 'DOI'] ) eq 1"> There should be one and only one "DOI" &lt;idno&gt; in the publication statement</assert>
@@ -124,39 +134,39 @@
          <assert test="count( tei:idno[ @type eq 'volume'] ) eq 1"> There should be one and only one "volume" &lt;idno&gt; in the publication statement</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-require_proper_git_history-19">
+   <pattern id="schematron-constraint-require_proper_git_history-21">
       <rule context="tei:revisionDesc[ $numGitHxs eq 0 ]">
          <assert test="false()">A &lt;change&gt; element that gives git history is required.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-require_proper_git_history-20">
+   <pattern id="schematron-constraint-require_proper_git_history-22">
       <rule context="tei:revisionDesc[ $numGitHxs gt 1]">
          <assert test="false()">There should be one and only one &lt;change&gt; element that gives the git history (there appear to be <value-of select="$numGitHxs"/> of ’em).</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-require_proper_git_history-21">
+   <pattern id="schematron-constraint-require_proper_git_history-23">
       <rule context="tei:revisionDesc/tei:change[ tei:ref[ @type eq 'gitHist'] ]">
          <assert test="normalize-space( text()[1] ) eq 'The version history for this file can be found on'"> git history change entry should start with “The version history for this file can be found on”.</assert>
-         <assert test="starts-with( tei:ref/@target, $base_art_URL )"> git history target should start with git repo URL for articles (“https://github.com/Digital-Humanities-Quarterly/dhq-journal/commits/main/articles/”).</assert>
+         <assert test="starts-with( tei:ref/@target, $base_art_URL )"> git history target should start with git repo URL for articles (“<value-of select="base_art_URL"/>”).</assert>
          <assert test="ends-with( tei:ref/@target, concat('/', $artID, '/', $fn ) )"> git history target should end in same directory &amp; filename as current file (“<value-of select="concat( '/', $artID, '/',$fn )"/>”).</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-div-in-l-22">
+   <pattern id="schematron-constraint-abstractModel-structure-div-in-l-24">
       <rule context="tei:l//tei:div">
          <assert test="ancestor::tei:floatingText"> Abstract model violation: Metrical lines may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-div-in-ab-or-p-23">
+   <pattern id="schematron-constraint-abstractModel-structure-div-in-ab-or-p-25">
       <rule context="tei:div">
          <report test="(ancestor::tei:p or ancestor::tei:ab) and not(ancestor::tei:floatingText)"> Abstract model violation: p and ab may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.</report>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-ab-in-l-24">
+   <pattern id="schematron-constraint-abstractModel-structure-ab-in-l-26">
       <rule context="tei:l//tei:ab">
          <assert test="ancestor::tei:floatingText | parent::tei:figure | parent::tei:note"> Abstract model violation: Metrical lines may not contain higher-level divisions such as p or ab, unless ab is a child of figure or note, or is a descendant of floatingText.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-family_must_have_content-25">
+   <pattern id="schematron-constraint-family_must_have_content-27">
       <rule context="dhq:family">
          <report test="normalize-space(.) eq ''">A family name must be supplied inside &lt;dhq:family&gt;; if this &lt;<value-of select="name(..)"/>&gt; does not need a family name, delete the entire &lt;dhq:family&gt; element.</report>
       </rule>
