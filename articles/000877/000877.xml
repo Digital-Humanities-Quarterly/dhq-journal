@@ -9,7 +9,7 @@
    <teiHeader>
       <fileDesc>
          <titleStmt><!--Author should supply the title and personal information-->
-            <title type="article" xml:lang="en"><!--article title in English--></title>
+            <title type="article" xml:lang="en">Entity Extraction in Premodern German Administrative Documents: Accuracy and Cost in the Age of Generative AI</title>
             <!--Add a <title> with appropriate @xml:lang for articles in languages other than English-->
             <dhq:authorInfo><!--Include a separate <dhq:authorInfo> element for each author-->
                <dhq:author_name>first name(s) <dhq:family>family name</dhq:family>
@@ -104,65 +104,35 @@
    </teiHeader>
    <text xml:lang="en" type="original">
       <front>
-         <dhq:abstract><!--Include a brief abstract of the article-->
-            <p/>
+         <dhq:abstract>
+            <p>Named Entity Recognition in historical texts faces unique challenges, including non-standardized language, transcription noise, and limited annotated material. We evaluate two approaches on two tasks on the Historical Land Records of Basel, a dataset of 829 German-language documents from the 14th to 18th century. Task 1 involves classic NER, identifying persons, locations, and organizations, while Task 2 addresses nested entity annotations, additionally requiring the identification of grammatical structures such as heads, appositions, and attributes. We compare generative LLM-based tagging (GPT-4o) with domain-specific fine-tuned sequence taggers using Flair contextual character embeddings, examining the impact of variable training data. GPT outperforms Flair in few-shot scenarios, particularly for low-frequency tags, while Flair achieves superior performance with larger training sets and longer spans. We find that, no matter which system, a substantial increase in accuracy can be gained by increasing the amount of training data. We also analyze annotation cost and speed, showing that manually curated datasets can be generated efficiently and support well-performing models. Our findings demonstrate that LLMs provide strong initial results, but lighter traditional systems remain competitive with sufficient training data.</p>
          </dhq:abstract>
          <dhq:teaser><!--Include a brief teaser, no more than a phrase or a single sentence-->
             <p/>
          </dhq:teaser>
       </front>
-      <front>
-         <titlePage>
-            <docTitle>
-               <titlePart type="Title">Entity Extraction in Premodern German Administrative Documents: Accuracy and Cost in the Age of Generative AI</titlePart>
-            </docTitle>
-         </titlePage>
-      </front>
       <body>
-         <div>
-            <head>Abstract</head>
-            <p>Named Entity Recognition in historical texts faces unique challenges, including non-standardized language, transcription noise, and limited annotated material. We evaluate two approaches on two tasks on the Historical Land Records of Basel, a dataset of 829 German-language documents from the 14th to 18th century. Task 1 involves classic NER, identifying persons, locations, and organizations, while Task 2 addresses nested entity annotations, additionally requiring the identification of grammatical structures such as heads, appositions, and attributes. We compare generative LLM-based tagging (GPT-4o) with domain-specific fine-tuned sequence taggers using Flair contextual character embeddings, examining the impact of variable training data. GPT outperforms Flair in few-shot scenarios, particularly for low-frequency tags, while Flair achieves superior performance with larger training sets and longer spans. We find that, no matter which system, a substantial increase in accuracy can be gained by increasing the amount of training data. We also analyze annotation cost and speed, showing that manually curated datasets can be generated efficiently and support well-performing models. Our findings demonstrate that LLMs provide strong initial results, but lighter traditional systems remain competitive with sufficient training data.</p>
-         </div>
          <div>
             <head>Introduction</head>
             <p>Named Entity Recognition (NER) is a field of Natural Language Processing concerned with extracting references to entities - typically persons, places, and organizations, but sometimes extended to include works of art, brands, and other categories - from text. In historical editions, the annotation and linking of these entities was commonplace long before the advent of the internet. When entities are properly annotated and identified in a database, the resulting information can be used to build large-scale registries through which historians, sociologists, and other researchers, as well as the interested public can quickly find materials of interest. Understandably, an increasing number of historical projects are seeking to enrich their digitized datasets through automated methods. </p>
+            
             <p>Historical texts, however, present a number of challenges for building well-performing NER models. In addition to the difficulties posed by high spelling variation and noisy transcriptions, the persistent lack of available training data has long hindered research in historical NLP (Ehrmann et al., 2023). The extent of this data scarcity is evident in the survey on premodern NER by Ehrmann et al. (2023): among the datasets listed, only one German-language resource refers to documents produced before the 18th century. Even within that dataset, <hi rend="italic">Deutsches ROman Corpus</hi>, only two out of ninety novel fragments date from before 1700, and nine from before 1800 (Krug et al., 2017). Overall, just one dataset in the survey includes documents from medieval and early modern periods: a multilingual collection of annotated medieval charters (Aguilar, 2022).</p>
+           
             <p>Unsurprisingly, researchers have sought solutions that require little or no training data. One such method was to rely on rule-based systems in combination with gazetteers - for example, lists of common person names (Grover et al., 2008). For historical texts that are linguistically close to their modern counterparts, a valid strategy is to apply a model trained on modern language and fine-tune it using a small amount of historical data (Blouin et al., 20222021). </p>
             <p>More recently, with the rise of generative large language models (LLMs) such as GPT, zero- and few-shot approaches have become increasingly prevalent (González-Gallardo et al., 2023; Hiltmann et al., 2025).<note> Zero shot approaches rely only on pre-trained knowledge of a model, while few-shot approaches include a few examples for the model in the prompt.</note> Although most studies indicate that traditional methods, such as recurrent neural networks and BERT architectures, continue to outperform generative LLMs on the majority of information extraction tasks (González-Gallardo et al., 2023; Wang et al., 2025; Keraghel et al., 2024), the ease of use and minimal preparation required to obtain acceptable results can tempt scholars in the (digital) humanities to rely exclusively on generative LLMs. Consequently, results produced by these models are often accepted as sufficiently accurate, and in some cases, no systematic evaluation of the automated output is conducted. </p>
+            
             <p>This paper examines what we risk losing when depending solely on zero- and few-shot systems. We do so by presenting a case study that explores performance differences depending on the amount of available training material. Specifically, we evaluate two Named Entity Recognition strategies, one based on GPT-4o (OpenAI, 2024) and the other on the Flair framework (Akbik et al., 2019), using a historical dataset of German-language administrative documents. We then reflect on these methods with respect to both accuracy and financial cost.</p>
+           
             <p>We evaluate the accuracy of the models in two distinct settings: First, we consider a standard NER task in which only proper names must be identified. Second, we address a nested entity recognition task employing an expanded tagset designed for more complex historical inquiries. Because GPT-4o possesses pre-trained knowledge about named entity recognition, our goal here is to assess how effectively the model can follow specific annotation guidelines in such complex contexts. The case study further illustrates how the amount of available training data influences the performance of both approaches.</p>
          </div>
+        
          <div>
             <head>Dataset</head>
             <p>The foundational dataset for this case study is the <hi rend="italic">Historical Land Records of Basel Ground Truth</hi> corpus (HLR-GT) (Prada Ziegler et al., 2025). The corpus comprises 829 digitized and annotated archival index cards containing excerpts from administrative documents dating from the fourteenth to the eighteenth century. It provides an ideal scenario for Natural Language Processing on historical material, as it features all the characteristic challenges: noise introduced by handwritten text recognition (HTR), non-standardized language, scarcity of annotated material, and the absence of a suitable baseline model.</p>
-            <figure>
-               <head/>
-               <graphic url="resources/images/image1.jpg"/>
-            </figure>
-            <p>Figure 1: One archival index card on which the HLR-GT is based. Only the main text is part of the corpus; header, marginalia, and footnotes were removed. Image Source: State Archive of Basel-Stadt HGB 1 1/34, p. 4.</p>
+            
+            <!-- Figure 1 -->
             <p>From a scholarly perspective, the corpus offers a rich foundation of information well-suited for quantitative analysis. Each index card contains an excerpt or copy of an original document written in Early New High German. Most entries record a single transaction, trade, or list of dues payments, though less frequent document types, such as court cases or testaments, are also represented. While capitalization and punctuation are generally present, both are inconsistent; although this information can assist the models in learning and predicting annotations, it may also occasionally introduce noise. Documents from the same source (e.g., court books) often exhibit strong structural similarity. For instance, a property purchase frequently follows the formula: “&lt;Actor A&gt; sells &lt;Actor B&gt; &lt;Property&gt; for &lt;Money&gt;.” Systems that learn to recognize such formulaic structures tend to perform better. However, they are also at risk of overfitting and may fail to generalize to documents that deviate from these patterns. These observations were previously noted in Prada Ziegler (2024).</p>
-            <table>
-               <row role="data">
-                  <cell>
-                     <p>&lt;span element="reference" class="per"&gt;Frawen</p>
-                     <p>  &lt;span element="head" class="nam"&gt;Margareth Weibert&lt;/span&gt; ,</p>
-                     <p>  &lt;span element="appo" class="fam"&gt;weiland</p>
-                     <p>    &lt;span element="reference" class="per"&gt;H .</p>
-                     <p>      &lt;span element="head" class="nam"&gt;Hanns Heinrich Wentzen&lt;/span&gt;</p>
-                     <p>      &lt;span element="appo" class="occ"&gt;</p>
-                     <p>        &lt;span element="head" class="occ"&gt;Stattgerichts Besitzers&lt;/span&gt; in </p>
-                     <p>        &lt;span element="reference" class="gpe-org"&gt;</p>
-                     <p>          &lt;span element="head" class="nam"&gt;Mehrerem Basell&lt;/span&gt;</p>
-                     <p>        &lt;/span&gt;</p>
-                     <p>      &lt;/span&gt;</p>
-                     <p>    &lt;/span&gt; , hinderlassener </p>
-                     <p>    &lt;span element="head" class="fam"&gt;Wittib&lt;/span&gt;</p>
-                     <p>  &lt;/span&gt;</p>
-                     <p>&lt;/span&gt;</p>
-                  </cell>
-               </row>
-            </table>
-            <p>Figure 2: A BeNASch-annotated person reference in XML-encoding.</p>
+            <!-- Figure 2 -->
             <p>The HLR is annotated according to a variant of the BeNASch standard<note>
                   <ref target="https://dhbern.github.io/BeNASch/">https://dhbern.github.io/BeNASch/</ref> (last accessed 08.10.2025).</note>, which employs a deeply nested entity annotation scheme. An example of this structure is shown in figure 2. In the excerpt, three separate entities are mentioned (<hi rend="italic">reference</hi>): <hi rend="italic">Margareth Weibert</hi>, <hi rend="italic">Hanns Heinrich Wentzen</hi>, and <hi rend="italic">Greater Basel</hi> (the part of the city west of the Rhine). Through nesting, additional layers of information are encoded. Heads, appositions, and attributes (the latter not present in this example) provide further details about each entity, including names (<hi rend="italic">nam</hi>), occupations (<hi rend="italic">occ</hi>), and family relationships (<hi rend="italic">fam</hi>). In subsequent processing, this nested information can be leveraged to extract relationships. For instance, <hi rend="italic">Margareth</hi> is related to <hi rend="italic">Hanns</hi> as <hi rend="italic">Wittib</hi> (widow), and <hi rend="italic">Hanns</hi> is employed by <hi rend="italic">Greater Basel</hi> as <hi rend="italic">Stattgerichts Besitzer</hi> (member of the court).</p>
             <p>For Task 1, representing a conventional named entity recognition setup, all annotations were removed except head elements with the <hi rend="italic">nam</hi> class. For Task 2, the full tagset was retained.</p>
@@ -171,27 +141,50 @@
          <div>
             <head>Approaches</head>
             <p>In this study, we compare two approaches to named entity recognition on historical texts: LLM-based tagging and specifically trained supervised taggers. For the latter, we developed and applied Flair models in three distinct configurations. In parallel, we implemented a commercially available LLM using a strategy that has proven successful in prior work.</p>
+            
             <p>Flair leverages contextual character embeddings (Akbik et al., 2018). Unlike most other embedding strategies that rely on subword-based tokenization such as WordPiece that split words into common subword tokens (e.g. “pretrained” becomes “pre”, “train”, “ed”) and encode those, this strategy bases the encoding of tokens on their individual characters, as well as the context that comes before and after the token. This results in a smaller drop in performance when confronted with noise and variable spelling and, which have has demonstrated robust performance for premodern German (Schweter et al., 2019; Hodel et al., 2023). In addition, because these embeddings, as well as the task-specific models, are trained using recurrent neural network architectures (Bi-LSTM), they require less training material than would be required to train or finetune a LLM like BERT (Schweter et al., 2020).</p>
-            <p>Flair: Base</p>
+            <div><!-- Flair: Base -->
+            <head>Flair: Base</head>
             <p>This approach employs the pre-trained Flair model <hi rend="italic">ner-german</hi>
                <note>
                   <ref target="https://huggingface.co/flair/ner-german">https://huggingface.co/flair/ner-german</ref> (last accessed: 09.10.2025)</note> (Akbik et al., 2018). This model was trained on the CoNLL-03 revised dataset (Tjong Kim Sang and De Meulder, 2003), consisting primarily of modern, annotated newspaper articles. Using this model out of the box is the quickest approach, but its lack of knowledge about the target domain is expected to limit performance. It is important to note that the annotation guidelines for CoNLL-03 and the reduced HLR-GT dataset are not fully aligned. Hence some annotations that would be considered correct under CoNLL-03 standards may not be recognized as correct in our evaluation.</p>
-            <p>Flair: Fine-tuned</p>
+            </div>
+            
+            <div><!-- Fine-tuned -->
+            <head>Flair: Fine-tuned</head>
             <p>In this approach, the pre-trained <hi rend="italic">ner-german</hi> model is fine-tuned on the HLR-GT dataset. Fine-tuning is a suitable strategy when only limited raw data is available and training a language model from scratch is impractical. The objective is to enrich the base model with domain-specific knowledge as well as familiarity with the desired annotation guidelines. Fine-tuning was performed using the available training data for each scenario, with a learning rate of 0.00005 over 50 epochs. The number of epochs was determined through evaluation on the validation set during initial testing.</p>
-            <p>Flair: Customized</p>
+            </div>
+            
+            <div>
+            <head>Flair: Customized</head>
             <p>In this approach, we fine-tuned contextual character embeddings, the <hi rend="italic">de-forward</hi> and <hi rend="italic">de-backward</hi> models provided by Flair, using all available text from the historical land records<note> Not published at this date.</note> (including documents which are not part of the annotated dataset, totaling approximately 9 million tokens). Using these fine-tuned embeddings, we then trained custom SequenceTagger models in Flair with default parameters.<note> Sequence Tagger models in Flair are simple Bi-LSTM+CRF architectures.</note>
             </p>
-            <p>Other “Traditional” Embeddings</p>
+            </div>
+            
+            <div>
+            <head>Other “Traditional” Embeddings</head>
             <p>In preliminary experiments, we investigated the performance of BERT (Devlin et al., 2019), fastText (Bojanowski et al., 2017), and word2vec embeddings (Mikolov et al., 2013) in combination with the Flair sequence tagger, both with and without stacking alongside contextual character embeddings. When used without stacking, performance was significantly worse, while stacking did not yield any significant improvement. Therefore, these embeddings were not included in the experiments reported in this case study.</p>
-            <p>Generative AI (GPT-4o)</p>
+            </div>
+            
+            <div>
+            <head>Generative AI (GPT-4o)</head>
             <p>Several strategies have been proposed for prompting generative LLMs to perform entity extraction. In this study, we follow the recent approach by Hiltmann et al. (2025) and conduct our experiments with the framework NER4all.<note> Our version of the code, including the additions mentioned in this paper is available at https://github.com/raykyn/ner4all-ext-clean. The original NER4all code has since been refactored and been published under the name annotations4all under   https://scm.cms.hu-berlin.de/annotations4all/annotations4all. At the time of writing, the code of NER4all is not public. Hiltmann and his team provided the code to us directly. We will publicly share our version of the code with all adaptations such as similarity-based example retrieval and nested annotation after NER4all has been published. </note> All experiments were executed using <hi rend="italic">gpt-4o-2024-08-06. </hi>In the following sections, we detail the changes we made to the default NER4all configuration.</p>
-            <p>Detailed Context Prompt</p>
+               
+               <div>
+            <head>Detailed Context Prompt</head>
             <p>Following the recommendations of Hiltmann et al. (2025), we augmented the prompt with detailed contextual information. We selected a German full prompt, which demonstrated slightly better performance on the validation set. Further task-specific fine-tuning and adaptation of the prompt are described in the relevant sections. All prompt fine-tuning was conducted using a validation set comprising 83 documents. Complete prompts are provided in the appendix.</p>
-            <p>Similarity-based Examples</p>
+               </div>
+               
+               <div>
+                  <head>Similarity-based Examples</head>
             <p>As part of the prompt, the system is provided with a set of examples, which is particularly important for learning non-standard annotation guidelines. In Hiltmann et al. (2025), examples were manually selected to ensure coverage of all tags in the tagset.</p>
-            <p>When we simulate scenarios with limited training data in the following experiments, if the available training data is smaller than the number of shots, the examples are chosen randomly. Curated examples can perform better in such cases, as random selection may omit some entity classes or include only generic examples.</p>
+           
+                  <p>When we simulate scenarios with limited training data in the following experiments, if the available training data is smaller than the number of shots, the examples are chosen randomly. Curated examples can perform better in such cases, as random selection may omit some entity classes or include only generic examples.</p>
+                  
             <p>Given that the number of available examples often exceeds the prompt’s context length, we implemented a strategy proposed by Wang et al. (2025), who found that selecting contextually appropriate examples rather than random ones can substantially improve model output. The strategy aims to find examples that are similar to the given input. We use the <hi rend="italic">DocumentPoolEmbeddings</hi> provided by the Flair framework to combine the language models trained for the <hi rend="italic">flair-custom </hi>model to generate embeddings for all samples in our training data. During prompt construction, the input sample is embedded using the same method, and cosine distances to all training samples are calculated. The examples with the smallest distances, i.e., the most similar samples, are then selected to be presented to the model.</p>
-            <table>
+            
+                  <table><!-- Table 1 -->
+               <head>An example of how the similarity-based retrieval works to get annotation examples of different house references. Tags are omitted in favor of readability; the prompt will include each example with and without tags.</head>
                <row role="data">
                   <cell>Input</cell>
                   <cell>seinem Haus zur Büttenen genannt bey sant Urbans Brung nen gelegen</cell>
@@ -209,10 +202,15 @@
                   <cell>seinem Haus gegen sant Elsbethen überhin gelegen</cell>
                </row>
             </table>
-            <p>Table 1: An example of how the similarity-based retrieval works to get annotation examples of different house references. Tags are omitted in favor of readability; the prompt will include each example with and without tags.</p>
-            <p>Increased Shots</p>
+               </div>
+               
+               <div>
+                  <head>Increased Shots</head>
             <p>Hiltmann et al. (2025) report that a maximum of 32 examples (“shots”) is typically optimal due to the context window limitations of the models. In our experiments, we evaluated different shot counts on the validation set and selected the configuration that yielded the best performance: 128 shots for Task 1 and 64 shots for Task 2. Although the performance differences between 32, 64, and 128 shots were generally small, they were statistically significant. In Task 2, for instance, reducing the number of shots from 64 to 32 resulted in an approximate 2 percentage point decrease in performance.</p>
+               </div>
+            </div>
          </div>
+         
          <div>
             <head>Accuracy</head>
             <div>
@@ -220,32 +218,38 @@
                <div>
                   <head>Task Description</head>
                   <p>In this task, the models are required to identify conventional named entity spans, typically corresponding to proper nouns. The target categories are persons (PER), organizations (ORG), and locations (LOC). Geopolitical entities, which are tagged separately in the HLR-GT dataset, were mapped to these categories depending on context (e.g., “I live in Basel” ⇒ LOC, “I am a citizen of Basel” ⇒ ORG).</p>
+                 
                   <p>The HLR-GT contains 2,583 PER tags, 2,079 LOC tags, and 518 ORG tags.</p>
+                  
                   <p>We To assess the effect of available training data, models were trained or prompted using subsets of 4, 8, 16, 32, 64, 128, 256, 512, and 662/745 samples.<note> The maximum available training sample count varies slightly, because the sample count for Flair always includes the 10% of samples used for validation, while the sample count for GPT is exclusively using the training data at this point.</note> Thresholds of 4 and 8 were omitted for Flair models, as performance at these levels was entirely unusable. Each experimental configuration was executed three times to improve reliability of the results.</p>
                </div>
+              
                <div>
                   <head>Generative AI Setup</head>
                   <p>Validation set experiments indicated that a 128-shot configuration was optimal for this task. </p>
+                  
                   <p>Based on a review of NER4all’s performance on the validation set, we introduced additional instructions to address recurring errors in the model output. Specifically, the guidelines were extended as follows: 1) Annotate only proper names. 2) Assign geopolitical entities to the appropriate category based on context. 3) For organizations and locations, annotate the grammatical head. 4) Do not annotate names of saints when they occur as part of other entity names.</p>
                </div>
+               
                <div>
                   <head>Results</head>
                   <p>The results are plotted in figure 3 and listed as a table in appendix D. As expected, GPT-4o dominates the few-shot scenarios, outperforming the best-performing Flair models by 5-10 percentage points. Consistent with prior findings (Hiltmann et al., 2025), the non-fine-tuned Flair model performs substantially worse than all other approaches, likely due to its inability to handle the historical language and lack of knowledge regarding the annotation guidelines. Among the Flair models, the custom model trained from scratch achieved the highest performance, surpassing even the fine-tuned Flair model. The fine-tuned model’s relatively lower performance appears to result from the absence of a corpus-specific language model. Regarding GPT-4o, there appears to be a critical threshold in the number of examples provided: performance increases sharply from 16 samples (68.76% F1) to 32 samples (74.51% F1), with further significant gains observed as the number of samples doubles up to 256. Beyond this point, performance begins to plateau, with a slight upward trend observed at 662 samples. For Flair-Custom, results are highly variable when training data is limited. This may be attributable to the relatively small validation set, comprising approximately 10% of the total documents (e.g., only 3 documents in the validation set for the 32-sample scenario). A small validation set may cause training to terminate before an optimal model state is reached; however, initial testing indicated that increasing the validation set proportion generally worsened average performance. At around 128 samples, Flair-Custom matches GPT-4o performance, while at 256 samples, it outperforms all other models. Performance appears to plateau after 512 samples.</p>
-                  <figure>
-                     <head/>
-                     <graphic url="resources/images/image3.png"/>
-                  </figure>
-                  <p>Figure 3: Performance comparison of chosen models on different training data settings.</p>
+                  
+                  <!-- Figure 3 -->
                </div>
                <div>
                   <head>Error Analysis</head>
                   <p>To investigate the observed performance plateaus, we analyzed predictions classified as incorrect during automated evaluation. We found that 66% of Flair’s errors and 54% of GPT-4o’s errors could be attributed to one of the following categories:</p>
+                  
                   <p>1) <hi rend="italic">HTR-induced noise:</hi> Errors stemming from heavy transcription errors, where even human annotators could only roughly infer the correct annotation (Flair: 13%, GPT-4o: 8%).</p>
+                  
                   <p>2) <hi rend="italic">Ground truth inaccuracies:</hi> Cases in which the model’s prediction was actually correctcorrect, but the ground truth was erroneous (Flair: 19%, GPT-4o: 13%).</p>
+                  
                   <p>3) <hi rend="italic">Reasonable deviations:</hi> Predictions that differed from the ground truth but  were reasonable enough that they would likely not significantly affect downstream tasks, such as entity linking (Flair: 34%, GPT-4o: 33%). For example, the ground truth might mark “frowen zu Clingental” as the entity mention while the model only annotated “Clingental”, with both phrases referring to the same concept of the monastery of Klingental. These errors often mirror inconsistencies in the training data.</p>
+                  
                   <p>In addition, aApproximately 10% of errors in both models were simple ORG-–LOC confusions. While potentially more impactful for downstream tasks such as event recognition, these errors are of limited relevance for tasks like creating a corpus index. Additionally, GPT-4o occasionally annotated non-named entity references (e.g., “Brugg” as a bridge), which accounted for 10% of its errors. Again, for most downstream tasks, this would not be particularly problematic behaviour. Overall, only 28% of GPT-4o’s errors and 24% of Flair’s errors could not be explained by one of the categories above. Given the already strong performance of both models, this analysis suggests that further improvements would require substantially larger amounts of training data.</p>
                </div>
-            </div>
+            </div><!-- end task 1 -->
             <div>
                <head>Task 2: Nested Extraction</head>
                <div>
@@ -1869,7 +1873,55 @@
       </body>
       <back>
          <listBibl>
-            <bibl/>
+            <bibl xml:id="aguilar2022" label="Aguilar 2022">Aguilar, S. T. (2022) <title rend="quotes">Multilingual named entity recognition for medieval charters using stacked embeddings and bert-based models</title>, in <title rend="italic">Proceedings of the Second Workshop on Language Technologies for Historical and Ancient Languages</title>, pp. 119–128.</bibl>
+            
+            <bibl xml:id="akbik_etal2019" label="Akbik et al. 2019">Akbik, A. et al. (2019) <title rend="quotes">FLAIR: An easy-to-use framework for state-of-the-art NLP</title>, in <title rend="italic">Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics (Demonstrations)</title>, pp. 54–59.</bibl>
+            
+            <bibl>Akbik, A., Blythe, D., and Vollgraf, R. (2018, August). “Contextual string embeddings for sequence labeling.” In Proceedings of the 27th International Conference on Computational Linguistics, pp. 1638–1649.</bibl>
+            
+            <bibl>Blouin et al. (2021). “Transferring Modern Named Entity Recognition to the Historical Domain: How to Take the Step?”, in Workshop on Natural Language Processing for Digital Humanities (NLP4DH).</bibl>
+            
+            <bibl>Bojanowski, P. et al. (2017) “Enriching word vectors with subword information“, Transactions of the Association for Computational Linguistics, 5, pp. 135–146.</bibl>
+            
+            <bibl>DeepSeek-AI (2025) “Deepseek-r1: Incentivizing reasoning capability in LLMs via reinforcement learning“, arXiv preprint arXiv:2501.12948.</bibl>
+            
+            <bibl>Devlin, J. et al. (2019) “Bert: Pre-training of deep bidirectional transformers for language understanding“, in Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers), pp. 4171–4186.</bibl>
+            
+            <bibl>Ehrmann, M. et al. (2023) “Named entity recognition and classification in historical documents: A survey“, ACM Computing Surveys, 56(2), pp. 1–47.</bibl>
+            
+            <bibl>González-Gallardo, C. E. et al. (2023) “Yes but.. can chatgpt identify entities in historical documents?“, in 2023 ACM/IEEE Joint Conference on Digital Libraries (JCDL), pp. 184–189.</bibl>
+            
+            <bibl>Grover, C. et al. (2008) “Named entity recognition for digitised historical texts“, in Proceedings of the International Conference on Language Resources and Evaluation, LREC 2008, pp. 1343–1346.</bibl>
+            
+            <bibl>Hiltmann, T. et al. (2025) “NER4all or context is all you need: Using LLMs for low-effort, high-performance NER on historical texts. A humanities informed approach“, arXiv preprint arXiv:2502.04351.</bibl>
+            
+            <bibl>Hodel, T., Prada Ziegler, I., and Schneider, C. (2023) “Pre-Modern Data: Applying Language Modeling and Named Entity Recognition on Criminal Records in the City of Bern“. Presented at the Digital Humanities 2023. Collaboration as Opportunity (DH2023), Graz, Austria. Available at: https://doi.org/10.5281/zenodo.8107616 (Accessed: 4 September 2026).</bibl>
+            
+            <bibl>Keraghel, I., Morbieu, S., and Nadif, M. (2024). “A survey on recent advances in named entity recognition: a comprehensive survey and comparative study.” arXiv preprint arXiv:2401.10825.</bibl>
+            
+            <bibl>Klie, J. C. et al. (2018) “The INCEpTION platform: Machine-assisted and knowledge-oriented interactive annotation”, in Proceedings of the 27th International Conference on Computational Linguistics: System Demonstrations, pp. 5–9.</bibl>
+            
+            <bibl>Krug, M. et al. (2017) “Description of a corpus of character references in German novels - DROC [Deutsches ROman Corpus]”. Available at: https://publications.goettingen-research-online.de/bitstream/2/108301/1/dwp-2018-27.pdf (Accessed: 4 September 2026).</bibl>
+            
+            <bibl>Mikolov, T. et al. (2013) “Efficient estimation of word representations in vector space”, arXiv preprint arXiv:1301.3781.</bibl>
+            
+            <bibl>OpenAI (2023) “GPT-4 technical report”, arXiv preprint arXiv:2303.08774.</bibl>
+            
+            <bibl>Prada Ziegler, I., Hitz, B. and Fuchs, K. (2025) “The Basel Land Records Ground Truth: An annotated dataset for information extraction on German-language administrative records”, Journal of Open Humanities Data, 11(1), 82. Available at: https://doi.org/10.5334/johd.387 (Accessed: 4 September 2026).</bibl>
+            
+            <bibl>Prada Ziegler, I. (2024) “Exploration of event extraction techniques in late medieval and early modern administrative records”, in Proceedings of the Computational Humanities Research Conference 2024, pp. 761–771.</bibl>
+            
+            <bibl>Prada Ziegler, I. (2024b) “What's in an entity? Exploring nested named entity recognition in the historical land register of Basel (1400-1700)“. Presented at DH Benelux 2024, Leuven, Belgium. Available at: https://doi.org/10.5281/zenodo.11500543 (Accessed: 4 September 2026).</bibl>
+            
+            <bibl>Tjong Kim Sang, E. F. and De Meulder, F. (2003) “Introduction to the CoNLL-2003 shared task: Language-independent named entity recognition“, in Proceedings of the Seventh Conference on Natural Language Learning at HLT-NAACL 2003, pp. 142–147.</bibl>
+            
+            <bibl>Schweter, S. and Baiter, J. (2019) “Towards robust named entity recognition for historic German“, in Proceedings of the 4th Workshop on Representation Learning for NLP (RepL4NLP-2019), pp. 96–103.Schweter, S., &amp; Baiter, J. (2019). Towards robust named entity recognition for historic German. arXiv preprint arXiv:1906.07592. </bibl>
+            
+            <bibl>Schweter, S. and März, L. (2020) “Triple E - Effective ensembling of embeddings and language models for NER of historical German“, in CLEF (Working Notes).</bibl>
+            
+            <bibl>De Toni, F. et al. (2022) “Entities, dates, and languages: Zero-shot on historical texts with t0“, arXiv preprint arXiv:2204.05211.</bibl>
+            
+            <bibl>Wang, S. et al. (2025) “GPT-NER: Named entity recognition via large language models“, in Findings of the Association for Computational Linguistics: NAACL 2025, pp. 4257–4275.</bibl>        
          </listBibl>
       </back>
    </text>
