@@ -1,0 +1,799 @@
+Title:  Open Tool Registries! Resolving the Directory
+                    Paradox with Wikidata 
+Volume:  020
+Issue:  1
+Date:  27 February 2026
+Abstract:  
+                
+                This paper introduces the conceptual framework for open and community-curated
+                    tool registries, posing that such registries provide fundamental value to any
+                    field of research by acting as curated knowledge bases about a community’s past
+                    and current methodological practices as well as authority files for individual
+                    tools. The modular framework of a basic data model, SPARQL queries, bash
+                    scripts, and a prototypical web interface builds upon the well-established and
+                    open infrastructures of Wikimedia, GitLab, and Zenodo for creating, maintaining,
+                    sharing, curating, and archiving linked open data. We demonstrate the
+                    feasibility of this framework by introducing our concrete implementation of a
+                    tool registry for digital humanities, initially repurposing data from existing
+                    silos, such as TAPoR and the SSH Open Marketplace, and retaining the established
+                    TaDiRAH classification scheme while being open to communal editing in every
+                    aspect.
+            
+Full Body Text: 
+
+                Introduction
+                The digital humanities have a strong culture of discussing their tooling.
+                    However, apart from projects documenting their workflows with fine-grained
+                    metadata, the field has not yet developed widely adopted practices for
+                    unambiguously citing and referencing such tools or keeping a record of their use
+                    and utility for particular research projects 
+                    
+                    
+                     . If at all, authors mostly
+                    deploy URLs to websites or code repositories We ourselves are guilty of
+                        this referencing practice, e.g.  (grallert,
+                    2022)., which — like all URLs — are prone to link rot and do not further
+                    contextualise a given software. Tool registries thus address an obvious and
+                    concrete need of research communities and individual practitioners for
+                    transparency and guidance. They collect basic information on software (e.g.
+                    names of developers, licenses, version numbers, dependencies, links to code
+                    repositories) and add some classification as to their purpose within the
+                    research process. In fields with rapidly evolving and complex technology stacks,
+                    such as the digital humanities, registries, done right, could serve as one-stop
+                    shops for providing a comprehensive and up-to-date overview of (computational)
+                    methods and their implementation in specific software, and thus provide a central
+                    service within the knowledge ecology. Ideally, they would form part of the
+                    semantic web that might guide researchers to projects, publications, and
+                    tutorials, and allow them to evaluate the utility of a particular tool for their
+                    own needs.
+                
+                    Tool Registries in the Digital Humanities
+                     Registries of computational tools have grown into a well-established genre
+                        within the digital humanities (see  for a history of tool
+                        registries in DH): from DiRT (Directory of Research
+                            Tools) to Bamboo and the Canadian Text Analysis
+                            Portal for Research (TAPoR
+                         3), from large EU projects like the
+                            
+                            Social Sciences and Humanities Open Marketplace
+                            (SSHOM) to DARIAH’s (Digital Research
+                            Infrastructure for the Arts and Humanities) now defunct Tools E-Registry for E-Social science, Arts and
+                            Humanities (TERESAH),
+                        or, in Germany, multiple independent registries developed as part of the National Research Data Infrastructure (NFDI) and the
+                        Specialized Information Services (Fachinformationsdienste (FID)  
+                                 ). In practical terms, these tool
+                        registries are of a dual nature. On the one hand, they embody a field’s
+                        methodological knowledge, the archive of scholarship as techné, This is inspired by Derrida’s (1996) call for an archivology and his genealogy of the archive as
+                            grounded in the Latin archivum from Greek arché as commencement and
+                                commandment , Foucault’s Archaelogy of Knowledge
+                                , and Heidegger’s
+                                writing on technology  (c.f. ). connecting information about tools to information about
+                        their use and purpose. On the other hand, registries are part of the
+                        socio-technical infrastructures of the information age to maintain and
+                        access the record of that knowledge. It is evident that, at least in the
+                        practical reality of limited resources, their aims must remain aspirational
+                        in both their content and their infrastructural implementation.
+                    Most tool registries approach knowledge about techné
+                        and the infrastructure needed to maintain this knowledge through an archival
+                        framework, with its fundamental hierarchy and power relations between
+                        knowledge production and knowledge consumption housed and controlled by
+                        institutions largely unaccountable to the démos and
+                        enforced by the archon (chief magistrate) (c.f.
+                          ). This is not to say that
+                        the archive is governed by ill will. To the contrary. But academic knowledge
+                        ecologies are both inherently conservative and hierarchical. Within such a
+                        framework, registries seem a sufficiently familiar task to which we can
+                        readily apply our well-established models and practices: pro-bono expert
+                        peer-review, grant-funded project cycles, curatorial hierarchies, and
+                        tightly controlled vocabularies and technical infrastructures.
+                        Unfortunately, these commonly result in proprietary data silos and slowly
+                        dying interfaces.
+                    Quinn Dombrowski (2021) has coined the term directory
+                            paradox to describe the inevitable failure of such approaches to
+                        knowledge curation to answer the scholarly need for always up-to-date
+                        information in quickly developing fields. Against the backdrop of their own
+                        involvement with DiRT and the TaDiRAH classification scheme, Dombrowski argues that despite the
+                        considerable resources poured into existing tool registries, they have all
+                        failed as infrastructures and part of larger scholarly ecosystems, as long
+                        as their content and siloed technical infrastructure depend on unpaid
+                        volunteer and grant funding  (c.f. ).
+                        However, we do not agree with a view that such ‘registries’ only have value
+                        if the data that underpins them is constantly updated . Instead, they can, and probably should, be considered snapshots or
+                        documentations of a field’s historical practices at given points in time and
+                        space (c.f. ).
+                    We argue that the resulting tension between researchers and library patrons
+                        seeking up-to-date information to solve an issue at hand and curators, who
+                        are painfully aware of any given catalogue entry’s quality as a historical
+                        artefact bound up in the contingencies of its making, cannot be resolved.
+                        We, therefore, propose to shift our perception and start treating catalogues
+                        and registries as the imperfect but living documents they are — digital
+                        commons that need communal care and upkeep.
+                    Gathering and curating information about a large and ever-growing number of
+                        tools requires substantial resources and skilled domain experts in a broad
+                        range of fields. The common solution to this problem is to build on existing
+                        bodies of knowledge or, in other words, to continuously repackage already
+                        existing data in new interfaces. Our libraries’ cataloguing ledgers have
+                        been superseded by index cards, which were then scanned into a (Card) Image
+                        Public Access Catalogue (CIPAC or IPAC), transcribed into digital texts, and
+                        ingested into database systems that power OPACs (Open Public Access
+                        Catalogue) (c.f. ). Today, these data are feeding large
+                        commercial aggregators, and they are harvested for training large language
+                        models and retrieval-augmented generation systems. 
+                    
+                        SSHOM is an example
+                        of such a genealogy of tool knowledge. As part of the European Open Science Cloud (EOSC) under the European Commission’s
+                            Horizon 2020 programme, SSHOM was built by
+                        DARIAH, the Common Language Resources and Technology
+                            Infrastructure (CLARIN),
+                        and the Consortium of European Social Science Data
+                            Archives (CESSDA)
+                        between 2019–23 and is considered a flagship service for DARIAH. In May
+                        2023, SSHOM hosted information on almost 1,700 items. More than 1,200 of
+                        these were ingested from TAPoR over a few days in late 2022. This
+                            information is transparently provided on the item level through the API
+                            (see below). The website is much quieter about this fundamental heritage
+                            and only lists TAPoR 3 as one of 15 trusted sources .
+                        TAPoR, in turn, has a strong focus on
+                        textual research. Its current iteration integrated yet another popular tool
+                        registry, DiRT, in 2017/18, which itself had originated from earlier tool
+                        registries such as Bamboo    . Our Wikidata-based tool registry, outlined on the
+                        following pages, follows this example and integrates SSHOM and TAPoR into a
+                        linked-open-data environment.
+                
+                
+                    Yet another tool registry?
+                    The conceptual and technical approach to building a Wikidata-based, open tool
+                        registry is rooted in the multidisciplinary background and diversity of job
+                        roles of those involved. As a team, we needed both a means to curate tool
+                        boxes for specific research questions and disciplinary assemblages of
+                        methods as well as an authority file for unambiguously identifying software
+                        in research outputs and lab notes. Neither requirement was satisfied by
+                        existing tool registries.
+                    The first use case is one we frequently encounter in consulting and service
+                        contexts in the library . Digital scholarship librarians or,
+                        more broadly, digital scholarship experts offering research support
+                        services, bring their own expertise regarding specific fields of research,
+                        scientific methods, and digital tools. Library teams — including teams of
+                        one — integrate consulting services with other formats like workshops. They
+                        might even offer basic infrastructure as digital scholarship support and act
+                        as technical partners for research projects. Institutionalized teams or
+                        larger institutional contexts often work with team-specific toolsets and
+                        technological stacks, which need to be documented for further reference,
+                        e.g. when documenting use cases or research output. Researchers, in turn,
+                        seek information regarding the possibilities for implementing computational
+                        workflows adapted to specific research questions and research data along the
+                        full data life-cycle from aggregation to publication. In such contexts,
+                        curated lists of tools reflect team expertise and recommendations for tools
+                        optimized for local target groups. It is essential that contributing to such
+                        lists is fairly simple. It ought to be governed by expertise and experiences
+                        with particular tools and not tied up in institutional hierarchies.
+                    Secondly, we were looking for a publicly-accessible authority file of tools,
+                        a single source-of-truth about software, which would allow us to
+                        unambiguously identify and reference tools employed in the course of a
+                        research project (c.f. ). Such an authority file
+                        would also greatly facilitate the ability to quickly and transparently
+                        curate the tool lists mentioned in our first use case without a need for
+                        manually maintaining and updating redundant information: a catalogue to
+                        follow up on methods and tools mentioned in other scholars’ research
+                        output.
+                    The approach proposed here is designed to address both use cases by providing
+                        the basic infrastructure to put together a well-curated data set for local
+                        communities and make it possible to store aggregated and enhanced data sets
+                        ready for reuse.
+                
+                
+                    Design goals
+                    The design goals for our tool registry are tailored towards librarians,
+                        researchers, and institutions. All of these groups possess domain-specific
+                        knowledge about tools and methods. At the same time, they could make good
+                        use of descriptions and documentation provided by peers. Therefore, all
+                        components of the system — data, software, documentation — shall be open,
+                        re-usable, adaptable, and sustainable without continuous access to labour
+                        and funding for specific teams of curators. Data produced through the
+                        application of modules or components shall satisfy the FAIR criteria . Users shall also be able to
+                        browse and compare data through workflow descriptions or basic modules,
+                        e.g. a web frontend with a search interface and browsing functions.
+                    Our approach is rooted in minimal computing practices
+                          and the Endings Principles for
+                            Digital Longevity . We acknowledge the resources at hand
+                        and the constraints under which we operate. As a small team of humanities
+                        scholars on fixed-term contracts in various grant-funded research and
+                        infrastructure projects, without access to institutional commitments beyond
+                        our own labour time, we learned how to produce, disseminate, and preserve
+                        digital scholarship ourselves, without the help we can’t get, even as we
+                        fight to build the infrastructures we need at the intersection of, with, and
+                        beyond institutional libraries and schools . We optimised
+                        for sustainability and adaptive reuse by consequently separating data and
+                        interfaces into independent components, minimising complexity, and opting
+                        for openness on every level. Relying on existing infrastructures with proven
+                        track records whenever possible reduces overhead for hardware and software
+                        to the bare minimum.
+                
+            
+
+                Core components
+                Our tool registry is built around Linked Open Data and Wikidata, which provides
+                    the socio-technical infrastructure that sustains our effort. Ultimately, our
+                    main contribution is conceptual, designing data models, queries, and workflows
+                    that instantiate a catalogue of cultural artefacts on top of Wikidata. In order
+                    to demonstrate the feasibility of the conceptual framework, we also contributed
+                    major data sets from existing tool registries to Wikidata.
+                
+                    Wikidata
+                    Wikidata is the largest public knowledge graph with hundreds of millions of
+                        items published under a public domain license. See https://www.wikidata.org/wiki/Wikidata:Statistics for
+                            up-to-date statistics. Such a graph structures information about
+                        real-world entities following the Linked Open Data paradigm in statements,
+                        which construct relations between items, such as This item is called
+                        Gephi, Gephi is a piece of software, Gephi can be used for social
+                        network analysis, etc. Established in 2012 by the Wikimedia Foundation,
+                        Wikidata is part of the Wikiverse and the structured sister to Wikipedia.
+                        Wikibase, the software it runs on, is maintained as free and open-source
+                        software (FOSS) (c.f. ). Most importantly, Wikidata is also
+                        an international community of active and passionate volunteers contributing
+                        their time and knowledge to a shared knowledge ecology.
+                    Wikidata addresses many of the weaknesses of existing tool registries, as
+                        outlined above. Firstly, Wikidata inherently adheres to the FAIR principles
+                        by making all data findable, accessible, interoperable, and reusable . Even better, Wikidata provides five-star Linked Open Data (LOD)
+                        :
+                    
+                        Data are available on the web with a public domain licence
+                            (CC0);
+                        Data are machine-readable structured data;
+                        Data are serialised in non-proprietary formats;
+                        Data adhere to open standards; and
+                        Data link to other people’s data to provide context.
+                    
+                    Data can be accessed and linked to through multiple APIs (application
+                        programming interfaces), including SPARQL endpoints, with canonical
+                        identifiers for all items and properties and permanent, versioned URIs for
+                        each edit. In fact Wikidata recommends to always reference the
+                            versioned permanent URL instead of the canonical ID; see https://www.wikidata.org/w/index.php?title=Special:CiteThisPage&page=Q25212027&id=2313077072&wpFormIdentifier=titleform
+                            for citations of https://www.wikidata.org/w/index.php?title=Q25212027&oldid=2313077072.
+                        
+                    
+                    Secondly, Wikidata is a well-established, open infrastructure with large
+                        communities of users, contributors and maintainers, which far exceeds
+                        anything we as scholars could ever achieve on an infrastructural level. As
+                        such, it is increasingly adopted as a platform to share authority data by
+                        GLAM institutions and research projects  
+                           . Thirdly, the
+                        underlying Wikibase software is user-centered, despite Wikidata’s seeming
+                        emphasis on data. It provides easy tools and protocols for collaboratively
+                        editing and contributing data. The threshold for contributing to a tool
+                        registry on Wikidata is thus rather low, compared with solutions that employ
+                        technical and organisational gatekeeping mechanisms like login or expert
+                        verification.
+                    Relying on Wikidata as a data store positions tool data as part of the
+                        commons. All data on tools can thus become objects of distributed and
+                        collaborative efforts to aggregate, sustain, and develop knowledge on tool
+                        usage in digital humanities. Most importantly, we are not limited to this
+                        particular field. Linked Open Data and Wikidata allow us to engage and join
+                        efforts with other communities working with structured descriptions of
+                        software, e.g. due to the growing necessity for process metadata or software
+                        preservation purposes .
+                    Such openness comes with its own challenges. Libraries and large
+                        infrastructure projects, as well as researchers curating information are
+                        commonly wary to cease authority over their data sets to volunteer-driven,
+                        radically open projects. While active misinformation campaigns do not
+                        constitute a significant problem on Wikidata, misidentification of items and
+                        erroneous edits occur on a daily basis. We strongly believe that the
+                        benefits of using Wikidata as a platform and open knowledge graph outweigh
+                        the potential imperfection of individual data points by far. We argue that
+                        imperfect information is already a major feature of tool registries. If at
+                        all, Wikidata makes it easier to correct data points and keep information up
+                        to date. We also address the fluidity of data by saving weekly, versioned
+                        screenshots of the data that constitutes our tool registry to
+                        publicly-funded research data repositories. 
+                    It is important to point out that Wikidata does not remove the need for data
+                        stewardship. Somebody has to put in the necessary labour. But unlike siloed
+                        custom infrastructures, sharing, distributing, and transferring such
+                        stewardship for the commons is a central pillar of the Wikiverse.
+                
+                
+                    Data models
+                    We provide a basic object-oriented data model for tools as objects as a
+                        reference model. We consider this reference model as a minimal basic set
+                        that can and should be extended with domain specific and research specific
+                        elements. This means that while everyone is able to use their own models,
+                        all information added to Wikidata will immediately become part of the shared
+                        tool registry as long as these models respect the basic reference model.
+                    Wikidata follows no strict ontology but instead applies an open, bottom-up
+                        approach, which is famously referred to as a folksonomy (a term coined by ), with a very basic
+                        and deliberately generic data model of items
+                        (identifiers starting with Q) and properties
+                        (identifiers starting with P) connecting items to other items or values of various data types (strings, dates,
+                        integers …) through statements. All statements can
+                        carry properties as qualifiers and references to the source for this
+                        information. A large part of the statements in Wikidata are properties
+                        linking to other platforms and authority files through external identifiers.
+                        All properties might come with a set of formal constraints, which, if
+                        violated, will result in various warning flags in the Wikidata web
+                        interface. All items should carry two special string-value properties for
+                        multilingual human-readable labels and descriptions. The only mandatory
+                        property is instance of (P31) linking to one or more items, without which an
+                        item would not be connected to the larger knowledge graph. But even this
+                        constraint is not strictly enforced on a technical level (c.f.
+                        .
+                    Such a generic and unconstrained data model makes it hard to query Wikidata
+                        with a predictable result, but it provides a flexible system for any
+                        conceivable, community-driven data modelling: Data models exist largely
+                        through communities of practice adhering to them and providing the necessary
+                        SPARQL queries for building sub graphs. To this end, we set up a WikiProject documenting our approach and data model as a port of
+                        entry to build a community of people and institutions wanting to maintain a
+                        tool registry . A community-oriented documentation and discussion process through the
+                            WikiProject provides a channel for working on the common
+                        reference model and evolving the data model regarding mandatory and optional
+                        qualities as well as additional modules developed for specific purposes. As
+                        an added bonus, WikiProjects rank highly on search engines.
+                    
+                        Our basic data model
+                        We differentiate between a number of concepts to model the relation
+                            between a tool and its purpose:
+                        
+                            Research tools comprise both methods and concrete software.
+                            Methods are informed by theories and have a purpose.
+                            Methods are implemented through (multiple) layers of software,
+                                which, in turn, require hardware and
+                                infrastructural resources such as electricity, internet connectivity
+                                or licences and which interact with data formats and serialisations (reading
+                                and writing).
+                            Software is written in programming languages and can be interacted
+                                with through interfaces. Command line
+                                interfaces and application programming interfaces require knowledge
+                                of programming languages to interact with them.
+                            Methods, languages, and formats rely on and implement abstract concepts.
+                            
+                        
+                        The tool registry is concerned with only a subset of this larger
+                            ontology: software and methods. The basic data model for software requires no mandatory information in addition to the
+                            Wikidata base model of label, description, and instance of
+                                (P31) beyond the has use
+                                (P366) property that associates software with one or more methods.
+                        The basic data model for methods is even more
+                            rudimentary. Here the only mandatory property is a TaDiRAH ID
+                                (P9309) that proclaims equivalence to a concept within The
+                            Taxonomy of Digital Research Activities in the Humanities (TaDiRAH, see below).
+                            Figure 1 shows a schematic of this data model conceptualising Gephi as
+                            an instance of Software that can be used for network analysis.
+                            Additionally, the source for this claim is identified through a
+                            reference to the URI of an entry in the SSHOM.
+                        
+                            Schematic of our basic data model, using Gephi (Q5548660) as an
+                                example.
+                            
+                            Small graph with multi-coloured nodes connected by black arrows signifying property statements. Arrows and nodes are labeled with their Wikidata IDs. Blue nodes signify Wikidata items. These are connected to labels (white), value nodes (purple), and statement nodes (yellow). Statment nodes are connected to reference nodes (green).
+                        
+                    
+                    
+                        TaDiRAH mapping
+                        Like all archives, tool registries depend on classification schemes and
+                            taxonomies in order to file, retrieve, and produce knowledge about an
+                            item in their collection. Over the course of the last decade The
+                            Taxonomy of Digital Research Activities in the Humanities (TaDiRAH) has become
+                            the most widely adopted classification scheme in the digital humanities
+                            and is used in its current version (>2.0) for author-assigned
+                            classifications of conference submissions to the Alliance of Digital Humanities Organizations (ADHO) and Digital Humanities im deutschsprachigen Raum
+                            (DHd) conferences as well as SSHOM (TAPoR uses the older, incompatible
+                            version of TaDiRAH).
+                        
+                            TaDiRAH was
+                            developed from the mid-2010s onwards in the tradition of John Unsworth’s
+                            scholarly primitives (; For the genealogy
+                            of TaDiRAH see ). Members of DARIAH-DE and BambooDiRT
+                            developed TaDiRAH on the basis of the 
+                                ICT Methodology
+                            , which itself had evolved from the AHDS Taxonomy of Computational
+                            Methods (2003–) under the auspices of the Oxford University Digital
+                            Humanities Programme. The first version of TaDiRAH (v0.5) was released
+                            in 2016   as a four-level hierarchy of goals, methods, techniques, and objects.
+                            The current iteration (>v2.0) was released in 2021  and
+                            has been redesigned from the ground up as a SKOS vocabulary (Simple Knowledge
+                                Organization System). Unlike earlier iterations, it only
+                            covers methods and techniques as a single type of entities, which can
+                            nest in three hierarchical layers. Therefore, v2.0 is not backwards
+                            compatible with earlier versions.
+                        The major strengths of TaDiRAH are its wide adoption across the field of
+                            digital humanities and its integration into wider Linked Open Data (LOD)
+                            infrastructures as part of the DARIAH Vocabs services, which is maintained by the Austrian Centre for Digital Humanities and Cultural
+                                Heritage (ACDH-CH) of the Austrian Academy of
+                                Sciences. In addition, a partial mapping between TaDiRAH and
+                            Wikidata has been implemented on both sides. The Wikidata property TaDiRAH ID
+                                (P9309) was created in 2015 by Adam Schiff, Principal
+                            Cataloger at the University of Washington Libraries in Seattle, to state
+                            equivalence between a Wikidata item and a TaDiRAH class.
+                        However, TaDiRAH has major flaws rather similar to those of tool
+                            registries:
+                        
+                            Development depends on voluntary labour and thus the vocabulary
+                                has been dormant for a number of years.
+                            The current version and its documentation have been hard to find.
+                                Until September 2025, when the team finally updated the GitHub
+                                    repository to v2.0, search engines usually returned the
+                                incompatible v0.5 (see also ).
+                            The SPARQL endpoint and API, which would serve the classification
+                                scheme as RDF, are frequently down.
+                        
+                        Despite of these weaknesses, potential competitors and successors have
+                            not been successful. The NeDiMAH Methods Ontology for the Digital
+                                Humanities (NeMO)  , developed with substantial
+                            funding from the European Science Foundation by the Network for Digital Methods in the Arts and Humanities (NeDiMAH) from 2011 to 2015
+                             is a CIDOC CRM-compliant ontology and provided a mapping
+                            from TaDiRAH but has seen no traceable adoption. The academic
+                                knowledge graph OpenAlex finds only 9 references. This might be due to information on
+                            NeMO — quite fittingly, given its name — being incredibly hard to come
+                            by. The official website is outdated and has not been updated with the
+                            project results, and access to the documentation, although officially
+                            licensed under CC BY-NC-SA 4.0, requires a login on http://nemo.dcu.gr/resources/.
+                        Given its wide adoption, including our seeding data set of tools from
+                            SSHOM and TAPoR, we have therefore opted to retain TaDiRAH
+                            classification as the main organising principle for our tool registry.
+                            The system is flexible enough to adopt other classification systems
+                            should they emerge, as long as their identifiers are mapped to a
+                            Wikidata property.
+                        The TaDiRAH classification of items is implemented through the has use
+                                (P366) property, linking to other Wikidata items that carry a
+                                TaDiRAH
+                                ID (P9309). To this end, we completed the mapping between
+                            Wikidata and TaDiRAH so that all TaDiRAH classes can now be found on
+                            Wikidata (see below).
+                    
+                    
+                        Optional parts of the basic data model and curating collections of
+                            tools
+                        The basic data model leverages the weaknesses of an open-world knowledge
+                            graph without a formal ontology to our advantage as it can be easily
+                            extended to accommodate additional information on individual items, such
+                            as licenses, version numbers, URIs of a source code repository, etc. For
+                            this purpose, our basic data model proposes a number of optional
+                            statements.
+                        A core requirement for our tool registry is the ability for diverse
+                            communities to curate their own collections. This can be done through
+                            the property collection (P195)
+                            pointing to one or more Wikidata items describing the collection and
+                            potentially naming curators and contributors (Figure 2). We have
+                            implemented two such collections, SSHOM (Q131847864)
+                            and TAPoR (Q3979414), to
+                            document existing tool registries that formed the basis of our data set
+                            (see below). Note that such collections are not necessarily limited to
+                            tools classified with TaDiRAH.
+                        
+                            Schematic of the data model for modelling registries as
+                                collections, using Gephi (Q5548660) as an example
+                            
+                            Small graph of item and label nodes connected by black arrows signifying property statements. Arrows and nodes are labeled with their Wikidata IDs.
+                        
+                    
+                    
+                        Domain-specific extensions
+                        This approach also allows us to accommodate the needs of other
+                            communities that might want to model additional, domain-specific
+                            relations. One such extension has been implemented by some of the
+                            authors as part of a survey of the fields of digital humanities and
+                            digital history. There, we model the relation between methods
+                            (classified with TaDiRAH), research output in the form of publications
+                            and conference papers, and their authors. This extension then allows to
+                            ask for exemplary applications of a method and the tools (potentially)
+                            used by specific scholars , which, in turn, allows us to
+                            track the popularity of tools over time or to build training curricula
+                            based on the relevance of particular tools for specific fields (see for
+                            instance method_
+                            authors.rq from ).
+                    
+                
+                
+                    Frontends
+                    Wikidata provides several interfaces: a web frontend, APIs, and a SPARQL endpoint. All of these
+                        interfaces come with constrains or a non-trivial amount of complexity that
+                        necessitate prior knowledge about data structures, protocols, query
+                        languages, or hardware-specific extensions to such standards.
+                    Wikidata’s default interface is the Linked Data
+                            Interface (Figure 3). It emphasises the platform’s use as an
+                        authority file by focusing on individual items. The Linked Data Interface functions both as a view and as an input mask, enabling
+                        rather efficient data processing for a graphic user interface. This is
+                        greatly facilitated by the simple presentation of a list of statements
+                        currently available for any specific item, including all qualifiers and a
+                        summary of existing references. However, this reduced presentation has its
+                        own disadvantages. For example, the rather technical design of the
+                        interface, which is based on the principles of Linked Open Data (LOD), can
+                        be perceived as cumbersome and less intuitive, especially for new users and
+                        those unfamiliar with knowledge graphs.
+                    
+                        Figure 3: The item Gephi (Q5548660) in Wikidata’s Linked Data Interface.
+                        
+                        
+                        Screenshot of the tabular display of information for a single item on Wikidata. At the top is a table with labels, descriptions and aliases for multiple languages. Below, follow property statements.
+                    
+                    But most importantly, by focusing on individual items, this interface does
+                        not provide direct access to the underlying knowledge graph. There is no
+                        obvious or simple means for accessing and visualising specific subsets of
+                        the knowledge graph — e.g. all tools that can be used for social network
+                        analysis. Without such a means to return curated tool lists, Wikidata could
+                        solely serve as an authority file. Hosseini Beghaeiraveri et al. (2023) show that subsetting massive
+                            knowledge graphs such as Wikidata has become more relevant in recent
+                            years . However, the selection of approaches and
+                            tools evaluated in their study also demonstrate that there is no
+                            standardised procedure to be easily applied to the tool registry.
+                    
+                    
+                        Query tools with SPARQL
+                        As stated above, the data model is fundamentally instantiated through
+                            SPARQL queries linking tools to classifications or collections. We
+                            therefore provide a set of modular queries for use in various
+                            applications and to ease access to SPARQL for colleagues less
+                            comfortable writing their own queries from scratch .
+                            Each query first asks for all items with a TaDiRAH ID, that is items
+                            which our model considers to be methods. It then
+                            queries for all items that point to at least one of those methods
+                            through the has use (P366) property and which are instances of Software
+                            or its subclasses:SELECT DISTINCT
+     ?tool ?toolLabel # only get Software-ID and Software-Name
+WHERE {
+     ?method wdt:P9309 ?tadirahID.         # Variable method is a tadirah-method
+     ?tool wdt:P366 ?method;               # Variable tool 'has method' method
+          (wdt:P31/(wdt:P279*)) wd:Q7397. # and tool is child of "Software"
+     SERVICE wikibase:label {
+           # set wikibase-service to auto-language with fallback english
+           bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en".
+           # get the tool-label (=name) of our tool.
+           ?tool rdfs:label ?toolLabel.
+     }
+}This query returns the IDs of items and their labels as a potential
+                            sanity check for human readers. The ID can then be used in further
+                            SPARQL queries, API calls, or the plethora of tools for interacting with
+                            Wikidata hosted on Toolforge, ranging from 
+                                Scholia
+                            , a long-running project for querying and visualising
+                            scientometrics , to 
+                                Reasonator
+                            , which displays Wikidata items in a view optimised for their
+                            particular item-type and enhanced with some basic reasoning.
+                        Another option is to directly query for tools in curated collections,
+                            such as SSHOM (Q131847864) and TAPoR (Q3979414), as
+                            mentioned above. #title:Tools in the SSHOM
+#defaultView:Table
+PREFIX collection:<http://www.wikidata.org/entity/Q131847864> # a specific collection
+SELECT 
+     ?tool ?toolLabel
+WHERE { 
+     ?tool wdt:P195 collection: ;      # items in the collection
+           wdt:P31/wdt:P279* wd:Q7397. # limit tools to software in the broadest sense
+     SERVICE wikibase:label 
+          bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en".
+          ?tool rdfs:label ?toolLabel.
+       }
+}
+LIMIT 3000However, writing and adapting such queries require profound knowledge
+                            of the SPARQL query language, which makes it difficult to use for many,
+                            if not most potential users. A number of research teams are testing the
+                            application of LLMs or LLM-based systems for interacting with knowledge
+                            graphs and SPARQL endpoints in natural language with promising results
+                               . All current LLMs
+                            are pretty good at generating syntactically correct SPARQL but cannot be
+                            relied upon to correctly identify entities and properties of any given
+                            knowledge graph. Based on our anecdotal testing, the prototypical SPINACH chat bot,
+                            which was specifically designed for querying Wikidata with SPARQL,
+                            outperforms any general purpose LLM and is a great entry point for those
+                            with only cursory knowledge of SPARQL . As always, one needs
+                            to check the suggestions for plausibility and the more specific the
+                            natural language instructions, the better will be the results. 
+                    
+                    
+                        Tool Registry Frontend Module
+                        In order to overcome the limitations of the Linked Data Interface and
+                            SPARQL, we developed 
+                                ToolFindr
+                            , a prototypical web frontend for the tool registry to be used in
+                            the context of the Kompetenzwerkstatt Digital Humanities (KDH) at the university
+                            library of Humboldt-Universität zu Berlin. The idea of using Wikidata as
+                            a database and authority file for web applications has successfully been
+                            implemented by multiple other projects. Good examples are the 
+                                Archivführer Kolonialzeit
+                             and 
+                                Scholia
+                            . The core argument for this architecture is that one can build
+                            custom interfaces for specific communities based on standardised and
+                            well-documented APIs while retaining all the advantages of Wikidata
+                            communities of contributors and its centralised and persistent data
+                            storage without being locked into its user interface.
+                        ToolFindr offers specialised search and some facetted browsing options
+                            for digital humanities tools, as well as a more reader-friendly
+                            individual view of the tools compared to Wikidata’s native linked data
+                            interface. It also enables the integration of corporate design elements
+                            and the provision of additional background information relevant to
+                            stakeholders in the library. We took particular care to strictly
+                            maintain the separation between data and presentation levels in order to
+                            ensure data integrity and reusability.
+                        
+                            Figure 4: The front-end application developed in the KDH uses Wikidata as
+                                a database and authority file.
+                            
+                            Screenshot of a website showing details for a specific software tool. The layout is inspired by index cards. There are number of marginal comments to the right of the index card. The page header shows a simple navigation bar. The footer displays a copyright notice (CC0) and institutional logos.
+                        
+                        In order to facilitate installation and operation — and to minimise the
+                            hurdles for subsequent use by other projects — the frontend is
+                            implemented as a static website and published via GitHub pages
+                            . This decision minimises the maintenance effort and
+                            makes it easy to deploy the frontend.
+                    
+                
+            
+
+                Data and Workflows
+                
+                    Data sources
+                    As outlined above, tool registries tend to build upon existing data sets. We
+                        followed this well-established practice and populated our tool registry with
+                        the existing knowledge about tools within the DH community by integrating
+                        and linking the TAPoR and SSHOM data sets and
+                        their classification of tools according to TaDiRAH into Wikidata.
+                        This approach was facilitated by all three platforms providing
+                        machine-actionable data through APIs and serialised as JSON.
+                    Unfortunately, TAPoR’s APIs are entirely undocumented and we only discovered
+                        them through other projects interested in the usage of tools within the DH
+                        community, namely the ToolXtractor  (see also   . The TAPoR API provides at least two endpoints. https://tapor.ca/api/tools/by_analysis returns a full list of all
+                        tools with minimal information for each entry. Importantly, it links tools
+                        to categories of research activities, e.g. OpenRefine
+                        to Enrichment. https://tapor.ca/api/tools/{ID} then returns detailed information
+                        for individual tools, based on the tool ID obtained through the first
+                            endpoint. Information includes data on tools such as URLs, source
+                            code repositories, email addresses of creators, image URLS, metadata on
+                            when the TAPoR entry was last updated and by whom, as well as rating on
+                            the platform.
+                    
+                    
+                        SSHOM’s API, on the
+                        other hand, is well documented. Again, one has to query for all tools (through https://marketplace-api.sshopencloud.eu/api/tools-services?approved=true)
+                        in order to retrieve the necessary IDs for individual tools, which then
+                        allow to use more specific API endpoints such as https://marketplace-api.sshopencloud.eu/api/tools-services/{ID}.
+                        In either case, the API returns plenty of data, including links to
+                        equivalent concepts on Wikidata and classifications such as TaDiRAH or the
+                            Austrian Fields of Science and Technology
+                            Classification 2012 on the DARIAH Vocabs services. The APIs, however, do not allow to query
+                        for tools by concepts from these classification schemes. It seems that this
+                        is only possible through the web interface and URL query parameters,
+                            (i.e. https://marketplace.sshopencloud.eu/search?f.activity={activity})
+                        where the camel case in TaDiRAH concepts is replaced with + and all
+                        component terms are capitalised, i.e. opticalCharacterRecognition needs to
+                        be translated to Optical+Character+Recognition.
+                    
+                        TaDiRAH is a SKOS
+                        vocabulary currently hosted through the DARIAH Vocabs services. Even
+                        though this platform is envisioned as part of the Semantic Web and should
+                        provide Linked Open Data, it has a patchy track record of doing so. At the
+                        time of writing in 2024, neither the service’s API and SPARQL endpoint
+                        nor their documentation can be reached. Fortunately, we were able to
+                        download all data as RDF in late 2022.
+                
+                
+                    Data import
+                    There are generally two main methods for adding and editing Wikidata items in
+                        bulk: QuickStatements and OpenRefine. We chose the latter as we had to reconcile our
+                        initial data sets with existing items to avoid creating duplicates. In
+                        addition, OpenRefine provides means for extensive data manipulation and a
+                        graphical user interface, which some of our team members were already
+                        familiar with. Edits on Wikidata are generally non destructive. Wikibase,
+                        the software running Wikidata, provides a mature system of user management
+                        and version control, which allows to revert to earlier states. There
+                            are some tools for editing and reverting batch edits, but at the time of
+                            writing in 2024 they had become dysfunctional and were looking for new
+                            maintainers.
+                    
+                    Reconciliation required a lot of semi-automated data cleaning and manual
+                        decision making. The necessary schemas for mapping our input data sets to
+                        the data model were created iteratively through the OpenRefine GUI and in
+                        tandem with the data model. In total, we have mapped 85 missing TaDiRAH
+                        classes (mostly through linking TaDiRAH IDs to existing Wikidata items),
+                        added almost 700, and edited more than 1200 tools from the SSHOM and TAPoR
+                        data sets. The JSON schemas for uploads from OpenRefine to Wikidata
+                            can be found at https://scm.cms.hu-berlin.de/methodenlabor/p_publish2wikidata.
+                    
+                
+                
+                    Adding and editing data
+                    Wikidata allows anyone with an internet connection to edit and contribute
+                        without further ado. Registration is not required, but the platform will log
+                        the editor’s public IP address in such cases. With our approach, existing
+                        queries will pick up new information as soon as they are added to Wikidata.
+                        Tracking changes to our data set, we see constant improvements of data
+                        through a combination of individual edits through the Wikidata user
+                        interface, bulk edits, and bots. The latter, for instance, periodically
+                        query linked GitHub repositories for new releases and update items
+                        accordingly.
+                
+                
+                    Export and publication of stable data sets
+                    One of the primary challenges in working with Wikidata in academic
+                        environments lies in its open-editing nature; anyone can modify data
+                        entries, which might raise concerns about reliability and accuracy. This
+                        characteristic necessitates additional measures to ensure the stability and
+                        trustworthiness of the information it contains, especially for academic use
+                        where data integrity is paramount for reproducibility.
+                    To address this issue, we regularly pull copies of our data set from Wikidata
+                        in formats such as RDF (serialised as Turtle, .ttl) or JSON-LD using a
+                        combination of SPARQL queries and API calls. We publish these versioned
+                        releases on platforms like GitLab or
+                            GitHub and archive them on
+                        public repositories such as Zenodo .
+                    This approach allows the data sets to be cited with a DOI, ensuring that
+                        specific versions can be referenced reliably. Wikidata itself provides
+                        persistent identifiers for citing particular versions of data objects, but
+                        through the Linked Data Interface the statements of such persistent versions
+                        of items still point to the canonical ID of other items. The archived data
+                        set therefore includes full copies of first-level objects (tools) and their
+                        first-degree neighbours. Adding higher-degree neighbours would exponentially
+                        increase the size of the data set. This, we argue, represents a sensible
+                        balance between the scholarly urge for comprehensive data sets and the
+                        requirement to minimise our footprint on infrastructure maintained by
+                        others. Full access to historical perspectives on the full data set would
+                        require to archive the entire subgraph with all dependencies, which would
+                        yield a great amount of Wikidata itself with billions of triples (c.f.
+                        ).
+                
+            
+
+                Discussion and outlook
+                In this paper, we have presented a conceptual framework and concrete
+                    implementation of what we believe to be a sustainable approach to the directory
+                    paradox as formulated by . Our conceptual framework and
+                    implementation of a Wikidata-based tool registry for digital humanities attends
+                    to communities who require a flexible and open authority file of cultural
+                    artefacts as well as curated lists of subsets. The Linked Open Data paradigm and
+                    the Wikiverse allow anyone to contribute their data, curate their own subsets,
+                    or to query the graph for connections beyond the initial scope of a tool
+                    registry. We are fully aware that the fundamental flexibility and openness of
+                    Wikidata and the absence of hierarchical access control and formal ontologies,
+                    such as CIDOC-CRM, might impede adoption among libraries and infrastructure
+                    providers. However, the QIDs of tools can simply function as a persistent
+                    identifier (PID) to connect otherwise disparate and siloed registries and
+                    knowledge graphs.
+                While TaDiRAH is currently the only classification scheme for research in the
+                    digital humanities employed across multiple venues, it can be superseded or
+                    amended by future classification schemes for the digital humanities when they
+                    emerge. Equally, other fields could use their own classification schemes without
+                    breaking the data model and registry introduced in this paper by adapting and
+                    modifying the relevant SPARQL queries.
+                We acknowledge that the reliance on SPARQL is a major obstacle to wider adoption.
+                    We thus perceive of the modular frontend and a graphical user interface for
+                    building queries as the most important venues of future development. We can
+                    imagine a frontend with editing functionality based on HTML forms, JSON schemas,
+                    and the Wikidata REST API currently under development  in order to technically
+                    enforce data models.
+            
+
+                Acknowledgments
+                
+                    Funding
+                    This work was funded by the German Research Foundation (DFG) through a
+                        collaboration between the NFDI consortium 4Memory (www.4memory.de, DFG project no.
+                        501609550) and Future e-Research Support in the Humanities
+                            II (FuReSH II, DFG project no. 466522693).
+                
+                
+                    Author contributions (CRediT)
+                    
+                        Conceptualization: Till Grallert, Sophie Eckenstaler, Claus-Michael
+                            Schlesinger
+                        Data Curation: Till Grallert, Isabell Trilling
+                        Investigation: Till Grallert, Sophie Eckenstaler, Isabell Trilling,
+                            Sophie Stark
+                        Software: Sophie Eckenstaler (Frontend, SPARQL), Nicole Dresselhaus
+                            (Archiving), Till Grallert (SPARQL, R)
+                        Writing, original draft: Till Grallert, Claus-Michael Schlesinger,
+                            Sophie Eckenstaler, Nicole Dresselhaus
+                        Writing, review & editing: Till Grallert, Claus-Michael
+                            Schlesinger
+                    
+                
+                
+                    Data availability
+                    All data and code is available on Zenodo:
+                    
+                        SPARQL queries: .
+                        Data model and JSON schemas for use with OpenRefine: https://scm.cms.hu-berlin.de/methodenlabor/p_publish2wikidata.
+                        Front end: .
+                        Weekly screenshots of the data set as exported from Wikidata:
+                            (Grallert and Dresselhaus, 2024–).
+                    
+                
+            

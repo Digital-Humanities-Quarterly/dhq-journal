@@ -1,0 +1,1486 @@
+Title:  Sensitivity and Access: Unlocking the Colonial Visual Archive with Machine Learning
+Volume:  018
+Issue:  3
+Date:  19 July 2024
+Abstract:  
+            In recent decades, archival institutions have digitized an enormous quantity of material under the rubric of open access, including from 
+               colonial archives. However, much of the most sensitive material from these collections remains undigitized or difficult to discover and 
+               use. More recently, a critical reconsideration of open digital access has also taken place, particularly when it comes to sensitive 
+               material from the colonial archive. Collectively, this has created a situation in which the colonial photography archive risks becoming 
+               overly sanitized as well as difficult to navigate and analyze.               
+            
+            In this article, we propose that critical and transparent multimodal artificial intelligence (AI) offers a way to improve access to 
+               colonial archives for researchers and the public, without losing sight of the need for ethical approaches to sensitive visual 
+               materials. The EyCon (Early Conflict Photography and Visual AI) project assembled a large database of sensitive visual materials from 
+               colonial conflicts and developed experimental multi-modal computer vision tools with which to analyze it. Though this tool has not yet 
+               been applied at scale or quantitatively compared with other approaches, we are able to propose modes of inquiry for other researchers to 
+               explore as they create new research tools. On a more hypothetical or theoretical level, we consider how the use of computational tools 
+               to facilitate access to and analysis of sensitive historical materials is compatible with or even beneficial for more ethical approaches 
+               to such materials. We conclude with several promising areas for critically integrating AI into the digital colonial archive, while also 
+               expanding on some limitations of such techniques.               
+            
+         
+Full Body Text: 
+
+          Introduction
+            In recent decades, archival institutions have digitized an enormous quantity of material under the rubric of open access, including from 
+               colonial archives. However, much of the most sensitive material from these collections — particularly photographs depicting colonial 
+               violence — remains undigitized, or difficult to discover and use. More recently, a critical reconsideration of open digital access has also 
+               taken place, particularly when it comes to sensitive material from the colonial archive.Sensitive 
+               material can cover a broad range of materials and issues, and it is a major concern within archival science. Material may be 
+               considered sensitive due to concerns ranging from privacy issues and state secrets to graphic depictions of 
+               violence. More recently, in places such as Canada, Australia, and the United States, the category has 
+               been used extensively with regard to the legal and ethical implications of archival holdings of indigenous artifacts and remains considered 
+               sacred by source communities and nations. In this article, the sensitive material to which we refer is largely 
+               visual documentation of colonial violence held in state archives, which can be politically explosive and is important for the process of 
+               confronting the legacies of colonialism. In our usage, sensitive material may also refer to racist or 
+               inaccurate metadata dating from the production of these visual materials, which can be disturbing to the contemporary public. 
+               Photographic material presents a particularly tense point in the debate over access and sensitivity, largely due to the longstanding notion 
+               that it is a transparent medium, one that bears an exact trace of the moment in which it is made.The idea that photography 
+               makes meaning by way of an exact trace (also referred to as the medium's indexical nature) has been pursued by many scholars, notably 
+               the art historian Rosalind Krauss . The concept of the index can be traced to the work of 
+               the American pragmatist philosopher Charles Sanders Peirce and his semiotic triad of icon, symbol, and index. The index 
+               establishes meaning by virtue of its physical connection with its referent, as in the way in which footprints are a clue to a pedestrian's 
+               passage, for example . For this reason, photography is commonly perceived or experienced as a more 
+               immediate carrier of emotions — including painful or negative emotions — than other kinds of documents or representations. Enormous 
+               quantities of photographic material have been digitized without sufficient contextual metadata. What metadata exists was created by colonial 
+               institutions themselves, and the metadata thus may not respond to the questions researchers want to ask. At the same time, particularly 
+               sensitive material largely remains hidden due in large part to increasing awareness of ethical concerns. For these reasons, the digitally 
+               available colonial photography archive risks becoming overly sanitized as well as difficult to navigate and analyze.
+            
+            In this article, we ask how machine learning (ML) might redress this problem. Specifically, how might a set of ML-informed tools improve 
+               access and navigation for this sensitive digital archive?Artificial Intelligence (AI) is a large (and potentially poorly named) 
+               concept designating the ability of a machine to perform tasks that typically require human intelligence or thought. In practice, the terms 
+               AI and ML are often used interchangeably. This description of AI and ML is informed particularly by François 
+               Chollet's lucid discussion in Deep Learning with Python . We suggest 
+               that critical and transparent multimodal ML offers a way to improve access to colonial archives for researchers and the public, without 
+               losing sight of the need for ethical approaches to sensitive visual materials. We retrained a visual similarity algorithm using images 
+               degraded in order to appear like historical images and stacked the algorithm with a way of vectorizing textual metadata. Then, we 
+               applied this technique to our database, a very large corpus of colonial conflict photographs collected from various archives in 
+               France and the UK. While not tested at scale, the results indicate potential for designing a search interface that 
+               would provide better results than non-ML augmented digital databases and currently available off-the-shelf ML tools available from Amazon 
+               and Google. While our reflections remain largely hypothetical, they are nonetheless suggestive of a number of paths forward in using ML and 
+               computer vision on sensitive visual materials. This article explains the archival problems presented by digitized photographs from the 
+               colonial period and then examines ways that ML-augmented computational approaches might make access to such material both more robust and 
+               more sensitive to its political and ethical dimensions. We hope that this article opens up modes of inquiry for other researchers to explore 
+               further as they create new research tools.
+            
+            Before moving on, a brief explanation of some of the central technical concepts is in order. Machine learning (ML) is form of artificial 
+               intelligence (AI) that allows machines to learn from data without being programmed directly. In traditional programming, the programmer 
+               writes rules in a coding language that the machine follows in order to turn input data into appropriate solutions. In ML, the machine 
+               examines input data associated with a set of answers in order to figure out what the corresponding rules should be. An ML system is 
+               trained rather than programmed — it is presented with many examples relevant to a given task and then finds statistical structures 
+               in these examples that allows the system to come up with rules for automating the task, which allows the system to generate solutions to 
+               new input data for which the answers have not already been provided. ML has turned out to be much more effective than traditional computer 
+               programming at allowing computers to figure out problems involving tasks analogous to human perception, such as image tagging and 
+               classification, speech recognition, and natural language translation . Indeed, the advent of a type of ML model 
+               called a convolutional neural network (CNN) has made it possible to analyze visual material in digital archives at scale. For example, 
+               Thomas Smits and Melvin Wevers have used a CNN to explore visual aspects of a very large digitized archive of Dutch 
+               newspapers in order to automatically detect variables such as the changing medium of illustrations over time (engravings vs. halftones), the
+               styles of illustrated advertising, and the most common visual forms in the press . By multimodal 
+               ML, we mean the use of an ML model that performs different kinds of operations on different input data, combining or stacking these 
+               different operations to produce more robust results. Our proposed model's network architecture includes a CNN to perform operations on 
+               visual data in pixel values, combined with a network that analyzes textual metadata in associated picture captions.This way of 
+               using multimodal ML is still very much a horizon of possibility, since open-source libraries for natural language processing suffer from the 
+               same biases as computer vision datasets when applied to historical documents, which we explain in detail in this article. See 
+               .
+            
+            The EyCon (Early Conflict Photography and Visual AI) project proposes a number of AI techniques to analyze a database of sensitive visual 
+               material from colonial conflicts. Working with a consortium of British and French archives, EyCon scanned non-digitized material and 
+               gathered together already-digitized material into a trans-imperial image database that mixes different forms of photograph supports, 
+               including albums, the illustrated press, and loose photographs, all related to colonial conflicts between 1880 and 1918.This network 
+               includes the Musée du Quai Branly Jacques Chirac, the Établissement de communication et de production audiovisuelle de la 
+               Défense (ECPAD), the Service Historique de la Défense (SHD), the Bibliothèque Nationale 
+               de France, the Archives nationales d'outre-mer (ANOM), La Contemporaine, the Imperial 
+               War Museum, and the Wellcome Collection. After treating the image files and annotating associated metadata such 
+               as captions, dates, subjects, and photographers, the team trained a layout-parser CNN to extract images and text from the often unusual page 
+               layouts of the late nineteenth century press. Using the International Image Interoperability Framework (IIIF) format provides a stable 
+               environment in which the image files are permanently linked to their associated textual metadata. After assembling the database, the 
+               project worked on potential methods to use multimodal ML to deliver search results for visual similarity, object detection, and other 
+               aspects of the images in the database. Though we were unable to assess accuracy at scale, our experimental comparisons suggest that adding 
+               natural language processing layers to the network architecture (thereby making it multimodal) might outperform off-the-shelf computer 
+               vision tools available from Google and Amazon, whose models are hampered by various forms of bias in their datasets. Finally, we propose 
+               several ways in which the use of computational tools to facilitate analysis of sensitive historical material might also enable more ethical 
+               approaches to such materials.
+            
+            The article's first section introduces issues raised by the digitization of sensitive colonial photography. We outline the history of public 
+               archives and the ideal of open access, which we trace to Enlightenment values according to which governmental authority and actions would be 
+               subordinated to reason and public debate. This same historical period was also bound up with colonialism, plantation economies, and regimes 
+               of forced labor. With digitization campaigns from the 1990s onward, materials from this long colonial period — including images — were 
+               diffused online, raising ethical issues. The early consensus in the archival field that digitization would augment access has been 
+               increasingly tempered by concerns about sensitive material, particularly depictions of violence, offensive or racist terms in digital 
+               metadata, and issues related to privacy and consent. However, we suggest that despite these important ethical issues, choosing 
+               not to look at these images may lead to overly cautious archival management.
+            
+            Section Two outlines problems (both ethical and practical) as well as potential benefits associated with ML-assisted approaches to sensitive 
+               digital material. It emphasizes that the visual materials in these archives do not simply depict colonialism; rather, colonial perspectives 
+               are embedded in their material forms and archival organization, the ways they have circulated, and how their visibility was controlled and 
+               limited to certain communities. Though no archive provides direct and unmediated access to the past, choosing to digitize and circulate only 
+               more benign material may create a false and sanitized impression of colonial history. The EyCon project is committed to the idea that 
+               improving access to these materials is essential to writing new histories of colonialism.
+            
+            While their use raises both practical and ethical problems, ML approaches can reshape the digital colonial archive in ways that enable new 
+               interpretations and engagements with these materials. Digital archives often feature poor metadata shaped by colonial legacies, which 
+               insufficiently contextualize the materials being described and replicate the perspectives of their colonial creators. Manual improvement of 
+               records and metadata is often impossible due to lack of resources. While AI could assist in this respect, for example by automatically 
+               creating or suggesting additional contextualizing metadata, it is far from a panacea. Indeed, the field is rife with a form of technological 
+               fetishism that systematically obscures how human labor is essential to training neural networks. Catherine D'Ignazio and 
+               Lauren Klein have framed this issue using the feminist concept of invisible labour, which can 
+               expose the significant human efforts required by our automated systems . 
+               This human involvement means that ML models are inevitably shaped by those who have produced the annotated training sets. Following recent 
+               calls for a more critical integration of AI into archival practice , we consider ethical issues in the 
+               ML field, such as training dataset bias. Humanities scholars, social scientists, archivists, and computer scientists must actively and 
+               collaboratively address these issues, given the uncritical ways in which many of these tools and methods have been created 
+                . At the same time, we argue against the notion that such tools 
+               inevitably do more harm than good.
+            
+            In the second section, we discuss the limitations of current off-the-shelf computer vision tools for enriching archival metadata and how 
+               EyCon points toward possibilities for improving on such products, using limited experiments with our database of colonial images. Done 
+               carefully and critically, ML and computer vision tools can help archivists promote access to colonialism's visual records while improving 
+               their contextualization at scale, in part by reshaping how researchers can navigate through this archive. EyCon suggests ways that AI 
+               projects could be built with sensitivity and equity in mind, improving access while enabling more ethical approaches to potentially sensitive 
+               material. This includes involving using explainable AI techniques , multimodal AI for 
+               identification of sensitive material and metadata enrichment, and combining distant and close readings of archival materials. 
+               Finally, we propose ways that ML models might be trained on to operate better on turn-of-the-twentieth-century photographs and publications.
+            
+        
+
+          The Critical Turn in Archival Digitization and the Colonial Visual Archive
+            Public access to archives has its origins in the Enlightenment period and is further rooted in notions of popular sovereignty. The French 
+               Revolution opened up national archives to all citizens by instituting a 1794 law that created a central depository for 
+               the national archives, with free public access .
+               Archives Nationales, 
+               https://www.archives-nationales.culture.gouv.fr/web/guest/histoire-de-l-institution. 
+               To this day, the principle of public access remains a pillar of the Archives Nationales and other archival institutions. In 
+               practice, however, getting access to potentially sensitive information can be extremely complicated. According to the French Heritage Code 
+               (Code du Patrimoine, article L. 213-2), public records should be made accessible twenty-five years after 
+               their creation, or fifty years after their creation for documents related to national defense. However, gaining access to sensitive 
+               documents remains complicated when documents have been classified as secret-defense. A tension exists between 
+               the Heritage Code (which facilitates access to archives after a certain period of time), and the Penal Code (which prevents the diffusion 
+               of national defense secrets) (Code pénal, article 413-9). Archives that could potentially threaten national 
+               security or embarrass governments can remain locked for a very long time. For example, in a 2021 report, the historian 
+               Benjamin Stora pointed out that many records related to the Algerian war remain inaccessible. Following this report, a decree 
+               passed on 22 December 2021 facilitates access to documents created during the war and its aftermath, between November 1954 and December 
+               1966.See .
+            
+            At the turn of the twenty-first century, large digitization programs offered the possibility of unlocking previously inaccessible archives. 
+               In the UK, beginning in the early 2000s, the National Archives began creating digitized records from its 
+               microfilm collection . From 2004 to 2007, the Joint Information Systems Committee 
+               (JISC), a UK non-profit organization focusing on digital data and technology, received £22 million from the 
+               Higher Education Funding Council for England for large-scale digitization programs. Commenting on the JISC 
+               initiative, the librarian Jean Sykes wrote that, Higher and further education communities are going to 
+               benefit from fantastic online resources across a wide range of subjects, gaining access to some of the richest content held in the 
+               UK's great national and university libraries . Google Books, which launched in 2004, started 
+               digitizing millions of books.
+            
+            It was a period of techno-optimism characterized by a widely-accepted narrative according to which new tools would make knowledge freely 
+               available to a wider public. In the early days of mass digitization, few worried about the possible consequences of releasing huge amounts 
+               of archival materials to the public. The dominant consensus erred on the side of free and open access. In an influential 2005 article 
+               published in American Archivist, Mark A. Greene and Dennis Meissner pushed archivists 
+               to adopt a new method for processing archival collections. The method of More Product, Less Process, or MPLP, 
+               would speed up the cataloging process and transfer the materials quickly into the user's hands. Designed primarily to end the cataloging 
+               backlogs that plagued paper collections, the MPLP method was soon applied to digital collections.
+            
+            Digitization programs also made possible the online diffusion of archives from the colonial period, including visual materials. In the 
+               French context, for instance, millions of photographs have been digitized that were originally produced over the course of the colonization 
+               of Algeria. According to Benjamin Stora, the Archives Nationales d’Outre Mer (ANOM) has 
+               digitized more than 600,000 images from colonial Algeria that can be viewed online .These 
+               images originate from the archives of the Arab offices (bureaux arabes) of Algiers, 
+               Orania, and Constantinois from 1830 to 1922, as well as from the records of the councils of government in 
+               Algeria, from 1832 to 1870. Added to this set are images documenting the civil status of Algeria (717,028 
+               images) and images from the military registers (427,945 images). Nearly 1,200,000 images are still being checked, reprocessed, and indexed 
+               ahead of their online publication.
+            
+            This kind of large-scale digitization program raises important ethical issues, though these issues have sometimes been difficult to define. 
+               Greene and Meissner (2005) argue that it was invariably better to release data, even when problematic, than to 
+               withhold access. They mention that one processing manual identifies sensitive subjects as adultery, alcoholism, drug 
+               abuse, homosexuality, lesbianism, mental illness, or suicide , but several of those 
+               items are not sensitive to every donor or donor's family . In light of such uncertainty, the 
+               tendency was to release materials, with the option to withhold them if someone complained about sensitivity. The same applied to copyrighted 
+               materials. In the case of periodicals, mass digitization made it impossible — or at least extremely challenging — to identify and obtain 
+               permissions from all copyright holders. Nevertheless, institutions often chose to put digital copies online. For example, the 
+               British Library made accessible selected copies of the feminist magazine Spare Rib with the 
+               following statement: We have been unable to locate the copyright holder for these items. An email address was 
+               provided to allow users to share information they might have about the items 
+            
+            In the past few years, this open access approach has been criticized on ethical grounds, with a strong emphasis on privacy and consent. Like 
+               other countercultural magazines in the 1970s, Spare Rib dealt with topics related to sexuality. Contributors 
+               who wrote poems or essays to be published in print form expected a small audience rather than the huge readership made possible by 
+               digitization. In a 2017 article, Michelle Moravec uses the example of Spare Rib to encourage other 
+               researchers to ask the following question before using digitized archives: Have the individuals whose work appears in 
+               these materials consented to this? Making such documents available on the internet has raised the issue of consent as well as the 
+               ethics of widely releasing sensitive or private materials intended for other uses.
+            
+            Similar concerns apply to digital reproduction of representations of enslaved and colonized people. Temi Odumosu (2020) has 
+               argued for an ethics of care toward sensitive digital colonial collections. As an example, Odumosu 
+               uses a photograph depicting a crying child taken by a Danish photographer in St. Croix around 1910. The photograph made its way 
+               into albums of Danish colonials and then into the Royal Danish Library, which digitized it in the mid-2010s. 
+               Odumosu raises ethical concerns about the decontextualized display of this potentially disturbing image and suggests several 
+               avenues toward an ethics of care with regard to colonized subjects captured in visual digital collections. Most interesting for this article 
+               is her proposal that additional contextual metadata could help mediate the emotional dimension of confronting documents created in the 
+               context of colonial domination, particularly by members of source communities. Odumosu suggests that 
+               digital artefacts of a sensitive and dehumanizing nature are vulnerable without contextualization and that 
+               richer metadata could demonstrate care and sensitivity toward discomforting images .
+            
+            Libraries and special collections have started to address concerns surrounding problematic metadata, including racist and antiquated terms 
+               used to describe archival materials in previous periods. For instance, Stanford University Libraries has released a statement 
+               on potentially harmful language in cataloging and archival description 
+               . While it does not censor existing materials dealing with harmful subjects or using 
+               harmful language, Stanford provides additional historical context. Enriching the metadata with contextual information is aligned with the 
+               archivist's traditional mission, which excludes censoring or tampering with the historical record.
+            
+            Other archivists, however, have pushed for a more radical approach, which they characterize as identifying and correcting structural racism 
+               embedded in archival metadata. Melissa Adler (2017) recommends excavating racism in the stacks to 
+               address the impact that racist classification still has today. Adler does not propose removing problematic metadata, but 
+               instead suggests that archivists augment the catalog with local data, create local and subject-specific classifications 
+               and subject access tools, encourage participatory and social cataloging, and invent alternative ways to map knowledge in the library 
+               . Like Adler, Michelle Caswell (2017) has urged librarians, archivists, and 
+               information professionals to address racism in classification systems and metadata. She invites colleagues and students to challenge the 
+               multiple ways that archival collections can feel unwelcoming to people of color, from white supremacist language in metadata to suspicion 
+               and surveillance of non-white patrons .Caswell draws heavily on the notion of 
+               white supremacy, citing the work of Anne Bonds and Joshua Inwood in particular: 
+               the concept of white supremacy forcefully calls attention to the brutality and dehumanization of racial exploitation 
+               and domination that emerges from settler colonial societies .
+            
+            Because digitization implies the need for a new archival infrastructure, it opens up political questions around cultural materials that had 
+               been somewhat contained by the relatively calcified structure of the analogue archive. By imposing a new order on the material, the digital 
+               archive is never a simple retranscription of the original archive. Rather than simply being a way to translate analogue material into a 
+               digital medium and preserve it, digitization opens cultural-political conflicts and calls for what Premesh Lalu, discussing 
+               problems around early digitization initiatives in South Africa, calls a politics of digitization 
+               . As Gil Pasternak suggested in the introduction to a recent special issue of 
+               Photography and Culture on photographic digital heritage, the marriage of heritage and 
+               digital technology is a condition that has challenged the traditional, exclusive association of the heritage 
+               phenomenon with hegemonic forces (. In part, this is because digitization implies choosing what to 
+               translate into the new medium and what to make available, thus raising anew old questions about how power relations embedded in archives 
+               structure historical debates and research agendas . Concerns include the clash between the value of open 
+               access and source communities that may want to keep sacred cultural artifacts shielded from public view.
+            
+            These varied political questions mean that there are many contextual meanings and dimensions to the issue of sensitivity. Much of 
+               the work on these questions has been done in the context of settler-colonial societies and indigenous data 
+                . While most discussions on colonial legacies in museums have focused on 
+               looted objects, the wider archival legacies of colonial oppression deserve more attention. Charles Jeurgens and 
+               Michael Karabinos, examining the digitization of the Dutch East India Company records, have drawn a distinction between the 
+               colonial archive and the colonized archive 
+               . Whereas the former were created by former colonial institutions in the era 
+               of colonization, the latter refer to records which were originally created, owned and used by local 
+               institutions and people but were collected, looted, bought, or copied and shipped to Europe . 
+               Working within Jeurgens and Karabinos's typology, the EyCon project deals with colonial archives, since the 
+               photographs and other visual documents in the corpus were created and stored by colonial actors, though they often involve colonized people 
+               as subjects. This can imply sensitivity concerns around the depiction of violence against potential ancestors and ancestral communities.
+            
+            While few within the field would deny that racist language and institutional structures should be challenged, the question of 
+               how to confront them in light of competing values of archival preservation remains controversial. Faced with these difficulties, 
+               it can be tempting for archivists to withhold access to sensitive materials. Digitization projects are no longer unchallenged. For example, 
+               funding threats may force Trove, the National Library of Australia's free digital archive, to close 
+               .The National Library's director general, Marie-Louise Ayres, deployed 
+               the language of the Enlightenment when she declared, Free access to information is fundamental to libraries, and it is 
+               to us. So, from our perspective, egalitarian access is what drives us . The idea that putting 
+               materials freely online will lead to increased and more equal access to information is no longer unquestioned. Rising concerns over privacy, 
+               consent, and problematic metadata have caused open access policies to lose some of their luster.
+            
+            While criticisms of open access policies are necessary and overdue, in the case of the colonial archive they risk exacerbating a situation 
+               in which records tend already to be difficult to find and access. If the visual records of modern organized violence during the two world 
+               wars are massively available and searchable, visual material documenting the most unsettling aspects of colonial situations is often less 
+               accessible and less digitized. Some of the most challenging visual records were collected outside institutional networks and remain in the 
+               hand of private collectors. When sensitive materials are made accessible, poor metadata and descriptions shaped by colonial legacies can 
+               provide insufficient contextualization and replicate colonial categories. When it comes to colonial legacies, the existing archive's 
+               limitations have rendered clear the need, as Roopika Risam writes, for digital archives that resist 
+               colonial violence in content and method, mediating in the gaps and silences in the digital cultural record that can be filled with extant 
+               sources .
+            
+            In recent years, several digital research projects have focused on more inclusive readings of colonial archives, including photographs. The 
+               TRACES (Transmitting Contentious Cultural Heritages with the Arts) project, for example, has explored how to curate exhibitions and events 
+               in close partnership with source communities to mediate contested legacies around issues like the collections of human remains held by 
+               institutions all over Europe. The Dead Images creative co-production, which is part of TRACES, 
+               has looked at how to use these collections to open up a dialogue about colonial violence and its legacies . 
+               The harmful potential of both documents of colonial domination and their historical metadata is at the very core of digital policies 
+               of projects such as the Digital Benin initiative, which emphasizes how catalogue 
+               transcriptions, book titles, exhibition titles and museum titles may contain harmful terms . 
+               Research projects on Australian Aboriginal photographic archives have also worked on careful recirculation of problematic colonial images 
+               with descendants of the photographed .
+            
+            In some cases, inclusive readings can turn into forms of ethical erasures and/or restrictions on image circulation. The curators of 
+               the Making African Connections Digital Archive, for example, have decided to restrict access to the graphic 
+               and nude photographs included in their database. They argue that because the web is a place where images, objects and 
+               people can easily be displaced from their context and subject to a gaze which has harmful intent, their choice 
+               of technology adds further encouragement . . . to act as censors . Criticisms of 
+               the recirculation of images that are ingrained with oppression and violence can sometimes go as far as arguing for a radical expunction of 
+               what should be visible and reproduced. Holger Stoecker, writing on very disturbing colonial photographs of human remains in 
+               German anthropological collections, even advances the idea that images that reflect extreme oppression and power imbalance could actually 
+               be buried . Well-intended approaches to contested visual records are founded on 
+               the notion that the supposed replication of colonial dominance entailed by the digital recirculation should be avoided at all costs.
+            
+            In fact, such efforts may actually echo the archival violence that has governed management of colonial records since decolonization. In many 
+               cases, the rawest colonial photographic records have in effect already been buried because they have the power 
+               to destabilize established exculpatory narratives. This is exemplified by Jean-Philippe Charbonnier's photographic evidence of 
+               torture on Algerians at the hands of the French army in the late 1950s. These disturbing snapshots documenting a focal point of Algerian and 
+               French histories suffered a long history of willful burial . To this day, their recirculation is regulated 
+               according to specific guidelines that can become obstacles to their full analysis.
+            
+            In part, efforts at creating more inclusive readings revolve around complex questions about who owns colonial photographs and who can 
+               legitimately write about the histories they document . This is a particularly salient issue with visual archives 
+               that are shaped by imperial power dynamics at their point of origin and by layers of archivation that did little to illuminate them. 
+               Colonial oppression is not only depicted in these photographs, but also replicated in how such images were curated, recirculated, and 
+               sometimes willfully put aside to protect those who carried out violence . The siloization and fragmentation of 
+               archives that document colonial oppression favors the silencing of unpalatable pasts , as well as 
+               colonial aphasia .
+            
+            Colonial ideologies are thus implicit in the archive's very structure, not just in its graphical or textual content. Zaagsma 
+               points out that inherited metadata in colonial archives can impose a distinct view of the past, in this case, that of 
+               the former colonizer . Other projects working with sensitive material produced during colonial periods 
+               have raised this issue. For example, the Making African Connections Digital Archive refers to the archive as a 
+               technology of colonialism . While evaluation of such a 
+               statement involves many considerations (archives are tools of power, but also potentially of self-determination and liberation for groups 
+               that keep their own histories), one cannot dismiss its validity concerning archives created and curated by colonial militaries, which were 
+               shaped by colonial ideologies on multiple levels. For instance, while both photographer and the photographed subject play a role in the 
+               production of photographs, most of the existing metadata is concerned with authorship rather than documentation of the photographed. To 
+               address the invisibilization of colonized people in archives, scholars are now experimenting with a number of digital tools. Toward this 
+               end, several scholars have employed Named Entity Recognition in order to identify individuals who are present in the archive but absent in 
+               finding aids, enriching archival records with important details about the lives and experiences of marginalized and enslaved people 
+               .
+            
+            Colonial officers and archivists imposed their gazes and their agendas on both the production and organization of these photographs. What 
+               they chose to capture and, perhaps more importantly, what they chose to ignore, what they chose to keep in the archives and what they chose 
+               to discard, were constrained in different ways. They had material and technical limitations, including that photographic equipment had to be 
+               carried long distances, maintained, and sent back to the metropole for development). Their objectives and those of their institutions shaped 
+               their picture production; some pictures were taken to terrorize enemies or local populations, some were meant to document the everyday life 
+               of colonial soldiers and officials, and still others served as scientific or anthropological data. Many images moved between different uses 
+               depending on how they were deployed and contextualized after their production. These objectives had enormous consequences on the pictures' 
+               content, but this context is mostly lost on contemporary viewers. For example, pictures of racialized people can be viewed as simple 
+               portraits today, while at the time of their creation they served a racist iconographic program meant to show the supposed morphological 
+               features of various ethnicities or demonstrate evolutionary theories.
+            
+            What these pictures do not show is also of great importance. In general, actions, places, and events that do not easily cohere with the 
+               photographers' worldview are excluded. Technical limits rendered other scenes — such as night events, quick movements, or people and 
+               actions purposely hidden from the Western troops — difficult to capture . Conjured in the colonial 
+               archive, the visual past of these conflicts exists only through that archive's selection processes.
+            
+        
+
+          Reshaping the Colonial Archive with Computational and Machine Learning Tools
+            How might ML-informed approaches to the visual colonial archive help redress this problem by creating research tools that are both sensitive 
+               to ethically fraught materials and enable powerful new insights into colonial histories and legacies? Digitization provides an opportunity 
+               to restructure archives in ways that exceed the original intentions of their colonial producers as well as institutional archives' 
+               political reservations around sharing difficult imperial pasts. Yet the very scale of digitization programs means that improving records 
+               manually at scale is a daunting task, if not an impossible one. AI-based augmentation of digital archives could make them navigable in new 
+               ways, creating spaces where counter-narratives or correctives may proliferate . 
+               Initiatives such as the Towards a National Collection (TaNC) program in the 
+               UK, for example, are exploring AI-reliant automation to handle text-based data ingestion in order to make historical big data 
+               exploitable. However, while ML tools have proved effective in indexing written material, approaching digital images at scale with computer 
+               vision raises additional challenges.
+            
+            Before turning to our conclusions and directions for future work developed in the course of the EyCon project, it is necessary to understand 
+               some of the risks presented by ML-assisted computer vision. The central risks include the inevitable bias baked into training datasets, 
+               exploitation of the labor that produces those datasets, the loss of material context around the image being analyzed by the model, and a 
+               techno-optimist ideology around ML that portrays the technology as omnipotent or intelligent, thereby obscuring the labor involved in 
+               making the system function. After explaining these risks and limitations, this section turns to the potential opportunities presented by ML 
+               and computer vision in this field and, finally, to the insights generated by our own efforts to produce an ML model for analyzing the EyCon 
+               database.
+            
+            First, deep learning — a form of ML used by most computer vision models that relies on many successive layers of representations of 
+               input data in order to find statistical patterns — relies on data that is contextualized and labeled by human beings. All training datasets 
+               are thus inevitably biased . Human-made labels, including those deployed to create the most commonly 
+               used training datasets such as CoCo, ImageNet, and Open Images, reflect particular contexts and perspectives. There is no such thing as 
+               purely neutral, raw, ground truth data . When the word sensitivity is applied to ML and deep learning, 
+               it has everything to do with mathematics and little to do with emotions and the senses. A deep learning model's sensitivity is a measure of 
+               how well it can detect positive instances, and it is determined by the proportion of actual positive cases to those the model predicts as 
+               positive. Beyond numbers, the emotional sensitivity of any computer vision solution merely mimics human textual annotations fed into the 
+               datasets from which it learns. Critical approaches to datasets and their constitution by human labor are therefore essential for ethical 
+               and effective attempts to create AI for sensitive collections. An archeology of datasets that uncovers the 
+               processes through which ML models have been trained thus helps address the opacity of their constitution 
+               .
+            
+            Secondly, analyses of how data has been gathered and constituted should be complemented by a critical perspective on the economics 
+               behind large training datasets. When dealing with very sensitive visual and textual content, the AI industry often relies on large-scale 
+               annotations from precarious workers . Neema Iyer has noted that the extractivism that often 
+               characterizes digital labor, particularly data annotation, echoes neo-colonial geographies of labor extraction . 
+               A lack of reflexivity on how to apply computer vision to photographic archives that document situations of subjugation could therefore 
+               result in a doubly colonial perspective, in which both the data itself and the production of the tools used to analyze it would be heavily 
+               shaped by power imbalances.
+            
+            Additionally, many of the material features of archival pictures or photographs often disappear from the data when computer vision is 
+               applied to image files in a database. Preprocessing, a necessary step to apply algorithms to pictures drawn from archives of visual 
+               material, tends to create sets of isolated images that extract them from their material environments. Traces of the fixative used to glue 
+               a print on cardboard, the wear on an album page that has been turned too many times, the very smell of an old box of calling cards — while 
+               all of these embodied stimuli inform spectators about images, sometimes divulging more than their visual content, this information cannot be 
+               easily translated into data . For example, although the popular photo lockets of the 1850s that protected 
+               daguerreotyped portraits of cherished relatives functioned as a form of perpetual caress 
+               , such images make no sense outside of their relation to the body and the hand that opened the locket to 
+               contempolate the face of a loved or lost one. Their meaning cannot be seen by the mechanical eye, and they appear only as prosaic portraits 
+               of long-dead people.
+            
+            Hyperbolic pronouncements in the early 2020s about the possibilities opened up by advances in deep learning play into the narratives 
+               fostered by major industrial actors, which often portray AI as being on the verge of sentience. While the question of intelligence is 
+               complex, AI does not think per se, and it certainly does not feel. Rather, AI can be trained by feeling and thinking human 
+               creators to identify aspects of digital objects and relations between those objects. In this process, the living labor that annotates 
+               sensitive material crystallizes into a technical system that is then bestowed with human-like characteristics, making it seem 
+               intelligent. Both the meaningful materiality of historical photographs — which are cared for by living archivists and experts — 
+               and the reality of the work that underlies automated vision can be easily lost in attempts to harness computer vision's potential to 
+               augment archival access.
+            
+            Photography, digital imaging, and computer vision are often conceived as radical technological disruptions that burst fully formed onto the 
+               historical stage, but none of these technologies can be disconnected from deeper cultural and social histories and institutional formations 
+               that helped determine how they were designed and deployed.
+            
+            With these risks and constraints in mind, however, it is possible to use ML and computer vision to substantially improve access to sensitive 
+               visual archives. While technologies can come to help determine political, cultural, and social situations, particularly when they become 
+               fixed in ossified forms, these determinations are neither immutable nor inevitable  
+               . The assertion that a given technology is an unredeemable instrument of coloniality can paradoxically echo 
+               colonial discourses that aligned scientific thought and technical achievement with racial categories . 
+               Contemporary variations on the racist trope of the colonized subject's supposed over-sensitivity to photographic images should be 
+               considered critically .
+            
+            With properly trained ML models, we can recognize and annotate aspects of the photographs that were not intended by the colonial 
+               institutions that produced them. ML models could fracture the colonial photographic archive's selective recollection and deconstruct the 
+               monolithic gaze that dictated its creation. Automated object detection, for example, could help add new metadata that was not intended or 
+               even comprehended by the colonial photographer or document producer. For example, colonial troops are often present in a picture but absent 
+               from the metadata describing them. Through automatic classification, we can make these troops visible and searchable in the database. ML 
+               models could automatically recognize and tag sensitive material, or add additional context by recognizing objects and locations in 
+               historical photos and suggesting additional metadata. This would open metadata to contestation, thereby actualizing Risam's 
+               call for archives that open a space for counter-narratives .
+            
+            At the same time, we believe that understanding how previous archives have situated these documents is crucial to understanding them in 
+               their full depth — not only in a positivistic manner, narrowly focused on the moment of their production, but also as dynamic creations 
+               that have been interpreted in various ways over time. The key is to historicize and render explicit ways in which documents were previously 
+               framed, so that they do not remain unconscious or seemingly neutral. For this reason, the EyCon database retains any original metadata, 
+               pointing toward ways that ML might be used to enrich it with additional information that facilitates new interpretations. Using the IIIF 
+               format allows more annotation to be added over time.
+            
+            Sensitive images like those represented in EyCon's corpus should be shown within appropriate scholarly and archival contextualizations, 
+               using the help of computational and digital tools. This should include but not be limited to the original archival metadata. 
+               Jeurgens and Karabinos argue that the coloniality of recordkeeping systems in the colonial archive cannot and 
+               should not be removed, yet the archives must be decolonized all the same, a dilemma they refer to as the paradox of 
+               colonial archives . If we choose to delete or suppress some of these pictures or to edit 
+               their metadata, we risk losing ways to understand the mechanics of this form of oppression. Not only would it be hiding 
+               the colonial past, Jeurgens and Karabinos write, but it would take away the 
+               ability to continue to learn from and about the colonial period, it would be a disservice to those who suffered under colonialism and would 
+               misrepresent both the past and how information was created, stored and accessed . It should 
+               also be noted that most of these documents were meant for very limited circulation: if some of them are propaganda material, the 
+               majority were not intended for public display. Choosing to show these pictures, troubling as they can be, is a way to deconstruct the 
+               culture of secrecy that shaped their original production and mode of circulation.
+            
+            Scholars addressing these problems often act as though these documents are widely known, easily accessed, and have already been addressed 
+               in the public's discussion of the colonial past. In reality, museums have remained hesitant to create public discourse on these issues by 
+               displaying such photographs. Referring to visual material representing British colonialism, Elizabeth Edwards and Matt 
+               Mead argue that despite some thirty years of critical museology and a burgeoning theory of photography, these 
+               photographs are seldom made to work hard in public culture. Evidence of the colonial past in British history 
+               is remarkable in its absence. Moreover, given the shape and density of the colonial archive, it is a history all the 
+               more remarkable by its photographic invisibility in public space . While scholarly and public 
+               discussions have advanced considerably since 2013, more work on colonial photography remains to be done. A decision in favor of opacity 
+               would only reproduce colonialism's visual paradigm and post-colonial forgetting.
+            
+            Furthermore, some arguments against the digital diffusion of these images do not take a realistic view of the typical scope of dissemination 
+               through scientific databases. Even if most research projects claim to have a significant impact on civil society, they exist on an entirely 
+               different scale than global image provider corporations or social media platforms. While we should take steps to ensure that unsuspecting 
+               audiences do not encounter sensitive pictures in databases without warning or context, the scientific ecosystem in which these tools exist 
+               already selects the communities that use them. Such platforms and interfaces are engaged with by users that are proficient with research 
+               and interested in historical or scientific inquiry. There is always a risk that malevolent parties could scrape sensitive pictures to 
+               redeploy them for other purposes by manipulating their captions or metadata. Precautions should be taken to make these sorts of uses 
+               difficult; the database could restrict mass downloads to logged-in users who have answered questions regarding the purpose of their 
+               demands, and the database could reiterate its usage policies each time someone downloads a picture. Bad actors could still pervert a 
+               database's purpose, but this may be an inherent problem that should be measured against the benefits of the judicious dissemination of 
+               such images. Given that there is a virtually inexhaustible supply of freely available material online that could lend itself to racist 
+               ends, censoring a forum intended for use by researchers would not significantly alter the situation, but could imperil generations of 
+               new insights into the mechanics, contradictions, and legacies of colonial domination.
+            
+            To create a public-facing digital archive that would integrate such tools in a sensitive manner, it is crucial to build an appropriate 
+               textual environment for the images. The EyCon project features a sensitive content warning on the database website, which explains the 
+               nature of the corpus material and the forms of sensitive content within it. We point out that the material contains 
+               images as well as words, terms, and phrases that are often decontextualizing, inaccurate, derogatory, or potentially harmful to the 
+               descendants of colonized people . We also explain that such images and terms are not neutral, since 
+               they were produced by actors with a stake in political domination, economic exploitation, and violence. The statement explains EyCon's 
+               argument for reproducing the images with their original metadata in order to facilitate the study of colonialism, in the interests of more 
+               just collective futures . Appropriately trained and checked by humans, computer vision could be used to help 
+               identify sensitive material and automatically bring up a pop-up advisory for photographs tagged as potentially sensitive.
+            
+            Such ML solutions ought to be specifically developed for historical images, given the shortcomings associated with currently available 
+               off-the-shelf computer vision products. The field of AI-driven content moderation is growing as profit-driven enterprises develop content 
+               moderation technologies to filter out sensitive pictures or problematic language. Critics have raised concerns over the usefulness of 
+               such tools when it comes to difficult limit cases of content moderation, as well as the fact that the creators of these tools may be more 
+               motivated by cost-saving imperatives than by actual efficacy . Developed by companies such as Google or 
+               Amazon, these tools do not take historical or ethical specificities into account. They are built mostly to protect brands, to apply local 
+               laws, and to reassure advertisers. Audience protection is only important insofar as it fulfills this purpose, as is evident in the 
+               description of the Amazon Rekognition program's moderation APIs, which can be used, according to Amazon, in social 
+               media, broadcast media, advertising, and e-commerce situations to create a safer user experience, provide brand safety assurances to 
+               advertisers, and comply with local and global regulations . The categories used to classify 
+               inappropriate or offensive content are clearly based on a legal rather than an ethical perspective, as they 
+               include Explicit Nudity, Suggestive, Violence, 
+               Visually Disturbing, Drugs, Alcohol, and 
+               Hate Symbols together with second-level categories that could be of use in a project involving war scenes, 
+               for example, in the Visually Disturbing category, Emaciated Bodies, Corpses, Hanging, 
+               Air Crash, Explosions And Blasts.   
+            
+            There are numerous problems with using existing off-the-shelf tools on historical materials. First is the question of audience: most 
+               categories are only relevant in certain contexts. For example, a Suggestive category would only be appropriate 
+               if your target audience includes children, or if there is a strong moral or religious prescription against this kind of content in your 
+               target audience. In the case of colonial archives, this category could indeed be problematic, as nudity or sexual situations in a colonial 
+               context are often the result of sexual violence or evidence of primitive cultures for the authors of the pictures. While AI tools 
+               can help augment our capacity to identify such material, careful expert and source community-led reconstruction of contexts would be 
+               necessary to ensure that the filters are used appropriately.
+            
+            This problem is linked to the issue of implicit content: a seemingly innocuous picture might have violent implications without any 
+               explicitly violent content. Examples include pictures of a colonial official or landowner with people engaged in forced labor, people 
+               cheering under duress, or a line of prisoners waiting to be executed. One example taken from the EyCon project's database illustrates the 
+               point well. La Prise de Samory, or The Capture of Samory, is a 
+               photographic album created in 1899 by a French officer just after the conclusion of the war against Samory Touré's Wassoulou 
+               Empire, which, at its height in the 1880s, extended across parts of present-day Guinea, Mali, and 
+               Côte d'Ivoire. In 1898, the French military captured Touré and exiled him to Gabon.
+            
+            
+              Anon., Samory dans les rues de Saint-Louis, Silver gelatin baryte print, 17x12.5 cm, 
+                 inLa Prise de Samory, photographic album, 1898-99, p. 12. 
+                 Service historique de la Défense (access: 2K194).
+              Samory Touré led through Saint-Louis via a crowded street.
+                
+            
+            The photograph in Figure 1 shows Samory as he was paraded through the streets of Saint-Louis, at that time the 
+               capital of the newly formed Afrique-Occidental française. This photograph therefore documents a form of 
+               public humiliation. Its sensitive nature would not be evident to a computer vision model that was not trained by a dataset produced by 
+               historically informed human vision. Even when it is explicit, either in the image's textual metadata or in its visual content, 
+               off-the-shelf tools often fail to identify violence in historical photographs. Figures 2-4 show that tests of the Google Vision API on 
+               pictures in our database showing execution, mass graves, or corpses overwhelmingly return the results Unlikely or Very 
+               unlikely in searches for violent content (Vision AI).
+            
+            
+              Google Vision API test of SHD 2K247160 003. Lybie, Tripoli. Arabs who have been 
+                 slaughtered by the Italians. Service historique de la Défense.
+              Google Vision API test showing Unlikely result for automatic detection of violence in a photograph of the body of a 
+                 person killed during the Italo-Turkish war in Libya.
+                
+            
+            
+              Google Vision API test of SHD 2K247160 005. Lybie, Tripoli Execution of German 
+                 consuls servant. Service historique de la Défense.
+              Google Vision API test showing Unlikely result for automatic detection of violence in a photograph of an Italian firing 
+                 squad carrying out an execution during the Italo-Turkish war in Libya.
+                
+            
+            
+              Google Vision API test of SHD 2K247160 016. Lybie, Tripoli. 
+                 Service historique de la Défense.
+              Google Vision API test showing Unlikely result for automatic detection of violence in a photograph of civilians 
+                 massacred by Italian military forces during the Italo-Turkish war in Libya.
+                
+            
+            Indeed, out of a set of 199 images extracted from the fonds Valois photo albums produced by the Section 
+               Photographique de l'Armée during World War One which contain the word cadavre or corpse in their textual metadata, 
+               only 12% were recognized by the algorithm as either possibly or likely containing violence. It found violence to be either 
+               unlikely or very unlikely in 88% of the images.
+            
+            These outcomes are linked to the categories that are built in these tools to classify inappropriate content. In a database of colonial 
+               visual materials, the taxonomy would have to be entirely rethought. Human input is crucial here: bias in the database architecture and in 
+               the AI models can only be contested through the involvement of informed and diverse communities . 
+               Involving the potential users of a database of this kind is essential. The EyCon project has organized two workshops to discuss how 
+               archivists currently define and approach sensitive pictures. Professionals from various institutions and backgrounds selected 
+               problematic photographs, and the discussions made clear that the restrictive typology used by corporations to classify sensitive content 
+               had to be rethought. For this reason, EyCon has been working with team members and paid interns to identify sensitive images. By combining 
+               these annotations with already-annotated databases of historical images such as the Valois collection held at La Bibliothèque de 
+               Documentation International Contemporaine (BDIC), we suggest it would be possible to train a CNN to identify instances 
+               of sensitive images in other online databases with a higher degree of accuracy.
+            
+            
+              Google Vision API test of VAL 006/027. 17.08.1917. Fonds des albums Valois - Soissons. 
+                 La Contemporaine.
+              Google Vision API test showing Unlikely result for automatic detection of violence in a photograph of dead German 
+                 soldiers inside a destroyed tank during World War I.
+                
+            
+            Better results might also be obtained through multimodal AI, combining natural language recognition and computer vision within the same 
+               deep learning model. In another example from the Valois collection, for example, the burned bodies of several German soldiers inside of a 
+               destroyed tank are barely recognizable (see Figure 5). Working purely through computer vision, the Google Safe Search application 
+               cannot recognize them despite information about the corpses in the associated caption. EyCon's experimental approach involved retraining a 
+               visual similarity algorithm using contemporary photos that we degraded in order to make them appear more like historical images. EyCon used 
+               an error diffusion algorithm to produce images that appear similar to black and white halftones, which were in turn used to train a 
+               CNN. The team then combined this with vectorization of textual metadata associated with the image. While this method was not attempted at 
+               scale and thus not measured quantitatively, when used on a smaller experimental set of images, this approach was able to detect sensitive 
+               materials in cases when off-the-shelf tools could not, by including their captions when making a determination.
+            
+            The biggest problem for current models is the historical distance between archival pictures and pictures used to train content moderation 
+               tools. Even if we test for categories already present in these content filters, formal and technical differences between historical photos 
+               and contemporary digital images may prevent these tools from accurately identifying and categorizing the images in the archives. The 
+               particular kinds of historical objects in the images are significantly different from the objects in the most common training datasets used 
+               to develop contemporary computer vision tools. Additionally, the appearance of halftone reproductions in historical periodicals and the 
+               lower lens quality of historical photographs in photo albums make them much less distinct that the digital images used in contemporary 
+               training sets. This is why the method of artificially making a set of digital images appear half-toned helped the Eycon model produce 
+               better results, by finding similar instances in cases where off-the-shelf tools did not. Once again, this judgment was based on a limited 
+               number of examples compared and was not measured quantitatively.
+            
+            The EyCon project's experimental efforts suggest ways that a multimodal visual similarity model might address the archival situation that 
+               has contributed to colonial aphasia. The multimodal visual similarity tool can quickly find two instances of the same image in 
+               different publications, different formats, and/or different archives.  In May 2023, EyCon team members and institutional partners from the 
+               Musée Quai Branly-Jacques Chirac, the Service Historique de la Défense (SHD), and the 
+               Établissement de Communication et de Production Audiovisuelle de la Défense (ECPAD) met at the ECPAD 
+               installation at the Fort d'Ivry. We discussed how a multimodal visual similarity approach could be used to find different 
+               instances of photographs of atrocities carried out against civilians by the Italian army in Tripoli during the Italo-Turkish 
+               War in 1911, tracing these images spread through the press in Italy, France, the Ottoman Empire, 
+               Britain, and beyond.
+            
+            In order to demonstrate some of the possibilities and limitations of these tools, we invited Pierre Schill to share his 
+               research on the photographic coverage of the Italo-Turkish war . The idea was to show how historians of 
+               photography often build their interpretations by tracing image circulation across various formats and publications. This can help establish 
+               context by making arguments for probable attributions and by showing how photographs' meanings are inflected by editorial choices such as 
+               cropping or captioning. During the workshop, Schill noted that while the war in Tripoli was highly photographed 
+               by newspaper correspondents at the time, it is little remembered in Europe today. In part, he argued, this is because of the 
+               difficulty in identifying camera operators as well as the diversity of sites and modes of conservation of the photographs. To get a better 
+               idea of the conflict and its visual records, it is necessary to draw links between the various archives holding the records in order to make 
+               attributions and establish context.
+            
+            The key question for this workshop was whether it might be possible to produce visual similarity tools that are capable of capturing this 
+               level of nuance, helping to perform tasks such as suggesting probable attributions for photographs. We first constructed a limited image 
+               database to test the tools. This set included images of loose photographs documenting the Tripoli atrocities from the Forbin 
+               fonds at the SHD, as well as instances of those images reproduced in publications such as The Daily 
+               Mirror and Excelsior. In order to make sure that the tools could pick out similarities among a much 
+               larger set of non-similar photos, we also included the roughly 60,000 images from the fonds Valois.
+            
+            The Eycon project's experimental multimodal tool would enable a user to query the database using an image and ask for the ten most similar 
+               images in the database. Alternatively, the user could enter in a query using textual terms and see what photographs are proposed. Finally, 
+               the user could search using an image file and add additional vectors to the search on the basis of text that should be associated with the 
+               image. With more work, such a tool could also make suggestions for additional metadata, adding context to images. For example, if the same 
+               image or a very similar one is attributed to a photographer in one instance but not in the other, the text-processing part of the process 
+               could perceive this attribution and suggest that attribution as a possibility for the other instance of the image. This would make such 
+               records more discoverable and address the fact that this conflict is largely forgotten in the West today, despite the fact that it was 
+               abundantly covered in the press at the time.
+            
+            Computing for visual similarity across large corpuses of images can be both a powerful scholarly tool and a way to show care for sensitive 
+               material. Odumosu, for instance, uncovers various archives and publications in which the crying child 
+               photograph appeared, tracing its recirculation . With ML, this labor could be semi-automated, allowing 
+               scholars to devote precious time and research resources to higher-order mental tasks. In this case, the algorithm's lack of sensitivity 
+               might be an asset, as it would relieve arduous visual labor from human affective systems that would otherwise be forced to deal with many 
+               troubling images. A visual similarity algorithm can recognize where an image appears in other places in the archive and include a hyperlink 
+               to different instances of an image in various national archives. In the case of the seemingly innocuous image of Samory 
+               Touré's exile for example, once the context for such a picture is established, a visual similarity algorithm could identify other 
+               instances of it and flag them for contextualization or potentially sensitive content warnings.
+            
+            Such algorithms could also be invaluable in uncovering trans- or inter-imperial histories of colonial violence. Take, for example, Figure 
+               8, an image held by the ECPAD that documents the execution of a purported adherent of the so-called Boxer Rebellion in 
+               China in 1900. This was a trans-imperial conflict in which eight nations joined the imperialist coalition that put down the 
+               uprising. The background of this image shows a Japanese officer.
+            
+            
+              Photo in an album conserved by the ECPAD. Google Vision API does not recognize the body of the individual being put 
+                 to death as a person. Reference #DO159-002-001-0260.
+              Google Vision API test of a photograph depicting an execution during the so-called Boxer Rebellion in China.
+                
+            
+            Such photos were often reproduced and purchased by officers of multiple imperial armies, appearing in albums and collections in different 
+               nations. A visual similarity tool combined with internationally linked digital archives could reveal these connections. This would be a way 
+               to practice an ethics of care toward sensitive archival material.
+            
+            The simple fact of circumventing archival silos through linked data contributes to the dissolution of the colonial gaze. The same battle, 
+               for example, can be viewed from an international or inter-imperial perspective. Various groups described the same events in different 
+               terms: what was defined as a skirmish or revolt in Italy or France could be termed a rebellion, war, or 
+               revolution by other belligerents, as in the Ottoman Empire, in this case. By using tools of linked data such as wikidata and 
+               aligning the metadata around our pictures, we can illustrate such terminological tensions around certain events and create more extensive 
+               records. The main issue is educational: how can we ensure that a database's design and interface does not simply spread and reinforce the 
+               beliefs and values that created the documents it contains? Machine learning could be a means to deconstruct the colonial archive, to show 
+               things that it was not meant to show, to make the conditions of the production of this data visible, and to learn about how colonialism 
+               functions through both the display and concealment of violence. By linking data in different silos and statistically analyzing the 
+               graphical and textual content of these archives, we can draw new connections and enrich flawed archives.
+            
+            While access to colonial archives is necessary, it should come with critical awareness of database structures and website designs. Many 
+               online archival databases are manifestations of a twenty-first century exhibitionary complex that favors 
+               certain practices of representation and exhibition, specifically when they include AI functionalities . They 
+               are performative reflections of early twenty-first century aspirations to ever-increasing searchability, transparency, and access to large 
+               quantities of historical data. Given associated ideas about the photographic medium's transparency, the performance is heightened when 
+               these online repositories exhibit photographs. Even if the notion that photography possesses a special eye-witness power and a 
+               distinct potency as a bearer of emotion is a historical and cultural construct with a (mostly) Euro-American genealogy, this idea is now 
+               broadly foundational for twenty-first century global spectatorship. Social media platforms, building on these foundations, creates the 
+               conditions for massive harm because they reinforce popular notions of their contents' transparency. Pictures on Instagram, for instance, 
+               are supposed to be authentic, real, and taken at face value; the platform's simplicity reinforces this perception. 
+            
+            Open access online archives harnessing AI-reliant tools should be designed to make sure that users see photography as a 
+               medium and the documents produced by that medium as social facts that exist in historical time. Such archives should 
+               cultivate a sense of distance in order to ensure that the viewing experience does not replicate the visuality of news photographs, for example, 
+               which depend on an eye-witnessing power to create distinct forms of feeling and public response to depictions of violence. With visual 
+               records of potentially sensitive pasts, users should be constantly reminded that they are looking at a mediation. Ideally, digital archive 
+               platforms would mediate the effects of such photographs by reminding users that they are fabricated constructions, as are the tools 
+               and structures that make them accessible.
+            
+        
+
+          Conclusion 
+            Is it desirable to make all archives openly accessible to the widest possible audience? In the 1990s and 2000s, this question was seldom 
+               asked; the notion of open access was largely uncontroversial. While we are now more aware of the dangers of an unchecked open access 
+               movement, we are also confronted with the huge practical and ethical challenges posed by AI. ML models cannot be developed without access 
+               to data. If AI is to help restructure colonial archives, it is essential that humanists, source communities, experts, and computer 
+               engineers cooperate to develop it critically and transparently, with awareness of the risks involved in careless dissemination of sensitive 
+               materials.
+            
+            The goal should not be to show everything indiscriminately, but rather to reshape the colonial archive's visuality in order to facilitate
+               the production of knowledge and the public discussion of contested legacies. Pursuing this objective involves increasing the visibility of 
+               this visual heritage, but it is not reducible to it. ML might be better thought of as a tool with which to reorder the 
+               colonial archive's visuality; it can help articulate and organize the archive in ways that exceed the intentions of its original colonial 
+               producers, giving researchers tools with which to build new connections, contexts, and interpretations. Long before digital 
+               computer processing, from the days of filing cabinets and paper indexes, archives have always been tools for accessing traces of the past 
+               in a structured way. Digital developments and AI-reliant tools will not radically disrupt this basic situation. However, the combination of 
+               digitization and machine learning will drastically alter the scale of analysis, the speed at which certain time-consuming archival tasks 
+               can be accomplished, and, ideally, the siloization of archives that contributes to patterns of forgetting. The management of sensitive 
+               content can never and should never be fully automated. However, semi-automation can help augment our capacity to both produce knowledge of 
+               the past using digital visual archives and to approach those archives in ethical ways.
+            
+        
+
+          Abbreviation Index
+            
+              API: Application Programming Interface
+              ANOM: Archives Nationales d'Outre Mer
+              BDIC: La Bibliothèque de Documentation International Contemporaine
+              CNN: Convolutional neural network
+              ECPAD: Établissement de Communication et de Production Audiovisuelle de la Défense
+              EyCon: Early Conflict Photography and Visual AI
+              GLAM: Galleries, Libraries, Archives, Museums
+              IIIF: International Image Interoperability Framework
+              JISC: Joint Information Systems Committee
+              MPLP: More Product, Less Process
+            
+        
+
+          Acknowledgements
+           This research was funded by Idex Université de Paris Cité and a grant jointly funded by the AHRC 
+              (Arts and Humanities Research Council; project reference #AH/W008408/1) in the United Kingdom, and the labex 
+              Les passés dans le présent (Investissement d’avenir; réf. ANR-11-LABX-0026-01) in France.
+           
+        
+Title:  Sensitivity and Access: Unlocking the Colonial Visual Archive with Machine Learning
+Volume:  018
+Issue:  3
+Date:  19 July 2024
+Abstract:  
+            In recent decades, archival institutions have digitized an enormous quantity of material under the rubric of open access, including from 
+               colonial archives. However, much of the most sensitive material from these collections remains undigitized or difficult to discover and 
+               use. More recently, a critical reconsideration of open digital access has also taken place, particularly when it comes to sensitive 
+               material from the colonial archive. Collectively, this has created a situation in which the colonial photography archive risks becoming 
+               overly sanitized as well as difficult to navigate and analyze.               
+            
+            In this article, we propose that critical and transparent multimodal artificial intelligence (AI) offers a way to improve access to 
+               colonial archives for researchers and the public, without losing sight of the need for ethical approaches to sensitive visual 
+               materials. The EyCon (Early Conflict Photography and Visual AI) project assembled a large database of sensitive visual materials from 
+               colonial conflicts and developed experimental multi-modal computer vision tools with which to analyze it. Though this tool has not yet 
+               been applied at scale or quantitatively compared with other approaches, we are able to propose modes of inquiry for other researchers to 
+               explore as they create new research tools. On a more hypothetical or theoretical level, we consider how the use of computational tools 
+               to facilitate access to and analysis of sensitive historical materials is compatible with or even beneficial for more ethical approaches 
+               to such materials. We conclude with several promising areas for critically integrating AI into the digital colonial archive, while also 
+               expanding on some limitations of such techniques.               
+            
+         
+Full Body Text: 
+
+          Introduction
+            In recent decades, archival institutions have digitized an enormous quantity of material under the rubric of open access, including from 
+               colonial archives. However, much of the most sensitive material from these collections — particularly photographs depicting colonial 
+               violence — remains undigitized, or difficult to discover and use. More recently, a critical reconsideration of open digital access has also 
+               taken place, particularly when it comes to sensitive material from the colonial archive.Sensitive 
+               material can cover a broad range of materials and issues, and it is a major concern within archival science. Material may be 
+               considered sensitive due to concerns ranging from privacy issues and state secrets to graphic depictions of 
+               violence. More recently, in places such as Canada, Australia, and the United States, the category has 
+               been used extensively with regard to the legal and ethical implications of archival holdings of indigenous artifacts and remains considered 
+               sacred by source communities and nations. In this article, the sensitive material to which we refer is largely 
+               visual documentation of colonial violence held in state archives, which can be politically explosive and is important for the process of 
+               confronting the legacies of colonialism. In our usage, sensitive material may also refer to racist or 
+               inaccurate metadata dating from the production of these visual materials, which can be disturbing to the contemporary public. 
+               Photographic material presents a particularly tense point in the debate over access and sensitivity, largely due to the longstanding notion 
+               that it is a transparent medium, one that bears an exact trace of the moment in which it is made.The idea that photography 
+               makes meaning by way of an exact trace (also referred to as the medium's indexical nature) has been pursued by many scholars, notably 
+               the art historian Rosalind Krauss . The concept of the index can be traced to the work of 
+               the American pragmatist philosopher Charles Sanders Peirce and his semiotic triad of icon, symbol, and index. The index 
+               establishes meaning by virtue of its physical connection with its referent, as in the way in which footprints are a clue to a pedestrian's 
+               passage, for example . For this reason, photography is commonly perceived or experienced as a more 
+               immediate carrier of emotions — including painful or negative emotions — than other kinds of documents or representations. Enormous 
+               quantities of photographic material have been digitized without sufficient contextual metadata. What metadata exists was created by colonial 
+               institutions themselves, and the metadata thus may not respond to the questions researchers want to ask. At the same time, particularly 
+               sensitive material largely remains hidden due in large part to increasing awareness of ethical concerns. For these reasons, the digitally 
+               available colonial photography archive risks becoming overly sanitized as well as difficult to navigate and analyze.
+            
+            In this article, we ask how machine learning (ML) might redress this problem. Specifically, how might a set of ML-informed tools improve 
+               access and navigation for this sensitive digital archive?Artificial Intelligence (AI) is a large (and potentially poorly named) 
+               concept designating the ability of a machine to perform tasks that typically require human intelligence or thought. In practice, the terms 
+               AI and ML are often used interchangeably. This description of AI and ML is informed particularly by François 
+               Chollet's lucid discussion in Deep Learning with Python . We suggest 
+               that critical and transparent multimodal ML offers a way to improve access to colonial archives for researchers and the public, without 
+               losing sight of the need for ethical approaches to sensitive visual materials. We retrained a visual similarity algorithm using images 
+               degraded in order to appear like historical images and stacked the algorithm with a way of vectorizing textual metadata. Then, we 
+               applied this technique to our database, a very large corpus of colonial conflict photographs collected from various archives in 
+               France and the UK. While not tested at scale, the results indicate potential for designing a search interface that 
+               would provide better results than non-ML augmented digital databases and currently available off-the-shelf ML tools available from Amazon 
+               and Google. While our reflections remain largely hypothetical, they are nonetheless suggestive of a number of paths forward in using ML and 
+               computer vision on sensitive visual materials. This article explains the archival problems presented by digitized photographs from the 
+               colonial period and then examines ways that ML-augmented computational approaches might make access to such material both more robust and 
+               more sensitive to its political and ethical dimensions. We hope that this article opens up modes of inquiry for other researchers to explore 
+               further as they create new research tools.
+            
+            Before moving on, a brief explanation of some of the central technical concepts is in order. Machine learning (ML) is form of artificial 
+               intelligence (AI) that allows machines to learn from data without being programmed directly. In traditional programming, the programmer 
+               writes rules in a coding language that the machine follows in order to turn input data into appropriate solutions. In ML, the machine 
+               examines input data associated with a set of answers in order to figure out what the corresponding rules should be. An ML system is 
+               trained rather than programmed — it is presented with many examples relevant to a given task and then finds statistical structures 
+               in these examples that allows the system to come up with rules for automating the task, which allows the system to generate solutions to 
+               new input data for which the answers have not already been provided. ML has turned out to be much more effective than traditional computer 
+               programming at allowing computers to figure out problems involving tasks analogous to human perception, such as image tagging and 
+               classification, speech recognition, and natural language translation . Indeed, the advent of a type of ML model 
+               called a convolutional neural network (CNN) has made it possible to analyze visual material in digital archives at scale. For example, 
+               Thomas Smits and Melvin Wevers have used a CNN to explore visual aspects of a very large digitized archive of Dutch 
+               newspapers in order to automatically detect variables such as the changing medium of illustrations over time (engravings vs. halftones), the
+               styles of illustrated advertising, and the most common visual forms in the press . By multimodal 
+               ML, we mean the use of an ML model that performs different kinds of operations on different input data, combining or stacking these 
+               different operations to produce more robust results. Our proposed model's network architecture includes a CNN to perform operations on 
+               visual data in pixel values, combined with a network that analyzes textual metadata in associated picture captions.This way of 
+               using multimodal ML is still very much a horizon of possibility, since open-source libraries for natural language processing suffer from the 
+               same biases as computer vision datasets when applied to historical documents, which we explain in detail in this article. See 
+               .
+            
+            The EyCon (Early Conflict Photography and Visual AI) project proposes a number of AI techniques to analyze a database of sensitive visual 
+               material from colonial conflicts. Working with a consortium of British and French archives, EyCon scanned non-digitized material and 
+               gathered together already-digitized material into a trans-imperial image database that mixes different forms of photograph supports, 
+               including albums, the illustrated press, and loose photographs, all related to colonial conflicts between 1880 and 1918.This network 
+               includes the Musée du Quai Branly Jacques Chirac, the Établissement de communication et de production audiovisuelle de la 
+               Défense (ECPAD), the Service Historique de la Défense (SHD), the Bibliothèque Nationale 
+               de France, the Archives nationales d'outre-mer (ANOM), La Contemporaine, the Imperial 
+               War Museum, and the Wellcome Collection. After treating the image files and annotating associated metadata such 
+               as captions, dates, subjects, and photographers, the team trained a layout-parser CNN to extract images and text from the often unusual page 
+               layouts of the late nineteenth century press. Using the International Image Interoperability Framework (IIIF) format provides a stable 
+               environment in which the image files are permanently linked to their associated textual metadata. After assembling the database, the 
+               project worked on potential methods to use multimodal ML to deliver search results for visual similarity, object detection, and other 
+               aspects of the images in the database. Though we were unable to assess accuracy at scale, our experimental comparisons suggest that adding 
+               natural language processing layers to the network architecture (thereby making it multimodal) might outperform off-the-shelf computer 
+               vision tools available from Google and Amazon, whose models are hampered by various forms of bias in their datasets. Finally, we propose 
+               several ways in which the use of computational tools to facilitate analysis of sensitive historical material might also enable more ethical 
+               approaches to such materials.
+            
+            The article's first section introduces issues raised by the digitization of sensitive colonial photography. We outline the history of public 
+               archives and the ideal of open access, which we trace to Enlightenment values according to which governmental authority and actions would be 
+               subordinated to reason and public debate. This same historical period was also bound up with colonialism, plantation economies, and regimes 
+               of forced labor. With digitization campaigns from the 1990s onward, materials from this long colonial period — including images — were 
+               diffused online, raising ethical issues. The early consensus in the archival field that digitization would augment access has been 
+               increasingly tempered by concerns about sensitive material, particularly depictions of violence, offensive or racist terms in digital 
+               metadata, and issues related to privacy and consent. However, we suggest that despite these important ethical issues, choosing 
+               not to look at these images may lead to overly cautious archival management.
+            
+            Section Two outlines problems (both ethical and practical) as well as potential benefits associated with ML-assisted approaches to sensitive 
+               digital material. It emphasizes that the visual materials in these archives do not simply depict colonialism; rather, colonial perspectives 
+               are embedded in their material forms and archival organization, the ways they have circulated, and how their visibility was controlled and 
+               limited to certain communities. Though no archive provides direct and unmediated access to the past, choosing to digitize and circulate only 
+               more benign material may create a false and sanitized impression of colonial history. The EyCon project is committed to the idea that 
+               improving access to these materials is essential to writing new histories of colonialism.
+            
+            While their use raises both practical and ethical problems, ML approaches can reshape the digital colonial archive in ways that enable new 
+               interpretations and engagements with these materials. Digital archives often feature poor metadata shaped by colonial legacies, which 
+               insufficiently contextualize the materials being described and replicate the perspectives of their colonial creators. Manual improvement of 
+               records and metadata is often impossible due to lack of resources. While AI could assist in this respect, for example by automatically 
+               creating or suggesting additional contextualizing metadata, it is far from a panacea. Indeed, the field is rife with a form of technological 
+               fetishism that systematically obscures how human labor is essential to training neural networks. Catherine D'Ignazio and 
+               Lauren Klein have framed this issue using the feminist concept of invisible labour, which can 
+               expose the significant human efforts required by our automated systems . 
+               This human involvement means that ML models are inevitably shaped by those who have produced the annotated training sets. Following recent 
+               calls for a more critical integration of AI into archival practice , we consider ethical issues in the 
+               ML field, such as training dataset bias. Humanities scholars, social scientists, archivists, and computer scientists must actively and 
+               collaboratively address these issues, given the uncritical ways in which many of these tools and methods have been created 
+                . At the same time, we argue against the notion that such tools 
+               inevitably do more harm than good.
+            
+            In the second section, we discuss the limitations of current off-the-shelf computer vision tools for enriching archival metadata and how 
+               EyCon points toward possibilities for improving on such products, using limited experiments with our database of colonial images. Done 
+               carefully and critically, ML and computer vision tools can help archivists promote access to colonialism's visual records while improving 
+               their contextualization at scale, in part by reshaping how researchers can navigate through this archive. EyCon suggests ways that AI 
+               projects could be built with sensitivity and equity in mind, improving access while enabling more ethical approaches to potentially sensitive 
+               material. This includes involving using explainable AI techniques , multimodal AI for 
+               identification of sensitive material and metadata enrichment, and combining distant and close readings of archival materials. 
+               Finally, we propose ways that ML models might be trained on to operate better on turn-of-the-twentieth-century photographs and publications.
+            
+        
+
+          The Critical Turn in Archival Digitization and the Colonial Visual Archive
+            Public access to archives has its origins in the Enlightenment period and is further rooted in notions of popular sovereignty. The French 
+               Revolution opened up national archives to all citizens by instituting a 1794 law that created a central depository for 
+               the national archives, with free public access .
+               Archives Nationales, 
+               https://www.archives-nationales.culture.gouv.fr/web/guest/histoire-de-l-institution. 
+               To this day, the principle of public access remains a pillar of the Archives Nationales and other archival institutions. In 
+               practice, however, getting access to potentially sensitive information can be extremely complicated. According to the French Heritage Code 
+               (Code du Patrimoine, article L. 213-2), public records should be made accessible twenty-five years after 
+               their creation, or fifty years after their creation for documents related to national defense. However, gaining access to sensitive 
+               documents remains complicated when documents have been classified as secret-defense. A tension exists between 
+               the Heritage Code (which facilitates access to archives after a certain period of time), and the Penal Code (which prevents the diffusion 
+               of national defense secrets) (Code pénal, article 413-9). Archives that could potentially threaten national 
+               security or embarrass governments can remain locked for a very long time. For example, in a 2021 report, the historian 
+               Benjamin Stora pointed out that many records related to the Algerian war remain inaccessible. Following this report, a decree 
+               passed on 22 December 2021 facilitates access to documents created during the war and its aftermath, between November 1954 and December 
+               1966.See .
+            
+            At the turn of the twenty-first century, large digitization programs offered the possibility of unlocking previously inaccessible archives. 
+               In the UK, beginning in the early 2000s, the National Archives began creating digitized records from its 
+               microfilm collection . From 2004 to 2007, the Joint Information Systems Committee 
+               (JISC), a UK non-profit organization focusing on digital data and technology, received £22 million from the 
+               Higher Education Funding Council for England for large-scale digitization programs. Commenting on the JISC 
+               initiative, the librarian Jean Sykes wrote that, Higher and further education communities are going to 
+               benefit from fantastic online resources across a wide range of subjects, gaining access to some of the richest content held in the 
+               UK's great national and university libraries . Google Books, which launched in 2004, started 
+               digitizing millions of books.
+            
+            It was a period of techno-optimism characterized by a widely-accepted narrative according to which new tools would make knowledge freely 
+               available to a wider public. In the early days of mass digitization, few worried about the possible consequences of releasing huge amounts 
+               of archival materials to the public. The dominant consensus erred on the side of free and open access. In an influential 2005 article 
+               published in American Archivist, Mark A. Greene and Dennis Meissner pushed archivists 
+               to adopt a new method for processing archival collections. The method of More Product, Less Process, or MPLP, 
+               would speed up the cataloging process and transfer the materials quickly into the user's hands. Designed primarily to end the cataloging 
+               backlogs that plagued paper collections, the MPLP method was soon applied to digital collections.
+            
+            Digitization programs also made possible the online diffusion of archives from the colonial period, including visual materials. In the 
+               French context, for instance, millions of photographs have been digitized that were originally produced over the course of the colonization 
+               of Algeria. According to Benjamin Stora, the Archives Nationales d’Outre Mer (ANOM) has 
+               digitized more than 600,000 images from colonial Algeria that can be viewed online .These 
+               images originate from the archives of the Arab offices (bureaux arabes) of Algiers, 
+               Orania, and Constantinois from 1830 to 1922, as well as from the records of the councils of government in 
+               Algeria, from 1832 to 1870. Added to this set are images documenting the civil status of Algeria (717,028 
+               images) and images from the military registers (427,945 images). Nearly 1,200,000 images are still being checked, reprocessed, and indexed 
+               ahead of their online publication.
+            
+            This kind of large-scale digitization program raises important ethical issues, though these issues have sometimes been difficult to define. 
+               Greene and Meissner (2005) argue that it was invariably better to release data, even when problematic, than to 
+               withhold access. They mention that one processing manual identifies sensitive subjects as adultery, alcoholism, drug 
+               abuse, homosexuality, lesbianism, mental illness, or suicide , but several of those 
+               items are not sensitive to every donor or donor's family . In light of such uncertainty, the 
+               tendency was to release materials, with the option to withhold them if someone complained about sensitivity. The same applied to copyrighted 
+               materials. In the case of periodicals, mass digitization made it impossible — or at least extremely challenging — to identify and obtain 
+               permissions from all copyright holders. Nevertheless, institutions often chose to put digital copies online. For example, the 
+               British Library made accessible selected copies of the feminist magazine Spare Rib with the 
+               following statement: We have been unable to locate the copyright holder for these items. An email address was 
+               provided to allow users to share information they might have about the items 
+            
+            In the past few years, this open access approach has been criticized on ethical grounds, with a strong emphasis on privacy and consent. Like 
+               other countercultural magazines in the 1970s, Spare Rib dealt with topics related to sexuality. Contributors 
+               who wrote poems or essays to be published in print form expected a small audience rather than the huge readership made possible by 
+               digitization. In a 2017 article, Michelle Moravec uses the example of Spare Rib to encourage other 
+               researchers to ask the following question before using digitized archives: Have the individuals whose work appears in 
+               these materials consented to this? Making such documents available on the internet has raised the issue of consent as well as the 
+               ethics of widely releasing sensitive or private materials intended for other uses.
+            
+            Similar concerns apply to digital reproduction of representations of enslaved and colonized people. Temi Odumosu (2020) has 
+               argued for an ethics of care toward sensitive digital colonial collections. As an example, Odumosu 
+               uses a photograph depicting a crying child taken by a Danish photographer in St. Croix around 1910. The photograph made its way 
+               into albums of Danish colonials and then into the Royal Danish Library, which digitized it in the mid-2010s. 
+               Odumosu raises ethical concerns about the decontextualized display of this potentially disturbing image and suggests several 
+               avenues toward an ethics of care with regard to colonized subjects captured in visual digital collections. Most interesting for this article 
+               is her proposal that additional contextual metadata could help mediate the emotional dimension of confronting documents created in the 
+               context of colonial domination, particularly by members of source communities. Odumosu suggests that 
+               digital artefacts of a sensitive and dehumanizing nature are vulnerable without contextualization and that 
+               richer metadata could demonstrate care and sensitivity toward discomforting images .
+            
+            Libraries and special collections have started to address concerns surrounding problematic metadata, including racist and antiquated terms 
+               used to describe archival materials in previous periods. For instance, Stanford University Libraries has released a statement 
+               on potentially harmful language in cataloging and archival description 
+               . While it does not censor existing materials dealing with harmful subjects or using 
+               harmful language, Stanford provides additional historical context. Enriching the metadata with contextual information is aligned with the 
+               archivist's traditional mission, which excludes censoring or tampering with the historical record.
+            
+            Other archivists, however, have pushed for a more radical approach, which they characterize as identifying and correcting structural racism 
+               embedded in archival metadata. Melissa Adler (2017) recommends excavating racism in the stacks to 
+               address the impact that racist classification still has today. Adler does not propose removing problematic metadata, but 
+               instead suggests that archivists augment the catalog with local data, create local and subject-specific classifications 
+               and subject access tools, encourage participatory and social cataloging, and invent alternative ways to map knowledge in the library 
+               . Like Adler, Michelle Caswell (2017) has urged librarians, archivists, and 
+               information professionals to address racism in classification systems and metadata. She invites colleagues and students to challenge the 
+               multiple ways that archival collections can feel unwelcoming to people of color, from white supremacist language in metadata to suspicion 
+               and surveillance of non-white patrons .Caswell draws heavily on the notion of 
+               white supremacy, citing the work of Anne Bonds and Joshua Inwood in particular: 
+               the concept of white supremacy forcefully calls attention to the brutality and dehumanization of racial exploitation 
+               and domination that emerges from settler colonial societies .
+            
+            Because digitization implies the need for a new archival infrastructure, it opens up political questions around cultural materials that had 
+               been somewhat contained by the relatively calcified structure of the analogue archive. By imposing a new order on the material, the digital 
+               archive is never a simple retranscription of the original archive. Rather than simply being a way to translate analogue material into a 
+               digital medium and preserve it, digitization opens cultural-political conflicts and calls for what Premesh Lalu, discussing 
+               problems around early digitization initiatives in South Africa, calls a politics of digitization 
+               . As Gil Pasternak suggested in the introduction to a recent special issue of 
+               Photography and Culture on photographic digital heritage, the marriage of heritage and 
+               digital technology is a condition that has challenged the traditional, exclusive association of the heritage 
+               phenomenon with hegemonic forces (. In part, this is because digitization implies choosing what to 
+               translate into the new medium and what to make available, thus raising anew old questions about how power relations embedded in archives 
+               structure historical debates and research agendas . Concerns include the clash between the value of open 
+               access and source communities that may want to keep sacred cultural artifacts shielded from public view.
+            
+            These varied political questions mean that there are many contextual meanings and dimensions to the issue of sensitivity. Much of 
+               the work on these questions has been done in the context of settler-colonial societies and indigenous data 
+                . While most discussions on colonial legacies in museums have focused on 
+               looted objects, the wider archival legacies of colonial oppression deserve more attention. Charles Jeurgens and 
+               Michael Karabinos, examining the digitization of the Dutch East India Company records, have drawn a distinction between the 
+               colonial archive and the colonized archive 
+               . Whereas the former were created by former colonial institutions in the era 
+               of colonization, the latter refer to records which were originally created, owned and used by local 
+               institutions and people but were collected, looted, bought, or copied and shipped to Europe . 
+               Working within Jeurgens and Karabinos's typology, the EyCon project deals with colonial archives, since the 
+               photographs and other visual documents in the corpus were created and stored by colonial actors, though they often involve colonized people 
+               as subjects. This can imply sensitivity concerns around the depiction of violence against potential ancestors and ancestral communities.
+            
+            While few within the field would deny that racist language and institutional structures should be challenged, the question of 
+               how to confront them in light of competing values of archival preservation remains controversial. Faced with these difficulties, 
+               it can be tempting for archivists to withhold access to sensitive materials. Digitization projects are no longer unchallenged. For example, 
+               funding threats may force Trove, the National Library of Australia's free digital archive, to close 
+               .The National Library's director general, Marie-Louise Ayres, deployed 
+               the language of the Enlightenment when she declared, Free access to information is fundamental to libraries, and it is 
+               to us. So, from our perspective, egalitarian access is what drives us . The idea that putting 
+               materials freely online will lead to increased and more equal access to information is no longer unquestioned. Rising concerns over privacy, 
+               consent, and problematic metadata have caused open access policies to lose some of their luster.
+            
+            While criticisms of open access policies are necessary and overdue, in the case of the colonial archive they risk exacerbating a situation 
+               in which records tend already to be difficult to find and access. If the visual records of modern organized violence during the two world 
+               wars are massively available and searchable, visual material documenting the most unsettling aspects of colonial situations is often less 
+               accessible and less digitized. Some of the most challenging visual records were collected outside institutional networks and remain in the 
+               hand of private collectors. When sensitive materials are made accessible, poor metadata and descriptions shaped by colonial legacies can 
+               provide insufficient contextualization and replicate colonial categories. When it comes to colonial legacies, the existing archive's 
+               limitations have rendered clear the need, as Roopika Risam writes, for digital archives that resist 
+               colonial violence in content and method, mediating in the gaps and silences in the digital cultural record that can be filled with extant 
+               sources .
+            
+            In recent years, several digital research projects have focused on more inclusive readings of colonial archives, including photographs. The 
+               TRACES (Transmitting Contentious Cultural Heritages with the Arts) project, for example, has explored how to curate exhibitions and events 
+               in close partnership with source communities to mediate contested legacies around issues like the collections of human remains held by 
+               institutions all over Europe. The Dead Images creative co-production, which is part of TRACES, 
+               has looked at how to use these collections to open up a dialogue about colonial violence and its legacies . 
+               The harmful potential of both documents of colonial domination and their historical metadata is at the very core of digital policies 
+               of projects such as the Digital Benin initiative, which emphasizes how catalogue 
+               transcriptions, book titles, exhibition titles and museum titles may contain harmful terms . 
+               Research projects on Australian Aboriginal photographic archives have also worked on careful recirculation of problematic colonial images 
+               with descendants of the photographed .
+            
+            In some cases, inclusive readings can turn into forms of ethical erasures and/or restrictions on image circulation. The curators of 
+               the Making African Connections Digital Archive, for example, have decided to restrict access to the graphic 
+               and nude photographs included in their database. They argue that because the web is a place where images, objects and 
+               people can easily be displaced from their context and subject to a gaze which has harmful intent, their choice 
+               of technology adds further encouragement . . . to act as censors . Criticisms of 
+               the recirculation of images that are ingrained with oppression and violence can sometimes go as far as arguing for a radical expunction of 
+               what should be visible and reproduced. Holger Stoecker, writing on very disturbing colonial photographs of human remains in 
+               German anthropological collections, even advances the idea that images that reflect extreme oppression and power imbalance could actually 
+               be buried . Well-intended approaches to contested visual records are founded on 
+               the notion that the supposed replication of colonial dominance entailed by the digital recirculation should be avoided at all costs.
+            
+            In fact, such efforts may actually echo the archival violence that has governed management of colonial records since decolonization. In many 
+               cases, the rawest colonial photographic records have in effect already been buried because they have the power 
+               to destabilize established exculpatory narratives. This is exemplified by Jean-Philippe Charbonnier's photographic evidence of 
+               torture on Algerians at the hands of the French army in the late 1950s. These disturbing snapshots documenting a focal point of Algerian and 
+               French histories suffered a long history of willful burial . To this day, their recirculation is regulated 
+               according to specific guidelines that can become obstacles to their full analysis.
+            
+            In part, efforts at creating more inclusive readings revolve around complex questions about who owns colonial photographs and who can 
+               legitimately write about the histories they document . This is a particularly salient issue with visual archives 
+               that are shaped by imperial power dynamics at their point of origin and by layers of archivation that did little to illuminate them. 
+               Colonial oppression is not only depicted in these photographs, but also replicated in how such images were curated, recirculated, and 
+               sometimes willfully put aside to protect those who carried out violence . The siloization and fragmentation of 
+               archives that document colonial oppression favors the silencing of unpalatable pasts , as well as 
+               colonial aphasia .
+            
+            Colonial ideologies are thus implicit in the archive's very structure, not just in its graphical or textual content. Zaagsma 
+               points out that inherited metadata in colonial archives can impose a distinct view of the past, in this case, that of 
+               the former colonizer . Other projects working with sensitive material produced during colonial periods 
+               have raised this issue. For example, the Making African Connections Digital Archive refers to the archive as a 
+               technology of colonialism . While evaluation of such a 
+               statement involves many considerations (archives are tools of power, but also potentially of self-determination and liberation for groups 
+               that keep their own histories), one cannot dismiss its validity concerning archives created and curated by colonial militaries, which were 
+               shaped by colonial ideologies on multiple levels. For instance, while both photographer and the photographed subject play a role in the 
+               production of photographs, most of the existing metadata is concerned with authorship rather than documentation of the photographed. To 
+               address the invisibilization of colonized people in archives, scholars are now experimenting with a number of digital tools. Toward this 
+               end, several scholars have employed Named Entity Recognition in order to identify individuals who are present in the archive but absent in 
+               finding aids, enriching archival records with important details about the lives and experiences of marginalized and enslaved people 
+               .
+            
+            Colonial officers and archivists imposed their gazes and their agendas on both the production and organization of these photographs. What 
+               they chose to capture and, perhaps more importantly, what they chose to ignore, what they chose to keep in the archives and what they chose 
+               to discard, were constrained in different ways. They had material and technical limitations, including that photographic equipment had to be 
+               carried long distances, maintained, and sent back to the metropole for development). Their objectives and those of their institutions shaped 
+               their picture production; some pictures were taken to terrorize enemies or local populations, some were meant to document the everyday life 
+               of colonial soldiers and officials, and still others served as scientific or anthropological data. Many images moved between different uses 
+               depending on how they were deployed and contextualized after their production. These objectives had enormous consequences on the pictures' 
+               content, but this context is mostly lost on contemporary viewers. For example, pictures of racialized people can be viewed as simple 
+               portraits today, while at the time of their creation they served a racist iconographic program meant to show the supposed morphological 
+               features of various ethnicities or demonstrate evolutionary theories.
+            
+            What these pictures do not show is also of great importance. In general, actions, places, and events that do not easily cohere with the 
+               photographers' worldview are excluded. Technical limits rendered other scenes — such as night events, quick movements, or people and 
+               actions purposely hidden from the Western troops — difficult to capture . Conjured in the colonial 
+               archive, the visual past of these conflicts exists only through that archive's selection processes.
+            
+        
+
+          Reshaping the Colonial Archive with Computational and Machine Learning Tools
+            How might ML-informed approaches to the visual colonial archive help redress this problem by creating research tools that are both sensitive 
+               to ethically fraught materials and enable powerful new insights into colonial histories and legacies? Digitization provides an opportunity 
+               to restructure archives in ways that exceed the original intentions of their colonial producers as well as institutional archives' 
+               political reservations around sharing difficult imperial pasts. Yet the very scale of digitization programs means that improving records 
+               manually at scale is a daunting task, if not an impossible one. AI-based augmentation of digital archives could make them navigable in new 
+               ways, creating spaces where counter-narratives or correctives may proliferate . 
+               Initiatives such as the Towards a National Collection (TaNC) program in the 
+               UK, for example, are exploring AI-reliant automation to handle text-based data ingestion in order to make historical big data 
+               exploitable. However, while ML tools have proved effective in indexing written material, approaching digital images at scale with computer 
+               vision raises additional challenges.
+            
+            Before turning to our conclusions and directions for future work developed in the course of the EyCon project, it is necessary to understand 
+               some of the risks presented by ML-assisted computer vision. The central risks include the inevitable bias baked into training datasets, 
+               exploitation of the labor that produces those datasets, the loss of material context around the image being analyzed by the model, and a 
+               techno-optimist ideology around ML that portrays the technology as omnipotent or intelligent, thereby obscuring the labor involved in 
+               making the system function. After explaining these risks and limitations, this section turns to the potential opportunities presented by ML 
+               and computer vision in this field and, finally, to the insights generated by our own efforts to produce an ML model for analyzing the EyCon 
+               database.
+            
+            First, deep learning — a form of ML used by most computer vision models that relies on many successive layers of representations of 
+               input data in order to find statistical patterns — relies on data that is contextualized and labeled by human beings. All training datasets 
+               are thus inevitably biased . Human-made labels, including those deployed to create the most commonly 
+               used training datasets such as CoCo, ImageNet, and Open Images, reflect particular contexts and perspectives. There is no such thing as 
+               purely neutral, raw, ground truth data . When the word sensitivity is applied to ML and deep learning, 
+               it has everything to do with mathematics and little to do with emotions and the senses. A deep learning model's sensitivity is a measure of 
+               how well it can detect positive instances, and it is determined by the proportion of actual positive cases to those the model predicts as 
+               positive. Beyond numbers, the emotional sensitivity of any computer vision solution merely mimics human textual annotations fed into the 
+               datasets from which it learns. Critical approaches to datasets and their constitution by human labor are therefore essential for ethical 
+               and effective attempts to create AI for sensitive collections. An archeology of datasets that uncovers the 
+               processes through which ML models have been trained thus helps address the opacity of their constitution 
+               .
+            
+            Secondly, analyses of how data has been gathered and constituted should be complemented by a critical perspective on the economics 
+               behind large training datasets. When dealing with very sensitive visual and textual content, the AI industry often relies on large-scale 
+               annotations from precarious workers . Neema Iyer has noted that the extractivism that often 
+               characterizes digital labor, particularly data annotation, echoes neo-colonial geographies of labor extraction . 
+               A lack of reflexivity on how to apply computer vision to photographic archives that document situations of subjugation could therefore 
+               result in a doubly colonial perspective, in which both the data itself and the production of the tools used to analyze it would be heavily 
+               shaped by power imbalances.
+            
+            Additionally, many of the material features of archival pictures or photographs often disappear from the data when computer vision is 
+               applied to image files in a database. Preprocessing, a necessary step to apply algorithms to pictures drawn from archives of visual 
+               material, tends to create sets of isolated images that extract them from their material environments. Traces of the fixative used to glue 
+               a print on cardboard, the wear on an album page that has been turned too many times, the very smell of an old box of calling cards — while 
+               all of these embodied stimuli inform spectators about images, sometimes divulging more than their visual content, this information cannot be 
+               easily translated into data . For example, although the popular photo lockets of the 1850s that protected 
+               daguerreotyped portraits of cherished relatives functioned as a form of perpetual caress 
+               , such images make no sense outside of their relation to the body and the hand that opened the locket to 
+               contempolate the face of a loved or lost one. Their meaning cannot be seen by the mechanical eye, and they appear only as prosaic portraits 
+               of long-dead people.
+            
+            Hyperbolic pronouncements in the early 2020s about the possibilities opened up by advances in deep learning play into the narratives 
+               fostered by major industrial actors, which often portray AI as being on the verge of sentience. While the question of intelligence is 
+               complex, AI does not think per se, and it certainly does not feel. Rather, AI can be trained by feeling and thinking human 
+               creators to identify aspects of digital objects and relations between those objects. In this process, the living labor that annotates 
+               sensitive material crystallizes into a technical system that is then bestowed with human-like characteristics, making it seem 
+               intelligent. Both the meaningful materiality of historical photographs — which are cared for by living archivists and experts — 
+               and the reality of the work that underlies automated vision can be easily lost in attempts to harness computer vision's potential to 
+               augment archival access.
+            
+            Photography, digital imaging, and computer vision are often conceived as radical technological disruptions that burst fully formed onto the 
+               historical stage, but none of these technologies can be disconnected from deeper cultural and social histories and institutional formations 
+               that helped determine how they were designed and deployed.
+            
+            With these risks and constraints in mind, however, it is possible to use ML and computer vision to substantially improve access to sensitive 
+               visual archives. While technologies can come to help determine political, cultural, and social situations, particularly when they become 
+               fixed in ossified forms, these determinations are neither immutable nor inevitable  
+               . The assertion that a given technology is an unredeemable instrument of coloniality can paradoxically echo 
+               colonial discourses that aligned scientific thought and technical achievement with racial categories . 
+               Contemporary variations on the racist trope of the colonized subject's supposed over-sensitivity to photographic images should be 
+               considered critically .
+            
+            With properly trained ML models, we can recognize and annotate aspects of the photographs that were not intended by the colonial 
+               institutions that produced them. ML models could fracture the colonial photographic archive's selective recollection and deconstruct the 
+               monolithic gaze that dictated its creation. Automated object detection, for example, could help add new metadata that was not intended or 
+               even comprehended by the colonial photographer or document producer. For example, colonial troops are often present in a picture but absent 
+               from the metadata describing them. Through automatic classification, we can make these troops visible and searchable in the database. ML 
+               models could automatically recognize and tag sensitive material, or add additional context by recognizing objects and locations in 
+               historical photos and suggesting additional metadata. This would open metadata to contestation, thereby actualizing Risam's 
+               call for archives that open a space for counter-narratives .
+            
+            At the same time, we believe that understanding how previous archives have situated these documents is crucial to understanding them in 
+               their full depth — not only in a positivistic manner, narrowly focused on the moment of their production, but also as dynamic creations 
+               that have been interpreted in various ways over time. The key is to historicize and render explicit ways in which documents were previously 
+               framed, so that they do not remain unconscious or seemingly neutral. For this reason, the EyCon database retains any original metadata, 
+               pointing toward ways that ML might be used to enrich it with additional information that facilitates new interpretations. Using the IIIF 
+               format allows more annotation to be added over time.
+            
+            Sensitive images like those represented in EyCon's corpus should be shown within appropriate scholarly and archival contextualizations, 
+               using the help of computational and digital tools. This should include but not be limited to the original archival metadata. 
+               Jeurgens and Karabinos argue that the coloniality of recordkeeping systems in the colonial archive cannot and 
+               should not be removed, yet the archives must be decolonized all the same, a dilemma they refer to as the paradox of 
+               colonial archives . If we choose to delete or suppress some of these pictures or to edit 
+               their metadata, we risk losing ways to understand the mechanics of this form of oppression. Not only would it be hiding 
+               the colonial past, Jeurgens and Karabinos write, but it would take away the 
+               ability to continue to learn from and about the colonial period, it would be a disservice to those who suffered under colonialism and would 
+               misrepresent both the past and how information was created, stored and accessed . It should 
+               also be noted that most of these documents were meant for very limited circulation: if some of them are propaganda material, the 
+               majority were not intended for public display. Choosing to show these pictures, troubling as they can be, is a way to deconstruct the 
+               culture of secrecy that shaped their original production and mode of circulation.
+            
+            Scholars addressing these problems often act as though these documents are widely known, easily accessed, and have already been addressed 
+               in the public's discussion of the colonial past. In reality, museums have remained hesitant to create public discourse on these issues by 
+               displaying such photographs. Referring to visual material representing British colonialism, Elizabeth Edwards and Matt 
+               Mead argue that despite some thirty years of critical museology and a burgeoning theory of photography, these 
+               photographs are seldom made to work hard in public culture. Evidence of the colonial past in British history 
+               is remarkable in its absence. Moreover, given the shape and density of the colonial archive, it is a history all the 
+               more remarkable by its photographic invisibility in public space . While scholarly and public 
+               discussions have advanced considerably since 2013, more work on colonial photography remains to be done. A decision in favor of opacity 
+               would only reproduce colonialism's visual paradigm and post-colonial forgetting.
+            
+            Furthermore, some arguments against the digital diffusion of these images do not take a realistic view of the typical scope of dissemination 
+               through scientific databases. Even if most research projects claim to have a significant impact on civil society, they exist on an entirely 
+               different scale than global image provider corporations or social media platforms. While we should take steps to ensure that unsuspecting 
+               audiences do not encounter sensitive pictures in databases without warning or context, the scientific ecosystem in which these tools exist 
+               already selects the communities that use them. Such platforms and interfaces are engaged with by users that are proficient with research 
+               and interested in historical or scientific inquiry. There is always a risk that malevolent parties could scrape sensitive pictures to 
+               redeploy them for other purposes by manipulating their captions or metadata. Precautions should be taken to make these sorts of uses 
+               difficult; the database could restrict mass downloads to logged-in users who have answered questions regarding the purpose of their 
+               demands, and the database could reiterate its usage policies each time someone downloads a picture. Bad actors could still pervert a 
+               database's purpose, but this may be an inherent problem that should be measured against the benefits of the judicious dissemination of 
+               such images. Given that there is a virtually inexhaustible supply of freely available material online that could lend itself to racist 
+               ends, censoring a forum intended for use by researchers would not significantly alter the situation, but could imperil generations of 
+               new insights into the mechanics, contradictions, and legacies of colonial domination.
+            
+            To create a public-facing digital archive that would integrate such tools in a sensitive manner, it is crucial to build an appropriate 
+               textual environment for the images. The EyCon project features a sensitive content warning on the database website, which explains the 
+               nature of the corpus material and the forms of sensitive content within it. We point out that the material contains 
+               images as well as words, terms, and phrases that are often decontextualizing, inaccurate, derogatory, or potentially harmful to the 
+               descendants of colonized people . We also explain that such images and terms are not neutral, since 
+               they were produced by actors with a stake in political domination, economic exploitation, and violence. The statement explains EyCon's 
+               argument for reproducing the images with their original metadata in order to facilitate the study of colonialism, in the interests of more 
+               just collective futures . Appropriately trained and checked by humans, computer vision could be used to help 
+               identify sensitive material and automatically bring up a pop-up advisory for photographs tagged as potentially sensitive.
+            
+            Such ML solutions ought to be specifically developed for historical images, given the shortcomings associated with currently available 
+               off-the-shelf computer vision products. The field of AI-driven content moderation is growing as profit-driven enterprises develop content 
+               moderation technologies to filter out sensitive pictures or problematic language. Critics have raised concerns over the usefulness of 
+               such tools when it comes to difficult limit cases of content moderation, as well as the fact that the creators of these tools may be more 
+               motivated by cost-saving imperatives than by actual efficacy . Developed by companies such as Google or 
+               Amazon, these tools do not take historical or ethical specificities into account. They are built mostly to protect brands, to apply local 
+               laws, and to reassure advertisers. Audience protection is only important insofar as it fulfills this purpose, as is evident in the 
+               description of the Amazon Rekognition program's moderation APIs, which can be used, according to Amazon, in social 
+               media, broadcast media, advertising, and e-commerce situations to create a safer user experience, provide brand safety assurances to 
+               advertisers, and comply with local and global regulations . The categories used to classify 
+               inappropriate or offensive content are clearly based on a legal rather than an ethical perspective, as they 
+               include Explicit Nudity, Suggestive, Violence, 
+               Visually Disturbing, Drugs, Alcohol, and 
+               Hate Symbols together with second-level categories that could be of use in a project involving war scenes, 
+               for example, in the Visually Disturbing category, Emaciated Bodies, Corpses, Hanging, 
+               Air Crash, Explosions And Blasts.   
+            
+            There are numerous problems with using existing off-the-shelf tools on historical materials. First is the question of audience: most 
+               categories are only relevant in certain contexts. For example, a Suggestive category would only be appropriate 
+               if your target audience includes children, or if there is a strong moral or religious prescription against this kind of content in your 
+               target audience. In the case of colonial archives, this category could indeed be problematic, as nudity or sexual situations in a colonial 
+               context are often the result of sexual violence or evidence of primitive cultures for the authors of the pictures. While AI tools 
+               can help augment our capacity to identify such material, careful expert and source community-led reconstruction of contexts would be 
+               necessary to ensure that the filters are used appropriately.
+            
+            This problem is linked to the issue of implicit content: a seemingly innocuous picture might have violent implications without any 
+               explicitly violent content. Examples include pictures of a colonial official or landowner with people engaged in forced labor, people 
+               cheering under duress, or a line of prisoners waiting to be executed. One example taken from the EyCon project's database illustrates the 
+               point well. La Prise de Samory, or The Capture of Samory, is a 
+               photographic album created in 1899 by a French officer just after the conclusion of the war against Samory Touré's Wassoulou 
+               Empire, which, at its height in the 1880s, extended across parts of present-day Guinea, Mali, and 
+               Côte d'Ivoire. In 1898, the French military captured Touré and exiled him to Gabon.
+            
+            
+              Anon., Samory dans les rues de Saint-Louis, Silver gelatin baryte print, 17x12.5 cm, 
+                 inLa Prise de Samory, photographic album, 1898-99, p. 12. 
+                 Service historique de la Défense (access: 2K194).
+              Samory Touré led through Saint-Louis via a crowded street.
+                
+            
+            The photograph in Figure 1 shows Samory as he was paraded through the streets of Saint-Louis, at that time the 
+               capital of the newly formed Afrique-Occidental française. This photograph therefore documents a form of 
+               public humiliation. Its sensitive nature would not be evident to a computer vision model that was not trained by a dataset produced by 
+               historically informed human vision. Even when it is explicit, either in the image's textual metadata or in its visual content, 
+               off-the-shelf tools often fail to identify violence in historical photographs. Figures 2-4 show that tests of the Google Vision API on 
+               pictures in our database showing execution, mass graves, or corpses overwhelmingly return the results Unlikely or Very 
+               unlikely in searches for violent content (Vision AI).
+            
+            
+              Google Vision API test of SHD 2K247160 003. Lybie, Tripoli. Arabs who have been 
+                 slaughtered by the Italians. Service historique de la Défense.
+              Google Vision API test showing Unlikely result for automatic detection of violence in a photograph of the body of a 
+                 person killed during the Italo-Turkish war in Libya.
+                
+            
+            
+              Google Vision API test of SHD 2K247160 005. Lybie, Tripoli Execution of German 
+                 consuls servant. Service historique de la Défense.
+              Google Vision API test showing Unlikely result for automatic detection of violence in a photograph of an Italian firing 
+                 squad carrying out an execution during the Italo-Turkish war in Libya.
+                
+            
+            
+              Google Vision API test of SHD 2K247160 016. Lybie, Tripoli. 
+                 Service historique de la Défense.
+              Google Vision API test showing Unlikely result for automatic detection of violence in a photograph of civilians 
+                 massacred by Italian military forces during the Italo-Turkish war in Libya.
+                
+            
+            Indeed, out of a set of 199 images extracted from the fonds Valois photo albums produced by the Section 
+               Photographique de l'Armée during World War One which contain the word cadavre or corpse in their textual metadata, 
+               only 12% were recognized by the algorithm as either possibly or likely containing violence. It found violence to be either 
+               unlikely or very unlikely in 88% of the images.
+            
+            These outcomes are linked to the categories that are built in these tools to classify inappropriate content. In a database of colonial 
+               visual materials, the taxonomy would have to be entirely rethought. Human input is crucial here: bias in the database architecture and in 
+               the AI models can only be contested through the involvement of informed and diverse communities . 
+               Involving the potential users of a database of this kind is essential. The EyCon project has organized two workshops to discuss how 
+               archivists currently define and approach sensitive pictures. Professionals from various institutions and backgrounds selected 
+               problematic photographs, and the discussions made clear that the restrictive typology used by corporations to classify sensitive content 
+               had to be rethought. For this reason, EyCon has been working with team members and paid interns to identify sensitive images. By combining 
+               these annotations with already-annotated databases of historical images such as the Valois collection held at La Bibliothèque de 
+               Documentation International Contemporaine (BDIC), we suggest it would be possible to train a CNN to identify instances 
+               of sensitive images in other online databases with a higher degree of accuracy.
+            
+            
+              Google Vision API test of VAL 006/027. 17.08.1917. Fonds des albums Valois - Soissons. 
+                 La Contemporaine.
+              Google Vision API test showing Unlikely result for automatic detection of violence in a photograph of dead German 
+                 soldiers inside a destroyed tank during World War I.
+                
+            
+            Better results might also be obtained through multimodal AI, combining natural language recognition and computer vision within the same 
+               deep learning model. In another example from the Valois collection, for example, the burned bodies of several German soldiers inside of a 
+               destroyed tank are barely recognizable (see Figure 5). Working purely through computer vision, the Google Safe Search application 
+               cannot recognize them despite information about the corpses in the associated caption. EyCon's experimental approach involved retraining a 
+               visual similarity algorithm using contemporary photos that we degraded in order to make them appear more like historical images. EyCon used 
+               an error diffusion algorithm to produce images that appear similar to black and white halftones, which were in turn used to train a 
+               CNN. The team then combined this with vectorization of textual metadata associated with the image. While this method was not attempted at 
+               scale and thus not measured quantitatively, when used on a smaller experimental set of images, this approach was able to detect sensitive 
+               materials in cases when off-the-shelf tools could not, by including their captions when making a determination.
+            
+            The biggest problem for current models is the historical distance between archival pictures and pictures used to train content moderation 
+               tools. Even if we test for categories already present in these content filters, formal and technical differences between historical photos 
+               and contemporary digital images may prevent these tools from accurately identifying and categorizing the images in the archives. The 
+               particular kinds of historical objects in the images are significantly different from the objects in the most common training datasets used 
+               to develop contemporary computer vision tools. Additionally, the appearance of halftone reproductions in historical periodicals and the 
+               lower lens quality of historical photographs in photo albums make them much less distinct that the digital images used in contemporary 
+               training sets. This is why the method of artificially making a set of digital images appear half-toned helped the Eycon model produce 
+               better results, by finding similar instances in cases where off-the-shelf tools did not. Once again, this judgment was based on a limited 
+               number of examples compared and was not measured quantitatively.
+            
+            The EyCon project's experimental efforts suggest ways that a multimodal visual similarity model might address the archival situation that 
+               has contributed to colonial aphasia. The multimodal visual similarity tool can quickly find two instances of the same image in 
+               different publications, different formats, and/or different archives.  In May 2023, EyCon team members and institutional partners from the 
+               Musée Quai Branly-Jacques Chirac, the Service Historique de la Défense (SHD), and the 
+               Établissement de Communication et de Production Audiovisuelle de la Défense (ECPAD) met at the ECPAD 
+               installation at the Fort d'Ivry. We discussed how a multimodal visual similarity approach could be used to find different 
+               instances of photographs of atrocities carried out against civilians by the Italian army in Tripoli during the Italo-Turkish 
+               War in 1911, tracing these images spread through the press in Italy, France, the Ottoman Empire, 
+               Britain, and beyond.
+            
+            In order to demonstrate some of the possibilities and limitations of these tools, we invited Pierre Schill to share his 
+               research on the photographic coverage of the Italo-Turkish war . The idea was to show how historians of 
+               photography often build their interpretations by tracing image circulation across various formats and publications. This can help establish 
+               context by making arguments for probable attributions and by showing how photographs' meanings are inflected by editorial choices such as 
+               cropping or captioning. During the workshop, Schill noted that while the war in Tripoli was highly photographed 
+               by newspaper correspondents at the time, it is little remembered in Europe today. In part, he argued, this is because of the 
+               difficulty in identifying camera operators as well as the diversity of sites and modes of conservation of the photographs. To get a better 
+               idea of the conflict and its visual records, it is necessary to draw links between the various archives holding the records in order to make 
+               attributions and establish context.
+            
+            The key question for this workshop was whether it might be possible to produce visual similarity tools that are capable of capturing this 
+               level of nuance, helping to perform tasks such as suggesting probable attributions for photographs. We first constructed a limited image 
+               database to test the tools. This set included images of loose photographs documenting the Tripoli atrocities from the Forbin 
+               fonds at the SHD, as well as instances of those images reproduced in publications such as The Daily 
+               Mirror and Excelsior. In order to make sure that the tools could pick out similarities among a much 
+               larger set of non-similar photos, we also included the roughly 60,000 images from the fonds Valois.
+            
+            The Eycon project's experimental multimodal tool would enable a user to query the database using an image and ask for the ten most similar 
+               images in the database. Alternatively, the user could enter in a query using textual terms and see what photographs are proposed. Finally, 
+               the user could search using an image file and add additional vectors to the search on the basis of text that should be associated with the 
+               image. With more work, such a tool could also make suggestions for additional metadata, adding context to images. For example, if the same 
+               image or a very similar one is attributed to a photographer in one instance but not in the other, the text-processing part of the process 
+               could perceive this attribution and suggest that attribution as a possibility for the other instance of the image. This would make such 
+               records more discoverable and address the fact that this conflict is largely forgotten in the West today, despite the fact that it was 
+               abundantly covered in the press at the time.
+            
+            Computing for visual similarity across large corpuses of images can be both a powerful scholarly tool and a way to show care for sensitive 
+               material. Odumosu, for instance, uncovers various archives and publications in which the crying child 
+               photograph appeared, tracing its recirculation . With ML, this labor could be semi-automated, allowing 
+               scholars to devote precious time and research resources to higher-order mental tasks. In this case, the algorithm's lack of sensitivity 
+               might be an asset, as it would relieve arduous visual labor from human affective systems that would otherwise be forced to deal with many 
+               troubling images. A visual similarity algorithm can recognize where an image appears in other places in the archive and include a hyperlink 
+               to different instances of an image in various national archives. In the case of the seemingly innocuous image of Samory 
+               Touré's exile for example, once the context for such a picture is established, a visual similarity algorithm could identify other 
+               instances of it and flag them for contextualization or potentially sensitive content warnings.
+            
+            Such algorithms could also be invaluable in uncovering trans- or inter-imperial histories of colonial violence. Take, for example, Figure 
+               8, an image held by the ECPAD that documents the execution of a purported adherent of the so-called Boxer Rebellion in 
+               China in 1900. This was a trans-imperial conflict in which eight nations joined the imperialist coalition that put down the 
+               uprising. The background of this image shows a Japanese officer.
+            
+            
+              Photo in an album conserved by the ECPAD. Google Vision API does not recognize the body of the individual being put 
+                 to death as a person. Reference #DO159-002-001-0260.
+              Google Vision API test of a photograph depicting an execution during the so-called Boxer Rebellion in China.
+                
+            
+            Such photos were often reproduced and purchased by officers of multiple imperial armies, appearing in albums and collections in different 
+               nations. A visual similarity tool combined with internationally linked digital archives could reveal these connections. This would be a way 
+               to practice an ethics of care toward sensitive archival material.
+            
+            The simple fact of circumventing archival silos through linked data contributes to the dissolution of the colonial gaze. The same battle, 
+               for example, can be viewed from an international or inter-imperial perspective. Various groups described the same events in different 
+               terms: what was defined as a skirmish or revolt in Italy or France could be termed a rebellion, war, or 
+               revolution by other belligerents, as in the Ottoman Empire, in this case. By using tools of linked data such as wikidata and 
+               aligning the metadata around our pictures, we can illustrate such terminological tensions around certain events and create more extensive 
+               records. The main issue is educational: how can we ensure that a database's design and interface does not simply spread and reinforce the 
+               beliefs and values that created the documents it contains? Machine learning could be a means to deconstruct the colonial archive, to show 
+               things that it was not meant to show, to make the conditions of the production of this data visible, and to learn about how colonialism 
+               functions through both the display and concealment of violence. By linking data in different silos and statistically analyzing the 
+               graphical and textual content of these archives, we can draw new connections and enrich flawed archives.
+            
+            While access to colonial archives is necessary, it should come with critical awareness of database structures and website designs. Many 
+               online archival databases are manifestations of a twenty-first century exhibitionary complex that favors 
+               certain practices of representation and exhibition, specifically when they include AI functionalities . They 
+               are performative reflections of early twenty-first century aspirations to ever-increasing searchability, transparency, and access to large 
+               quantities of historical data. Given associated ideas about the photographic medium's transparency, the performance is heightened when 
+               these online repositories exhibit photographs. Even if the notion that photography possesses a special eye-witness power and a 
+               distinct potency as a bearer of emotion is a historical and cultural construct with a (mostly) Euro-American genealogy, this idea is now 
+               broadly foundational for twenty-first century global spectatorship. Social media platforms, building on these foundations, creates the 
+               conditions for massive harm because they reinforce popular notions of their contents' transparency. Pictures on Instagram, for instance, 
+               are supposed to be authentic, real, and taken at face value; the platform's simplicity reinforces this perception. 
+            
+            Open access online archives harnessing AI-reliant tools should be designed to make sure that users see photography as a 
+               medium and the documents produced by that medium as social facts that exist in historical time. Such archives should 
+               cultivate a sense of distance in order to ensure that the viewing experience does not replicate the visuality of news photographs, for example, 
+               which depend on an eye-witnessing power to create distinct forms of feeling and public response to depictions of violence. With visual 
+               records of potentially sensitive pasts, users should be constantly reminded that they are looking at a mediation. Ideally, digital archive 
+               platforms would mediate the effects of such photographs by reminding users that they are fabricated constructions, as are the tools 
+               and structures that make them accessible.
+            
+        
+
+          Conclusion 
+            Is it desirable to make all archives openly accessible to the widest possible audience? In the 1990s and 2000s, this question was seldom 
+               asked; the notion of open access was largely uncontroversial. While we are now more aware of the dangers of an unchecked open access 
+               movement, we are also confronted with the huge practical and ethical challenges posed by AI. ML models cannot be developed without access 
+               to data. If AI is to help restructure colonial archives, it is essential that humanists, source communities, experts, and computer 
+               engineers cooperate to develop it critically and transparently, with awareness of the risks involved in careless dissemination of sensitive 
+               materials.
+            
+            The goal should not be to show everything indiscriminately, but rather to reshape the colonial archive's visuality in order to facilitate
+               the production of knowledge and the public discussion of contested legacies. Pursuing this objective involves increasing the visibility of 
+               this visual heritage, but it is not reducible to it. ML might be better thought of as a tool with which to reorder the 
+               colonial archive's visuality; it can help articulate and organize the archive in ways that exceed the intentions of its original colonial 
+               producers, giving researchers tools with which to build new connections, contexts, and interpretations. Long before digital 
+               computer processing, from the days of filing cabinets and paper indexes, archives have always been tools for accessing traces of the past 
+               in a structured way. Digital developments and AI-reliant tools will not radically disrupt this basic situation. However, the combination of 
+               digitization and machine learning will drastically alter the scale of analysis, the speed at which certain time-consuming archival tasks 
+               can be accomplished, and, ideally, the siloization of archives that contributes to patterns of forgetting. The management of sensitive 
+               content can never and should never be fully automated. However, semi-automation can help augment our capacity to both produce knowledge of 
+               the past using digital visual archives and to approach those archives in ethical ways.
+            
+        
+
+          Abbreviation Index
+            
+              API: Application Programming Interface
+              ANOM: Archives Nationales d'Outre Mer
+              BDIC: La Bibliothèque de Documentation International Contemporaine
+              CNN: Convolutional neural network
+              ECPAD: Établissement de Communication et de Production Audiovisuelle de la Défense
+              EyCon: Early Conflict Photography and Visual AI
+              GLAM: Galleries, Libraries, Archives, Museums
+              IIIF: International Image Interoperability Framework
+              JISC: Joint Information Systems Committee
+              MPLP: More Product, Less Process
+            
+        
+
+          Acknowledgements
+           This research was funded by Idex Université de Paris Cité and a grant jointly funded by the AHRC 
+              (Arts and Humanities Research Council; project reference #AH/W008408/1) in the United Kingdom, and the labex 
+              Les passés dans le présent (Investissement d’avenir; réf. ANR-11-LABX-0026-01) in France.
+           
+        
