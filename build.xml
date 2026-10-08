@@ -28,6 +28,10 @@
   <!-- Within ${toDir.base}, the proofing version of the site will be written to the 
     "dhq-proofing" directory. -->
   <property name="toDir.proofing.path" value="${toDir.base.path}${file.separator}${toDir.proofing}"/>
+
+  <!-- Path to Chrome/Chromium executable used for PDF generation. -->
+<property name="chromium.path"
+          value="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"/>
   
   <!-- Check for the XML Resolver Java class, as it is a dependency for using the 
     Saxon HE processor. From the Saxon documentation on XSLT with Ant:
@@ -663,5 +667,58 @@ To proof only the internal preview, hit the return key or type "false".
     <echo>If you want to see just the error messages, you might try something like</echo>
     <echo>$ time xmlstarlet sel -N svrl=http://purl.oclc.org/dsdl/svrl -t -m "//svrl:text" -v "preceding::svrl:active-pattern[1]/@documents" -o '#' -v "../@location" -o " — " -v "normalize-space(.)" -n $(find ../${toDir.validation}/${openSchemaFile1}_results -name '*.svrl') $(find ../${toDir.validation}/${openSchemaFile2}_results -name '*.svrl') | perl -pe 's,Q{http://www.tei-c.org/ns/1.0},,g; s,Q{http://www.digitalhumanities.org/ns/dhq},dhq:,g; s,^.*dhq-journal/articles/000,articles/000,;' | egrep -v '^# — [TA]' | sort</echo>
   </target>
-  
+
+ 
+
+<target name="generatePdfs"
+        depends="generateSite"
+        description="Generate PDFs from generated DHQ article HTML">
+
+    <property name="pdf.output.dir"
+              location="${toDir.base.path}/pdf"/>
+
+    <mkdir dir="${pdf.output.dir}"/>
+
+    <!-- Check that Chrome/Chromium exists. -->
+    <available file="${chromium.path}"
+               type="file"
+               property="chromium.available"/>
+
+    <fail unless="chromium.available">
+        Cannot generate PDFs: Chrome/Chromium was not found at:
+
+        ${chromium.path}
+
+        Set the chromium.path property to the location of your Chrome or
+        Chromium executable.
+    </fail>
+
+    <echo>Generating article PDFs in ${pdf.output.dir}</echo>
+
+    <apply executable="${chromium.path}"
+           parallel="false"
+           failonerror="true"
+           dest="${pdf.output.dir}"
+           verbose="true">
+
+        <arg value="--headless"/>
+        <arg value="--disable-gpu"/>
+        <arg value="--no-pdf-header-footer"/>
+
+        <!-- Prefix and filename form ONE argument. -->
+        <targetfile prefix="--print-to-pdf="/>
+
+        <srcfile prefix="file://"/>
+
+        <fileset dir="${toDir.static.path}">
+            <include name="vol/*/*/*/*.html"/>
+        </fileset>
+
+        <regexpmapper
+            from="^.*/([0-9]+)\.html$$"
+            to="\1.pdf"/>
+
+    </apply>
+
+</target>
 </project>
