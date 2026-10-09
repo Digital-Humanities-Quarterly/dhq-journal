@@ -28,6 +28,10 @@
   <!-- Within ${toDir.base}, the proofing version of the site will be written to the 
     "dhq-proofing" directory. -->
   <property name="toDir.proofing.path" value="${toDir.base.path}${file.separator}${toDir.proofing}"/>
+
+  <!-- Path to Chrome/Chromium executable used for PDF generation. -->
+<property name="chromium.path"
+          value="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"/>
   
   <!-- Check for the XML Resolver Java class, as it is a dependency for using the 
     Saxon HE processor. From the Saxon documentation on XSLT with Ant:
@@ -158,6 +162,32 @@ Notes on validation targets:
   * WARNING: Validation is performed in parallel (closed) or directory-at-a-time (open)
     which means it is quite fast, but also that it stops checking on the first file that
     is not well-formed!
+    
+generatePdfs
+  Generate PDF versions of DHQ articles from the static-site HTML using
+  headless Chrome/Chromium. The static site is generated first. PDFs are
+  written to ${toDir.base.path}${file.separator}pdf${file.separator}.
+
+  To generate PDFs for all articles:
+    ant -lib common${file.separator}lib${file.separator}saxon generatePdfs
+
+  To generate PDFs for selected articles:
+    ant -lib common${file.separator}lib${file.separator}saxon -Dpdf.article.list=/path/to/articles.txt generatePdfs
+
+  The article list is a plain-text file containing one six-digit article ID
+  per line. The Chrome/Chromium executable can be specified using
+  -Dchromium.path=/path/to/chrome.
+
+  See README-pdf-generation.md for details.
+preparePdfArticleList
+  Supporting target used by generatePdfs to prepare an optional list of
+  articles for PDF generation. See README-pdf-generation.md for details.
+generateAllPdfs
+  Supporting target used by generatePdfs to generate PDFs for all articles.
+  See README-pdf-generation.md for details.
+generateSelectedPdfs
+  Supporting target used by generatePdfs to generate PDFs for selected articles.
+  See README-pdf-generation.md for details.
     </echo>
   </target>
   <!--
@@ -663,5 +693,200 @@ To proof only the internal preview, hit the return key or type "false".
     <echo>If you want to see just the error messages, you might try something like</echo>
     <echo>$ time xmlstarlet sel -N svrl=http://purl.oclc.org/dsdl/svrl -t -m "//svrl:text" -v "preceding::svrl:active-pattern[1]/@documents" -o '#' -v "../@location" -o " — " -v "normalize-space(.)" -n $(find ../${toDir.validation}/${openSchemaFile1}_results -name '*.svrl') $(find ../${toDir.validation}/${openSchemaFile2}_results -name '*.svrl') | perl -pe 's,Q{http://www.tei-c.org/ns/1.0},,g; s,Q{http://www.digitalhumanities.org/ns/dhq},dhq:,g; s,^.*dhq-journal/articles/000,articles/000,;' | egrep -v '^# — [TA]' | sort</echo>
   </target>
-  
+
+
+<!--
+    generateAllPdfs
+
+    Generates PDFs for all articles in the static site using headless
+    Chrome/Chromium and the articles' existing print CSS.
+
+    Runs only when pdf.article.list is not defined.
+    PDFs are written to PDFs are written to 
+    ${toDir.base.path}/pdf/, e.g., dhq-static/pdf/.
+-->
+<target name="generateAllPdfs"       
+        description="Generate PDFs from generated DHQ article HTML" 		 		
+        unless="pdf.article.list">
+
+    <property name="pdf.output.dir"
+              location="${toDir.base.path}/pdf"/>
+
+    <mkdir dir="${pdf.output.dir}"/>
+
+    <!-- Check that Chrome/Chromium exists. -->
+    <available file="${chromium.path}"
+               type="file"
+               property="chromium.available"/>
+
+    <fail unless="chromium.available">
+        Cannot generate PDFs: Chrome/Chromium was not found at:
+
+        ${chromium.path}
+
+        Set the chromium.path property to the location of your Chrome or
+        Chromium executable.
+    </fail>
+
+    <echo>Generating article PDFs in ${pdf.output.dir}</echo>
+
+    <apply executable="${chromium.path}"
+           parallel="false"
+           failonerror="true"
+           dest="${pdf.output.dir}"
+           verbose="true">
+
+        <arg value="--headless"/>
+        <arg value="--disable-gpu"/>
+        <arg value="--no-pdf-header-footer"/>
+
+        <!-- Prefix and filename form ONE argument. -->
+        <targetfile prefix="--print-to-pdf="/>
+
+        <srcfile prefix="file://"/>
+
+        <fileset dir="${toDir.static.path}">
+            <include name="vol/*/*/*/*.html"/>
+        </fileset>
+
+        <regexpmapper
+            from="^.*/([0-9]+)\.html$$"
+            to="\1.pdf"/>
+
+    </apply>
+
+</target>
+
+<!--
+    preparePdfArticleList
+
+    Converts a text file containing article IDs (one per line) into
+    Ant fileset include patterns matching the generated article HTML.
+
+    Runs only when the pdf.article.list property is defined.
+    Writes the resulting patterns to pdf-article-patterns.txt.
+
+    Example:
+        ant -Dpdf.article.list=/tmp/articles.txt generatePdfs
+-->
+<target name="preparePdfArticleList"
+        if="pdf.article.list">
+
+    <loadfile property="pdf.article.patterns"
+              srcFile="${pdf.article.list}">
+
+        <filterchain>
+            <tokenfilter>
+                <replaceregex
+                    pattern="([0-9]{6})"
+                    replace="vol/*/*/\1/\1.html"
+                    flags="g"/>
+            </tokenfilter>
+        </filterchain>
+
+    </loadfile>
+
+    <mkdir dir="${toDir.base.path}/tmp"/>
+
+	<echo file="${toDir.base.path}/tmp/pdf-article-patterns.txt"
+      message="${pdf.article.patterns}"/>
+
+</target>
+
+
+<!--
+    generateSelectedPdfs
+
+    Generates PDFs only for articles specified in pdf.article.list.
+    Uses the include patterns produced by preparePdfArticleList.
+
+    Runs only when pdf.article.list is defined.
+    PDFs are written to 
+    ${toDir.base.path}/pdf/, e.g., dhq-static/pdf/.
+    
+	Article list format:
+	Plain text file containing one six-digit article ID per line.
+
+	Example:
+		000830
+		000831
+		000845
+-->
+<target name="generateSelectedPdfs"
+        description="Generate PDFs from generated DHQ article HTML" 
+        if="pdf.article.list">
+
+    <property name="pdf.output.dir"
+              location="${toDir.base.path}/pdf"/>
+
+    <mkdir dir="${pdf.output.dir}"/>
+
+    <!-- Check that Chrome/Chromium exists. -->
+    <available file="${chromium.path}"
+               type="file"
+               property="chromium.available"/>
+
+    <fail unless="chromium.available">
+        Cannot generate PDFs: Chrome/Chromium was not found at:
+
+        ${chromium.path}
+
+        Set the chromium.path property to the location of your Chrome or
+        Chromium executable.
+    </fail>
+
+    <echo>Generating article PDFs in ${pdf.output.dir}</echo>
+
+    <apply executable="${chromium.path}"
+           parallel="false"
+           failonerror="true"
+           dest="${pdf.output.dir}"
+           verbose="true">
+
+        <arg value="--headless"/>
+        <arg value="--disable-gpu"/>
+        <arg value="--no-pdf-header-footer"/>
+
+        <!-- Prefix and filename form ONE argument. -->
+        <targetfile prefix="--print-to-pdf="/>
+
+        <srcfile prefix="file://"/>
+
+        <fileset dir="${toDir.static.path}">
+		    <includesfile name="${toDir.base.path}/tmp/pdf-article-patterns.txt"/>
+		</fileset>
+
+        <regexpmapper
+            from="^.*/([0-9]+)\.html$$"
+            to="\1.pdf"/>
+
+    </apply>
+
+</target>
+
+<!--
+    generatePdfs
+
+    Main entry point for PDF generation. Builds the static site,
+    prepares an optional article selection list, and invokes either
+    generateAllPdfs or generateSelectedPdfs.
+
+    Usage:
+        ant generatePdfs
+            Generate PDFs for all articles.
+
+        ant -Dpdf.article.list=/path/to/articles.txt generatePdfs
+            Generate PDFs for the specified article IDs.
+            
+	Article list format:
+	Plain text file containing one six-digit article ID per line.
+
+	Example:
+		000830
+		000831
+		000845
+-->
+<target name="generatePdfs"
+depends="generateSite,preparePdfArticleList,generateAllPdfs,generateSelectedPdfs"
+        description="Generate PDFs from generated DHQ article HTML"/>
 </project>
