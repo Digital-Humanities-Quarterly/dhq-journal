@@ -43,7 +43,8 @@
 #    | undef $/;
 #    | $_=<>;
 #    | s,<!\[CDATA\[([^<&]+?)\]\]>,$1,g;
-#    | s,^(<\?xml[^-][^>]+\?>)\s*(<\?(xml-model|oxygen)[^>]+\?>)+\s*<TEI[^>]+>,$1\n<?xml-model href="../../common/schema/DHQauthor-TEI.rng"    type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0" ?>\n<?xml-model href="../../common/schema/DHQauthor-TEI.isosch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>\n<?xml-model href="../../common/schema/dhqTEI-ready.sch"     type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>\n<TEI xmlns=      "http://www.tei-c.org/ns/1.0"\n     xmlns:cc=   "http://web.resource.org/cc/"\n     xmlns:dhq=  "http://www.digitalhumanities.org/ns/dhq"\n     xmlns:html= "http://www.w3.org/1999/xhtml"\n     xmlns:mml=  "http://www.w3.org/1998/Math/MathML"\n     xmlns:rdf=  "http://www.w3.org/1999/02/22-rdf-syntax-ns#">,;
+#    | s,^<\?xml\s+[^>]+\?>\s*(<\?[xoXO][^>]+\?>\s*)*<TEI\s*[^>]+>\n(\s*<teiHeader),<?xml version="1.0" encoding="UTF-8"?>\n<?xml-model href="../../common/schema/DHQauthor-TEI.rng"    type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0" ?>\n<?xml-model href="../../common/schema/DHQauthor-TEI.isosch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>\n<?xml-model href="../../common/schema/dhqTEI-ready.sch"     type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>\n<TEI xmlns=      "http://www.tei-c.org/ns/1.0"\n     xmlns:cc=   "http://web.resource.org/cc/"\n     xmlns:dhq=  "http://www.digitalhumanities.org/ns/dhq"\n     xmlns:html= "http://www.w3.org/1999/xhtml"\n     xmlns:mml=  "http://www.w3.org/1998/Math/MathML"\n     xmlns:rdf=  "http://www.w3.org/1999/02/22-rdf-syntax-ns#">\n$2,;
+#    | s,</TEI>\n?,</TEI>\n,;
 #    | print;
 #    cuts execution time to ~59% what it is now. (Adding my usual
 #    echo before each execution reduces that advantage to ~71% of
@@ -57,18 +58,14 @@ use English;
 my $file;		                 # declare a variable in which to hold data
 undef $INPUT_RECORD_SEPARATOR;	         # disable record separator so that we can …
 $file=<STDIN>;			         # … read in entire file as one single line
-$file=~s,<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:cc="http://web.resource.org/cc/" xmlns:dhq="http://www.digitalhumanities.org/ns/dhq" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">,<TEI xmlns=      "http://www.tei-c.org/ns/1.0"\n     xmlns:cc=   "http://web.resource.org/cc/"\n     xmlns:dhq=  "http://www.digitalhumanities.org/ns/dhq"\n     xmlns:html= "http://www.w3.org/1999/xhtml"\n     xmlns:mml=  "http://www.w3.org/1998/Math/MathML"\n     xmlns:rdf=  "http://www.w3.org/1999/02/22-rdf-syntax-ns#">,;
+$file=~s,^<\?xml\s+[^>]+\?>\s*(<\?[xoXO][^>]+\?>\s*)*<TEI\s*[^>]+>\n(\s*<teiHeader),<?xml version="1.0" encoding="UTF-8"?>\n<?xml-model href="../../common/schema/DHQauthor-TEI.rng"    type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0" ?>\n<?xml-model href="../../common/schema/DHQauthor-TEI.isosch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>\n<?xml-model href="../../common/schema/dhqTEI-ready.sch"     type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>\n<TEI xmlns=      "http://www.tei-c.org/ns/1.0"\n     xmlns:cc=   "http://web.resource.org/cc/"\n     xmlns:dhq=  "http://www.digitalhumanities.org/ns/dhq"\n     xmlns:html= "http://www.w3.org/1999/xhtml"\n     xmlns:mml=  "http://www.w3.org/1998/Math/MathML"\n     xmlns:rdf=  "http://www.w3.org/1999/02/22-rdf-syntax-ns#">\n$2,;
 $file=~s,<!\[CDATA\[([^<&]+?)\]\]>,$1,g; # change "<![CDATA[stuff]]>" to just "stuff" iff it does not contain '<' or '&'
+$file=~s,</TEI>\n?,</TEI>\n,;            # ensure file ends with newline
 print STDOUT "$file";		         # write changed “line” out as output file
 
 # --------- end program itself --------- #
 
 exit 0;
-
-# previous versions of prolog repair:
-# $file=~s,^(<\?xml[^-][^>]+\?>)\s*(<\?xml-model[^>]+\?>)(<\?xml-model[^>]+\?>)(<\?xml-model[^>]+\?>)<TEI[^>]+>,$1\n$2\n$3\n$4\n<TEI xmlns=      "http://www.tei-c.org/ns/1.0"\n     xmlns:cc=   "http://web.resource.org/cc/"\n     xmlns:dhq=  "http://www.digitalhumanities.org/ns/dhq"\n     xmlns:html= "http://www.w3.org/1999/xhtml"\n     xmlns:mml=  "http://www.w3.org/1998/Math/MathML"\n     xmlns:rdf=  "http://www.w3.org/1999/02/22-rdf-syntax-ns#">,; # change prolog and 1st start tag so it is readable (and consistent)
-# $file=~s,^(<\?xml[^-][^>]+\?>)\s*(<\?(xml-model|oxygen)[^>]+\?>)+\s*<TEI[^>]+>,$1\n<?xml-model href="../../common/schema/DHQauthor-TEI.rng"    type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0" ?>\n<?xml-model href="../../common/schema/DHQauthor-TEI.isosch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>\n<?xml-model href="../../common/schema/dhqTEI-ready.sch"     type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>\n<TEI xmlns=      "http://www.tei-c.org/ns/1.0"\n     xmlns:cc=   "http://web.resource.org/cc/"\n     xmlns:dhq=  "http://www.digitalhumanities.org/ns/dhq"\n     xmlns:html= "http://www.w3.org/1999/xhtml"\n     xmlns:mml=  "http://www.w3.org/1998/Math/MathML"\n     xmlns:rdf=  "http://www.w3.org/1999/02/22-rdf-syntax-ns#">,; # change prolog and 1st start tag so it is readable (and consistent)
-
 
 # -----------------------------------------------------
 # Update Hx
