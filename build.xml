@@ -763,14 +763,23 @@ To proof only the internal preview, hit the return key or type "false".
 
 </target>
 
-<!--
+  <!--
     preparePdfArticleList
 
-    Converts a text file containing article IDs (one per line) into
-    Ant fileset include patterns matching the generated article HTML.
+    Converts a text file containing article IDs or article paths (one per
+    line) into Ant fileset include patterns matching the generated article HTML.
+
+    Accepted input formats include:
+        000123
+        000123/000123.xml
+        articles/000123/000123.xml
+        000123/000123.html
+
+    The output of articles_from_TOC.xslt can be used directly.
 
     Runs only when the pdf.article.list property is defined.
-    Writes the resulting patterns to pdf-article-patterns.txt.
+    Writes the resulting patterns to
+    ${toDir.base.path}/tmp/pdf-article-patterns.txt.
 
     Example:
         ant -Dpdf.article.list=/tmp/articles.txt generatePdfs
@@ -784,8 +793,8 @@ To proof only the internal preview, hit the return key or type "false".
         <filterchain>
             <tokenfilter>
                 <replaceregex
-                    pattern="([0-9]{6})"
-                    replace="vol/*/*/\1/\1.html"
+                    pattern="^(.*/)?([0-9]{6})(\.xml|\.html)?$"
+                    replace="vol/*/*/\2/\2.html"
                     flags="g"/>
             </tokenfilter>
         </filterchain>
