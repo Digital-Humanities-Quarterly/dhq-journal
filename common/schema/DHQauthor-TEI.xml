@@ -26,6 +26,15 @@
       </sourceDesc>
     </fileDesc>
     <revisionDesc>
+      <change when="2026-11-19" who="#sdb">
+        Added constraints:
+        <list>
+          <item>Made the <att>extent</att> of <gi>language</gi> required</item>
+          <item>Made at least one <gi>language</gi> itself required (via Schematron)</item>
+          <item>Require that one and only one of those <gi>language</gi>s have an <att>extent</att> of <val>default</val></item>
+          <item>Require that IFF there are multiple <gi>text</gi> elements (inside <gi>group</gi>), one and only one has a <att>type</att> of <val>default</val></item>
+        </list>
+      </change>
       <change when="2026-09-04" who="#sdb">
         <list>
           <item>Added <gi>formula</gi> to content model of <gi>head</gi></item>
@@ -1364,8 +1373,30 @@ email (should only have an email address)
       
       <!-- Add @extent to <language> for articles in translation -->
       <elementSpec ident="language" mode="change" module="header">
+        <constraintSpec scheme="schematron" ident="language_and_text">
+          <constraint>
+            <sch:rule context="tei:profileDesc">
+              <!-- Testing for <langUsage> is sufficient, as it *requires* a <language> child. -->
+              <sch:assert test="tei:langUsage">
+                DHQ requires that the main languages of an article be
+                declared. That is, at least one &lt;language> element
+                (inside a &lt;langUsage> inside the &lt;profileDesc>
+                of the TEI Header) is required.</sch:assert>
+            </sch:rule>
+            <sch:rule context="tei:langUsage[ count( /*/tei:group/tei:text ) gt 1 ]">
+              <!-- The predicate above is a bit silly. Since @extent
+                   is required, there should *always* be one and only
+                   one <language extent="default">.  -->
+              <sch:assert test="count( tei:language[ @extent eq 'default'] ) eq 1">
+                For multilingual articles one and only one of the
+                declared languages should be indicated as the
+                default. (I.e., there should be one and only one
+                &lt;language extent="default">.)</sch:assert>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
         <attList>
-          <attDef ident="extent" mode="add">
+          <attDef ident="extent" mode="add" usage="req">
             <desc>The <att>extent</att> attribute is used on
             <gi>language</gi> to indicate the nature of the usage of
             the language in question: whether it is used for the
@@ -1990,6 +2021,18 @@ email (should only have an email address)
       </elementSpec>
 
       <elementSpec ident="text" mode="change" module="textstructure">
+        <constraintSpec scheme="schematron" ident="mult_text_one_default">
+          <constraint>
+            <sch:rule context="/*/tei:text/tei:group">
+              <sch:assert test="count( tei:text[ @type eq 'default'] ) eq 1">
+                For multilingual articles one and only one of the
+                grouped texts should be indicated as the
+                default. (I.e., there should be one and only one
+                &lt;text type="default"> child of &lt;group>.)
+              </sch:assert>
+            </sch:rule>
+          </constraint>
+        </constraintSpec>
         <attList>
           <attDef ident="xml:lang" mode="change" usage="req"/>
           <attDef ident="resp" mode="add">

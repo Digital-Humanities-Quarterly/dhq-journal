@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2">
    <title>ISO Schematron rules</title>
-   <!-- This file generated 2026-10-30T13:33:38Z by 'extract-isosch.xsl'. -->
+   <!-- This file generated 2026-11-20T04:09:14Z by 'extract-isosch.xsl'. -->
    <!-- ********************* -->
    <!-- namespaces, declared: -->
    <!-- ********************* -->
@@ -16,10 +16,10 @@
    <!-- ********************* -->
    <!-- namespaces, implicit: -->
    <!-- ********************* -->
-   <ns prefix="esp-d2e29778" uri="http://web.resource.org/cc/"/>
+   <ns prefix="esp-d2e29848" uri="http://web.resource.org/cc/"/>
    <ns prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
    <!-- ******************************************************* -->
-   <!-- constraints in en, und, mul, zxx, of which there are 27 -->
+   <!-- constraints in en, und, mul, zxx, of which there are 30 -->
    <!-- ******************************************************* -->
    <let name="numGitHxs"
         value="count( /*/tei:teiHeader/tei:revisionDesc/tei:change/tei:ref[ @type eq 'gitHist'] )"/>
@@ -134,39 +134,54 @@
          <assert test="count( tei:idno[ @type eq 'volume'] ) eq 1"> There should be one and only one "volume" &lt;idno&gt; in the publication statement</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-require_proper_git_history-21">
+   <pattern id="schematron-constraint-language_and_text-21">
+      <rule context="tei:profileDesc">
+         <assert test="tei:langUsage"> DHQ requires that the main languages of an article be declared. That is, at least one &lt;language&gt; element (inside a &lt;langUsage&gt; inside the &lt;profileDesc&gt; of the TEI Header) is required.</assert>
+      </rule>
+   </pattern>
+   <pattern id="schematron-constraint-language_and_text-22">
+      <rule context="tei:langUsage[ count( /*/tei:group/tei:text ) gt 1 ]">
+         <assert test="count( tei:language[ @extent eq 'default'] ) eq 1"> For multilingual articles one and only one of the declared languages should be indicated as the default. (I.e., there should be one and only one &lt;language extent="default"&gt;.)</assert>
+      </rule>
+   </pattern>
+   <pattern id="schematron-constraint-require_proper_git_history-23">
       <rule context="tei:revisionDesc[ $numGitHxs eq 0 ]">
          <assert test="false()">A &lt;change&gt; element that gives git history is required.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-require_proper_git_history-22">
+   <pattern id="schematron-constraint-require_proper_git_history-24">
       <rule context="tei:revisionDesc[ $numGitHxs gt 1]">
          <assert test="false()">There should be one and only one &lt;change&gt; element that gives the git history (there appear to be <value-of select="$numGitHxs"/> of ’em).</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-require_proper_git_history-23">
+   <pattern id="schematron-constraint-require_proper_git_history-25">
       <rule context="tei:revisionDesc/tei:change[ tei:ref[ @type eq 'gitHist'] ]">
          <assert test="normalize-space( text()[1] ) eq 'The version history for this file can be found on'"> git history change entry should start with “The version history for this file can be found on”.</assert>
          <assert test="starts-with( tei:ref/@target, $base_art_URL )"> git history target should start with git repo URL for articles (“<value-of select="base_art_URL"/>”).</assert>
          <assert test="ends-with( tei:ref/@target, concat('/', $artID, '/', $fn ) )"> git history target should end in same directory &amp; filename as current file (“<value-of select="concat( '/', $artID, '/',$fn )"/>”).</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-div-in-l-24">
+   <pattern id="schematron-constraint-mult_text_one_default-26">
+      <rule context="/*/tei:text/tei:group">
+         <assert test="count( tei:text[ @type eq 'default'] ) eq 1"> For multilingual articles one and only one of the grouped texts should be indicated as the default. (I.e., there should be one and only one &lt;text type="default"&gt; child of &lt;group&gt;.)</assert>
+      </rule>
+   </pattern>
+   <pattern id="schematron-constraint-abstractModel-structure-div-in-l-27">
       <rule context="tei:l//tei:div">
          <assert test="ancestor::tei:floatingText"> Abstract model violation: Metrical lines may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-div-in-ab-or-p-25">
+   <pattern id="schematron-constraint-abstractModel-structure-div-in-ab-or-p-28">
       <rule context="tei:div">
          <report test="(ancestor::tei:p or ancestor::tei:ab) and not(ancestor::tei:floatingText)"> Abstract model violation: p and ab may not contain higher-level structural elements such as div, unless div is a descendant of floatingText.</report>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-abstractModel-structure-ab-in-l-26">
+   <pattern id="schematron-constraint-abstractModel-structure-ab-in-l-29">
       <rule context="tei:l//tei:ab">
          <assert test="ancestor::tei:floatingText | parent::tei:figure | parent::tei:note"> Abstract model violation: Metrical lines may not contain higher-level divisions such as p or ab, unless ab is a child of figure or note, or is a descendant of floatingText.</assert>
       </rule>
    </pattern>
-   <pattern id="schematron-constraint-family_must_have_content-27">
+   <pattern id="schematron-constraint-family_must_have_content-30">
       <rule context="dhq:family">
          <report test="normalize-space(.) eq ''">A family name must be supplied inside &lt;dhq:family&gt;; if this &lt;<value-of select="name(..)"/>&gt; does not need a family name, delete the entire &lt;dhq:family&gt; element.</report>
       </rule>
