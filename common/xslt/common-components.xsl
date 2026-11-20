@@ -293,7 +293,7 @@
        some phrase-level element would require the generation of
        quotation marks of various sorts or gillmets or whatever.) -->
   <xsl:template match="gloss" mode="localization" priority="-2">
-    <xsl:sequence select="normalize-space(.)"/>
+    <xsl:apply-templates/>
   </xsl:template>
   
   <!--
